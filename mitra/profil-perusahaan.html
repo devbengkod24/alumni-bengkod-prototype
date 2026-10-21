@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Perusahaan | Portal Mitra Bengkel Koding</title>
+  <meta name="description" content="Kelola informasi profil perusahaan Anda di Portal Mitra Bengkel Koding UDINUS.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/mitra.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Profil Perusahaan">
+
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-neutral2">Informasi perusahaan Anda yang akan ditampilkan pada setiap lowongan yang dipasang.</p>
+    <div id="save-indicator" class="hidden text-xs text-green1 flex items-center gap-1">
+      <i data-lucide="check-circle" class="w-4 h-4"></i> Tersimpan
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <!-- Logo & Preview -->
+    <div class="space-y-4">
+      <div class="card text-center">
+        <div id="logo-preview" class="w-24 h-24 rounded-2xl bg-primary5 text-primary1 flex items-center justify-center font-bold text-2xl mx-auto mb-4 border-2 border-dashed border-primary4">
+          PT
+        </div>
+        <div class="text-sm font-semibold text-neutral1" id="preview-name">PT Solusi Digital Jateng</div>
+        <div class="text-xs text-neutral3 mt-0.5" id="preview-bidang">Software House</div>
+        <div class="text-xs text-neutral3 mt-0.5" id="preview-kota">Semarang, Jawa Tengah</div>
+        <label class="btn-outline mt-4 w-full cursor-pointer">
+          <i data-lucide="upload" class="w-4 h-4"></i> Upload Logo
+          <input type="file" id="logo-input" accept="image/*" class="hidden">
+        </label>
+        <p class="text-xs text-neutral3 mt-2">Maks. 2MB · PNG/JPG/SVG</p>
+      </div>
+
+      <!-- Completion Status -->
+      <div class="card">
+        <h3 class="font-semibold text-neutral1 mb-3">Kelengkapan Profil</h3>
+        <div id="completion-bar" class="space-y-2">
+          <div class="flex justify-between text-sm">
+            <span class="text-neutral2">Progress</span>
+            <span id="pct-label" class="font-semibold text-primary1">0%</span>
+          </div>
+          <div class="h-2.5 bg-neutral5 rounded-full overflow-hidden">
+            <div id="pct-bar" class="h-full bg-primary1 rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
+        </div>
+        <ul id="completion-items" class="mt-3 space-y-1.5 text-sm"></ul>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div class="xl:col-span-2 space-y-4">
+      <!-- Informasi Perusahaan -->
+      <section class="card">
+        <h3 class="font-semibold text-neutral1 mb-4 flex items-center gap-2">
+          <i data-lucide="building-2" class="w-5 h-5 text-primary3"></i> Informasi Perusahaan
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label for="nama_perusahaan" class="label">Nama Perusahaan <span class="text-red2">*</span></label>
+            <input type="text" id="nama_perusahaan" class="input" placeholder="PT Nama Perusahaan" required>
+            <div class="error-msg hidden" id="err-nama_perusahaan">Nama perusahaan wajib diisi</div>
+          </div>
+          <div>
+            <label for="email" class="label">Email Perusahaan <span class="text-red2">*</span></label>
+            <input type="email" id="email" class="input" placeholder="hr@perusahaan.com" required>
+            <div class="error-msg hidden" id="err-email">Format email tidak valid</div>
+          </div>
+          <div>
+            <label for="telepon" class="label">Nomor Telepon <span class="text-red2">*</span></label>
+            <input type="tel" id="telepon" class="input" placeholder="021-xxxx-xxxx">
+            <div class="error-msg hidden" id="err-telepon">Nomor telepon tidak valid</div>
+          </div>
+          <div>
+            <label for="website" class="label">Website</label>
+            <input type="url" id="website" class="input" placeholder="https://perusahaan.com">
+          </div>
+          <div>
+            <label for="bidang_usaha" class="label">Bidang Usaha <span class="text-red2">*</span></label>
+            <select id="bidang_usaha" class="input">
+              <option value="">Pilih bidang usaha</option>
+              <option>Software House</option>
+              <option>Startup Teknologi</option>
+              <option>Telekomunikasi</option>
+              <option>E-Commerce</option>
+              <option>Perbankan & Keuangan</option>
+              <option>Manufaktur</option>
+              <option>Pendidikan</option>
+              <option>Kesehatan</option>
+              <option>Konsultan IT</option>
+              <option>Lainnya</option>
+            </select>
+            <div class="error-msg hidden" id="err-bidang_usaha">Bidang usaha wajib dipilih</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lokasi -->
+      <section class="card">
+        <h3 class="font-semibold text-neutral1 mb-4 flex items-center gap-2">
+          <i data-lucide="map-pin" class="w-5 h-5 text-primary3"></i> Lokasi Perusahaan
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2">
+            <label for="alamat" class="label">Alamat Lengkap <span class="text-red2">*</span></label>
+            <input type="text" id="alamat" class="input" placeholder="Jl. Nama Jalan No. X">
+            <div class="error-msg hidden" id="err-alamat">Alamat wajib diisi</div>
+          </div>
+          <div>
+            <label for="kota" class="label">Kota <span class="text-red2">*</span></label>
+            <input type="text" id="kota" class="input" placeholder="Semarang">
+            <div class="error-msg hidden" id="err-kota">Kota wajib diisi</div>
+          </div>
+          <div>
+            <label for="provinsi" class="label">Provinsi</label>
+            <input type="text" id="provinsi" class="input" placeholder="Jawa Tengah">
+          </div>
+          <div>
+            <label for="negara" class="label">Negara</label>
+            <input type="text" id="negara" class="input" placeholder="Indonesia">
+          </div>
+          <div>
+            <label for="kode_pos" class="label">Kode Pos</label>
+            <input type="text" id="kode_pos" class="input" placeholder="50132" maxlength="5">
+          </div>
+        </div>
+      </section>
+
+      <!-- PIC -->
+      <section class="card">
+        <h3 class="font-semibold text-neutral1 mb-4 flex items-center gap-2">
+          <i data-lucide="user-check" class="w-5 h-5 text-primary3"></i> Person in Charge (PIC)
+        </h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="pic_nama" class="label">Nama PIC <span class="text-red2">*</span></label>
+            <input type="text" id="pic_nama" class="input" placeholder="Nama lengkap PIC">
+            <div class="error-msg hidden" id="err-pic_nama">Nama PIC wajib diisi</div>
+          </div>
+          <div>
+            <label for="pic_jabatan" class="label">Jabatan</label>
+            <input type="text" id="pic_jabatan" class="input" placeholder="HR Manager">
+          </div>
+          <div>
+            <label for="pic_email" class="label">Email PIC <span class="text-red2">*</span></label>
+            <input type="email" id="pic_email" class="input" placeholder="pic@perusahaan.com">
+            <div class="error-msg hidden" id="err-pic_email">Format email PIC tidak valid</div>
+          </div>
+          <div>
+            <label for="pic_telepon" class="label">Telepon PIC</label>
+            <input type="tel" id="pic_telepon" class="input" placeholder="0812-xxxx-xxxx">
+          </div>
+        </div>
+      </section>
+
+      <!-- Deskripsi -->
+      <section class="card">
+        <h3 class="font-semibold text-neutral1 mb-4 flex items-center gap-2">
+          <i data-lucide="file-text" class="w-5 h-5 text-primary3"></i> Deskripsi Perusahaan
+        </h3>
+        <div>
+          <label for="deskripsi" class="label">Tentang Perusahaan <span class="text-red2">*</span></label>
+          <textarea id="deskripsi" class="input min-h-[120px] resize-none" placeholder="Deskripsikan perusahaan Anda: visi, misi, produk/layanan, budaya kerja, dll." rows="5"></textarea>
+          <div class="flex justify-between mt-1">
+            <div class="error-msg hidden" id="err-deskripsi">Deskripsi wajib diisi</div>
+            <div class="text-xs text-neutral3 ml-auto"><span id="deskripsi-count">0</span>/500 karakter</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Actions -->
+      <div class="flex gap-3 justify-end">
+        <button id="btn-reset" class="btn-outline">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset
+        </button>
+        <button id="btn-save" class="btn-primary">
+          <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const REQUIRED_FIELDS = ['nama_perusahaan', 'email', 'telepon', 'bidang_usaha', 'alamat', 'kota', 'pic_nama', 'pic_email', 'deskripsi'];
+
+function fillForm(profil) {
+  Object.keys(profil).forEach(k => {
+    const el = document.getElementById(k);
+    if (el) el.value = profil[k] || '';
+  });
+  updateCompletion();
+  updatePreview();
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function validatePhone(phone) {
+  return /^[\d\s\-\+\(\)]{8,20}$/.test(phone.replace(/\s/g,''));
+}
+
+function validateForm() {
+  let valid = true;
+  // Clear errors
+  document.querySelectorAll('.error-msg').forEach(el => {
+    el.classList.add('hidden');
+    el.previousElementSibling?.classList.remove('border-red1');
+  });
+
+  REQUIRED_FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    if (!el || !el.value.trim()) {
+      const err = document.getElementById('err-' + f);
+      if (err) { err.classList.remove('hidden'); el?.classList.add('border-red1'); }
+      valid = false;
+    }
+  });
+
+  // Email validation
+  const email = document.getElementById('email');
+  if (email.value && !validateEmail(email.value)) {
+    document.getElementById('err-email').textContent = 'Format email tidak valid';
+    document.getElementById('err-email').classList.remove('hidden');
+    email.classList.add('border-red1');
+    valid = false;
+  }
+  const picEmail = document.getElementById('pic_email');
+  if (picEmail.value && !validateEmail(picEmail.value)) {
+    document.getElementById('err-pic_email').classList.remove('hidden');
+    picEmail.classList.add('border-red1');
+    valid = false;
+  }
+
+  // Phone validation
+  const telepon = document.getElementById('telepon');
+  if (telepon.value && !validatePhone(telepon.value)) {
+    document.getElementById('err-telepon').classList.remove('hidden');
+    telepon.classList.add('border-red1');
+    valid = false;
+  }
+
+  return valid;
+}
+
+function getFormData() {
+  const data = {};
+  ['nama_perusahaan','email','telepon','website','bidang_usaha','alamat','kota','provinsi','negara','kode_pos','pic_nama','pic_jabatan','pic_email','pic_telepon','deskripsi'].forEach(k => {
+    data[k] = document.getElementById(k)?.value || '';
+  });
+  return data;
+}
+
+function updateCompletion() {
+  const fields = [
+    { id: 'nama_perusahaan', label: 'Nama Perusahaan' },
+    { id: 'email', label: 'Email Perusahaan' },
+    { id: 'telepon', label: 'Nomor Telepon' },
+    { id: 'bidang_usaha', label: 'Bidang Usaha' },
+    { id: 'alamat', label: 'Alamat Lengkap' },
+    { id: 'kota', label: 'Kota' },
+    { id: 'pic_nama', label: 'Nama PIC' },
+    { id: 'pic_email', label: 'Email PIC' },
+    { id: 'deskripsi', label: 'Deskripsi Perusahaan' },
+    { id: 'logo', label: 'Logo Perusahaan' },
+  ];
+  let filled = 0;
+  const items = fields.map(f => {
+    let val = '';
+    if (f.id === 'logo') { val = MITRA.profil.logo || ''; }
+    else { val = document.getElementById(f.id)?.value || ''; }
+    const done = val.trim().length > 0;
+    if (done) filled++;
+    return `<li class="flex items-center gap-2 text-${done ? 'neutral1' : 'neutral3'}">
+      <i data-lucide="${done ? 'check-circle' : 'circle'}" class="w-4 h-4 ${done ? 'text-green2' : 'text-neutral4'} shrink-0"></i>
+      <span class="text-xs">${f.label}</span>
+    </li>`;
+  }).join('');
+  const pct = Math.round(filled / fields.length * 100);
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('pct-bar').style.width = pct + '%';
+  document.getElementById('completion-items').innerHTML = items;
+  refreshIcons();
+}
+
+function updatePreview() {
+  const nama = document.getElementById('nama_perusahaan')?.value || '';
+  const bidang = document.getElementById('bidang_usaha')?.value || '';
+  const kota = document.getElementById('kota')?.value || '';
+  document.getElementById('preview-name').textContent = nama || 'Nama Perusahaan';
+  document.getElementById('preview-bidang').textContent = bidang || 'Bidang Usaha';
+  document.getElementById('preview-kota').textContent = kota || 'Kota';
+  if (nama) {
+    const initials = nama.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('logo-preview').textContent = initials;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  fillForm(MITRA.profil);
+
+  // Live preview update
+  ['nama_perusahaan','bidang_usaha','kota'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updatePreview);
+  });
+
+  // Character counter for deskripsi
+  document.getElementById('deskripsi')?.addEventListener('input', e => {
+    document.getElementById('deskripsi-count').textContent = e.target.value.length;
+    updateCompletion();
+  });
+
+  // All fields update completion
+  ['nama_perusahaan','email','telepon','website','bidang_usaha','alamat','kota','provinsi','negara','kode_pos','pic_nama','pic_jabatan','pic_email','pic_telepon'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateCompletion);
+  });
+
+  // Logo upload
+  document.getElementById('logo-input')?.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) { showToast('Ukuran file melebihi 2MB!', 'error'); return; }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      MITRA.profil.logo = ev.target.result;
+      const preview = document.getElementById('logo-preview');
+      preview.innerHTML = `<img src="${ev.target.result}" class="w-full h-full object-cover rounded-2xl" alt="Logo">`;
+      updateCompletion();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Save
+  document.getElementById('btn-save')?.addEventListener('click', () => {
+    if (!validateForm()) {
+      showToast('Mohon lengkapi field yang wajib diisi!', 'error');
+      return;
+    }
+    const data = getFormData();
+    Object.assign(MITRA.profil, data);
+    saveProfil();
+    const ind = document.getElementById('save-indicator');
+    ind.classList.remove('hidden');
+    setTimeout(() => ind.classList.add('hidden'), 3000);
+    showToast('Profil perusahaan berhasil disimpan!', 'success');
+    updatePreview();
+  });
+
+  // Reset
+  document.getElementById('btn-reset')?.addEventListener('click', () => {
+    confirmAction({
+      title: 'Reset Form?',
+      message: 'Semua perubahan yang belum disimpan akan dibatalkan dan form akan kembali ke data tersimpan.',
+      okLabel: 'Ya, Reset',
+      danger: false
+    }, () => {
+      fillForm(MITRA.profil);
+      showToast('Form direset ke data tersimpan.', 'info');
+    });
+  });
+});
+</script>
+</body>
+</html>

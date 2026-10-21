@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengumuman | Portal Mitra Bengkel Koding</title>
+  <meta name="description" content="Daftar pengumuman dari koordinator alumni Bengkel Koding untuk mitra perusahaan.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/mitra.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Pengumuman">
+
+  <!-- Search & Filter -->
+  <section class="card">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral3"></i>
+        <input id="search-pengumuman" type="search" placeholder="Cari pengumuman..." class="input pl-9">
+      </div>
+      <select id="filter-target" class="input sm:w-48">
+        <option value="">Semua Target</option>
+        <option>Mitra</option>
+        <option>Alumni</option>
+        <option>Alumni & Mitra</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- List -->
+  <section>
+    <div id="pengumuman-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    <div id="empty-state" class="hidden py-16 text-center">
+      <i data-lucide="bell-off" class="w-12 h-12 mx-auto text-neutral4 mb-3"></i>
+      <div class="text-neutral2 font-medium">Tidak ada pengumuman ditemukan</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Modal Detail Pengumuman -->
+<div id="modal-pengumuman" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 elevation5">
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <div id="modal-p-header" class="min-w-0"></div>
+      <button onclick="closeModal('modal-pengumuman')" class="btn-icon shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <p id="modal-p-isi" class="text-sm text-neutral2 leading-relaxed whitespace-pre-wrap"></p>
+    <div class="mt-5 flex justify-end">
+      <button onclick="closeModal('modal-pengumuman')" class="btn-primary">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TARGET_COLORS = {
+  'Mitra': 'bg-secondary3 text-yellow1 border-yellow2/30',
+  'Alumni': 'bg-green3 text-green1 border-green2/30',
+  'Alumni & Mitra': 'bg-primary5 text-primary1 border-primary4/50',
+};
+
+function renderPengumuman(list) {
+  const grid = document.getElementById('pengumuman-grid');
+  const empty = document.getElementById('empty-state');
+  empty.classList.toggle('hidden', list.length > 0);
+  grid.innerHTML = list.map((p, i) => `
+    <article class="card hover:border-primary3 hover:elevation3 transition-all cursor-pointer group ${i === 0 ? 'md:col-span-2 border-l-4 border-l-primary1' : ''}"
+      onclick="openPengumumanDetail(${p.id})">
+      <div class="flex items-start justify-between gap-3 mb-3">
+        <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center shrink-0">
+          <i data-lucide="megaphone" class="w-5 h-5"></i>
+        </div>
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${TARGET_COLORS[p.target] || 'bg-neutral5 text-neutral2 border-neutral4'}">
+          ${esc(p.target)}
+        </span>
+      </div>
+      <h3 class="font-semibold text-neutral1 mb-2 group-hover:text-primary1 transition-colors">${esc(p.judul)}</h3>
+      <p class="text-sm text-neutral2 line-clamp-2 mb-3">${esc(p.isi)}</p>
+      <div class="flex items-center justify-between text-xs text-neutral3">
+        <div class="flex items-center gap-1">
+          <i data-lucide="user" class="w-3.5 h-3.5"></i>
+          <span>${esc(p.oleh)}</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <i data-lucide="calendar" class="w-3.5 h-3.5"></i>
+          <span>${fmtDate(p.published_at)}</span>
+        </div>
+      </div>
+    </article>`).join('');
+  refreshIcons();
+}
+
+function openPengumumanDetail(id) {
+  const p = MITRA.pengumuman.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('modal-p-header').innerHTML = `
+    <div class="text-xs font-semibold text-primary3 mb-1">PENGUMUMAN</div>
+    <h3 class="font-semibold text-lg text-neutral1">${esc(p.judul)}</h3>
+    <div class="flex flex-wrap gap-2 mt-2">
+      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border ${TARGET_COLORS[p.target] || 'bg-neutral5 text-neutral2 border-neutral4'}">${esc(p.target)}</span>
+      <span class="text-xs text-neutral3">${fmtDate(p.published_at)} · Oleh: ${esc(p.oleh)}</span>
+    </div>`;
+  document.getElementById('modal-p-isi').textContent = p.isi;
+  openModal('modal-pengumuman');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderPengumuman(MITRA.pengumuman);
+
+  function applyFilter() {
+    const q = document.getElementById('search-pengumuman').value.toLowerCase();
+    const target = document.getElementById('filter-target').value;
+    const filtered = MITRA.pengumuman.filter(p => {
+      const matchQ = !q || p.judul.toLowerCase().includes(q) || p.isi.toLowerCase().includes(q);
+      const matchTarget = !target || p.target === target;
+      return matchQ && matchTarget;
+    });
+    renderPengumuman(filtered);
+  }
+
+  document.getElementById('search-pengumuman').addEventListener('input', applyFilter);
+  document.getElementById('filter-target').addEventListener('change', applyFilter);
+});
+</script>
+</body>
+</html>
