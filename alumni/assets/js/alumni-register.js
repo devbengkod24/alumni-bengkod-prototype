@@ -166,90 +166,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 8. Submit Handler dengan Validasi Menyeluruh & Loading State
+  // 8. Submit Handler Khusus Prototype (Arahkan Button Registrasi ke Halaman Login)
   if (registerForm) {
     registerForm.addEventListener('submit', (e) => {
       e.preventDefault();
-
-      let hasError = false;
-
-      // Reset pesan error
-      if (passwordError) passwordError.classList.add('hidden');
-      if (phoneError) phoneError.classList.add('hidden');
-
-      // Validasi password min 8 karakter
-      if (passwordInput.value.length < 8) {
-        passwordError.textContent = 'Password harus memiliki panjang minimal 8 karakter.';
-        passwordError.classList.remove('hidden');
-        passwordInput.classList.add('border-red1');
-        passwordInput.focus();
-        hasError = true;
-        return;
-      }
-
-      // Validasi kesesuaian konfirmasi password
-      if (passwordInput.value !== confirmPasswordInput.value) {
-        passwordError.textContent = 'Konfirmasi password tidak cocok dengan password yang dimasukkan.';
-        passwordError.classList.remove('hidden');
-        confirmPasswordInput.classList.add('border-red1');
-        confirmPasswordInput.focus();
-        hasError = true;
-        return;
-      }
-
-      // Validasi nomor telepon
-      const phoneVal = phoneInput.value.trim();
-      const isValidPrefix = phoneVal.startsWith('+62') || phoneVal.startsWith('62') || phoneVal.startsWith('08');
-      if (!isValidPrefix || phoneVal.length < 10) {
-        phoneError.textContent = 'Nomor telepon tidak valid. Gunakan format Indonesia (+62 atau 08) minimal 10 digit.';
-        phoneError.classList.remove('hidden');
-        phoneInput.classList.add('border-red1');
-        phoneInput.focus();
-        hasError = true;
-        return;
-      }
-
-      // Validasi checkbox persetujuan
-      if (!agreementCheckbox.checked) {
-        alert('Anda wajib menyetujui penggunaan data untuk keperluan Tracer Study.');
-        agreementCheckbox.focus();
-        hasError = true;
-        return;
-      }
-
-      if (hasError) return;
 
       // Aktifkan Loading State pada Tombol Submit
       submitBtn.disabled = true;
       submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
       submitSpinner.classList.remove('hidden');
-      submitText.textContent = 'Memproses Pendaftaran...';
+      submitText.textContent = 'Mendaftar & Mengarahkan ke Login...';
 
-      // Simulasi Pengiriman Data Registrasi (1.2 detik)
+      // Langsung arahkan ke halaman login
       setTimeout(() => {
-        // Kembalikan tombol ke kondisi normal
-        submitBtn.disabled = false;
-        submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-        submitSpinner.classList.add('hidden');
-        submitText.textContent = 'Daftar Akun Alumni';
-
-        // Tampilkan data pendaftar pada modal sukses
-        const registeredName = document.getElementById('registered-name');
-        const registeredEmail = document.getElementById('registered-email');
-        const registeredNim = document.getElementById('registered-nim');
-
-        if (registeredName) registeredName.textContent = namaInput.value;
-        if (registeredEmail) registeredEmail.textContent = emailInput.value;
-        if (registeredNim) registeredNim.textContent = nimInput.value;
-
-        // Buka Modal Sukses
-        if (typeof window.openModal === 'function') {
-          window.openModal('registration-success-modal');
-        } else {
-          alert('Registrasi Berhasil! Silakan masuk ke akun Anda.');
-          window.location.href = '../index.html';
-        }
-      }, 1200);
+        window.location.href = 'login.html';
+      }, 400);
     });
   }
 });

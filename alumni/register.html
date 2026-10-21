@@ -83,10 +83,10 @@
             <span>Kembali ke Beranda</span>
           </a>
           <div class="h-5 w-px bg-neutral4 hidden sm:block"></div>
-          <button onclick="openModal('login-modal')" class="hidden sm:inline-flex items-center gap-1 px-3.5 py-2 rounded-lg border border-neutral4 text-neutral1 font-medium hover:bg-neutral5 transition-colors focus:outline-none focus:ring-4 focus:ring-neutral4">
+          <a href="login.html" class="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-neutral4 text-neutral1 font-medium hover:bg-neutral5 transition-colors focus:outline-none focus:ring-4 focus:ring-neutral4">
             <i data-lucide="log-in" class="w-3.5 h-3.5 text-neutral3"></i>
             <span>Sudah Punya Akun? Masuk</span>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -131,8 +131,7 @@
               type="text"
               id="nama_lengkap"
               name="nama_lengkap"
-              required
-              placeholder="Masukkan nama lengkap beserta gelar jika ada"
+              placeholder="Contoh: Muhammad Farhan Al-Ghifari"
               class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
             >
             <p class="text-[11px] text-neutral3 mt-1">Sesuai dengan nama yang tertera pada ijazah atau transkrip nilai.</p>
@@ -149,7 +148,6 @@
                 type="text"
                 id="nim"
                 name="nim"
-                required
                 placeholder="Contoh: A11.2021.13456"
                 class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
               >
@@ -166,13 +164,12 @@
                 <select
                   id="tahun_lulus"
                   name="tahun_lulus"
-                  required
                   class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all appearance-none pr-10"
                 >
                   <option value="">Pilih Tahun Kelulusan</option>
                   <option value="2026">2026</option>
                   <option value="2025">2025</option>
-                  <option value="2024">2024</option>
+                  <option value="2024" selected>2024</option>
                   <option value="2023">2023</option>
                   <option value="2022">2022</option>
                   <option value="2021">2021</option>
@@ -195,11 +192,11 @@
               </label>
               <div class="grid grid-cols-2 gap-3 pt-0.5">
                 <label class="flex items-center gap-2 p-2.5 border border-neutral4 rounded-md cursor-pointer hover:bg-primary5 transition-colors">
-                  <input type="radio" name="jenis_kelamin" value="Laki-laki" required class="text-primary1 focus:ring-primary1 h-4 w-4">
+                  <input type="radio" name="jenis_kelamin" value="Laki-laki" checked class="text-primary1 focus:ring-primary1 h-4 w-4">
                   <span class="text-xs font-medium text-neutral1">Laki-Laki</span>
                 </label>
                 <label class="flex items-center gap-2 p-2.5 border border-neutral4 rounded-md cursor-pointer hover:bg-primary5 transition-colors">
-                  <input type="radio" name="jenis_kelamin" value="Perempuan" required class="text-primary1 focus:ring-primary1 h-4 w-4">
+                  <input type="radio" name="jenis_kelamin" value="Perempuan" class="text-primary1 focus:ring-primary1 h-4 w-4">
                   <span class="text-xs font-medium text-neutral1">Perempuan</span>
                 </label>
               </div>
@@ -215,7 +212,6 @@
                   type="tel"
                   id="phone"
                   name="phone"
-                  required
                   placeholder="+628123456789 atau 08123456789"
                   class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
                 >
@@ -234,7 +230,6 @@
               type="email"
               id="email"
               name="email"
-              required
               placeholder="nama@email.com atau @mhs.dinus.ac.id"
               class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
             >
@@ -254,8 +249,6 @@
                   type="password"
                   id="password"
                   name="password"
-                  minlength="8"
-                  required
                   placeholder="Minimal 8 karakter"
                   class="block w-full pl-3.5 pr-10 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
                 >
@@ -282,8 +275,6 @@
                   type="password"
                   id="password_confirmation"
                   name="password_confirmation"
-                  minlength="8"
-                  required
                   placeholder="Ulangi password di atas"
                   class="block w-full pl-3.5 pr-10 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all"
                 >
@@ -370,14 +361,14 @@
               </div>
             </div>
 
-            <!-- Checkbox Persetujuan Penggunaan Data untuk Tracer Study (Wajib) -->
+            <!-- Checkbox Persetujuan Penggunaan Data untuk Tracer Study -->
             <div class="pt-3">
               <label class="flex items-start gap-3 p-3.5 rounded-xl border border-neutral4 bg-blue-50/30 cursor-pointer hover:bg-blue-50/50 transition-colors">
                 <input
                   type="checkbox"
                   id="agreement_tracer"
                   name="agreement_tracer"
-                  required
+                  checked
                   class="mt-0.5 rounded text-primary1 focus:ring-primary1 h-4 w-4"
                 >
                 <span class="text-xs text-neutral2 leading-relaxed">
@@ -436,9 +427,9 @@
       </div>
 
       <div class="mt-6 flex flex-col gap-2.5">
-        <button onclick="closeModal('registration-success-modal'); openModal('login-modal');" class="w-full py-3 px-4 bg-primary1 hover:bg-primary2 text-white font-semibold rounded-lg text-xs sm:text-sm transition-colors focus:outline-none focus:ring-4 focus:ring-primary5 min-h-[44px]">
+        <a href="login.html" class="w-full py-3 px-4 bg-primary1 hover:bg-primary2 text-white font-semibold rounded-lg text-xs sm:text-sm transition-colors text-center focus:outline-none focus:ring-4 focus:ring-primary5 min-h-[44px] flex items-center justify-center">
           Lanjutkan ke Halaman Login
-        </button>
+        </a>
         <a href="../index.html" class="w-full py-2.5 px-4 bg-white hover:bg-neutral5 border border-neutral4 text-neutral1 font-medium rounded-lg text-xs transition-colors text-center focus:outline-none focus:ring-2 focus:ring-neutral4">
           Kembali ke Beranda
         </a>
