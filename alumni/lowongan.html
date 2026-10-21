@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bursa Lowongan Kerja Mitra | Portal Alumni Bengkel Koding</title>
+  <meta name="description" content="Papan bursa kerja dan magang terkurasi dari mitra industri resmi Bengkel Koding UDINUS.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/alumni.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Lowongan Kerja" class="space-y-4 max-w-7xl mx-auto py-2">
+
+  <!-- Header Banner -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-neutral4 gap-3">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-primary1 tracking-tight">Bursa Karir &amp; Magang Mitra</h1>
+      <p class="text-xs sm:text-sm text-neutral3 mt-0.5">
+        Peluang karir terkurasi khusus alumni dan lulusan berprestasi Bengkel Koding UDINUS
+      </p>
+    </div>
+    <!-- 3 Nav Tabs -->
+    <div class="flex items-center bg-white border border-neutral4/80 rounded-xl p-1 gap-1 shadow-sm shrink-0">
+      <button id="tab-btn-explore" onclick="switchMainTab('explore')" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all">
+        Jelajahi Lowongan
+      </button>
+      <button id="tab-btn-saved" onclick="switchMainTab('saved')" class="px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5">
+        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+        <span>Disimpan (<strong id="saved-count-badge">1</strong>)</span>
+      </button>
+      <button id="tab-btn-applied" onclick="switchMainTab('applied')" class="px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5">
+        <i data-lucide="send" class="w-3.5 h-3.5"></i>
+        <span>Lamaran Saya (<strong id="applied-count-badge">1</strong>)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Search & Filter Toolbar (Hanya Tampil di Tab Explore & Saved) -->
+  <div id="toolbar-search-filter" class="bg-white rounded-2xl border border-neutral4 p-4 elevation1 space-y-3">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+      <!-- Search Keyword -->
+      <div class="relative lg:col-span-2">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+        <input
+          type="text"
+          id="search-job-input"
+          oninput="handleSearchJobs(this.value)"
+          placeholder="Cari posisi kerja, nama mitra, atau skill (Python, React)..."
+          class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3"
+        >
+      </div>
+
+      <!-- Filter Model Kerja -->
+      <div>
+        <select id="filter-work-model" onchange="handleFilterChange()" class="w-full px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+          <option value="Semua">Model Kerja: Semua</option>
+          <option value="Jarak Jauh (Remote)">Remote (Jarak Jauh)</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Di Kantor (On-site)">On-site (Di Kantor)</option>
+        </select>
+      </div>
+
+      <!-- Filter Tipe Kerja -->
+      <div>
+        <select id="filter-emp-type" onchange="handleFilterChange()" class="w-full px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+          <option value="Semua">Tipe Kerja: Semua</option>
+          <option value="Penuh Waktu (Full-time)">Full-time (Penuh Waktu)</option>
+          <option value="Magang (Internship)">Magang (Internship)</option>
+          <option value="Kontrak (Contract)">Kontrak</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB VIEW 1 & 2: 2-COLUMN SPLIT (List Kiri & Detail Kanan Sesuai lowongan/page.tsx) -->
+  <div id="view-explore-saved" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- LEFT COLUMN: Daftar Lowongan (5 Kolom pada Desktop) -->
+    <div class="lg:col-span-5 space-y-3 max-h-[calc(100vh-210px)] overflow-y-auto pr-1" id="jobs-list-col">
+      <!-- Rendered via JS -->
+    </div>
+
+    <!-- RIGHT COLUMN: Panel Rincian Lowongan Terpilih (7 Kolom pada Desktop) -->
+    <div class="lg:col-span-7 bg-white rounded-2xl border border-neutral4 elevation2 p-6 sticky top-20 max-h-[calc(100vh-210px)] overflow-y-auto space-y-5" id="job-detail-col">
+      <!-- Rendered via JS -->
+    </div>
+
+  </div>
+
+  <!-- TAB VIEW 3: LAMARAN SAYA (Tracking Status Lamaran) -->
+  <div id="view-applied" class="hidden bg-white rounded-2xl border border-neutral4 elevation2 p-6 space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-neutral4">
+      <div>
+        <h3 class="font-bold text-base text-neutral1">Riwayat &amp; Pelacakan Lamaran Kerja</h3>
+        <p class="text-xs text-neutral3 mt-0.5">Pantau tahapan seleksi berkas dari mitra industri secara transparan</p>
+      </div>
+      <span class="text-xs font-semibold text-primary1" id="applied-total-text">1 Lamaran Aktif</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr>
+            <th class="th">Posisi &amp; Perusahaan</th>
+            <th class="th">Tanggal Melamar</th>
+            <th class="th">Status Seleksi</th>
+            <th class="th text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="applied-tbody" class="divide-y divide-neutral4">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL: Easy Apply (Lamar Cepat ke Mitra Industri) -->
+<div id="apply-job-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-apply-title">
+    <button onclick="closeModal('apply-job-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <img id="apply-modal-logo" src="" alt="Logo Perusahaan" class="w-12 h-12 rounded-xl object-cover border border-neutral4 shadow-sm">
+      <div class="min-w-0">
+        <h3 id="modal-apply-title" class="font-bold text-base text-neutral1 truncate">Lamar Pekerjaan</h3>
+        <p id="apply-modal-subtitle" class="text-xs text-neutral3 truncate">GoTo Group &bull; Jakarta Selatan</p>
+      </div>
+    </div>
+
+    <form onsubmit="handleApplySubmit(event)" class="space-y-4 text-xs">
+      <!-- Data Pemohon Terverifikasi -->
+      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/80 space-y-1">
+        <div class="text-[11px] font-semibold text-neutral1">Data Pelamar Terverifikasi (Dari Profil):</div>
+        <p class="text-xs text-neutral2 font-medium" id="apply-applicant-info">Aisha Dwi Rahmawati &bull; aisha.rahma@alumni.dinus.ac.id &bull; +62 812-3456-7890</p>
+      </div>
+
+      <!-- Pilihan Resume / CV -->
+      <div>
+        <label class="block font-semibold text-neutral2 mb-1.5">Berkas CV / Resume yang Digunakan <span class="text-red1">*</span></label>
+        <div class="space-y-2">
+          <label class="flex items-center gap-2.5 p-3 rounded-xl border border-primary1 bg-blue-50/40 cursor-pointer">
+            <input type="radio" name="apply_resume" value="cv_profile" checked class="text-primary1 focus:ring-primary1">
+            <div class="flex-1">
+              <span class="font-semibold text-neutral1 block">Gunakan CV Digital Profil Bengkel Koding</span>
+              <span class="text-[11px] text-neutral3">Terdiri dari ringkasan portofolio, modul lab, dan sertifikasi terverifikasi</span>
+            </div>
+            <i data-lucide="check-circle" class="w-4 h-4 text-primary1 shrink-0"></i>
+          </label>
+        </div>
+      </div>
+
+      <!-- Catatan Singkat untuk Tim HR -->
+      <div>
+        <label for="apply-note" class="block font-semibold text-neutral2 mb-1">Pesan Singkat untuk HR / Hiring Team (Opsional)</label>
+        <textarea id="apply-note" rows="3" placeholder="Tuliskan motivasi singkat atau ketersediaan waktu Anda..." class="input"></textarea>
+      </div>
+
+      <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-200/70 text-[11px] text-blue-900 flex items-start gap-2">
+        <i data-lucide="info" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
+        <span>Lamaran Anda akan langsung diteruskan ke dasbor mitra industri dan notifikasi statusnya dapat Anda pantau pada tab Lamaran Saya.</span>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex justify-end gap-2.5">
+        <button type="button" onclick="closeModal('apply-job-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" id="apply-submit-btn" class="btn-primary text-xs">
+          Kirim Lamaran Sekarang
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentMainTab = 'explore';
+  let activeSelectedJobId = ALUMNI_DATA.jobs[0].id;
+  let searchKeyword = '';
+  let filterWorkModel = 'Semua';
+  let filterEmpType = 'Semua';
+
+  // 1. Switch Tab Utama
+  window.switchMainTab = function(tab) {
+    currentMainTab = tab;
+    const btnExplore = document.getElementById('tab-btn-explore');
+    const btnSaved = document.getElementById('tab-btn-saved');
+    const btnApplied = document.getElementById('tab-btn-applied');
+    const toolbar = document.getElementById('toolbar-search-filter');
+    const viewExploreSaved = document.getElementById('view-explore-saved');
+    const viewApplied = document.getElementById('view-applied');
+
+    // Reset buttons
+    [btnExplore, btnSaved, btnApplied].forEach(btn => {
+      btn.className = 'px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5';
+    });
+
+    if (tab === 'explore') {
+      btnExplore.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all';
+      toolbar.classList.remove('hidden');
+      viewExploreSaved.classList.remove('hidden');
+      viewApplied.classList.add('hidden');
+      renderJobsList();
+    } else if (tab === 'saved') {
+      btnSaved.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all flex items-center gap-1.5';
+      toolbar.classList.remove('hidden');
+      viewExploreSaved.classList.remove('hidden');
+      viewApplied.classList.add('hidden');
+      renderJobsList();
+    } else {
+      btnApplied.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all flex items-center gap-1.5';
+      toolbar.classList.add('hidden');
+      viewExploreSaved.classList.add('hidden');
+      viewApplied.classList.remove('hidden');
+      renderAppliedTable();
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  };
+
+  // 2. Render Daftar Lowongan Kiri
+  function renderJobsList() {
+    const listCol = document.getElementById('jobs-list-col');
+    if (!listCol) return;
+
+    let items = [...(ALUMNI_DATA.jobs || [])];
+
+    if (currentMainTab === 'saved') {
+      items = items.filter(j => (ALUMNI_DATA.savedJobs || []).includes(j.id));
+    }
+
+    if (searchKeyword.trim()) {
+      const q = searchKeyword.toLowerCase();
+      items = items.filter(j =>
+        j.title.toLowerCase().includes(q) ||
+        j.company.toLowerCase().includes(q) ||
+        (j.skillsRequired || []).some(s => s.toLowerCase().includes(q))
+      );
+    }
+
+    if (filterWorkModel !== 'Semua') {
+      items = items.filter(j => j.workModel === filterWorkModel);
+    }
+
+    if (filterEmpType !== 'Semua') {
+      items = items.filter(j => j.employmentType === filterEmpType);
+    }
+
+    if (items.length === 0) {
+      listCol.innerHTML = `
+        <div class="bg-white rounded-2xl border border-neutral4 p-8 text-center text-xs text-neutral3 space-y-2">
+          <i data-lucide="search-x" class="w-8 h-8 mx-auto text-neutral3"></i>
+          <p class="font-semibold text-neutral1 text-sm">Tidak ada lowongan yang sesuai</p>
+          <p>Coba ubah kata kunci pencarian atau sesuaikan filter model kerja.</p>
+        </div>
+      `;
+      document.getElementById('job-detail-col').innerHTML = `
+        <div class="text-center py-12 text-neutral3 text-xs">
+          Pilih lowongan untuk melihat rincian kualifikasi dan melamar.
+        </div>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
+
+    // Pastikan selected job ada di filtered items
+    if (!items.some(j => j.id === activeSelectedJobId)) {
+      activeSelectedJobId = items[0].id;
+    }
+
+    listCol.innerHTML = items.map(job => {
+      const isSelected = job.id === activeSelectedJobId;
+      const isSaved = (ALUMNI_DATA.savedJobs || []).includes(job.id);
+
+      return `
+        <div
+          onclick="selectJob('${job.id}')"
+          class="p-4 rounded-2xl border transition-all cursor-pointer relative ${isSelected ? 'border-primary1 bg-blue-50/40 shadow-sm' : 'border-neutral4 bg-white hover:border-neutral4/90 hover:bg-neutral5/30'}"
+        >
+          <div class="flex items-start gap-3.5">
+            <img src="${job.companyLogo}" alt="${esc(job.company)}" class="w-12 h-12 rounded-xl object-cover border border-neutral4 shadow-sm shrink-0 bg-white">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-start justify-between gap-2">
+                <h3 class="font-bold text-sm text-neutral1 leading-tight hover:text-primary1 transition-colors truncate">
+                  ${esc(job.title)}
+                </h3>
+                <button
+                  type="button"
+                  onclick="event.stopPropagation(); toggleSaveJob('${job.id}')"
+                  class="p-1 rounded-lg hover:bg-neutral5 text-neutral3 ${isSaved ? 'text-primary1 fill-primary1' : ''}"
+                  title="${isSaved ? 'Hapus Simpanan' : 'Simpan Lowongan'}"
+                >
+                  <i data-lucide="bookmark" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <p class="text-xs font-medium text-neutral2 mt-0.5 truncate">${esc(job.company)}</p>
+              <p class="text-[11px] text-neutral3 mt-0.5">${esc(job.location)} &bull; <span class="font-semibold text-primary2">${esc(job.workModel)}</span></p>
+
+              <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary5 text-primary1 border border-primary4/50">
+                  ${esc(job.employmentType)}
+                </span>
+                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-green3 text-green1 border border-green2/30">
+                  Mitra Resmi
+                </span>
+              </div>
+
+              <div class="flex items-center justify-between text-[10px] text-neutral3 mt-3 pt-2 border-t border-neutral4/50">
+                <span>Ditayangkan ${job.datePosted}</span>
+                <span>${job.applicantsCount} Pelamar</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    renderSelectedJobDetail();
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // 3. Render Detail Lowongan Kanan
+  function renderSelectedJobDetail() {
+    const detailCol = document.getElementById('job-detail-col');
+    if (!detailCol) return;
+
+    const job = (ALUMNI_DATA.jobs || []).find(j => j.id === activeSelectedJobId);
+    if (!job) return;
+
+    const isSaved = (ALUMNI_DATA.savedJobs || []).includes(job.id);
+    const hasApplied = (ALUMNI_DATA.applications || []).some(a => a.jobId === job.id);
+
+    detailCol.innerHTML = `
+      <!-- Header Detail -->
+      <div class="border-b border-neutral4 pb-5">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex items-start gap-4">
+            <img src="${job.companyLogo}" alt="${esc(job.company)}" class="w-16 h-16 rounded-2xl object-cover border border-neutral4 shadow-sm bg-white shrink-0">
+            <div>
+              <div class="flex items-center gap-2">
+                <h2 class="text-lg sm:text-xl font-bold text-neutral1 leading-tight">${esc(job.title)}</h2>
+              </div>
+              <p class="text-xs font-semibold text-primary2 mt-1">${esc(job.company)} &bull; <span class="text-neutral3 font-normal">${esc(job.location)}</span></p>
+              <p class="text-xs font-bold text-green2 mt-1.5">${esc(job.salaryRange)}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta Pills -->
+        <div class="flex flex-wrap items-center gap-2 mt-4 text-xs">
+          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
+            <i data-lucide="map-pin" class="w-3 h-3 text-neutral3"></i> ${esc(job.workModel)}
+          </span>
+          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
+            <i data-lucide="briefcase" class="w-3 h-3 text-neutral3"></i> ${esc(job.employmentType)}
+          </span>
+          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
+            <i data-lucide="user-check" class="w-3 h-3 text-neutral3"></i> ${esc(job.experienceLevel)}
+          </span>
+          <span class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary1 font-medium flex items-center gap-1">
+            <i data-lucide="building-2" class="w-3 h-3 text-primary1"></i> ${esc(job.companySize)}
+          </span>
+        </div>
+
+        <!-- Action CTAs -->
+        <div class="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-neutral4/60">
+          ${hasApplied ? `
+            <button disabled class="px-6 py-2.5 rounded-xl bg-green3 text-green1 font-semibold text-xs border border-green2/30 flex items-center gap-1.5 cursor-not-allowed">
+              <i data-lucide="check" class="w-4 h-4"></i>
+              <span>Lamaran Telah Terkirim</span>
+            </button>
+          ` : `
+            <button onclick="openApplyModal('${job.id}')" class="btn-primary text-xs px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+              <span>Lamar Cepat (Easy Apply)</span>
+            </button>
+          `}
+
+          <button
+            onclick="toggleSaveJob('${job.id}')"
+            class="btn-outline text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5"
+          >
+            <i data-lucide="bookmark" class="w-4 h-4 ${isSaved ? 'text-primary1 fill-primary1' : ''}"></i>
+            <span>${isSaved ? 'Tersimpan' : 'Simpan Lowongan'}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Alumni Connection Highlight (Sesuai lowongan/page.tsx) -->
+      ${(job.alumniConnections && job.alumniConnections.length > 0) ? `
+        <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 space-y-2">
+          <div class="flex items-center gap-2 text-xs font-semibold text-primary1">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span>Koneksi Alumni Bengkel Koding di Perusahaan Ini</span>
+          </div>
+          <div class="space-y-1.5 pt-1">
+            ${job.alumniConnections.map(ac => `
+              <div class="flex items-center gap-2.5 text-xs">
+                <img src="${ac.avatar}" alt="${esc(ac.name)}" class="w-7 h-7 rounded-full object-cover border border-white shadow-sm">
+                <span class="font-semibold text-neutral1">${esc(ac.name)}</span>
+                <span class="text-neutral3">&bull;</span>
+                <span class="text-neutral2">${esc(ac.role)} (Alumni ${ac.batch})</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Deskripsi Pekerjaan -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Tentang Pekerjaan</h4>
+        <p class="text-neutral2 leading-relaxed whitespace-pre-line">${esc(job.description)}</p>
+      </div>
+
+      <!-- Tanggung Jawab -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Tanggung Jawab Utama</h4>
+        <ul class="space-y-1.5 list-disc pl-4 text-neutral2 leading-relaxed">
+          ${(job.responsibilities || []).map(r => `<li>${esc(r)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <!-- Kualifikasi -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Kualifikasi Kandidat</h4>
+        <ul class="space-y-1.5 list-disc pl-4 text-neutral2 leading-relaxed">
+          ${(job.qualifications || []).map(q => `<li>${esc(q)}</li>`).join('')}
+        </ul>
+      </div>
+
+      <!-- Keahlian yang Dibutuhkan -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Keahlian yang Dibutuhkan</h4>
+        <div class="flex flex-wrap gap-1.5">
+          ${(job.skillsRequired || []).map(s => `
+            <span class="px-2.5 py-1 rounded-lg bg-neutral5 border border-neutral4 text-neutral1 text-[11px] font-semibold">
+              ${esc(s)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Benefit & Fasilitas -->
+      <div class="space-y-2 text-xs">
+        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Fasilitas &amp; Benefit</h4>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+          ${(job.benefits || []).map(b => `
+            <div class="flex items-center gap-2 p-2 rounded-lg bg-neutral5 border border-neutral4/60 text-neutral2 text-[11px]">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-green2 shrink-0"></i>
+              <span>${esc(b)}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Tentang Mitra -->
+      <div class="p-4 rounded-xl border border-neutral4 bg-neutral5/40 space-y-2 text-xs">
+        <h4 class="font-bold text-neutral1 text-[11px] uppercase tracking-wider">Tentang ${esc(job.company)}</h4>
+        <p class="text-neutral2 leading-relaxed">${esc(job.aboutCompany)}</p>
+        <div class="pt-2">
+          <a href="${job.companyWebsite}" target="_blank" class="text-primary1 font-semibold hover:underline inline-flex items-center gap-1">
+            <span>Kunjungi Website Resmi</span>
+            <i data-lucide="external-link" class="w-3 h-3"></i>
+          </a>
+        </div>
+      </div>
+    `;
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // 4. Tab Lamaran Saya (Applied Table)
+  function renderAppliedTable() {
+    const tbody = document.getElementById('applied-tbody');
+    const totalText = document.getElementById('applied-total-text');
+    if (!tbody) return;
+
+    const apps = ALUMNI_DATA.applications || [];
+    if (totalText) totalText.textContent = `${apps.length} Lamaran Terkirim`;
+
+    if (apps.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="td text-center text-neutral3 py-8">
+            <i data-lucide="send" class="w-8 h-8 mx-auto mb-2 text-neutral3"></i>
+            <div>Belum ada lamaran yang dikirimkan. Jelajahi lowongan mitra dan gunakan tombol Easy Apply.</div>
+          </td>
+        </tr>
+      `;
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
+
+    tbody.innerHTML = apps.map(app => `
+      <tr class="tr">
+        <td class="td">
+          <div class="font-semibold text-neutral1">${esc(app.jobTitle)}</div>
+          <div class="text-[11px] text-neutral3">${esc(app.company)}</div>
+        </td>
+        <td class="td whitespace-nowrap text-neutral3">${app.appliedAt}</td>
+        <td class="td">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+            ${app.status || 'Ditinjau oleh HR'}
+          </span>
+        </td>
+        <td class="td text-center">
+          <button onclick="if(typeof showToast==='function') showToast('Status lamaran Anda sedang diproses oleh HR mitra.');" class="text-xs font-semibold text-primary1 hover:underline">
+            Rincian
+          </button>
+        </td>
+      </tr>
+    `).join('');
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // 5. Select Job
+  window.selectJob = function(jobId) {
+    activeSelectedJobId = jobId;
+    renderJobsList();
+  };
+
+  // 6. Bookmark / Toggle Save Job
+  window.toggleSaveJob = function(jobId) {
+    if (!ALUMNI_DATA.savedJobs) ALUMNI_DATA.savedJobs = [];
+    const idx = ALUMNI_DATA.savedJobs.indexOf(jobId);
+
+    if (idx >= 0) {
+      ALUMNI_DATA.savedJobs.splice(idx, 1);
+      if (typeof showToast === 'function') showToast('Lowongan dihapus dari daftar simpanan.');
+    } else {
+      ALUMNI_DATA.savedJobs.push(jobId);
+      if (typeof showToast === 'function') showToast('Lowongan berhasil disimpan!');
+    }
+
+    saveSavedJobsData();
+    updateBadges();
+    renderJobsList();
+  };
+
+  // 7. Search & Filter Handlers
+  window.handleSearchJobs = function(val) {
+    searchKeyword = val;
+    renderJobsList();
+  };
+
+  window.handleFilterChange = function() {
+    filterWorkModel = document.getElementById('filter-work-model').value;
+    filterEmpType = document.getElementById('filter-emp-type').value;
+    renderJobsList();
+  };
+
+  // 8. Easy Apply Modal Handlers
+  let applyingJobId = null;
+
+  window.openApplyModal = function(jobId) {
+    applyingJobId = jobId;
+    const job = (ALUMNI_DATA.jobs || []).find(j => j.id === jobId);
+    if (!job) return;
+
+    document.getElementById('modal-apply-title').textContent = `Lamar: ${job.title}`;
+    document.getElementById('apply-modal-subtitle').textContent = `${job.company} &bull; ${job.location}`;
+    document.getElementById('apply-modal-logo').src = job.companyLogo;
+
+    openModal('apply-job-modal');
+  };
+
+  window.handleApplySubmit = function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('apply-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Mengirim Lamaran...';
+
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = 'Kirim Lamaran Sekarang';
+
+      const job = (ALUMNI_DATA.jobs || []).find(j => j.id === applyingJobId);
+      if (job) {
+        if (!ALUMNI_DATA.applications) ALUMNI_DATA.applications = [];
+        ALUMNI_DATA.applications.unshift({
+          id: `app-${Date.now()}`,
+          jobId: job.id,
+          jobTitle: job.title,
+          company: job.company,
+          status: 'Lamaran Terkirim',
+          appliedAt: new Date().toISOString().split('T')[0]
+        });
+        saveApplicationsData();
+      }
+
+      closeModal('apply-job-modal');
+      updateBadges();
+      renderSelectedJobDetail();
+
+      if (typeof showToast === 'function') {
+        showToast('Lamaran berhasil dikirimkan kepada mitra industri! Pantau statusnya di tab Lamaran Saya.');
+      }
+    }, 500);
+  };
+
+  function updateBadges() {
+    const savedBadge = document.getElementById('saved-count-badge');
+    const appliedBadge = document.getElementById('applied-count-badge');
+    if (savedBadge) savedBadge.textContent = (ALUMNI_DATA.savedJobs || []).length;
+    if (appliedBadge) appliedBadge.textContent = (ALUMNI_DATA.applications || []).length;
+  }
+
+  // Initial Load
+  document.addEventListener('DOMContentLoaded', () => {
+    updateBadges();
+    renderJobsList();
+  });
+</script>
+</body>
+</html>
