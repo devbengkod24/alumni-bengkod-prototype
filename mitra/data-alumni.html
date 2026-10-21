@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Alumni | Portal Mitra Bengkel Koding</title>
+  <meta name="description" content="Cari dan lihat data profil serta CV alumni Bengkel Koding UDINUS terverifikasi.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/mitra.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <style>
+    @media print {
+      body * { visibility: hidden !important; }
+      #modal-cv-direct, #modal-cv-direct * { visibility: visible !important; }
+      #modal-cv-direct { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: white !important; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Data Alumni">
+
+  <!-- Info Banner Privasi & Akses -->
+  <div class="flex items-start gap-3.5 p-4 bg-primary5/60 border border-primary4/70 rounded-2xl">
+    <div class="w-9 h-9 rounded-xl bg-primary1 text-white flex items-center justify-center shrink-0 mt-0.5">
+      <i data-lucide="shield-check" class="w-5 h-5"></i>
+    </div>
+    <div class="text-sm text-neutral1 flex-1">
+      <strong class="text-primary1 font-bold">Akses Data Alumni & CV Resmi:</strong> Menampilkan profil alumni purna tugas Bengkel Koding UDINUS mencakup <strong>Nama, Jenis Pekerjaan (Fulltime/Parttime), Gender, Email, Telepon, Tahun Lulus, dan NIM</strong>. Mitra dapat langsung melihat dokumen CV alumni terverifikasi dengan jejak audit log otomatis.
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <section class="card space-y-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <!-- Search Input -->
+      <div class="relative lg:col-span-2">
+        <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral3"></i>
+        <input id="search-input" type="search" placeholder="Cari nama, NIM, email, skill..." class="input pl-10" aria-label="Cari data alumni">
+      </div>
+
+      <!-- Filter Jenis Pekerjaan -->
+      <div>
+        <select id="filter-jenis-pekerjaan" class="input text-xs sm:text-sm" aria-label="Filter Jenis Pekerjaan">
+          <option value="">Semua Jenis Pekerjaan</option>
+          <option value="Full Time">Full Time</option>
+          <option value="Part Time">Part Time</option>
+        </select>
+      </div>
+
+      <!-- Filter Gender -->
+      <div>
+        <select id="filter-gender" class="input text-xs sm:text-sm" aria-label="Filter Gender">
+          <option value="">Semua Gender</option>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+        </select>
+      </div>
+
+      <!-- Filter Tahun Lulus -->
+      <div>
+        <select id="filter-tahun-lulus" class="input text-xs sm:text-sm" aria-label="Filter Tahun Lulus">
+          <option value="">Semua Tahun Lulus</option>
+          <option value="2025">Lulus 2025</option>
+          <option value="2024">Lulus 2024</option>
+          <option value="2023">Lulus 2023</option>
+          <option value="2022">Lulus 2022</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alumni Section Header & Views -->
+  <section class="bg-white rounded-2xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 p-5 sm:p-6 pb-4 border-b border-neutral4/60">
+      <div>
+        <h3 class="font-bold text-lg text-neutral1 flex items-center gap-2">
+          <span>Kandidat Alumni Bengkel Koding</span>
+          <span id="alumni-badge-total" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary5 text-primary1">0</span>
+        </h3>
+        <p class="text-xs text-neutral3 mt-0.5" id="alumni-count">Menampilkan semua alumni terverifikasi</p>
+      </div>
+      <div class="flex items-center gap-1.5 bg-neutral5 p-1 rounded-xl border border-neutral4">
+        <button id="btn-grid" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-primary1 bg-white shadow-sm" title="Tampilan Kartu">
+          <i data-lucide="layout-grid" class="w-4 h-4"></i>
+          <span>Kartu</span>
+        </button>
+        <button id="btn-list" class="px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all text-neutral2 hover:text-primary1" title="Tampilan Tabel">
+          <i data-lucide="list" class="w-4 h-4"></i>
+          <span>Tabel</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid View: Rich Cards with required fields -->
+    <div id="view-grid" class="p-5 sm:p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+    <!-- Table View -->
+    <div id="view-list" class="hidden overflow-x-auto">
+      <table class="w-full text-left">
+        <thead>
+          <tr>
+            <th class="th">Nama & NIM</th>
+            <th class="th">Gender</th>
+            <th class="th">Jenis Pekerjaan</th>
+            <th class="th">Tahun Lulus</th>
+            <th class="th">Kontak (Email & Telp)</th>
+            <th class="th">Keahlian</th>
+            <th class="th text-center">Aksi Langsung</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-alumni"></tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden py-16 text-center">
+      <div class="w-16 h-16 rounded-2xl bg-neutral5 flex items-center justify-center mx-auto text-neutral3 mb-3 border border-neutral4">
+        <i data-lucide="search-x" class="w-8 h-8"></i>
+      </div>
+      <div class="text-neutral1 font-bold text-base">Tidak ada alumni ditemukan</div>
+      <div class="text-xs text-neutral3 mt-1 max-w-sm mx-auto">Silakan sesuaikan kata kunci pencarian atau reset filter di atas.</div>
+    </div>
+  </section>
+
+  <!-- CV Access Audit Log -->
+  <section class="card">
+    <div class="flex items-center justify-between mb-4 pb-3 border-b border-neutral4/60">
+      <div>
+        <h3 class="font-bold text-base text-neutral1 flex items-center gap-2">
+          <i data-lucide="history" class="w-5 h-5 text-primary1"></i>
+          <span>Log Riwayat Akses Dokumen CV</span>
+        </h3>
+        <p class="text-xs text-neutral3 mt-0.5">Catatan transparansi audit saat mitra membuka atau mengunduh CV alumni</p>
+      </div>
+      <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Audit Aktif
+      </span>
+    </div>
+    <div id="cv-audit-log">
+      <div class="text-sm text-neutral3 text-center py-6">Belum ada riwayat akses CV.</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ==================== MODAL 1: PREVIEW CV LANGSUNG (Direct Interactive CV Viewer) ==================== -->
+<div id="modal-cv-direct" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/70 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
+  <div class="bg-white rounded-2xl max-w-3xl w-full elevation5 overflow-hidden my-auto border border-neutral4" role="dialog" aria-modal="true" aria-labelledby="cv-direct-title">
+    
+    <!-- Modal Header Action Bar (No Print) -->
+    <div class="no-print bg-neutral5 px-6 py-3.5 border-b border-neutral4 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-primary1 text-white flex items-center justify-center">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+        </div>
+        <div>
+          <h4 id="cv-direct-title" class="font-bold text-sm text-neutral1 leading-tight">Kurikulum Vitae (CV) Resmi Alumni</h4>
+          <span class="text-[11px] text-green2 font-semibold">● Terverifikasi Laboratorium Bengkel Koding UDINUS</span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-neutral4 text-neutral1 text-xs font-semibold hover:bg-white flex items-center gap-1.5 transition-colors" title="Cetak CV atau Simpan sebagai PDF">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span class="hidden sm:inline">Cetak / Unduh PDF</span>
+        </button>
+        <button onclick="closeModal('modal-cv-direct')" class="p-1.5 rounded-lg text-neutral3 hover:text-neutral1 hover:bg-neutral4/60 transition-colors" aria-label="Tutup Pratinjau CV">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- CV Document Body (Renders full styled CV) -->
+    <div id="cv-direct-body" class="p-6 sm:p-8 space-y-6 max-h-[80vh] overflow-y-auto">
+      <!-- Injected by JavaScript -->
+    </div>
+
+    <!-- Modal Footer Actions (No Print) -->
+    <div class="no-print px-6 py-4 bg-neutral5 border-t border-neutral4 flex flex-wrap items-center justify-between gap-3">
+      <div class="text-[11px] text-neutral3 flex items-center gap-1.5">
+        <i data-lucide="lock" class="w-3.5 h-3.5 text-primary1"></i>
+        <span>Akses CV ini telah dicatat dalam Audit Log resmi untuk keperluan rekrutmen.</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="closeModal('modal-cv-direct')" class="btn-outline text-xs px-4 py-2">
+          Tutup CV
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ==================== MODAL 2: DETAIL PROFIL ALUMNI ==================== -->
+<div id="modal-alumni" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full elevation5 overflow-hidden max-h-[90vh] overflow-y-auto" id="modal-alumni-content">
+  </div>
+</div>
+
+<script>
+let currentView = 'grid';
+let filtered = [...MITRA.alumni];
+
+function getJenisPekerjaanBadge(jenis) {
+  if (jenis === 'Full Time') {
+    return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+      <i data-lucide="briefcase" class="w-3 h-3"></i> Full Time
+    </span>`;
+  }
+  return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+    <i data-lucide="clock" class="w-3 h-3"></i> Part Time
+  </span>`;
+}
+
+function getGenderBadge(gender) {
+  if (gender === 'Laki-laki') {
+    return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-primary2 border border-blue-200">
+      <i data-lucide="user" class="w-3 h-3"></i> Laki-laki
+    </span>`;
+  }
+  return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-pink-50 text-pink-700 border border-pink-200">
+    <i data-lucide="user" class="w-3 h-3"></i> Perempuan
+  </span>`;
+}
+
+function renderGrid(list) {
+  const container = document.getElementById('view-grid');
+  if (!list.length) { container.innerHTML = ''; return; }
+
+  container.innerHTML = list.map(a => {
+    const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
+    const gender = a.gender || 'Laki-laki';
+    const jenis = a.jenis_pekerjaan || 'Full Time';
+
+    return `
+    <div class="bg-white border border-neutral4 rounded-2xl p-5 hover:border-primary3 hover:shadow-lg transition-all flex flex-col justify-between group">
+      <div>
+        <!-- 1. Header: Avatar, Nama, NIM & Gender -->
+        <div class="flex items-start justify-between gap-3 mb-3.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary1 to-primary3 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+              ${initials}
+            </div>
+            <div class="min-w-0">
+              <h4 class="font-bold text-neutral1 text-base group-hover:text-primary1 transition-colors truncate" title="${esc(a.nama)}">${esc(a.nama)}</h4>
+              <div class="text-xs font-medium text-neutral3 mt-0.5">
+                NIM: <strong class="text-neutral1 font-semibold">${esc(a.nim)}</strong>
+              </div>
+            </div>
+          </div>
+          <!-- Gender Badge -->
+          <div class="shrink-0">
+            ${getGenderBadge(gender)}
+          </div>
+        </div>
+
+        <!-- 2. Badges: Jenis Pekerjaan (Fulltime/Parttime) & Tahun Lulus -->
+        <div class="flex flex-wrap items-center gap-2 mb-3.5">
+          ${getJenisPekerjaanBadge(jenis)}
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-neutral5 text-neutral1 border border-neutral4">
+            <i data-lucide="graduation-cap" class="w-3.5 h-3.5 text-primary1"></i>
+            <span>Lulus <strong>${a.tahun_lulus}</strong></span>
+          </span>
+          <span class="inline-flex items-center gap-1 text-xs text-neutral3 font-medium px-2 py-0.5 bg-neutral5 rounded-md border border-neutral4/60">
+            IPK ${a.ipk.toFixed(2)}
+          </span>
+        </div>
+
+        <!-- 3. Informasi Kontak Wajib: Email & Telepon -->
+        <div class="bg-neutral5/80 rounded-xl p-3 border border-neutral4/70 space-y-2 mb-4 text-xs">
+          <!-- Email -->
+          <div class="flex items-center gap-2.5 text-neutral2">
+            <div class="w-6 h-6 rounded-md bg-primary5 text-primary1 flex items-center justify-center shrink-0">
+              <i data-lucide="mail" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-[11px] text-neutral3 block leading-none">Email Alumni</span>
+              <a href="mailto:${esc(a.email)}" class="font-medium text-neutral1 hover:text-primary1 hover:underline truncate block mt-0.5" title="${esc(a.email)}">${esc(a.email)}</a>
+            </div>
+          </div>
+          <!-- Telepon -->
+          <div class="flex items-center gap-2.5 text-neutral2 pt-1 border-t border-neutral4/50">
+            <div class="w-6 h-6 rounded-md bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+              <i data-lucide="phone" class="w-3.5 h-3.5"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <span class="text-[11px] text-neutral3 block leading-none">Nomor Telepon / WA</span>
+              <a href="tel:${esc(a.telepon)}" class="font-medium text-neutral1 hover:text-emerald-700 hover:underline block mt-0.5">${esc(a.telepon)}</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Keahlian & Domisili -->
+        <div class="mb-4">
+          <div class="flex items-center justify-between text-[11px] font-semibold text-neutral3 mb-1.5 uppercase tracking-wider">
+            <span>Keahlian Utama</span>
+            <span class="capitalize font-normal text-neutral2 flex items-center gap-1">
+              <i data-lucide="map-pin" class="w-3 h-3 text-red2"></i> ${esc(a.kota_domisili)}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            ${a.skill.map(s => `<span class="px-2 py-0.5 bg-primary5/60 text-primary1 text-xs rounded-md font-medium border border-primary4/40">${esc(s)}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Tombol Aksi: Lihat CV Langsung & Detail Profil -->
+      <div class="pt-3 border-t border-neutral4/80 flex items-center gap-2">
+        <button onclick="openAlumniDetail(${a.id})" class="btn-outline flex-1 py-2 text-xs font-semibold focus:ring-2 focus:ring-primary3">
+          <i data-lucide="user" class="w-3.5 h-3.5"></i>
+          <span>Detail Profil</span>
+        </button>
+        <button onclick="viewCVDirect(${a.id})" class="btn-primary flex-1 py-2 text-xs font-semibold bg-primary1 hover:bg-primary2 shadow-sm focus:ring-2 focus:ring-primary5">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>Lihat CV Langsung</span>
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(list) {
+  const tbody = document.getElementById('tbl-alumni');
+  if (!list.length) { tbody.innerHTML = ''; return; }
+
+  tbody.innerHTML = list.map(a => {
+    const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
+    const gender = a.gender || 'Laki-laki';
+    const jenis = a.jenis_pekerjaan || 'Full Time';
+
+    return `
+    <tr class="tr">
+      <!-- Nama & NIM -->
+      <td class="td">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary1 to-primary3 text-white flex items-center justify-center font-bold text-xs shrink-0">
+            ${initials}
+          </div>
+          <div>
+            <div class="font-bold text-neutral1 text-sm">${esc(a.nama)}</div>
+            <div class="text-xs text-neutral3 font-mono font-medium">NIM: ${esc(a.nim)}</div>
+          </div>
+        </div>
+      </td>
+      <!-- Gender -->
+      <td class="td">${getGenderBadge(gender)}</td>
+      <!-- Jenis Pekerjaan -->
+      <td class="td">${getJenisPekerjaanBadge(jenis)}</td>
+      <!-- Tahun Lulus -->
+      <td class="td">
+        <div class="text-sm font-semibold text-neutral1">Lulus ${a.tahun_lulus}</div>
+        <div class="text-xs text-neutral3">Angkatan ${a.angkatan} · IPK ${a.ipk.toFixed(2)}</div>
+      </td>
+      <!-- Kontak (Email & Telepon) -->
+      <td class="td">
+        <div class="text-xs space-y-1">
+          <div class="flex items-center gap-1.5 text-neutral2">
+            <i data-lucide="mail" class="w-3.5 h-3.5 text-primary3 shrink-0"></i>
+            <a href="mailto:${esc(a.email)}" class="hover:text-primary1 hover:underline truncate max-w-[160px] inline-block">${esc(a.email)}</a>
+          </div>
+          <div class="flex items-center gap-1.5 text-neutral2">
+            <i data-lucide="phone" class="w-3.5 h-3.5 text-green2 shrink-0"></i>
+            <a href="tel:${esc(a.telepon)}" class="hover:underline">${esc(a.telepon)}</a>
+          </div>
+        </div>
+      </td>
+      <!-- Keahlian -->
+      <td class="td">
+        <div class="flex flex-wrap gap-1 max-w-[180px]">
+          ${a.skill.slice(0, 3).map(s => `<span class="px-2 py-0.5 bg-primary5 text-primary1 text-[11px] rounded-md font-medium">${esc(s)}</span>`).join('')}
+          ${a.skill.length > 3 ? `<span class="px-1.5 py-0.5 bg-neutral5 text-neutral3 text-[11px] rounded-md">+${a.skill.length - 3}</span>` : ''}
+        </div>
+      </td>
+      <!-- Aksi Langsung -->
+      <td class="td text-center">
+        <div class="flex items-center justify-center gap-1.5">
+          <button onclick="openAlumniDetail(${a.id})" class="btn-icon" title="Lihat Profil Lengkap">
+            <i data-lucide="eye" class="w-4 h-4"></i>
+          </button>
+          <button onclick="viewCVDirect(${a.id})" class="px-3 py-1.5 rounded-lg bg-primary1 text-white hover:bg-primary2 text-xs font-semibold inline-flex items-center gap-1 shadow-sm" title="Buka CV Langsung">
+            <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+            <span>Lihat CV</span>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function render(list) {
+  const emptyState = document.getElementById('empty-state');
+  const countBadge = document.getElementById('alumni-badge-total');
+  const countText = document.getElementById('alumni-count');
+
+  emptyState.classList.toggle('hidden', list.length > 0);
+  countBadge.textContent = list.length;
+  countText.textContent = `Menampilkan ${list.length} dari total ${MITRA.alumni.length} alumni terdaftar`;
+
+  if (currentView === 'grid') {
+    document.getElementById('view-grid').classList.remove('hidden');
+    document.getElementById('view-list').classList.add('hidden');
+    renderGrid(list);
+  } else {
+    document.getElementById('view-grid').classList.add('hidden');
+    document.getElementById('view-list').classList.remove('hidden');
+    renderTable(list);
+  }
+  refreshIcons();
+}
+
+function applyFilter() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const jenis = document.getElementById('filter-jenis-pekerjaan').value;
+  const gender = document.getElementById('filter-gender').value;
+  const thn = document.getElementById('filter-tahun-lulus').value;
+
+  filtered = MITRA.alumni.filter(a => {
+    const matchQ = !q ||
+      a.nama.toLowerCase().includes(q) ||
+      a.nim.toLowerCase().includes(q) ||
+      (a.email && a.email.toLowerCase().includes(q)) ||
+      (a.telepon && a.telepon.toLowerCase().includes(q)) ||
+      a.skill.some(s => s.toLowerCase().includes(q));
+
+    const matchJenis = !jenis || (a.jenis_pekerjaan === jenis || a.status_karir.includes(jenis));
+    const matchGender = !gender || a.gender === gender;
+    const matchThn = !thn || String(a.tahun_lulus) === thn;
+
+    return matchQ && matchJenis && matchGender && matchThn;
+  });
+
+  render(filtered);
+}
+
+// ==================== BUKA CV LANGSUNG (Direct Rich CV Viewer) ====================
+function viewCVDirect(id) {
+  const a = MITRA.alumni.find(x => x.id === id);
+  if (!a) return;
+
+  // Catat audit log akses CV
+  logCvAccess(a.id, a.nama);
+  showToast(`CV ${a.nama} berhasil dibuka. Jejak audit telah dicatat.`, 'success');
+  renderAuditLog();
+
+  const gender = a.gender || 'Laki-laki';
+  const jenis = a.jenis_pekerjaan || 'Full Time';
+  const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
+  const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
+
+  const container = document.getElementById('cv-direct-body');
+  container.innerHTML = `
+    <!-- CV Header Document -->
+    <div class="bg-gradient-to-r from-primary1 to-primary2 rounded-2xl p-6 sm:p-7 text-white shadow-md relative overflow-hidden">
+      <div class="relative z-10 flex flex-col sm:flex-row items-center sm:items-start gap-5">
+        <div class="w-20 h-20 rounded-2xl bg-white/20 backdrop-blur-md border-2 border-white/40 text-white flex items-center justify-center font-bold text-2xl shadow-inner shrink-0">
+          ${initials}
+        </div>
+        <div class="flex-1 text-center sm:text-left min-w-0">
+          <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-1.5">
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/20 text-white">Curriculum Vitae</span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-400 text-slate-900 font-bold">Terverifikasi Lab Bengkel Koding</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">${esc(a.nama)}</h2>
+          <div class="text-primary4 text-sm mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-3">
+            <span>NIM: <strong class="text-white">${esc(a.nim)}</strong></span>
+            <span>•</span>
+            <span>Jenis Kelamin: <strong class="text-white">${gender}</strong></span>
+            <span>•</span>
+            <span>Status: <strong class="text-white">${jenis}</strong></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact & Personal Details Bar -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="p-3.5 bg-neutral5 rounded-xl border border-neutral4/80">
+        <div class="text-[11px] font-semibold text-neutral3 uppercase tracking-wider mb-0.5">Email</div>
+        <a href="mailto:${esc(a.email)}" class="text-xs font-bold text-primary1 hover:underline truncate block">${esc(a.email)}</a>
+      </div>
+      <div class="p-3.5 bg-neutral5 rounded-xl border border-neutral4/80">
+        <div class="text-[11px] font-semibold text-neutral3 uppercase tracking-wider mb-0.5">Telepon / WhatsApp</div>
+        <a href="tel:${esc(a.telepon)}" class="text-xs font-bold text-neutral1 hover:text-primary1 block">${esc(a.telepon)}</a>
+      </div>
+      <div class="p-3.5 bg-neutral5 rounded-xl border border-neutral4/80">
+        <div class="text-[11px] font-semibold text-neutral3 uppercase tracking-wider mb-0.5">Tahun Lulus & IPK</div>
+        <div class="text-xs font-bold text-neutral1">Lulus ${a.tahun_lulus} (IPK: ${a.ipk.toFixed(2)})</div>
+      </div>
+      <div class="p-3.5 bg-neutral5 rounded-xl border border-neutral4/80">
+        <div class="text-[11px] font-semibold text-neutral3 uppercase tracking-wider mb-0.5">Domisili</div>
+        <div class="text-xs font-bold text-neutral1">${esc(a.kota_domisili)}</div>
+      </div>
+    </div>
+
+    <!-- Professional Summary (Bio) -->
+    <div class="border-t border-neutral4 pt-4">
+      <h5 class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <i data-lucide="user-check" class="w-4 h-4 text-primary1"></i>
+        <span>Ringkasan Profesional</span>
+      </h5>
+      <p class="text-sm text-neutral1 leading-relaxed bg-blue-50/40 p-4 rounded-xl border border-blue-100">
+        ${esc(a.bio || 'Alumni lulusan Bengkel Koding dengan komitmen tinggi, memiliki portofolio proyek terverifikasi, dan siap berkontribusi pada posisi industri.')}
+      </p>
+    </div>
+
+    <!-- Education Section -->
+    <div class="border-t border-neutral4 pt-4">
+      <h5 class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <i data-lucide="graduation-cap" class="w-4 h-4 text-primary1"></i>
+        <span>Pendidikan Formal</span>
+      </h5>
+      <div class="bg-neutral5/70 p-4 rounded-xl border border-neutral4/80 flex items-start justify-between gap-4">
+        <div>
+          <div class="font-bold text-sm text-neutral1">Universitas Dian Nuswantoro (UDINUS)</div>
+          <div class="text-xs text-neutral2 mt-0.5 font-medium">S1 Teknik Informatika · Fakultas Ilmu Komputer</div>
+          <div class="text-xs text-neutral3 mt-1">NIM: ${esc(a.nim)} · Angkatan ${a.angkatan} · Tahun Kelulusan: ${a.tahun_lulus}</div>
+        </div>
+        <div class="text-right shrink-0">
+          <span class="inline-block px-3 py-1 bg-primary1 text-white text-xs font-bold rounded-lg shadow-sm">
+            IPK: ${a.ipk.toFixed(2)}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Experience & Lab Roles -->
+    <div class="border-t border-neutral4 pt-4">
+      <h5 class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+        <i data-lucide="briefcase" class="w-4 h-4 text-primary1"></i>
+        <span>Pengalaman Kerja &amp; Keterlibatan di Lab</span>
+      </h5>
+      <div class="bg-neutral5/70 p-4 rounded-xl border border-neutral4/80 text-xs sm:text-sm text-neutral1 leading-relaxed space-y-2">
+        <div class="font-semibold text-primary1">${esc(a.pengalaman || 'Asisten Laboratorium Bengkel Koding UDINUS')}</div>
+        <div class="text-xs text-neutral2">Terlibat aktif dalam mentoring ratusan mahasiswa, code review praktikum, serta pengembangan modul teknologi modern di lingkungan kampus.</div>
+      </div>
+    </div>
+
+    <!-- Key Skills & Tech Stack -->
+    <div class="border-t border-neutral4 pt-4">
+      <h5 class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+        <i data-lucide="code" class="w-4 h-4 text-primary1"></i>
+        <span>Keahlian &amp; Penguasaan Teknologi</span>
+      </h5>
+      <div class="flex flex-wrap gap-2">
+        ${a.skill.map(s => `<span class="px-3 py-1.5 bg-primary5 text-primary1 text-xs rounded-lg font-semibold border border-primary4/50">${esc(s)}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Projects Portfolio -->
+    ${a.proyek ? `
+    <div class="border-t border-neutral4 pt-4">
+      <h5 class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+        <i data-lucide="folder-git-2" class="w-4 h-4 text-primary1"></i>
+        <span>Portofolio Proyek Unggulan</span>
+      </h5>
+      <div class="p-3.5 bg-neutral5 rounded-xl border border-neutral4 text-xs text-neutral1 leading-relaxed">
+        ${esc(a.proyek)}
+      </div>
+    </div>` : ''}
+
+    <!-- Official Verification & Audit Stamp -->
+    <div class="border-t-2 border-dashed border-neutral4 pt-4 bg-emerald-50/50 p-4 rounded-xl border border-emerald-200">
+      <div class="flex items-start gap-3">
+        <div class="w-8 h-8 rounded-lg bg-green2 text-white flex items-center justify-center shrink-0 mt-0.5">
+          <i data-lucide="check-check" class="w-4 h-4"></i>
+        </div>
+        <div class="text-xs text-neutral1">
+          <div class="font-bold text-green1 text-sm">Lembar CV Terverifikasi Resmi</div>
+          <div class="mt-0.5 text-neutral2">Dokumen ini diterbitkan melalui <strong>Portal Alumni &amp; Mitra Bengkel Koding UDINUS</strong>. Akses telah dicatat secara real-time oleh <strong>${esc(MITRA.profil.nama_perusahaan)}</strong> pada <em>${nowStr}</em>.</div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  openModal('modal-cv-direct');
+  refreshIcons();
+}
+
+// ==================== DETAIL PROFIL MODAL ====================
+function openAlumniDetail(id) {
+  const a = MITRA.alumni.find(x => x.id === id);
+  if (!a) return;
+
+  const gender = a.gender || 'Laki-laki';
+  const jenis = a.jenis_pekerjaan || 'Full Time';
+  const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
+
+  document.getElementById('modal-alumni-content').innerHTML = `
+    <div class="bg-gradient-to-r from-primary1 to-primary2 p-6 text-white">
+      <div class="flex items-center gap-4">
+        <div class="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur text-white flex items-center justify-center font-bold text-xl shrink-0">
+          ${initials}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-xl font-bold truncate">${esc(a.nama)}</h3>
+          <div class="text-primary4 text-xs mt-0.5">NIM: ${esc(a.nim)} · Angkatan ${a.angkatan} · Lulus ${a.tahun_lulus}</div>
+          <div class="text-primary4 text-xs mt-0.5">IPK: ${a.ipk.toFixed(2)} · ${gender} · ${jenis}</div>
+        </div>
+        <button onclick="closeModal('modal-alumni')" class="p-2 rounded-lg hover:bg-white/20 transition-colors">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Gender</div>
+          <div class="text-xs font-bold text-neutral1">${gender}</div>
+        </div>
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Jenis Pekerjaan</div>
+          <div class="text-xs font-bold text-neutral1">${jenis}</div>
+        </div>
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Tahun Lulus</div>
+          <div class="text-xs font-bold text-neutral1">${a.tahun_lulus}</div>
+        </div>
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60 sm:col-span-2">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Email</div>
+          <a href="mailto:${esc(a.email)}" class="text-xs font-bold text-primary1 hover:underline truncate block">${esc(a.email)}</a>
+        </div>
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Telepon</div>
+          <a href="tel:${esc(a.telepon)}" class="text-xs font-bold text-neutral1 hover:text-primary1 block">${esc(a.telepon)}</a>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-2">Keahlian & Teknologi</div>
+        <div class="flex flex-wrap gap-1.5">
+          ${a.skill.map(s => `<span class="px-2.5 py-1 bg-primary5 text-primary1 text-xs rounded-lg font-semibold">${esc(s)}</span>`).join('')}
+        </div>
+      </div>
+      ${a.bio ? `
+      <div>
+        <div class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-1.5">Ringkasan Profil</div>
+        <div class="p-3 bg-neutral5 rounded-xl text-xs text-neutral1 leading-relaxed border border-neutral4/60">${esc(a.bio)}</div>
+      </div>` : ''}
+      <div class="flex gap-3 pt-3 border-t border-neutral4">
+        <button onclick="closeModal('modal-alumni')" class="btn-outline flex-1 py-2 text-xs font-semibold">Tutup</button>
+        <button onclick="closeModal('modal-alumni');viewCVDirect(${a.id})" class="btn-primary flex-1 py-2 text-xs font-semibold bg-primary1 hover:bg-primary2">
+          <i data-lucide="file-text" class="w-4 h-4"></i>
+          <span>Buka CV Langsung</span>
+        </button>
+      </div>
+    </div>`;
+
+  openModal('modal-alumni');
+  refreshIcons();
+}
+
+function renderAuditLog() {
+  const log = getCvAudit();
+  const el = document.getElementById('cv-audit-log');
+  if (!log.length) {
+    el.innerHTML = '<div class="text-sm text-neutral3 text-center py-6">Belum ada riwayat akses CV.</div>';
+    return;
+  }
+  el.innerHTML = `<div class="divide-y divide-neutral4">
+    ${log.slice(0, 10).map(l => `
+      <div class="py-3 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0">
+            <i data-lucide="file-text" class="w-4 h-4"></i>
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm font-semibold text-neutral1 truncate">${esc(l.alumniNama)}</div>
+            <div class="text-xs text-neutral3">CV diakses oleh ${esc(MITRA.profil.nama_perusahaan)} · ${fmtDateTime(l.waktu)}</div>
+          </div>
+        </div>
+        <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shrink-0">
+          ✓ Tercatat
+        </span>
+      </div>`).join('')}
+  </div>`;
+  refreshIcons();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  render(MITRA.alumni);
+  renderAuditLog();
+
+  ['search-input', 'filter-jenis-pekerjaan', 'filter-gender', 'filter-tahun-lulus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', applyFilter);
+      el.addEventListener('change', applyFilter);
+    }
+  });
+
+  const btnGrid = document.getElementById('btn-grid');
+  const btnList = document.getElementById('btn-list');
+
+  btnGrid.addEventListener('click', () => {
+    currentView = 'grid';
+    btnGrid.classList.add('text-primary1', 'bg-white', 'shadow-sm');
+    btnGrid.classList.remove('text-neutral2');
+    btnList.classList.remove('text-primary1', 'bg-white', 'shadow-sm');
+    btnList.classList.add('text-neutral2');
+    render(filtered);
+  });
+
+  btnList.addEventListener('click', () => {
+    currentView = 'list';
+    btnList.classList.add('text-primary1', 'bg-white', 'shadow-sm');
+    btnList.classList.remove('text-neutral2');
+    btnGrid.classList.remove('text-primary1', 'bg-white', 'shadow-sm');
+    btnGrid.classList.add('text-neutral2');
+    render(filtered);
+  });
+});
+</script>
+</body>
+</html>

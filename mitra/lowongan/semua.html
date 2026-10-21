@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semua Lowongan | Portal Mitra Bengkel Koding</title>
+  <meta name="description" content="Daftar semua lowongan dengan status Draft, Menunggu Persetujuan, Aktif, Ditolak, dan Kedaluwarsa.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../../assets/css/style.css">
+  <script src="../assets/js/mitra.js"></script>
+  <script src="../../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Semua Lowongan">
+
+  <!-- Status Summary Cards -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-3" id="status-cards"></div>
+
+  <!-- Filter Tabs -->
+  <div class="flex items-center gap-1 border-b border-neutral4 overflow-x-auto no-scrollbar pb-0 bg-white rounded-t-xl px-4 pt-2 border-t border-l border-r">
+    <button data-filter="" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-primary1 text-primary1">Semua</button>
+    <button data-filter="Aktif" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-transparent text-neutral2 hover:text-primary1">Aktif</button>
+    <button data-filter="Menunggu Persetujuan" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-transparent text-neutral2 hover:text-primary1">Menunggu</button>
+    <button data-filter="Draft" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-transparent text-neutral2 hover:text-primary1">Draft</button>
+    <button data-filter="Ditolak" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-transparent text-neutral2 hover:text-primary1">Ditolak</button>
+    <button data-filter="Kedaluwarsa" class="filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors border-transparent text-neutral2 hover:text-primary1">Kedaluwarsa</button>
+  </div>
+
+  <!-- Search -->
+  <div class="-mt-6 bg-white border border-neutral4 rounded-b-xl px-4 pb-4 border-t-0">
+    <div class="pt-4 flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral3"></i>
+        <input id="search-semua" type="search" placeholder="Cari posisi atau lokasi..." class="input pl-9">
+      </div>
+      <select id="sort-semua" class="input sm:w-48">
+        <option value="terbaru">Terbaru Dibuat</option>
+        <option value="berlaku">Masa Berlaku</option>
+        <option value="posisi">Nama Posisi (A-Z)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Lowongan Cards -->
+  <div id="lowongan-cards" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
+
+  <div id="empty-state" class="hidden card py-16 text-center">
+    <i data-lucide="inbox" class="w-12 h-12 mx-auto text-neutral4 mb-3"></i>
+    <div class="text-neutral2 font-medium">Tidak ada lowongan ditemukan</div>
+    <a href="kelola.html" class="btn-primary mt-4 inline-flex">Buat Lowongan Baru</a>
+  </div>
+
+</main>
+
+<!-- Modal Detail Lowongan -->
+<div id="modal-detail-lowongan" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-2xl w-full elevation5 max-h-[95vh] overflow-y-auto">
+    <div id="detail-content" class="overflow-hidden rounded-2xl"></div>
+  </div>
+</div>
+
+<script>
+let activeFilter = '';
+let searchQuery = '';
+let sortBy = 'terbaru';
+
+const STATUS_INFO = {
+  'Aktif': { icon: 'check-circle', color: 'text-green1 bg-green3 border-green2/30', desc: 'Aktif & bisa dilamar' },
+  'Menunggu Persetujuan': { icon: 'clock', color: 'text-yellow1 bg-yellow3 border-yellow2/30', desc: 'Menunggu verifikasi koordinator' },
+  'Draft': { icon: 'file-text', color: 'text-neutral2 bg-neutral5 border-neutral4', desc: 'Belum diajukan' },
+  'Ditolak': { icon: 'x-circle', color: 'text-red1 bg-red3 border-red2/30', desc: 'Ditolak koordinator' },
+  'Kedaluwarsa': { icon: 'clock-x', color: 'text-red1 bg-red3 border-red2/30', desc: 'Masa berlaku habis' },
+};
+
+function renderStatusCards() {
+  const statuses = ['Aktif','Menunggu Persetujuan','Draft','Ditolak','Kedaluwarsa'];
+  document.getElementById('status-cards').innerHTML = statuses.map(s => {
+    const info = STATUS_INFO[s];
+    const count = MITRA.lowongan.filter(l => l.status === s).length;
+    return `<div class="bg-white rounded-xl border border-neutral4 p-4 elevation1 cursor-pointer hover:border-primary3 transition-all" onclick="setFilter('${s}')">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${info.color}">${s}</span>
+      </div>
+      <div class="text-2xl font-bold text-neutral1">${count}</div>
+      <div class="text-xs text-neutral3 mt-0.5">${info.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(status) {
+  activeFilter = status;
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    const isActive = btn.dataset.filter === status;
+    btn.className = `filter-tab px-4 py-2.5 text-sm font-medium border-b-2 -mb-px whitespace-nowrap transition-colors ${isActive ? 'border-primary1 text-primary1' : 'border-transparent text-neutral2 hover:text-primary1'}`;
+  });
+  renderCards();
+}
+
+function getSorted(list) {
+  const s = [...list];
+  if (sortBy === 'berlaku') s.sort((a,b) => new Date(a.masa_berlaku) - new Date(b.masa_berlaku));
+  else if (sortBy === 'posisi') s.sort((a,b) => a.posisi.localeCompare(b.posisi, 'id'));
+  else s.sort((a,b) => new Date(b.dibuat) - new Date(a.dibuat));
+  return s;
+}
+
+function renderCards() {
+  const list = getSorted(MITRA.lowongan.filter(l => {
+    const matchF = !activeFilter || l.status === activeFilter;
+    const matchQ = !searchQuery || l.posisi.toLowerCase().includes(searchQuery) || (l.lokasi || '').toLowerCase().includes(searchQuery);
+    return matchF && matchQ;
+  }));
+
+  const empty = document.getElementById('empty-state');
+  const cards = document.getElementById('lowongan-cards');
+  empty.classList.toggle('hidden', list.length > 0);
+  cards.innerHTML = list.map(l => {
+    const info = STATUS_INFO[l.status] || { icon:'circle', color:'bg-neutral5 text-neutral2 border-neutral4' };
+    const gaji = l.tampilkan_gaji && l.gaji_min && l.gaji_max
+      ? `${fmtCurrency(l.gaji_min)} – ${fmtCurrency(l.gaji_max)}`
+      : 'Gaji tidak ditampilkan';
+    const isExpiring = l.masa_berlaku && new Date(l.masa_berlaku) <= new Date(Date.now() + 7 * 86400000) && l.status === 'Aktif';
+    return `<article class="bg-white rounded-xl border ${l.status === 'Ditolak' ? 'border-red2/30' : 'border-neutral4'} elevation1 hover:elevation3 hover:border-primary3 transition-all cursor-pointer" onclick="openDetail(${l.id})">
+      <div class="p-5">
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center text-sm font-bold shrink-0">
+            ${l.posisi.charAt(0).toUpperCase()}
+          </div>
+          <div class="ml-0 flex-1 min-w-0">
+          </div>
+          ${badge(l.status)}
+        </div>
+        <h3 class="font-semibold text-neutral1 mb-1 line-clamp-1">${esc(l.posisi)}</h3>
+        <div class="text-xs text-neutral3 mb-3">${esc(MITRA.profil.nama_perusahaan)} · ${esc(l.lokasi || 'Semarang')}</div>
+
+        <div class="flex flex-wrap gap-1 mb-3">
+          ${[l.tipe_kerja, l.kategori, l.pengalaman].filter(Boolean).map(t => `<span class="px-2 py-0.5 bg-neutral5 text-neutral2 text-xs rounded-md">${esc(t)}</span>`).join('')}
+        </div>
+
+        <div class="flex flex-wrap gap-1 mb-3">
+          ${(l.tags || []).slice(0,3).map(t => `<span class="px-2 py-0.5 bg-primary5 text-primary1 text-xs rounded-md">${esc(t)}</span>`).join('')}
+        </div>
+
+        <div class="text-xs text-neutral2 mb-1">${gaji}</div>
+
+        ${l.status === 'Ditolak' && l.alasan_penolakan ? `
+        <div class="p-2.5 bg-red3/50 rounded-lg border border-red2/20 mb-3">
+          <div class="text-xs text-red1 font-medium mb-0.5">Alasan Penolakan:</div>
+          <div class="text-xs text-red2 line-clamp-2">${esc(l.alasan_penolakan)}</div>
+        </div>` : ''}
+
+        ${isExpiring ? `<div class="flex items-center gap-1 text-xs text-yellow1 bg-yellow3 px-2 py-1 rounded-lg mb-2"><i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i> Segera kedaluwarsa</div>` : ''}
+
+        <div class="flex items-center justify-between pt-3 border-t border-neutral4">
+          <div class="text-xs text-neutral3">Berlaku s/d ${fmtDate(l.masa_berlaku)}</div>
+          <div class="flex gap-1">
+            ${l.status === 'Draft' || l.status === 'Ditolak' ? `
+            <a href="kelola.html" class="btn-icon text-primary1" title="Edit" onclick="event.stopPropagation()">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </a>` : ''}
+            ${l.status === 'Draft' ? `
+            <button onclick="event.stopPropagation();ajukanById(${l.id})" class="btn-icon" title="Ajukan">
+              <i data-lucide="send" class="w-4 h-4"></i>
+            </button>` : ''}
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join('');
+  refreshIcons();
+}
+
+function openDetail(id) {
+  const l = MITRA.lowongan.find(x => x.id === id);
+  if (!l) return;
+  const gaji = l.tampilkan_gaji && l.gaji_min && l.gaji_max
+    ? `${fmtCurrency(l.gaji_min)} – ${fmtCurrency(l.gaji_max)}`
+    : 'Tidak Ditampilkan';
+  document.getElementById('detail-content').innerHTML = `
+    <div class="bg-gradient-to-r from-primary1 to-primary2 p-6 text-white">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="mb-2">${badge(l.status)}</div>
+          <h2 class="text-xl font-bold">${esc(l.posisi)}</h2>
+          <div class="text-primary4 text-sm mt-1">${esc(MITRA.profil.nama_perusahaan)} · ${esc(l.lokasi || 'Semarang')}</div>
+        </div>
+        <button onclick="closeModal('modal-detail-lowongan')" class="p-2 rounded-lg hover:bg-white/20 transition-colors shrink-0">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+    </div>
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        ${[['briefcase','Tipe Kerja',l.tipe_kerja||'-'],['tag','Kategori',l.kategori||'-'],['award','Pengalaman',l.pengalaman||'Tidak ditentukan'],['calendar','Masa Berlaku',fmtDate(l.masa_berlaku)]].map(([icon,label,val])=>`
+        <div class="p-3 bg-neutral5 rounded-xl">
+          <div class="flex items-center gap-1.5 text-xs text-neutral3 mb-1"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${label}</div>
+          <div class="text-sm font-semibold text-neutral1">${esc(val)}</div>
+        </div>`).join('')}
+      </div>
+      <div class="p-3 bg-neutral5 rounded-xl">
+        <div class="text-xs text-neutral3 mb-1">Gaji</div>
+        <div class="text-sm font-semibold text-neutral1">${gaji}</div>
+      </div>
+      ${l.tags && l.tags.length ? `<div><div class="text-sm font-semibold text-neutral1 mb-2">Skill yang Dibutuhkan</div><div class="flex flex-wrap gap-2">${l.tags.map(t=>`<span class="px-3 py-1 bg-primary5 text-primary1 text-sm rounded-lg font-medium">${esc(t)}</span>`).join('')}</div></div>` : ''}
+      ${l.alasan_penolakan ? `
+      <div class="p-4 bg-red3/50 rounded-xl border border-red2/20">
+        <div class="text-sm font-semibold text-red1 mb-1 flex items-center gap-2"><i data-lucide="alert-circle" class="w-4 h-4"></i>Alasan Penolakan</div>
+        <div class="text-sm text-red2">${esc(l.alasan_penolakan)}</div>
+      </div>` : ''}
+      <div>
+        <div class="text-sm font-semibold text-neutral1 mb-2">Deskripsi Pekerjaan</div>
+        <div class="text-sm text-neutral2 whitespace-pre-wrap leading-relaxed">${esc(l.deskripsi || 'Deskripsi belum tersedia.')}</div>
+      </div>
+      <div class="flex flex-wrap gap-3 pt-4 border-t border-neutral4">
+        <button onclick="closeModal('modal-detail-lowongan')" class="btn-outline">Tutup</button>
+        ${l.status === 'Draft' || l.status === 'Ditolak' ? `<a href="kelola.html" class="btn-primary"><i data-lucide="pencil" class="w-4 h-4"></i> Edit Lowongan</a>` : ''}
+        ${l.status === 'Draft' ? `<button onclick="closeModal('modal-detail-lowongan');ajukanById(${l.id})" class="btn-success"><i data-lucide="send" class="w-4 h-4"></i> Ajukan Sekarang</button>` : ''}
+      </div>
+    </div>`;
+  openModal('modal-detail-lowongan');
+  refreshIcons();
+}
+
+function ajukanById(id) {
+  const l = MITRA.lowongan.find(x => x.id === id);
+  if (!l) return;
+  confirmAction({ title: 'Ajukan Lowongan?', message: `Lowongan "${l.posisi}" akan dikirim ke koordinator untuk diverifikasi.`, okLabel: 'Ya, Ajukan' }, () => {
+    l.status = 'Menunggu Persetujuan';
+    l.diajukan = new Date().toISOString().split('T')[0];
+    saveLowongan();
+    showToast('Lowongan berhasil diajukan!', 'success');
+    renderStatusCards(); renderCards();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderStatusCards();
+  renderCards();
+
+  document.querySelectorAll('.filter-tab').forEach(btn => {
+    btn.addEventListener('click', () => setFilter(btn.dataset.filter));
+  });
+
+  document.getElementById('search-semua').addEventListener('input', e => {
+    searchQuery = e.target.value.toLowerCase();
+    renderCards();
+  });
+
+  document.getElementById('sort-semua').addEventListener('change', e => {
+    sortBy = e.target.value;
+    renderCards();
+  });
+});
+</script>
+</body>
+</html>
