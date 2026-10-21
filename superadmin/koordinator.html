@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Koordinator Alumni | SuperAdmin Bengkel Koding</title>
+  <meta name="description" content="Manajemen Koordinator Alumni oleh SuperAdmin Bengkel Koding UDINUS. Penugasan dosen, status aktif, reset password, dan hak akses.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Koordinator Alumni" class="space-y-5">
+
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-neutral1">Manajemen Koordinator Alumni</h2>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+          Khusus SuperAdmin
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-neutral2 mt-1">
+        Kelola penugasan dosen untuk mengampu peran Koordinator Alumni, memoderasi bursa kerja mitra, dan memantau tracer study.
+      </p>
+    </div>
+
+    <!-- Action Button "+ Tambah Koordinator" -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button
+        onclick="openAddKoordinatorModal()"
+        class="btn-primary text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2"
+      >
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>Tambah Koordinator</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter, Search, & Prototype Empty State Toggle Toolbar -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- Search Input -->
+    <div class="relative flex-1 max-w-md">
+      <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input
+        type="text"
+        id="search-input"
+        oninput="handleSearch(this.value)"
+        placeholder="Cari nama koordinator, email, NIDN..."
+        class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3 transition-all"
+      >
+    </div>
+
+    <!-- Filters & Empty State Simulator Toggle -->
+    <div class="flex flex-wrap items-center gap-2.5 text-xs">
+      <select id="status-filter" onchange="handleFilterStatus(this.value)" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status</option>
+        <option value="Aktif">Status: Aktif</option>
+        <option value="Menunggu Undangan">Status: Menunggu Undangan</option>
+        <option value="Nonaktif">Status: Nonaktif</option>
+      </select>
+
+      <!-- Toggle Button for Prototype Demo: Simulate Empty State -->
+      <button
+        type="button"
+        id="toggle-empty-state-btn"
+        onclick="toggleEmptyStateSimulation()"
+        class="px-3 py-2 border border-dashed border-neutral4 hover:border-primary3 text-neutral2 hover:text-primary1 rounded-xl font-medium transition-colors flex items-center gap-1.5"
+        title="Klik untuk menguji tampilan empty state saat belum ada data koordinator"
+      >
+        <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i>
+        <span id="toggle-empty-text">Uji Empty State</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Table Section / Empty State Container -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 elevation2 overflow-hidden">
+    <!-- Table Header Summary -->
+    <div class="px-5 py-4 border-b border-neutral4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-neutral1 uppercase tracking-wider">Daftar Akun Koordinator</span>
+        <span id="badge-total-count" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral5 text-neutral2 border border-neutral4">
+          3 Akun
+        </span>
+      </div>
+      <span class="text-[11px] text-neutral3 hidden sm:inline">
+        Tersambung dengan basis data dosen LMS Bengkel Koding
+      </span>
+    </div>
+
+    <!-- Table Responsive Wrapper -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="koordinator-table">
+        <thead>
+          <tr>
+            <th class="th">Nama &amp; NIDN Dosen</th>
+            <th class="th">Email Resmi</th>
+            <th class="th">Divisi &amp; Alumni Dikelola</th>
+            <th class="th">Status Akun</th>
+            <th class="th">Tgl Ditugaskan</th>
+            <th class="th text-center">Aksi Manajemen</th>
+          </tr>
+        </thead>
+        <tbody id="koordinator-tbody" class="divide-y divide-neutral4">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State View (Tampil saat data kosong atau filter tidak menemukan hasil) -->
+    <div id="empty-state-view" class="hidden p-12 text-center flex flex-col items-center justify-center space-y-3">
+      <div class="w-16 h-16 rounded-2xl bg-neutral5 border border-neutral4/80 text-neutral3 flex items-center justify-center">
+        <i data-lucide="users" class="w-8 h-8"></i>
+      </div>
+      <div class="max-w-sm">
+        <h3 class="text-base font-bold text-neutral1">Belum Ada Koordinator Alumni</h3>
+        <p class="text-xs text-neutral2 mt-1 leading-relaxed">
+          Belum ada akun dosen yang ditugaskan sebagai Koordinator Alumni. SuperAdmin dapat menugaskan dosen terdaftar untuk mulai mengelola tracer study.
+        </p>
+      </div>
+      <button
+        onclick="openAddKoordinatorModal()"
+        class="btn-primary text-xs px-4 py-2 rounded-xl mt-2 flex items-center gap-1.5"
+      >
+        <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+        <span>Tugaskan Koordinator Sekarang</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Petunjuk Keamanan & Hak Akses Jobdesk -->
+  <div class="p-4 bg-blue-50/70 border border-blue-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-blue-900">
+    <div class="flex items-center gap-2.5">
+      <i data-lucide="shield-check" class="w-5 h-5 text-blue-700 shrink-0"></i>
+      <span>
+        <strong>Hak Akses Eksklusif:</strong> Hanya SuperAdmin yang berwenang menugaskan, mereset password, atau mencabut status aktif peran Koordinator Alumni.
+      </span>
+    </div>
+    <span class="text-[11px] text-blue-700 font-semibold shrink-0">Security Audit Policy</span>
+  </div>
+
+</main>
+
+<!-- MODAL 1: Tambah Koordinator Alumni Baru -->
+<div id="add-koordinator-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+    <button onclick="closeModal('add-koordinator-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+        <i data-lucide="user-plus" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="add-modal-title" class="font-bold text-base text-neutral1">Tugaskan Koordinator Alumni</h3>
+        <p class="text-xs text-neutral3">Pilih dosen dari data LMS atau masukkan rincian penugasan baru.</p>
+      </div>
+    </div>
+
+    <form id="add-koordinator-form" onsubmit="handleAddKoordinatorSubmit(event)" class="space-y-4 text-xs">
+      <!-- Opsi Pilih Cepat dari Kandidat Dosen LMS -->
+      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/80 space-y-1.5">
+        <label for="select-kandidat-dosen" class="block font-semibold text-neutral1">Pilih dari Dosen Terdaftar di LMS:</label>
+        <select id="select-kandidat-dosen" onchange="autoFillDosen(this.value)" class="w-full px-3 py-2 border border-neutral4 rounded-lg bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5">
+          <option value="">: Pilih Dosen Tersedia :</option>
+          <!-- Options rendered via JS -->
+        </select>
+        <p class="text-[10px] text-neutral3">Memilih dosen akan otomatis mengisi Nama, NIDN, dan Email resmi.</p>
+      </div>
+
+      <!-- Field Input -->
+      <div>
+        <label for="input-nama" class="label text-xs">Nama Lengkap &amp; Gelar</label>
+        <input type="text" id="input-nama" required placeholder="Contoh: Dr. Ayu Lestari, M.Kom" class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-nidn" class="label text-xs">NIDN / NIP Dosen</label>
+          <input type="text" id="input-nidn" required placeholder="0612058501" class="input">
+        </div>
+        <div>
+          <label for="input-email" class="label text-xs">Alamat Email Resmi</label>
+          <input type="email" id="input-email" required placeholder="dosen@dinus.ac.id" class="input">
+        </div>
+      </div>
+
+      <div>
+        <label for="input-divisi" class="label text-xs">Divisi / Alokasi Alumni yang Dikelola</label>
+        <select id="input-divisi" class="input bg-white cursor-pointer">
+          <option value="Developer & Data Science">Seluruh Divisi (Developer &amp; Data Science)</option>
+          <option value="Divisi Developer">Divisi Developer (Web, Mobile, Software Eng)</option>
+          <option value="Divisi Data Science">Divisi Data Science (AI, ML, Data Analytics)</option>
+        </select>
+      </div>
+
+      <div class="p-3 rounded-xl border border-neutral4 bg-blue-50/50 space-y-1">
+        <label class="flex items-start gap-2 cursor-pointer">
+          <input type="checkbox" id="send-invite-checkbox" checked class="mt-0.5 rounded text-primary1 focus:ring-primary1">
+          <span class="text-[11px] text-neutral2 leading-tight">
+            Kirimkan email undangan aktivasi akun dan kredensial login otomatis kepada dosen yang bersangkutan.
+          </span>
+        </label>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('add-koordinator-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan &amp; Tugaskan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL 2: Edit Koordinator Alumni -->
+<div id="edit-koordinator-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <button onclick="closeModal('edit-koordinator-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center font-bold">
+        <i data-lucide="edit-3" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="edit-modal-title" class="font-bold text-base text-neutral1">Edit Koordinator Alumni</h3>
+        <p class="text-xs text-neutral3">Perbarui rincian penugasan atau alokasi divisi alumni.</p>
+      </div>
+    </div>
+
+    <form id="edit-koordinator-form" onsubmit="handleEditKoordinatorSubmit(event)" class="space-y-4 text-xs">
+      <input type="hidden" id="edit-id">
+
+      <div>
+        <label for="edit-nama" class="label text-xs">Nama Lengkap &amp; Gelar</label>
+        <input type="text" id="edit-nama" required class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-nidn" class="label text-xs">NIDN / NIP Dosen</label>
+          <input type="text" id="edit-nidn" required class="input">
+        </div>
+        <div>
+          <label for="edit-email" class="label text-xs">Alamat Email Resmi</label>
+          <input type="email" id="edit-email" required class="input">
+        </div>
+      </div>
+
+      <div>
+        <label for="edit-divisi" class="label text-xs">Divisi / Alokasi Alumni</label>
+        <select id="edit-divisi" class="input bg-white cursor-pointer">
+          <option value="Developer & Data Science">Seluruh Divisi (Developer &amp; Data Science)</option>
+          <option value="Divisi Developer">Divisi Developer (Web, Mobile, Software Eng)</option>
+          <option value="Divisi Data Science">Divisi Data Science (AI, ML, Data Analytics)</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="edit-status" class="label text-xs">Status Akun</label>
+        <select id="edit-status" class="input bg-white cursor-pointer">
+          <option value="Aktif">Aktif</option>
+          <option value="Menunggu Undangan">Menunggu Undangan</option>
+          <option value="Nonaktif">Nonaktif</option>
+        </select>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('edit-koordinator-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentSearchQuery = '';
+  let currentStatusFilter = 'all';
+  let isSimulatingEmptyState = false;
+
+  // 1. Render Table Data
+  function renderKoordinatorTable() {
+    const tbody = document.getElementById('koordinator-tbody');
+    const tableEl = document.getElementById('koordinator-table');
+    const emptyViewEl = document.getElementById('empty-state-view');
+    const badgeCount = document.getElementById('badge-total-count');
+    if (!tbody) return;
+
+    if (isSimulatingEmptyState) {
+      if (tableEl) tableEl.classList.add('hidden');
+      if (emptyViewEl) emptyViewEl.classList.remove('hidden');
+      if (badgeCount) badgeCount.textContent = '0 Akun';
+      if (window.lucide) window.lucide.createIcons();
+      return;
+    }
+
+    let items = [...(SUPERADMIN.koordinator || [])];
+
+    // Filter status
+    if (currentStatusFilter !== 'all') {
+      items = items.filter(k => k.status === currentStatusFilter);
+    }
+
+    // Filter search
+    if (currentSearchQuery.trim()) {
+      const q = currentSearchQuery.toLowerCase();
+      items = items.filter(k =>
+        k.nama.toLowerCase().includes(q) ||
+        k.email.toLowerCase().includes(q) ||
+        k.nidn.toLowerCase().includes(q)
+      );
+    }
+
+    if (badgeCount) badgeCount.textContent = `${items.length} Akun`;
+
+    if (items.length === 0) {
+      if (tableEl) tableEl.classList.add('hidden');
+      if (emptyViewEl) emptyViewEl.classList.remove('hidden');
+    } else {
+      if (tableEl) tableEl.classList.remove('hidden');
+      if (emptyViewEl) emptyViewEl.classList.add('hidden');
+
+      tbody.innerHTML = items.map(k => {
+        const isAktif = k.status === 'Aktif';
+        const isPending = k.status === 'Menunggu Undangan';
+        const statusBadge = badge(k.status);
+
+        return `
+          <tr class="tr group">
+            <!-- 1. Nama & NIDN -->
+            <td class="td">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 font-bold text-xs flex items-center justify-center shrink-0 border border-purple-200">
+                  ${esc(k.nama.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase())}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-semibold text-neutral1 text-sm">${esc(k.nama)}</div>
+                  <div class="text-[11px] text-neutral3">NIDN: ${esc(k.nidn)}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- 2. Email -->
+            <td class="td text-xs text-neutral1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="mail" class="w-3.5 h-3.5 text-neutral3"></i>
+                <a href="mailto:${esc(k.email)}" class="hover:text-primary1 hover:underline">${esc(k.email)}</a>
+              </div>
+            </td>
+
+            <!-- 3. Divisi & Alumni Dikelola -->
+            <td class="td text-xs text-neutral1">
+              <div class="font-medium">${esc(k.divisi)}</div>
+              <div class="text-[11px] text-neutral3 mt-0.5">${k.alumni_count} Alumni terhubung</div>
+            </td>
+
+            <!-- 4. Status Akun -->
+            <td class="td">
+              ${statusBadge}
+            </td>
+
+            <!-- 5. Tgl Ditugaskan -->
+            <td class="td text-xs text-neutral3 whitespace-nowrap">
+              ${fmtDate(k.ditugaskan)}
+            </td>
+
+            <!-- 6. Aksi Manajemen Sesuai Jobdesk -->
+            <td class="td text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1">
+                <!-- Edit -->
+                <button
+                  type="button"
+                  onclick="openEditModal(${k.id})"
+                  class="btn-icon"
+                  title="Edit Data Koordinator"
+                >
+                  <i data-lucide="pencil" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Reset Password -->
+                <button
+                  type="button"
+                  onclick="handleResetPassword(${k.id}, '${esc(k.nama)}')"
+                  class="btn-icon text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                  title="Reset Password Akun"
+                >
+                  <i data-lucide="key-round" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Kirim Ulang Undangan (Tampil untuk pending atau aktif) -->
+                <button
+                  type="button"
+                  onclick="handleResendInvitation(${k.id}, '${esc(k.nama)}', '${esc(k.email)}')"
+                  class="btn-icon text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  title="Kirim Ulang Undangan Aktivasi"
+                >
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Nonaktifkan / Aktifkan Akun (Dialog Konfirmasi Keamanan) -->
+                ${isAktif ? `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${k.id}, '${esc(k.nama)}', 'Nonaktif')"
+                    class="btn-icon text-red1 hover:text-red2 hover:bg-red3/40"
+                    title="Nonaktifkan Akun Koordinator"
+                  >
+                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                  </button>
+                ` : `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${k.id}, '${esc(k.nama)}', 'Aktif')"
+                    class="btn-icon text-green2 hover:text-green1 hover:bg-green3/40"
+                    title="Aktifkan Kembali Akun"
+                  >
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  // 2. Filter & Search Handlers
+  window.handleSearch = function(val) {
+    currentSearchQuery = val;
+    renderKoordinatorTable();
+  };
+
+  window.handleFilterStatus = function(val) {
+    currentStatusFilter = val;
+    renderKoordinatorTable();
+  };
+
+  window.toggleEmptyStateSimulation = function() {
+    isSimulatingEmptyState = !isSimulatingEmptyState;
+    const btnText = document.getElementById('toggle-empty-text');
+    if (btnText) {
+      btnText.textContent = isSimulatingEmptyState ? 'Tampilkan Data Asli' : 'Uji Empty State';
+    }
+    renderKoordinatorTable();
+  };
+
+  // 3. Modal Add Koordinator
+  window.openAddKoordinatorModal = function() {
+    const selectEl = document.getElementById('select-kandidat-dosen');
+    if (selectEl) {
+      selectEl.innerHTML = '<option value="">: Pilih Dosen Tersedia :</option>' +
+        (SUPERADMIN.kandidatDosen || []).map(d => `
+          <option value="${d.id}">${esc(d.nama)} (${esc(d.prodi)})</option>
+        `).join('');
+    }
+    const form = document.getElementById('add-koordinator-form');
+    if (form) form.reset();
+    openModal('add-koordinator-modal');
+  };
+
+  window.autoFillDosen = function(dosenId) {
+    if (!dosenId) return;
+    const dosen = (SUPERADMIN.kandidatDosen || []).find(d => d.id === Number(dosenId));
+    if (dosen) {
+      document.getElementById('input-nama').value = dosen.nama;
+      document.getElementById('input-nidn').value = dosen.nidn;
+      document.getElementById('input-email').value = dosen.email;
+    }
+  };
+
+  window.handleAddKoordinatorSubmit = function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('input-nama').value.trim();
+    const nidn = document.getElementById('input-nidn').value.trim();
+    const email = document.getElementById('input-email').value.trim();
+    const divisi = document.getElementById('input-divisi').value;
+    const sendInvite = document.getElementById('send-invite-checkbox').checked;
+
+    const newKoor = {
+      id: Date.now(),
+      nama: nama || 'Dosen Koordinator Baru',
+      nidn: nidn || '0610019201',
+      email: email || 'koordinator.baru@dinus.ac.id',
+      status: sendInvite ? 'Menunggu Undangan' : 'Aktif',
+      divisi: divisi,
+      alumni_count: divisi === 'Divisi Developer' ? 140 : divisi === 'Divisi Data Science' ? 110 : 250,
+      ditugaskan: new Date().toISOString().split('T')[0]
+    };
+
+    SUPERADMIN.koordinator.unshift(newKoor);
+    saveKoordinator();
+    closeModal('add-koordinator-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Koordinator "${nama}" berhasil ditugaskan! ${sendInvite ? 'Email undangan telah dikirimkan.' : ''}`);
+    }
+    renderKoordinatorTable();
+  };
+
+  // 4. Modal Edit Koordinator
+  window.openEditModal = function(id) {
+    const k = (SUPERADMIN.koordinator || []).find(item => item.id === id);
+    if (!k) return;
+
+    document.getElementById('edit-id').value = k.id;
+    document.getElementById('edit-nama').value = k.nama;
+    document.getElementById('edit-nidn').value = k.nidn;
+    document.getElementById('edit-email').value = k.email;
+    document.getElementById('edit-divisi').value = k.divisi;
+    document.getElementById('edit-status').value = k.status;
+
+    openModal('edit-koordinator-modal');
+  };
+
+  window.handleEditKoordinatorSubmit = function(e) {
+    e.preventDefault();
+    const id = Number(document.getElementById('edit-id').value);
+    const k = (SUPERADMIN.koordinator || []).find(item => item.id === id);
+    if (!k) return;
+
+    k.nama = document.getElementById('edit-nama').value.trim();
+    k.nidn = document.getElementById('edit-nidn').value.trim();
+    k.email = document.getElementById('edit-email').value.trim();
+    k.divisi = document.getElementById('edit-divisi').value;
+    k.status = document.getElementById('edit-status').value;
+
+    saveKoordinator();
+    closeModal('edit-koordinator-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Data koordinator "${k.nama}" berhasil diperbarui.`);
+    }
+    renderKoordinatorTable();
+  };
+
+  // 5. Aksi Keamanan: Nonaktifkan / Aktifkan Akun (Dengan Dialog Konfirmasi Sesuai Jobdesk)
+  window.handleToggleStatus = function(id, nama, targetStatus) {
+    const isDeactivate = targetStatus === 'Nonaktif';
+
+    confirmAction({
+      title: isDeactivate ? 'Konfirmasi Nonaktifkan Koordinator' : 'Konfirmasi Aktifkan Koordinator',
+      message: isDeactivate
+        ? `Apakah Anda yakin ingin menonaktifkan akun koordinator "${nama}"? Koordinator tidak akan dapat mengakses modul moderasi bursa kerja dan tracer study hingga diaktifkan kembali oleh SuperAdmin.`
+        : `Aktifkan kembali akun koordinator "${nama}" agar dapat bertugas mengelola data alumni?`,
+      okLabel: isDeactivate ? 'Ya, Nonaktifkan Akun' : 'Ya, Aktifkan Akun',
+      danger: isDeactivate
+    }, () => {
+      const k = (SUPERADMIN.koordinator || []).find(item => item.id === id);
+      if (k) {
+        k.status = targetStatus;
+        saveKoordinator();
+        renderKoordinatorTable();
+        if (typeof showToast === 'function') {
+          showToast(`Akun koordinator "${nama}" berhasil diubah menjadi ${targetStatus}.`, isDeactivate ? 'error' : 'success');
+        }
+      }
+    });
+  };
+
+  // 6. Reset Password Aksi
+  window.handleResetPassword = function(id, nama) {
+    confirmAction({
+      title: 'Reset Password Koordinator',
+      message: `Kirimkan instruksi reset password baru ke alamat email terdaftar untuk koordinator "${nama}"? Password sementara akan dikirimkan otomatis oleh sistem.`,
+      okLabel: 'Reset Password',
+      danger: false
+    }, () => {
+      if (typeof showToast === 'function') {
+        showToast(`Tautan reset password baru berhasil dikirimkan ke email ${nama}.`);
+      }
+    });
+  };
+
+  // 7. Kirim Ulang Undangan Aksi
+  window.handleResendInvitation = function(id, nama, email) {
+    if (typeof showToast === 'function') {
+      showToast(`Undangan aktivasi peran Koordinator Alumni berhasil dikirimkan ulang ke ${email}.`);
+    }
+  };
+
+  // Initial Load
+  document.addEventListener('DOMContentLoaded', () => {
+    // Cek query parameter jika dipicu dari aksi cepat (?action=tambah)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'tambah') {
+      setTimeout(() => openAddKoordinatorModal(), 200);
+    }
+    renderKoordinatorTable();
+  });
+</script>
+</body>
+</html>

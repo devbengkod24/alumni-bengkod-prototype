@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | SuperAdmin Bengkel Koding</title>
+  <meta name="description" content="Dashboard SuperAdmin Bengkel Koding UDINUS - Kendali penuh manajemen koordinator alumni, pengguna, dan platform.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Dashboard" class="space-y-4">
+
+  <!-- GREETING BANNER (100% Identik dengan GreetingBanner lms-bengkod-web Admin.tsx) -->
+  <div class="relative rounded-2xl overflow-hidden shadow-md" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%); min-height: 95px;">
+    <div class="absolute inset-0 bg-gradient-to-r from-blue-950/80 via-blue-900/50 to-transparent pointer-events-none"></div>
+    <div class="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
+    <div class="absolute right-32 -top-10 w-48 h-48 rounded-full bg-blue-400/10 blur-xl pointer-events-none"></div>
+
+    <div class="relative z-10 px-6 sm:px-8 py-5 flex flex-col justify-center">
+      <p class="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-1" id="current-date-banner">RABU, 21 OKTOBER 2026</p>
+      <h1 class="text-xl sm:text-2xl font-bold text-white mb-1 leading-tight">Halo, SuperAdmin! 👋</h1>
+      <p class="text-xs sm:text-[12px] text-white/80 max-w-xl leading-relaxed">
+        Kendali penuh atas seluruh platform: kelola penugasan koordinator alumni, hak akses pengguna, kursus, dan integrasi dari satu tempat.
+      </p>
+    </div>
+  </div>
+
+  <!-- 4 STAT CARDS WITH VIVID GRADIENTS (100% Identik dengan StatCard lms-bengkod-web) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <!-- Card 1: Total Koordinator Alumni (Purple / Indigo) -->
+    <a href="koordinator.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
+        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+      </div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #C4B5FD;">KOORDINATOR ALUMNI</p>
+        <p id="stat-total-koor" class="text-[22px] font-bold text-white leading-none">3</p>
+        <p class="text-[10px] mt-1" style="color: #C4B5FD;">Total pengelola terdaftar</p>
+      </div>
+    </a>
+
+    <!-- Card 2: Koordinator Aktif (Teal / Emerald) -->
+    <a href="koordinator.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#0f766e 0%,#0d9488 100%);">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
+        <i data-lucide="shield-check" class="w-5 h-5"></i>
+      </div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #99F6E4;">KOORDINATOR AKTIF</p>
+        <p id="stat-aktif-koor" class="text-[22px] font-bold text-white leading-none">2</p>
+        <p class="text-[10px] mt-1" style="color: #99F6E4;">Status akun bertugas</p>
+      </div>
+    </a>
+
+    <!-- Card 3: Total Alumni Terkelola (Orange / Amber) -->
+    <a href="koordinator.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#9a3412 0%,#ea580c 100%);">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
+        <i data-lucide="users" class="w-5 h-5"></i>
+      </div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #FED7AA;">ALUMNI TERKELOLA</p>
+        <p id="stat-alumni-count" class="text-[22px] font-bold text-white leading-none">250</p>
+        <p class="text-[10px] mt-1" style="color: #FED7AA;">Dalam 2 divisi spesialisasi</p>
+      </div>
+    </a>
+
+    <!-- Card 4: Undangan Pending (Rose / Crimson) -->
+    <a href="koordinator.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#9f1239 0%,#e11d48 100%);">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
+        <i data-lucide="mail-check" class="w-5 h-5"></i>
+      </div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #FECDD3;">UNDANGAN PENDING</p>
+        <p id="stat-pending-koor" class="text-[22px] font-bold text-white leading-none">1</p>
+        <p class="text-[10px] mt-1" style="color: #FECDD3;">Menunggu aktivasi</p>
+      </div>
+    </a>
+  </div>
+
+  <!-- TWO MAIN COLUMNS -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+    <!-- LEFT 2 COLUMNS: Daftar Koordinator Alumni Bertugas -->
+    <div class="lg:col-span-2 bg-white rounded-2xl border border-neutral4/80 p-5 flex flex-col gap-3 elevation1">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center flex-shrink-0">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-semibold text-neutral1">Koordinator Alumni Bertugas</p>
+            <p class="text-[11px] text-neutral3 mt-0.5">Dosen penanggung jawab modul alumni dan tracer study</p>
+          </div>
+        </div>
+        <a href="koordinator.html" class="text-xs font-semibold text-primary2 hover:underline shrink-0">
+          Kelola semua
+        </a>
+      </div>
+
+      <!-- Quick List -->
+      <div id="quick-koordinator-list" class="flex flex-col gap-2 mt-2">
+        <!-- Rendered via JS -->
+      </div>
+
+      <div class="pt-3 border-t border-neutral4/70 flex items-center justify-between text-xs text-neutral3">
+        <span>Hak akses: Hanya SuperAdmin yang berwenang menugaskan koordinator</span>
+        <a href="koordinator.html" class="font-semibold text-primary1 hover:underline flex items-center gap-1">
+          <span>Buka Manajemen Koordinator</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Aksi Cepat & Kebijakan Hak Akses -->
+    <div class="space-y-4">
+      <div class="bg-white rounded-2xl border border-neutral4/80 p-5 elevation1 space-y-3">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-xl bg-neutral5 flex items-center justify-center flex-shrink-0 text-neutral2">
+            <i data-lucide="zap" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-semibold text-neutral1">Aksi Cepat SuperAdmin</h3>
+            <p class="text-[11px] text-neutral3">Pintasan tugas administratif utama</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 pt-1">
+          <a href="koordinator.html?action=tambah" class="flex items-center gap-3 p-3 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/20 transition-all group">
+            <div class="w-8 h-8 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-neutral1 group-hover:text-primary1 transition-colors">+ Tambah Koordinator Alumni</div>
+              <div class="text-[10px] text-neutral3">Pilih dari dosen terdaftar di LMS</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-neutral3 ml-auto shrink-0 group-hover:text-primary3 transition-colors"></i>
+          </a>
+
+          <a href="koordinator.html" class="flex items-center gap-3 p-3 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/20 transition-all group">
+            <div class="w-8 h-8 rounded-lg bg-green3 text-green1 flex items-center justify-center shrink-0">
+              <i data-lucide="list-checks" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <div class="text-xs font-semibold text-neutral1 group-hover:text-primary1 transition-colors">Daftar &amp; Status Koordinator</div>
+              <div class="text-[10px] text-neutral3">Reset password &amp; kelola status aktif</div>
+            </div>
+            <i data-lucide="chevron-right" class="w-4 h-4 text-neutral3 ml-auto shrink-0 group-hover:text-primary3 transition-colors"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Info Box Keamanan Role -->
+      <div class="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl space-y-2">
+        <div class="flex items-center gap-2 text-purple-900 font-semibold text-xs">
+          <i data-lucide="shield-alert" class="w-4 h-4 text-purple-700"></i>
+          <span>Prinsip Keamanan Hak Akses</span>
+        </div>
+        <p class="text-[11px] text-purple-800 leading-relaxed">
+          Koordinator Alumni memiliki wewenang memoderasi bursa kerja mitra dan tracer study, namun <strong>tidak dapat mengelola akun koordinator lain atau SuperAdmin</strong>. Pembuatan dan pencabutan hak akses koordinator dipegang penuh oleh SuperAdmin.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  // 1. Banner Date
+  const today = new Date();
+  const dateFormatted = today.toLocaleDateString('id-ID', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  }).toUpperCase();
+  const dateBanner = document.getElementById('current-date-banner');
+  if (dateBanner) dateBanner.textContent = dateFormatted;
+
+  // 2. Render Stat Cards & List Koordinator
+  document.addEventListener('DOMContentLoaded', () => {
+    const list = SUPERADMIN.koordinator || [];
+    const aktif = list.filter(k => k.status === 'Aktif');
+    const pending = list.filter(k => k.status === 'Menunggu Undangan');
+    const totalAlumniManaged = list.reduce((sum, k) => sum + (k.alumni_count || 0), 0);
+
+    const totalEl = document.getElementById('stat-total-koor');
+    const aktifEl = document.getElementById('stat-aktif-koor');
+    const alumniEl = document.getElementById('stat-alumni-count');
+    const pendingEl = document.getElementById('stat-pending-koor');
+
+    if (totalEl) totalEl.textContent = list.length;
+    if (aktifEl) aktifEl.textContent = aktif.length;
+    if (alumniEl) alumniEl.textContent = totalAlumniManaged;
+    if (pendingEl) pendingEl.textContent = pending.length;
+
+    // Render Quick List
+    const container = document.getElementById('quick-koordinator-list');
+    if (!container) return;
+
+    if (list.length === 0) {
+      container.innerHTML = `
+        <div class="text-center py-8 text-neutral3 text-xs bg-neutral5/60 rounded-xl border border-neutral4/60">
+          <i data-lucide="users" class="w-8 h-8 mx-auto mb-2 text-neutral3"></i>
+          <p>Belum ada koordinator alumni yang ditugaskan.</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = list.slice(0, 4).map(k => {
+        const isAktif = k.status === 'Aktif';
+        const badgeCls = isAktif ? 'bg-green3 text-green1' : k.status === 'Menunggu Undangan' ? 'bg-yellow3 text-yellow1' : 'bg-red3 text-red1';
+
+        return `
+          <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors border border-transparent hover:border-neutral4/80">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center font-bold text-xs bg-primary5 text-primary1 border border-primary4/50">
+                ${esc(k.nama.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase())}
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-xs font-semibold text-neutral1 truncate">${esc(k.nama)}</p>
+                <p class="text-[10px] text-neutral3 truncate">${esc(k.email)} · NIDN: ${esc(k.nidn)} · Mengelola ${k.alumni_count} Alumni</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeCls}">
+                ${esc(k.status)}
+              </span>
+              <a href="koordinator.html" class="p-1 rounded-md text-neutral3 hover:text-primary1 hover:bg-white transition-colors" title="Buka Detail">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  });
+</script>
+</body>
+</html>
