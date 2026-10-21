@@ -168,14 +168,17 @@ root/
 │   ├── dashboard.html
 │   └── assets/
 │       └── js/alumni.js
-├── koordinator/                       # Role: Koordinator Alumni
-│   ├── dashboard.html
-│   ├── analitik.html
-│   ├── rekap-tahunan.html
-│   ├── lowongan-review.html
-│   ├── manajemen-users.html
+├── koordinator/                       # Role: Koordinator Alumni (8 menu sidebar)
+│   ├── dashboard.html                 # Ringkasan + log audit aksi sensitif
+│   ├── analitik.html                  # Tracer study & masa tunggu (Chart.js)
+│   ├── rekap-tahunan.html             # Rekap per tahun lulus + ekspor CSV
+│   ├── pengumuman.html
+│   ├── manajemen-users.html           # Hanya role alumni & mitra yang bisa dikelola
+│   ├── forum.html                     # Moderasi laporan & thread
+│   ├── tracer-data.html               # Verifikasi data alumni & mitra
+│   ├── lowongan.html                  # Pengajuan (setujui/tolak), semua, kelola
 │   └── assets/
-│       └── js/koordinator.js
+│       └── js/koordinator.js          # Sidebar, data dummy, helper bersama
 ├── mitra/                             # Role: Mitra Perusahaan
 │   ├── dashboard.html
 │   ├── lengkapi-profil.html

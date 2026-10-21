@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forum | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Moderasi Forum">
+
+  <div>
+    <h2 class="text-2xl font-semibold text-neutral1">Moderasi Forum</h2>
+    <p class="text-sm text-neutral2 mt-1">Tinjau laporan pengguna dan hapus thread atau komentar yang melanggar aturan.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="flex border-b border-neutral4 px-2 overflow-x-auto" role="tablist">
+      <button data-tab="laporan" role="tab">Laporan Masuk <span id="count" class="ml-1 px-1.5 rounded-full bg-red3 text-red1 text-xs"></span></button>
+      <button data-tab="thread" role="tab">Semua Thread</button>
+    </div>
+
+    <div id="tab-laporan" role="tabpanel"><ul id="laporan" class="divide-y divide-neutral4"></ul></div>
+
+    <div id="tab-thread" role="tabpanel" class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr><th class="th">Thread</th><th class="th text-right">Komentar</th><th class="th">Dibuat</th><th class="th text-right">Aksi</th></tr></thead>
+        <tbody id="threads"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function render() {
+    const pending = KOOR.laporanForum.filter(l => l.status === 'pending').length;
+    document.getElementById('count').textContent = pending;
+
+    document.getElementById('laporan').innerHTML = KOOR.laporanForum.map(l => `
+      <li class="p-5 flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2 mb-1">${badge(l.jenis)} ${badge(l.status)}
+            <span class="text-xs text-neutral3">${fmtDate(l.tanggal)} · ${l.pelapor} pelapor</span></div>
+          <div class="font-medium text-neutral1">${esc(l.judul)}</div>
+          <div class="text-sm text-neutral2 mt-0.5">Oleh ${esc(l.penulis)} · Alasan: <span class="text-red1 font-medium">${esc(l.reason)}</span></div>
+        </div>
+        ${l.status === 'pending' ? `<div class="flex gap-2 shrink-0">
+          <button class="btn-outline" onclick="tindak(${l.id}, false)">Abaikan</button>
+          <button class="btn-danger" onclick="tindak(${l.id}, true)"><i data-lucide="trash-2" class="w-4 h-4"></i> Hapus ${l.jenis}</button>
+        </div>` : ''}
+      </li>`).join('');
+
+    document.getElementById('threads').innerHTML = KOOR.threads.map(t => `
+      <tr class="tr">
+        <td class="td"><div class="font-medium">${esc(t.judul)}</div><div class="text-xs text-neutral3">oleh ${esc(t.penulis)}</div></td>
+        <td class="td text-right">${t.komentar}</td>
+        <td class="td whitespace-nowrap">${fmtDate(t.tanggal)}</td>
+        <td class="td text-right"><button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapusThread(${t.id})" aria-label="Hapus thread" title="Hapus thread"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+      </tr>`).join('') || '<tr><td colspan="4" class="td text-center text-neutral3 py-8">Belum ada thread.</td></tr>';
+    refreshIcons();
+  }
+
+  function tindak(id, hapus) {
+    const l = KOOR.laporanForum.find(x => x.id === id);
+    const apply = () => {
+      l.status = hapus ? 'approved' : 'rejected';
+      audit(hapus ? `Hapus ${l.jenis.toLowerCase()} forum` : 'Abaikan laporan forum', l.judul);
+      render();
+      showToast(hapus ? `${l.jenis} dihapus dari forum.` : 'Laporan diabaikan.');
+    };
+    if (!hapus) return apply();
+    confirmAction({ title: `Hapus ${l.jenis.toLowerCase()}?`, message: `"${l.judul}" oleh ${l.penulis} akan dihapus dari forum.`, okLabel: 'Hapus', danger: true }, apply);
+  }
+
+  function hapusThread(id) {
+    const t = KOOR.threads.find(x => x.id === id);
+    confirmAction({ title: 'Hapus thread?', message: `"${t.judul}" beserta ${t.komentar} komentarnya akan dihapus.`, okLabel: 'Hapus', danger: true }, () => {
+      KOOR.threads = KOOR.threads.filter(x => x.id !== id);
+      audit('Hapus thread forum', t.judul);
+      render();
+      showToast('Thread dihapus.');
+    });
+  }
+
+  render();
+  initTabs();
+</script>
+</body>
+</html>

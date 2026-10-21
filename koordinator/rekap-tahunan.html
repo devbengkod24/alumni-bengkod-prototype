@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rekap Tahunan | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Rekap Tahunan">
+
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-neutral1">Rekap per Tahun Lulus</h2>
+      <p class="text-sm text-neutral2 mt-1">Total alumni, alumni yang sudah mendaftar di portal, dan status karir yang terdeteksi.</p>
+    </div>
+    <button id="btn-export" class="btn-primary"><i data-lucide="download" class="w-4 h-4"></i> Ekspor CSV / Excel</button>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th class="th">Tahun Lulus</th>
+          <th class="th text-right">Total Alumni</th>
+          <th class="th text-right">Terdaftar</th>
+          <th class="th">Cakupan</th>
+          <th class="th text-right">Full Time</th>
+          <th class="th text-right">Part Time</th>
+          <th class="th text-right">Wirausaha</th>
+          <th class="th text-right">Studi Lanjut</th>
+          <th class="th text-right">Mencari Kerja</th>
+          <th class="th text-right">Masa Tunggu</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+        <tfoot id="total" class="bg-neutral5 font-semibold text-sm"></tfoot>
+      </table>
+    </div>
+  </section>
+
+  <p class="text-xs text-neutral3">Cakupan = alumni terdaftar ÷ total alumni. Status karir dihitung dari alumni terdaftar yang mengisi tracer study.</p>
+
+</main>
+
+<script>
+  const cols = ['total', 'terdaftar', 'fulltime', 'parttime', 'wirausaha', 'studi', 'mencari'];
+  const pct = r => Math.round(r.terdaftar / r.total * 100);
+  const cell = v => `<td class="td text-right tabular-nums">${v}</td>`;
+  const coverage = p => `<td class="td"><div class="flex items-center gap-2 min-w-28">
+      <div class="flex-1 h-2 bg-neutral5 rounded-full overflow-hidden"><div class="h-full bg-primary3 rounded-full" style="width:${p}%"></div></div>
+      <span class="text-xs text-neutral2 w-9 text-right">${p}%</span></div></td>`;
+
+  document.getElementById('rows').innerHTML = KOOR.rekap.map(r => `
+    <tr class="tr">
+      <td class="td font-medium">${r.tahun}</td>
+      ${cell(r.total)}${cell(r.terdaftar)}${coverage(pct(r))}
+      ${cols.slice(2).map(k => cell(r[k])).join('')}
+      ${cell(r.masaTunggu + ' bln')}
+    </tr>`).join('');
+
+  const tot = Object.fromEntries(cols.map(k => [k, KOOR.rekap.reduce((s, r) => s + r[k], 0)]));
+  document.getElementById('total').innerHTML = `<tr>
+    <td class="td">Total</td>${cell(tot.total)}${cell(tot.terdaftar)}${coverage(pct(tot))}
+    ${cols.slice(2).map(k => cell(tot[k])).join('')}<td class="td"></td></tr>`;
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    downloadCSV('rekap-tahunan-alumni.csv', [
+      ['Tahun Lulus', 'Total Alumni', 'Terdaftar', 'Cakupan (%)', 'Bekerja Full Time', 'Bekerja Part Time', 'Wirausaha', 'Melanjutkan Pendidikan', 'Mencari Pekerjaan', 'Rata-rata Masa Tunggu (bulan)'],
+      ...KOOR.rekap.map(r => [r.tahun, r.total, r.terdaftar, pct(r), r.fulltime, r.parttime, r.wirausaha, r.studi, r.mencari, r.masaTunggu]),
+    ]);
+    showToast('Rekap tahunan berhasil diekspor.');
+  });
+</script>
+</body>
+</html>
