@@ -70,14 +70,12 @@
   <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-neutral4">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
-        <!-- Brand Logo -->
-        <a href="index.html" class="flex items-center gap-3 group focus:outline-none focus:ring-2 focus:ring-primary1 rounded-xl p-1">
-          <div class="w-10 h-10 rounded-xl bg-primary1 flex items-center justify-center text-white shadow-md shadow-primary1/20 group-hover:bg-primary2 transition-colors">
-            <i data-lucide="graduation-cap" class="w-6 h-6"></i>
-          </div>
-          <div>
-            <div class="font-bold text-lg text-primary1 tracking-tight leading-none">Bengkel Koding</div>
-            <div class="text-[11px] text-primary3 font-semibold tracking-wider mt-0.5">PORTAL ALUMNI & MITRA</div>
+        <!-- Brand Logo Resmi Bengkel Koding -->
+        <a href="index.html" class="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-xl p-1">
+          <img src="assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-10 w-auto object-contain">
+          <div class="hidden sm:block border-l border-neutral4 pl-3">
+            <span class="text-[11px] font-bold text-primary1 tracking-wider block leading-none">PORTAL ALUMNI</span>
+            <span class="text-[10px] text-primary3 font-semibold tracking-wider block mt-0.5">&amp; MITRA INDUSTRI</span>
           </div>
         </a>
 
@@ -95,10 +93,10 @@
           <button onclick="openModal('role-select-modal')" class="px-4 py-2.5 text-sm font-medium text-neutral1 hover:text-primary1 hover:bg-primary5 rounded-lg border border-neutral4 transition-colors focus:outline-none focus:ring-4 focus:ring-primary5">
             Pilih Akses Role
           </button>
-          <button onclick="openModal('register-info-modal')" class="px-5 py-2.5 text-sm font-medium rounded-lg text-white bg-primary1 hover:bg-primary2 focus:ring-4 focus:ring-primary5 transition-all shadow-sm flex items-center gap-2">
+          <a href="alumni/register.html" class="px-5 py-2.5 text-sm font-medium rounded-lg text-white bg-primary1 hover:bg-primary2 focus:ring-4 focus:ring-primary5 transition-all shadow-sm flex items-center gap-2">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>Daftar Akun</span>
-          </button>
+            <span>Registrasi Alumni</span>
+          </a>
         </div>
 
         <!-- Mobile Menu Toggle Button -->
@@ -123,7 +121,10 @@
       <a href="#tracer-study" class="block px-3 py-2 rounded-lg text-sm font-medium text-neutral1 hover:bg-neutral5">Tracer Study</a>
       <a href="#kontak" class="block px-3 py-2 rounded-lg text-sm font-medium text-neutral1 hover:bg-neutral5">Kontak Lab</a>
       <div class="pt-3 border-t border-neutral4 space-y-2">
-        <button onclick="openModal('role-select-modal')" class="w-full text-center py-2.5 px-4 rounded-lg text-sm font-semibold bg-primary1 text-white">
+        <a href="alumni/register.html" class="block text-center py-2.5 px-4 rounded-lg text-sm font-semibold bg-primary1 text-white">
+          Registrasi Akun Alumni
+        </a>
+        <button onclick="openModal('role-select-modal')" class="w-full text-center py-2.5 px-4 rounded-lg text-sm font-medium border border-neutral4 text-neutral1">
           Buka Pilihan Role
         </button>
       </div>
@@ -152,21 +153,24 @@
             </span>
 
             <!-- Main Heading with Gradient Text Clip -->
-            <h1 class="font-bold text-3xl sm:text-4xl lg:text-[3.25rem] leading-[1.18] tracking-tight text-slate-900">
-              Sinergi Alumni dan{" "}
-              <span
-                class="text-transparent bg-clip-text"
-                style="background-image: linear-gradient(95deg, #1D4ED8 10%, #0891B2 90%);"
-              >
-                Peluang Karir
+            <h1 class="font-bold text-3xl sm:text-4xl lg:text-[3.25rem] tracking-tight text-slate-900 leading-[1.3] sm:leading-[1.35] lg:leading-[1.3]">
+              <span class="block">
+                Sinergi Alumni dan
+                <span
+                  class="text-transparent bg-clip-text"
+                  style="background-image: linear-gradient(95deg, #1D4ED8 10%, #0891B2 90%);"
+                >
+                  Peluang Karir
+                </span>
               </span>
-              <br />
-              Bengkel Koding{" "}
-              <span
-                class="text-transparent bg-clip-text"
-                style="background-image: linear-gradient(95deg, #1D4ED8 10%, #0891B2 90%);"
-              >
-                UDINUS
+              <span class="block mt-2 sm:mt-3">
+                Bengkel Koding
+                <span
+                  class="text-transparent bg-clip-text"
+                  style="background-image: linear-gradient(95deg, #1D4ED8 10%, #0891B2 90%);"
+                >
+                  UDINUS
+                </span>
               </span>
             </h1>
 
@@ -330,12 +334,12 @@
               <div class="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-green1 mb-2">Peran 03</div>
               <h3 class="font-bold text-lg text-neutral1">Mitra Industri</h3>
               <p class="text-xs text-neutral2 mt-2 leading-relaxed">
-                Perusahaan atau organisasi penyedia peluang. Melengkapi profil wajib, mengajukan lowongan dengan live preview, serta meninjau CV alumni yang disetujui.
+                Akun mitra dibuatkan dan dikelola langsung oleh Koordinator Alumni (menu Management Users). Mitra yang telah memiliki akun dapat melengkapi profil perusahaan, memasang lowongan, dan meninjau CV alumni yang disetujui.
               </p>
               <ul class="mt-4 space-y-2 text-xs text-neutral2">
-                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-green2"></i> Form Lengkapi Profil Perusahaan</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-green2"></i> Akun Dibuatkan oleh Koordinator</li>
+                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-green2"></i> Form Lengkapi Profil Perusahaan Wajib</li>
                 <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-green2"></i> Form Lowongan + Pratinjau Langsung</li>
-                <li class="flex items-center gap-2"><i data-lucide="check" class="w-3.5 h-3.5 text-green2"></i> Akses CV &amp; Jejak Log Audit</li>
               </ul>
             </div>
             <div class="mt-6 pt-4 border-t border-neutral4">
@@ -550,11 +554,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
         <div class="md:col-span-2">
-          <div class="flex items-center gap-2.5 text-primary1 font-bold text-base mb-2">
-            <div class="w-7 h-7 rounded-lg bg-primary1 text-white flex items-center justify-center">
-              <i data-lucide="graduation-cap" class="w-4 h-4"></i>
-            </div>
-            Bengkel Koding Universitas Dian Nuswantoro
+          <div class="flex items-center gap-3 mb-3">
+            <img src="assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
           </div>
           <p class="text-neutral3 max-w-sm leading-relaxed text-xs">
             Platform pembelajaran dan pengembangan kompetensi unggulan Fakultas Ilmu Komputer. Menghubungkan mahasiswa, asisten lab, alumni, dan dunia industri.
@@ -749,6 +750,9 @@
         </div>
       </div>
       <div class="text-xs text-neutral2 space-y-2.5 leading-relaxed bg-neutral5 p-4 rounded-xl border border-neutral4">
+        <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 font-medium">
+          <strong>Catatan Alur Akun:</strong> Akun Mitra Industri dibuatkan dan ditambahkan langsung oleh <strong>Koordinator Alumni</strong> melalui menu Management Users. Mitra tidak melakukan registrasi publik mandiri.
+        </div>
         <div><strong>1. UI Lengkapi Profil Wajib:</strong> Data perusahaan, penanggung jawab (PIC), tentang mitra, dan unggah logo perusahaan sebelum dapat memasang lowongan.</div>
         <div><strong>2. Form Tambah Lowongan (Kelola):</strong> Input posisi, pengalaman, kategori, masa berlaku, gaji, dan pratinjau sebelum diajukan ke koordinator.</div>
         <div><strong>3. Data Alumni &amp; CV:</strong> Akses hanya bagi alumni yang mengizinkan data dibagikan, dengan jejak audit log.</div>
@@ -796,33 +800,6 @@
     </div>
   </div>
 
-  <!-- Modal 6: Dialog Informasi Registrasi -->
-  <div id="register-info-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 elevation5 relative" role="dialog" aria-modal="true" aria-labelledby="register-modal-title">
-      <button onclick="closeModal('register-info-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-      <div class="flex items-center gap-3 mb-4">
-        <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center">
-          <i data-lucide="user-plus" class="w-5 h-5"></i>
-        </div>
-        <div>
-          <h3 id="register-modal-title" class="font-bold text-base text-neutral1">Alur Pendaftaran Akun</h3>
-          <p class="text-xs text-neutral3">Pilih tipe akun yang ingin Anda daftarkan.</p>
-        </div>
-      </div>
-      <div class="space-y-3">
-        <button onclick="closeModal('register-info-modal'); openModal('alumni-dialog');" class="w-full p-3 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/40 text-left transition-all">
-          <div class="font-bold text-sm text-neutral1">Daftar sebagai Alumni Bengkel Koding</div>
-          <div class="text-xs text-neutral3 mt-0.5">Wajib memiliki NIM dan tahun kelulusan terdaftar di UDINUS.</div>
-        </button>
-        <button onclick="closeModal('register-info-modal'); openModal('mitra-dialog');" class="w-full p-3 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/40 text-left transition-all">
-          <div class="font-bold text-sm text-neutral1">Daftar sebagai Mitra Perusahaan</div>
-          <div class="text-xs text-neutral3 mt-0.5">Memerlukan verifikasi profil perusahaan dan data kontak penanggung jawab.</div>
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- Modal 7: Dialog Kontak Lab -->
   <div id="contact-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">

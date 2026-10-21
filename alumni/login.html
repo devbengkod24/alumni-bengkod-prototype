@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk | Portal Alumni Bengkel Koding UDINUS</title>
+  <!-- Google Fonts: Poppins (100% Identik dengan lms-bengkod-web) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="../assets/css/style.css">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Poppins', 'sans-serif'],
+          },
+          colors: {
+            primary1: "#1E3A8A",
+            primary2: "#1D4ED8",
+            primary3: "#3B82F6",
+            primary4: "#93C5FD",
+            primary5: "#DBEAFE",
+            secondary1: "#FFC150",
+            secondary2: "#FFCD73",
+            secondary3: "#FFE0A8",
+            secondary4: "#DEDFE1",
+            neutral1: "#46494E",
+            neutral2: "#55585E",
+            neutral3: "#6B6E76",
+            neutral4: "#DEDFE1",
+            neutral5: "#F4F4F4",
+            neutral6: "#FFFFFF",
+            green1: "#1C6A1A",
+            green2: "#068913",
+            green3: "#CDFECF",
+            red1: "#B00B0B",
+            red2: "#D73D3D",
+            red3: "#FCC6CD",
+            yellow1: "#8F6F00",
+            yellow2: "#FFCE22",
+            yellow3: "#FFECAA",
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#F4F4F4] text-neutral1 antialiased font-sans m-0 p-0 overflow-hidden">
+
+  <!-- Container Split-Screen (100% Mengikuti Struktur lms-bengkod-web app/(auth)/masuk/page.tsx) -->
+  <div class="min-h-screen w-full flex overflow-hidden bg-white">
+
+    <!-- LEFT: Form Area (45% pada Desktop) -->
+    <div class="w-full md:w-[45%] flex flex-col justify-center h-screen overflow-y-auto px-6 lg:px-12 py-8">
+      <div class="max-w-[21rem] w-full mx-auto">
+
+        <!-- Logo Resmi Bengkel Koding -->
+        <a href="../index.html" class="flex justify-center mb-5 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-xl p-1">
+          <img
+            src="../assets/images/bengkelkoding-text.webp"
+            alt="Bengkel Koding Logo"
+            class="h-10 w-auto object-contain"
+          >
+        </a>
+
+        <!-- Heading Text -->
+        <div class="mb-5 text-left">
+          <h2 class="font-bold text-xl text-neutral1 mb-1">Masuk</h2>
+          <p class="text-neutral3 text-xs sm:text-sm leading-relaxed">
+            Siap Melangkah Lebih Jauh? Ayo Masuk ke Portal Alumni!
+          </p>
+        </div>
+
+        <!-- Login Form Khusus Prototype (Bebas Klik Tanpa Blokir Validasi) -->
+        <form id="login-form" novalidate class="flex flex-col gap-0" onsubmit="handleLoginSubmit(event)">
+
+          <!-- Input Email / NIM -->
+          <div class="mb-4">
+            <label for="login_identity" class="block text-sm font-medium text-neutral2 mb-1">
+              Email atau NIM <span class="text-neutral3 text-xs font-normal">(Opsional saat demo)</span>
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <input
+                type="text"
+                id="login_identity"
+                name="identity"
+                placeholder="nama@email.com atau A11.2021.13456"
+                class="block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 sm:text-sm transition-all"
+              >
+            </div>
+          </div>
+
+          <!-- Input Password dengan Toggle Visibility -->
+          <div class="mb-2">
+            <label for="login_password" class="block text-sm font-medium text-neutral2 mb-1">
+              Password <span class="text-neutral3 text-xs font-normal">(Opsional saat demo)</span>
+            </label>
+            <div class="mt-1 relative rounded-md shadow-sm">
+              <input
+                type="password"
+                id="login_password"
+                name="password"
+                placeholder="Masukkan password Anda"
+                class="block w-full pl-3.5 pr-10 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 sm:text-sm transition-all"
+              >
+              <button
+                type="button"
+                onclick="toggleLoginPassword()"
+                aria-label="Tampilkan atau sembunyikan password"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-neutral3 hover:text-neutral1 focus:outline-none"
+              >
+                <span id="login-eye-icon">
+                  <i data-lucide="eye" class="w-4 h-4"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Lupa Password Link -->
+          <div class="flex justify-end mb-6">
+            <a
+              href="#"
+              onclick="alert('Fitur reset password: Silakan hubungi koordinator lab jika lupa akses akun.')"
+              class="text-xs text-neutral3 hover:text-primary1 hover:underline w-fit"
+            >
+              Lupa password?
+            </a>
+          </div>
+
+          <!-- Submit Button (Primary Button Bengkel Koding) -->
+          <button
+            type="submit"
+            id="login-btn"
+            class="w-full px-5 py-2.5 font-medium rounded-lg text-white bg-primary1 hover:bg-primary2 focus:ring-4 focus:ring-primary5 focus:outline-none transition-all duration-200 flex items-center justify-center gap-2 min-h-[44px]"
+          >
+            <svg id="login-spinner" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white hidden" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span id="login-btn-text">Masuk</span>
+          </button>
+        </form>
+
+        <!-- Info Box (Identik dengan lms-bengkod-web box informasi) -->
+        <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-3">
+          <i data-lucide="info" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"></i>
+          <div>
+            <p class="text-xs font-semibold text-blue-900 mb-0.5">Belum memiliki akun alumni?</p>
+            <p class="text-xs text-blue-700 leading-relaxed">
+              Silakan lakukan
+              <a href="register.html" class="underline font-semibold hover:text-blue-900">
+                registrasi akun alumni
+              </a>
+              terlebih dahulu untuk mengisi tracer study dan mengakses bursa kerja.
+            </p>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="flex items-center gap-3 my-4">
+          <div class="flex-1 h-px bg-neutral4 rounded-full"></div>
+          <p class="text-xs text-neutral3 font-medium">atau</p>
+          <div class="flex-1 h-px bg-neutral4 rounded-full"></div>
+        </div>
+
+        <!-- Back to Home Button -->
+        <a
+          href="../index.html"
+          class="w-full flex items-center justify-center gap-2 bg-white border border-neutral4 hover:bg-neutral5 text-neutral1 font-medium text-xs px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm min-h-[44px]"
+        >
+          <i data-lucide="home" class="w-3.5 h-3.5 text-neutral2"></i>
+          <span>Kembali ke Halaman Utama</span>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- RIGHT: Illustration Panel (55% pada Desktop, 100% Identik dengan lms-bengkod-web) -->
+    <div class="hidden md:block md:w-[55%] h-screen p-4 lg:p-5 flex-shrink-0">
+      <div
+        class="h-full w-full bg-gradient-to-tr from-primary1 via-blue-900 to-indigo-950 rounded-2xl overflow-hidden relative shadow-xl flex flex-col justify-between p-7 lg:p-9 2xl:p-11 text-white"
+      >
+        <!-- Overlay Gradien Lembut -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10 pointer-events-none"></div>
+
+        <!-- Background Decorative Circles -->
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 top-20 w-80 h-80 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none"></div>
+
+        <!-- Top Label: Garis Pembatas dan Teks Tengah -->
+        <div class="relative z-10 flex items-center gap-2 font-semibold text-white/90 text-xs sm:text-sm">
+          <div class="w-5 h-px bg-white/80 rounded-full"></div>
+          Bengkel Koding UDINUS
+          <div class="w-5 h-px bg-white/80 rounded-full"></div>
+        </div>
+
+        <!-- Bottom Headline & Description (Identik dengan pola lms-bengkod-web) -->
+        <div class="relative z-10 max-w-lg">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white mb-3 backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-secondary1"></span>
+            Portal Resmi Alumni &amp; Kemitraan
+          </span>
+
+          <h1 class="font-bold text-xl lg:text-2xl 2xl:text-3xl leading-tight mb-2.5 text-white">
+            Menghubungkan Jejak Asisten,<br>
+            Membuka Gerbang Industri
+          </h1>
+
+          <p class="text-white/80 text-xs sm:text-sm leading-relaxed">
+            Wadah purna tugas asisten laboratorium Bengkel Koding UDINUS. Pantau tracer study, perbarui rekam jejak karir, dan temukan lowongan terverifikasi bersama mitra industri terpercaya.
+          </p>
+
+          <div class="mt-5 flex items-center gap-4 text-xs text-white/70 pt-4 border-t border-white/20">
+            <span>Fakultas Ilmu Komputer</span>
+            <span>&bull;</span>
+            <span>Universitas Dian Nuswantoro</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Script Interaktivitas Form Login -->
+  <script src="../assets/js/main.js"></script>
+  <script>
+    function toggleLoginPassword() {
+      const pwdInput = document.getElementById('login_password');
+      const iconSpan = document.getElementById('login-eye-icon');
+      if (!pwdInput || !iconSpan) return;
+
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        iconSpan.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4"></i>';
+      } else {
+        pwdInput.type = 'password';
+        iconSpan.innerHTML = '<i data-lucide="eye" class="w-4 h-4"></i>';
+      }
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+
+    function handleLoginSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      const spinner = document.getElementById('login-spinner');
+      const btnText = document.getElementById('login-btn-text');
+
+      btn.disabled = true;
+      btn.classList.add('opacity-75', 'cursor-not-allowed');
+      spinner.classList.remove('hidden');
+      btnText.textContent = 'Memverifikasi...';
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.classList.remove('opacity-75', 'cursor-not-allowed');
+        spinner.classList.add('hidden');
+        btnText.textContent = 'Masuk';
+
+        if (typeof window.showToast === 'function') {
+          window.showToast('Login Berhasil! Mengarahkan ke Dashboard...', 'success');
+        } else {
+          alert('Login Berhasil!');
+        }
+
+        setTimeout(() => {
+          window.location.href = 'dashboard.html';
+        }, 500);
+      }, 500);
+    }
+  </script>
+</body>
+</html>
