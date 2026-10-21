@@ -1,0 +1,373 @@
+/**
+ * Shared JS role SuperAdmin: config Tailwind, layout sidebar/topbar, data dummy, helper.
+ * Dimuat di <head> setelah Tailwind CDN dan sebelum ../assets/js/main.js,
+ * supaya sidebar sudah ada saat main.js membuat ikon Lucide.
+ */
+
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Poppins', 'sans-serif'] },
+      colors: {
+        primary1: '#1E3A8A', primary2: '#1D4ED8', primary3: '#3B82F6', primary4: '#93C5FD', primary5: '#DBEAFE',
+        secondary1: '#FFC150', secondary2: '#FFCD73', secondary3: '#FFE0A8', secondary4: '#DEDFE1',
+        neutral1: '#46494E', neutral2: '#55585E', neutral3: '#6B6E76', neutral4: '#DEDFE1', neutral5: '#F4F4F4', neutral6: '#FFFFFF',
+        green1: '#1C6A1A', green2: '#068913', green3: '#CDFECF',
+        red1: '#B00B0B', red2: '#D73D3D', red3: '#FCC6CD',
+        yellow1: '#8F6F00', yellow2: '#FFCE22', yellow3: '#FFECAA',
+        blue1: '#002C9D', blue2: '#2E63EA', blue3: '#B0C6FF',
+      },
+    },
+  },
+};
+
+// Komponen UI dari DESIGN.md §4 (diproses Tailwind CDN lewat @apply)
+document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
+@layer components {
+  .card { @apply bg-white rounded-xl border border-neutral4 p-6; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+  .th { @apply bg-neutral5 text-neutral2 text-xs font-semibold uppercase tracking-wider py-3.5 px-4 text-left border-b border-neutral4 whitespace-nowrap; }
+  .tr { @apply border-b border-neutral4 hover:bg-blue-50/40 text-sm text-neutral1 transition-colors; }
+  .td { @apply py-3.5 px-4 align-top; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 disabled:opacity-40 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn text-white bg-primary1 hover:bg-primary2 focus:ring-primary5; }
+  .btn-outline { @apply btn text-neutral1 bg-white hover:bg-neutral5 border border-neutral4 focus:ring-neutral5; }
+  .btn-danger { @apply btn text-white bg-red2 hover:bg-red1 focus:ring-red3; }
+  .btn-success { @apply btn text-white bg-green2 hover:bg-green1 focus:ring-green3; }
+  .btn-icon { @apply p-2 rounded-lg text-neutral2 hover:bg-primary5 hover:text-primary1 focus:outline-none focus:ring-2 focus:ring-primary3 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent; }
+  .label { @apply block text-sm font-medium text-neutral2 mb-1.5; }
+  .input { @apply block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all duration-150; }
+  .modal-backdrop { @apply fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4; }
+  .modal { @apply bg-white rounded-2xl w-full p-6 max-h-[90vh] overflow-y-auto; box-shadow: 0 12px 16px rgba(0, 0, 0, 0.1); }
+}
+</style>`);
+
+function lsGet(k, def) {
+  try {
+    const v = localStorage.getItem(k);
+    return v ? JSON.parse(v) : def;
+  } catch {
+    return def;
+  }
+}
+
+function lsSet(k, val) {
+  try {
+    localStorage.setItem(k, JSON.stringify(val));
+  } catch {
+    // LocalStorage diblokir: abaikan
+  }
+}
+
+// ===================== DATA DUMMY SUPERADMIN =====================
+const SUPERADMIN_DEFAULT = {
+  user: { name: 'Super Admin', email: 'superadmin@dinus.ac.id' },
+  koordinator: [
+    {
+      id: 1,
+      nama: 'Dr. Ayu Lestari, M.Kom',
+      nidn: '0612058501',
+      email: 'ayu.lestari@dinus.ac.id',
+      status: 'Aktif',
+      divisi: 'Developer & Data Science',
+      alumni_count: 250,
+      ditugaskan: '2026-01-15'
+    },
+    {
+      id: 2,
+      nama: 'Bambang Nugroho, M.T',
+      nidn: '0621098802',
+      email: 'bambang.nugroho@dinus.ac.id',
+      status: 'Aktif',
+      divisi: 'Divisi Developer',
+      alumni_count: 140,
+      ditugaskan: '2026-02-01'
+    },
+    {
+      id: 3,
+      nama: 'Rina Puspitasari, M.Cs',
+      nidn: '0614039101',
+      email: 'rina.puspitasari@dinus.ac.id',
+      status: 'Menunggu Undangan',
+      divisi: 'Divisi Data Science',
+      alumni_count: 110,
+      ditugaskan: '2026-10-10'
+    },
+  ],
+  kandidatDosen: [
+    { id: 101, nama: 'Hendro Wijaya, S.Kom., M.Cs', nidn: '0612048901', email: 'hendro.wijaya@dinus.ac.id', prodi: 'Teknik Informatika' },
+    { id: 102, nama: 'Siti Nurhaliza, M.Kom', nidn: '0615089202', email: 'siti.nurhaliza@dinus.ac.id', prodi: 'Sistem Informasi' },
+    { id: 103, nama: 'Agus Setiawan, M.T', nidn: '0605118701', email: 'agus.setiawan@dinus.ac.id', prodi: 'Teknik Informatika' },
+    { id: 104, nama: 'Dewi Rahmawati, M.Cs', nidn: '0620029003', email: 'dewi.rahmawati@dinus.ac.id', prodi: 'Ilmu Komunikasi / TI' }
+  ]
+};
+
+const SUPERADMIN = {
+  user: SUPERADMIN_DEFAULT.user,
+  koordinator: lsGet('superadmin-koordinator', SUPERADMIN_DEFAULT.koordinator),
+  kandidatDosen: SUPERADMIN_DEFAULT.kandidatDosen,
+};
+
+function saveKoordinator() {
+  lsSet('superadmin-koordinator', SUPERADMIN.koordinator);
+}
+
+// ===================== HELPERS =====================
+const BADGE = {
+  green: 'bg-green3 text-green1 border-green2/30',
+  yellow: 'bg-yellow3 text-yellow1 border-yellow2/30',
+  red: 'bg-red3 text-red1 border-red2/30',
+  blue: 'bg-primary5 text-primary1 border-primary4/50',
+};
+const BADGE_COLOR = {
+  'Aktif': 'green',
+  'Menunggu Undangan': 'yellow',
+  'Nonaktif': 'red',
+};
+
+function badge(status) {
+  const cls = BADGE[BADGE_COLOR[status] || 'blue'];
+  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${status}</span>`;
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function fmtDate(iso) {
+  return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ':';
+}
+
+// Dialog konfirmasi generik untuk aksi sensitif
+let pendingConfirm = null;
+function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = false }, onOk) {
+  const titleEl = document.getElementById('confirm-title');
+  const messageEl = document.getElementById('confirm-message');
+  const ok = document.getElementById('confirm-ok');
+  if (titleEl) titleEl.textContent = title;
+  if (messageEl) messageEl.textContent = message;
+  if (ok) {
+    ok.textContent = okLabel;
+    ok.className = `px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-4 ${danger ? 'bg-red2 hover:bg-red1 focus:ring-red3' : 'bg-primary1 hover:bg-primary2 focus:ring-primary5'}`;
+  }
+  pendingConfirm = onOk;
+  openModal('confirm-modal');
+}
+
+// Navigasi SuperAdmin (Sesuai Aside.tsx lms-bengkod-web dengan menu Pengguna bertingkat)
+const SUPERADMIN_NAV = [
+  { href: 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
+  {
+    label: 'Pengguna',
+    icon: 'users',
+    submenu: [
+      { href: '#', icon: 'shield', label: 'Admin', match: 'admin' },
+      { href: '#', icon: 'user-check', label: 'Dosen', match: 'dosen' },
+      { href: '#', icon: 'award', label: 'Asisten', match: 'asisten' },
+      { href: '#', icon: 'user', label: 'Mahasiswa', match: 'mahasiswa' },
+      { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator Alumni', match: 'koordinator.html', badge: 'Baru' },
+    ]
+  },
+  { href: '#', icon: 'layers', label: 'Kelas' },
+  { href: '#', icon: 'book-open', label: 'Kursus' },
+  { href: '#', icon: 'route', label: 'Learning Path' },
+  { href: '#', icon: 'file-text', label: 'Manajemen Konten' },
+  { href: '#', icon: 'history', label: 'Log Aktivitas' },
+];
+
+// ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
+document.addEventListener('DOMContentLoaded', () => {
+  const main = document.querySelector('main[data-title]');
+  if (!main) return;
+  const current = location.pathname.split('/').pop() || 'index.html';
+
+  const navItems = SUPERADMIN_NAV.map(n => {
+    if (n.submenu) {
+      const subActive = n.submenu.some(s => s.match === current);
+      const subItems = n.submenu.map(s => {
+        const active = s.match === current;
+        return `<a href="${s.href}" ${active ? 'aria-current="page"' : ''}
+          class="flex items-center justify-between w-full pl-9 pr-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral2 hover:bg-primary5 hover:text-primary1'}">
+          <span class="flex items-center gap-2.5">
+            <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0"></i>
+            <span>${s.label}</span>
+          </span>
+          ${s.badge ? `<span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${active ? 'bg-white text-primary1' : 'bg-primary5 text-primary1'}">${s.badge}</span>` : ''}
+        </a>`;
+      }).join('');
+
+      return `<div class="space-y-0.5">
+        <button data-submenu-toggle class="flex items-center justify-between gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${subActive ? 'text-primary1 bg-primary5' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
+          <span class="flex items-center gap-3">
+            <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i>
+            <span>${n.label}</span>
+          </span>
+          <i data-lucide="chevron-down" class="w-4 h-4 shrink-0 transition-transform ${subActive ? 'rotate-180' : ''}"></i>
+        </button>
+        <div class="space-y-0.5 ${subActive ? '' : 'hidden'}" data-submenu>${subItems}</div>
+      </div>`;
+    }
+
+    const active = n.match === current;
+    return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
+      class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
+      <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i>
+      <span>${n.label}</span>
+    </a>`;
+  }).join('');
+
+  document.body.insertAdjacentHTML('afterbegin', `
+    <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu SuperAdmin">
+      <a href="../index.html" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
+        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
+      </a>
+      <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
+      <div class="p-3 border-t border-neutral4">
+        <a href="http://127.0.0.1:5500/" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+          <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
+      </div>
+    </aside>`);
+
+  // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
+  const isDashboard = current === 'index.html' || main.dataset.title === 'Dashboard';
+  const pageTitle = esc(main.dataset.title);
+
+  const breadcrumbHTML = isDashboard
+    ? `<a href="index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1">SuperAdmin</span>`
+    : `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Pengguna</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+
+  const wrapper = document.createElement('div');
+  wrapper.id = 'main-wrapper';
+  wrapper.className = 'lg:ml-64 min-h-screen flex flex-col transition-all duration-300';
+  wrapper.innerHTML = `
+    <!-- Topbar Header Identik dengan lms-bengkod-web Nav.tsx -->
+    <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <!-- Hamburger Menu Toggle (Selalu tampil di desktop & mobile) -->
+        <button
+          id="sidebar-toggle"
+          type="button"
+          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0"
+          aria-label="Toggle sidebar"
+          aria-expanded="true"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M20 11H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1zM4 18h10c.55 0-1 .45-1 1s.45 1 1 1H4c-.55 0-1-.45-1-1s.45-1-1-1zM20 6H4c-.55 0-1 .45-1 1v.01c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1z"/>
+          </svg>
+        </button>
+
+        <!-- Breadcrumb Nav -->
+        <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">
+          ${breadcrumbHTML}
+        </nav>
+      </div>
+
+      <!-- Right Header: Profil User -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Profil Avatar & Identitas -->
+        <div class="flex items-center gap-2.5">
+          <div class="text-right hidden sm:block">
+            <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(SUPERADMIN.user.name)}</div>
+            <div class="text-[11px] text-neutral3">Super Administrator</div>
+          </div>
+          <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200">
+            SA
+          </div>
+        </div>
+      </div>
+    </header>`;
+
+  main.classList.add('flex-1', 'p-4', 'sm:p-6', 'space-y-6');
+  main.before(wrapper);
+  wrapper.appendChild(main);
+
+  // Modal konfirmasi bersama
+  document.body.insertAdjacentHTML('beforeend', `
+    <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
+        <h3 id="confirm-title" class="font-semibold text-base text-neutral1"></h3>
+        <p id="confirm-message" class="!text-sm text-neutral2 mt-2"></p>
+        <div class="mt-6 flex justify-end gap-2">
+          <button onclick="closeModal('confirm-modal')" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5">Batal</button>
+          <button id="confirm-ok"></button>
+        </div>
+      </div>
+    </div>`);
+
+  document.getElementById('confirm-ok').addEventListener('click', () => {
+    closeModal('confirm-modal');
+    if (pendingConfirm) pendingConfirm();
+    pendingConfirm = null;
+  });
+
+  // Toggle sidebar desktop collapse & mobile drawer (100% Mengikuti Aside.tsx lms-bengkod-web)
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebar-overlay');
+  const toggleBtn = document.getElementById('sidebar-toggle');
+
+  const checkIsDesktop = () => window.innerWidth >= 1024;
+  let sidebarOpen = checkIsDesktop();
+
+  function applySidebarState() {
+    const desktop = checkIsDesktop();
+    if (sidebarOpen) {
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      if (desktop) {
+        wrapper.classList.remove('lg:ml-0');
+        wrapper.classList.add('lg:ml-64');
+        overlay.classList.add('hidden');
+      } else {
+        wrapper.classList.remove('lg:ml-64');
+        wrapper.classList.add('lg:ml-0');
+        overlay.classList.remove('hidden');
+      }
+    } else {
+      sidebar.classList.remove('translate-x-0');
+      sidebar.classList.add('-translate-x-full');
+      wrapper.classList.remove('lg:ml-64');
+      wrapper.classList.add('lg:ml-0');
+      overlay.classList.add('hidden');
+    }
+    toggleBtn.setAttribute('aria-expanded', sidebarOpen ? 'true' : 'false');
+  }
+
+  applySidebarState();
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    sidebarOpen = !sidebarOpen;
+    applySidebarState();
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebarOpen = false;
+    applySidebarState();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !checkIsDesktop() && sidebarOpen) {
+      sidebarOpen = false;
+      applySidebarState();
+    }
+  });
+
+  // Submenu toggle untuk Pengguna
+  document.querySelectorAll('[data-submenu-toggle]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const submenu = btn.nextElementSibling;
+      const chevron = btn.querySelector('[data-lucide="chevron-down"]');
+      const hidden = submenu.classList.toggle('hidden');
+      if (chevron) chevron.classList.toggle('rotate-180', !hidden);
+    });
+  });
+
+  if (window.lucide) window.lucide.createIcons();
+});
