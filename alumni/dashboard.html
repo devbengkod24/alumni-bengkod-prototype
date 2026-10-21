@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed Aktivitas Alumni | Portal Alumni Bengkel Koding</title>
+  <meta name="description" content="Linimasa interaktif kegiatan, proyek, dan postingan seluruh alumni Bengkel Koding UDINUS.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/alumni.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Dashboard">
+
+  <!-- Container Utama (100% Identik dengan app/(dashboard)/dashboard/alumni/page.tsx) -->
+  <div class="w-full max-w-6xl mx-auto flex flex-col gap-6 py-2">
+
+    <!-- Toast Notifikasi (Identik dengan page.tsx) -->
+    <div id="dashboard-toast" class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 text-[14px] hidden transition-opacity duration-300">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span id="dashboard-toast-text">Notifikasi</span>
+    </div>
+
+    <!-- Header FYP Feed Alumni (100% Identik dengan page.tsx) -->
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Feed Aktivitas Alumni</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          Linimasa interaktif kegiatan dan postingan seluruh alumni Bengkel Koding
+        </p>
+      </div>
+      <button
+        id="btn-create-post-feed"
+        type="button"
+        onclick="openPostModal()"
+        class="px-5 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2 shadow-sm cursor-pointer focus:outline-none focus:ring-4 focus:ring-primary5"
+      >
+        <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+          </svg>
+        </div>
+        <span>Buat Post</span>
+      </button>
+    </div>
+
+    <!-- ============================================================
+        FEED POSTINGAN (MURNI POSTINGAN SAJA - FYP)
+    ============================================================ -->
+    <div class="space-y-6" id="feed-posts-container">
+      <!-- Rendered via JS -->
+    </div>
+
+  </div>
+
+</main>
+
+<!-- ============================================================
+    MODAL 1: BUAT POSTINGAN BARU (100% Identik dengan PostModals.tsx)
+============================================================ -->
+<div id="modal-create-post" data-modal-backdrop class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] hidden items-center justify-center p-4">
+  <form
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="add-post-title"
+    onsubmit="handleSavePost(event)"
+    class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+    style="width: 90vw; maxWidth: 1024px; height: min(92vh, 720px);"
+  >
+    <!-- HEADER -->
+    <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+      <h2 id="add-post-title" class="text-[20px] font-bold text-gray-900 tracking-tight">
+        Tambah postingan
+      </h2>
+      <button
+        type="button"
+        onclick="closeModal('modal-create-post')"
+        class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer"
+        aria-label="Tutup modal"
+      >
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- BODY KOTAK ISIAN -->
+    <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
+      <!-- KOTAK 1: VISIBILITAS -->
+      <div class="space-y-1.5">
+        <label for="post-modal-visibility" class="block text-[14px] font-medium text-gray-700">
+          Visibilitas <span class="text-red-500 font-bold">*</span>
+        </label>
+        <div class="relative">
+          <select
+            id="post-modal-visibility"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer appearance-none pr-10"
+          >
+            <option value="Semua orang">Semua orang (Bisa dilihat siapa saja)</option>
+            <option value="Pengikut">Pengikut (Hanya pengikut Anda)</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+            <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- KOTAK 2: KETERANGAN -->
+      <div class="space-y-1.5">
+        <label for="post-modal-content" class="block text-[14px] font-medium text-gray-700">
+          Keterangan <span class="text-red-500 font-bold">*</span>
+        </label>
+        <textarea
+          id="post-modal-content"
+          rows="4"
+          placeholder="Jelaskan detail postingan, cerita, atau pencapaian Anda..."
+          style="resize: none;"
+          class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"
+        ></textarea>
+      </div>
+
+      <!-- KOTAK 3: MEDIA (UPLOAD GAMBAR) -->
+      <div class="space-y-1.5">
+        <label class="block text-[14px] font-medium text-gray-700">Media</label>
+        <div class="flex items-center gap-3">
+          <input
+            type="file"
+            id="post-image-file"
+            accept="image/*"
+            onchange="handleImageUpload(event)"
+            class="hidden"
+          >
+          <label
+            for="post-image-file"
+            class="px-4 py-2 border border-gray-300 hover:border-[#1E3A8A] rounded-lg text-sm font-medium text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer inline-flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+            <span>Pilih Gambar</span>
+          </label>
+          <span id="post-image-filename" class="text-xs text-gray-400 truncate">Format JPG/PNG, maks 8MB</span>
+        </div>
+        <!-- Preview Image Container -->
+        <div id="post-image-preview-box" class="hidden mt-3 relative rounded-xl border border-gray-200 overflow-hidden max-h-56 bg-gray-50 flex items-center justify-center">
+          <img id="post-image-preview-img" src="" alt="Preview" class="max-h-56 object-contain">
+          <button
+            type="button"
+            onclick="clearUploadedImage()"
+            class="absolute top-2 right-2 p-1.5 rounded-full bg-black/60 text-white hover:bg-black/80 transition-colors"
+            title="Hapus Gambar"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER MODAL -->
+    <div class="px-6 sm:px-8 py-4 border-t border-gray-200 flex items-center justify-end gap-3 flex-shrink-0 bg-gray-50/50">
+      <button
+        type="button"
+        onclick="closeModal('modal-create-post')"
+        class="px-5 py-2.5 rounded-lg border border-gray-300 hover:bg-gray-100 text-sm font-semibold text-gray-700 transition-colors cursor-pointer"
+      >
+        Batal
+      </button>
+      <button
+        type="submit"
+        class="px-6 py-2.5 rounded-lg bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-sm font-semibold transition-colors cursor-pointer shadow-sm"
+      >
+        Posting
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ============================================================
+    MODAL 2: BAGIKAN DISERTAI PENDAPAT (100% Identik dengan page.tsx)
+============================================================ -->
+<div id="modal-share-opinion-dashboard" data-modal-backdrop class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] hidden items-center justify-center p-4 animate-in fade-in duration-150">
+  <div
+    style="width: 95vw; maxWidth: 620px;"
+    class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+  >
+    <!-- Header Modal -->
+    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img
+          id="share-user-avatar"
+          src=""
+          alt="Avatar"
+          class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50"
+        >
+        <div>
+          <h4 id="share-user-name" class="font-bold text-gray-900 text-[15px]">Aisha Dwi Rahmawati</h4>
+          <div class="flex items-center gap-2 mt-0.5">
+            <span class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+              </svg>
+              <span>Posting ke Semua orang</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </div>
+      <button
+        type="button"
+        onclick="closeModal('modal-share-opinion-dashboard')"
+        class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+        aria-label="Tutup"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Input Pemikiran & Preview Post -->
+    <div class="p-6 overflow-y-auto space-y-4 flex-1">
+      <textarea
+        id="share-opinion-textarea"
+        rows="3"
+        placeholder="Tambahkan pemikiran Anda (Opsional)"
+        class="w-full resize-none text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"
+      ></textarea>
+
+      <!-- Preview Box dari Post Asli -->
+      <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <img
+              id="share-preview-author-avatar"
+              src=""
+              alt=""
+              class="w-10 h-10 rounded-full object-cover border border-gray-200"
+            >
+            <div>
+              <p id="share-preview-author-name" class="font-bold text-[14px] text-gray-900"></p>
+              <p id="share-preview-author-headline" class="text-[12px] text-gray-500 truncate max-w-[320px]"></p>
+            </div>
+          </div>
+          <span class="text-[13px] font-semibold text-[#1E3A8A] flex items-center gap-1 cursor-pointer hover:underline">
+            + Ikuti
+          </span>
+        </div>
+        <p id="share-preview-content" class="text-[13px] text-gray-800 leading-relaxed line-clamp-3"></p>
+        <div id="share-preview-image-wrap" class="hidden rounded-lg overflow-hidden border border-gray-200 max-h-48 bg-gray-100 flex items-center justify-center">
+          <img id="share-preview-image" src="" alt="Pratinjau Media" class="w-full h-full object-cover">
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Modal -->
+    <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+      <div class="flex items-center gap-3 text-gray-500">
+        <button type="button" title="Tambahkan emoji" class="p-2 hover:bg-gray-100 hover:text-gray-700 rounded-full transition-colors cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+            <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            <line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button
+          type="button"
+          onclick="closeModal('modal-share-opinion-dashboard')"
+          class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
+        >
+          Batal
+        </button>
+        <button
+          type="button"
+          onclick="handleSaveShareOpinion()"
+          class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors"
+        >
+          Bagikan
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+    MODAL 3: KIRIM KE ALUMNI LAIN / PESAN PRIBADI (100% Identik dengan page.tsx)
+============================================================ -->
+<div id="modal-send-post-dashboard" data-modal-backdrop class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] hidden items-center justify-center p-4 animate-in fade-in duration-150">
+  <div
+    style="width: 95vw; maxWidth: 600px;"
+    class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
+  >
+    <!-- TAMPILAN 1: PILIH REKAN ALUMNI -->
+    <div id="send-view-select-recipient" class="flex flex-col h-full">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div>
+          <h3 class="text-[17px] font-bold text-gray-900">Kirim dalam Pesan Pribadi</h3>
+          <p class="text-[13px] text-gray-500 mt-0.5">Pilih alumni yang ingin Anda bagikan postingan ini</p>
+        </div>
+        <button
+          type="button"
+          onclick="closeModal('modal-send-post-dashboard')"
+          class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Pencarian Alumni -->
+      <div class="p-4 border-b border-gray-100 bg-gray-50/50">
+        <div class="relative">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+          >
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" />
+          </svg>
+          <input
+            type="text"
+            id="send-search-input"
+            oninput="handleSearchRecipients(this.value)"
+            placeholder="Ketik satu atau beberapa nama alumni..."
+            class="w-full pl-10 pr-4 py-2 bg-white rounded-xl border border-gray-200 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 shadow-sm"
+          >
+        </div>
+      </div>
+
+      <!-- Daftar Alumni -->
+      <div class="p-4 overflow-y-auto space-y-2 flex-1 max-h-[380px]" id="send-recipients-list">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Footer Daftar -->
+      <div class="px-6 py-3.5 border-t border-gray-100 flex items-center justify-between bg-gray-50/70">
+        <span class="text-[13px] text-gray-500">Klik nama alumni untuk membuka kolom percakapan</span>
+        <button
+          type="button"
+          onclick="closeModal('modal-send-post-dashboard')"
+          class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-[13px] font-semibold rounded-lg transition-colors cursor-pointer"
+        >
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <!-- TAMPILAN 2: PERCAKAPAN DENGAN REKAN ALUMNI -->
+    <div id="send-view-chat" class="hidden flex-col h-full">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            onclick="backToSelectRecipient()"
+            class="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 hover:text-gray-900 transition-colors cursor-pointer mr-1"
+            title="Kembali ke daftar alumni"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <img
+            id="chat-recipient-avatar"
+            src=""
+            alt=""
+            class="w-11 h-11 rounded-full object-cover border border-gray-200"
+          >
+          <div>
+            <h4 id="chat-recipient-name" class="font-bold text-gray-900 text-[15px]">Nama Alumni</h4>
+            <p id="chat-recipient-headline" class="text-[12px] text-gray-500 truncate max-w-[300px]">Headline Alumni</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="closeModal('modal-send-post-dashboard')"
+          class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-4 flex-1 bg-gray-50/50 max-h-[420px]">
+        <!-- Bubble Lampiran Postingan -->
+        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm space-y-2.5">
+          <div class="flex items-center gap-2 text-[12px] font-semibold text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span>Melampirkan Postingan:</span>
+          </div>
+          <div class="flex items-center gap-2.5 pt-1">
+            <img id="chat-post-avatar" src="" alt="" class="w-8 h-8 rounded-full object-cover border border-gray-200">
+            <div>
+              <p id="chat-post-author" class="font-bold text-[13px] text-gray-900"></p>
+              <p id="chat-post-date" class="text-[11px] text-gray-400"></p>
+            </div>
+          </div>
+          <p id="chat-post-content" class="text-[13px] text-gray-700 leading-relaxed line-clamp-3 bg-gray-50/70 p-2.5 rounded-lg border border-gray-100"></p>
+        </div>
+
+        <!-- Rekomendasi Pesan Singkat Chips -->
+        <div>
+          <p class="text-[12px] font-semibold text-gray-500 mb-2">Pesan Cepat:</p>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setQuickMessage('Coba lihat postingan ini! 👀')" class="text-[12px] px-3 py-1 rounded-full bg-white border border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-colors cursor-pointer text-gray-700 shadow-2xs">Coba lihat postingan ini! 👀</button>
+            <button type="button" onclick="setQuickMessage('Keren banget materinya! 🚀')" class="text-[12px] px-3 py-1 rounded-full bg-white border border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-colors cursor-pointer text-gray-700 shadow-2xs">Keren banget materinya! 🚀</button>
+            <button type="button" onclick="setQuickMessage('Bisa bermanfaat untuk proyek kita')" class="text-[12px] px-3 py-1 rounded-full bg-white border border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-colors cursor-pointer text-gray-700 shadow-2xs">Bisa bermanfaat untuk proyek kita</button>
+            <button type="button" onclick="setQuickMessage('Diskusi bareng tentang ini yuk!')" class="text-[12px] px-3 py-1 rounded-full bg-white border border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A] transition-colors cursor-pointer text-gray-700 shadow-2xs">Diskusi bareng tentang ini yuk!</button>
+          </div>
+        </div>
+
+        <!-- Input Pesan -->
+        <div>
+          <label for="chat-message-input" class="block text-[13px] font-semibold text-gray-700 mb-1.5">
+            Tulis pesan pengantar (Opsional):
+          </label>
+          <textarea
+            id="chat-message-input"
+            rows="3"
+            placeholder="Halo, ini postingan yang menurutku menarik..."
+            class="w-full p-3 rounded-xl border border-gray-200 bg-white text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 shadow-sm resize-none leading-relaxed"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Footer Chat -->
+      <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+        <button
+          type="button"
+          onclick="backToSelectRecipient()"
+          class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+        >
+          Kembali
+        </button>
+        <button
+          type="button"
+          id="btn-confirm-send-message-dashboard"
+          onclick="handleSendDirectMessage()"
+          class="flex items-center gap-2 px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+          <span>Kirim Pesan</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let activeCommentId = null;
+  let activeReplyCommentId = null;
+  let currentSharePost = null;
+  let currentSendPost = null;
+  let selectedRecipientAlumni = null;
+  let sentToRecipients = [];
+  let uploadedPostImage = '';
+
+  // 1. Toast Helper
+  function showDashboardToast(msg) {
+    const toast = document.getElementById('dashboard-toast');
+    const toastText = document.getElementById('dashboard-toast-text');
+    if (!toast || !toastText) return;
+
+    toastText.textContent = msg;
+    toast.classList.remove('hidden');
+    toast.style.opacity = '1';
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      setTimeout(() => toast.classList.add('hidden'), 300);
+    }, 2600);
+  }
+
+  // 2. Render Feed Postingan Utama
+  function renderFeedPosts() {
+    const container = document.getElementById('feed-posts-container');
+    if (!container) return;
+
+    const posts = ALUMNI_DATA.posts || [];
+
+    if (posts.length === 0) {
+      container.innerHTML = `
+        <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-[15px]">
+          Belum ada postingan di linimasa. Klik tombol "Buat Post" untuk mempublikasikan aktivitas pertama Anda!
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = posts.map(post => {
+      const isLiked = !!post.isLiked;
+      const isCommentActive = activeCommentId === post.id;
+
+      // Render Repost Header
+      const repostHeaderHTML = (post.isRepost && post.repostedBy) ? `
+        <div class="px-5 pt-3.5 pb-2 border-b border-gray-100 flex items-center gap-2 text-[14px] text-gray-600 bg-gray-50/50">
+          <img alt="${esc(post.repostedBy)}" class="w-7 h-7 rounded-full object-cover" src="${DEFAULT_AVATAR}" />
+          <span>
+            <span class="font-semibold text-gray-900">${esc(post.repostedBy)}</span> membagikan ulang ini
+          </span>
+        </div>
+      ` : '';
+
+      // Format Text with Links
+      const formattedContent = post.content.includes("https://")
+        ? `${post.content.split("https://")[0]}<a class="text-[#1E3A8A] font-semibold hover:underline" href="https://${post.content.split("https://")[1]}" target="_blank" rel="noreferrer">https://${post.content.split("https://")[1]}</a>`
+        : esc(post.content);
+
+      // Render Table Preview jika ada
+      const tableHTML = post.tablePreview ? `
+        <div class="border-y border-gray-200/80 bg-gray-50/50 p-4 sm:p-5 overflow-x-auto">
+          <div class="w-full bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+            <div class="bg-[#1E3A8A] text-white px-4 py-2.5 flex items-center justify-between text-[14px] font-semibold">
+              <span>${esc(post.tablePreview.title || 'Cheatsheet Machine Learning Algorithms')}</span>
+              <span class="text-[13px] font-normal bg-white/20 px-2 py-0.5 rounded">Ringkasan Materi</span>
+            </div>
+            <table class="w-full border-collapse text-[14px]">
+              <thead class="bg-gray-50 border-b border-gray-200 text-gray-700 font-semibold">
+                <tr>
+                  <th class="p-2.5 text-left">Algoritma</th>
+                  <th class="p-2.5 text-left">Tipe</th>
+                  <th class="p-2.5 text-left">Formula Utama</th>
+                  <th class="p-2.5 text-left">Kelebihan</th>
+                  <th class="p-2.5 text-left">Contoh Nyata</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100 text-gray-700">
+                ${post.tablePreview.rows.map(r => `
+                  <tr class="hover:bg-blue-50/20 transition-colors">
+                    <td class="p-2.5 font-semibold text-[#1E3A8A]">${esc(r.col1)}</td>
+                    <td class="p-2.5">${esc(r.col2)}</td>
+                    <td class="p-2.5 text-[14px] text-gray-600">${esc(r.col3)}</td>
+                    <td class="p-2.5">${esc(r.col4)}</td>
+                    <td class="p-2.5 text-gray-600">${esc(r.col5)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ` : '';
+
+      // Comments List
+      const comments = post.comments || [];
+      const commentsHTML = comments.map(c => `
+        <div class="flex items-start gap-3">
+          <img src="${c.avatar}" alt="${esc(c.author)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200" />
+          <div class="flex-1 min-w-0">
+            <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+              <p class="text-[14px] font-semibold text-gray-900">${esc(c.author)}</p>
+              <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed">${esc(c.text)}</p>
+            </div>
+            <div class="flex items-center gap-4 mt-2 px-1 text-gray-700 text-[14px]">
+              <button
+                type="button"
+                onclick="handleLikeComment(${post.id}, ${c.id})"
+                class="flex items-center gap-1.5 font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                title="Suka komentar"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                </svg>
+                <span>${c.likes > 0 ? c.likes : ""}</span>
+              </button>
+              <button
+                type="button"
+                onclick="toggleInlineReply(${c.id})"
+                class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer ${activeReplyCommentId === c.id ? 'text-[#1E3A8A]' : ''}"
+                title="Balas komentar ini"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  <line x1="8" y1="10" x2="16" y2="10" />
+                </svg>
+              </button>
+              <span class="text-[13px] text-gray-400 font-normal">${c.time}</span>
+            </div>
+
+            <!-- Threaded Replies -->
+            ${(c.replies && c.replies.length > 0) ? `
+              <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
+                <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+                ${c.replies.map(r => `
+                  <div class="flex items-start gap-2.5 relative">
+                    <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
+                    <img src="${r.avatar}" alt="${esc(r.author)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200" />
+                    <div class="flex-1 min-w-0">
+                      <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
+                        <p class="text-[13px] font-bold text-gray-900">${esc(r.author)}</p>
+                        <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed">
+                          <span class="font-semibold text-[#1E3A8A] mr-1">@${esc(c.author)}</span>
+                          ${esc(r.text)}
+                        </p>
+                      </div>
+                      <div class="flex items-center gap-3 mt-1 px-1 text-gray-600 text-[12px]">
+                        <span class="text-gray-400">${r.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+
+            <!-- Kolom Balas Inline Langsung di Bawah Komentar Ini -->
+            ${activeReplyCommentId === c.id ? `
+              <div class="flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative animate-in fade-in duration-150">
+                <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
+                <img src="${ALUMNI_DATA.profile.avatarUrl}" alt="Avatar" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10" />
+                <div class="flex-1 min-w-0">
+                  <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all">
+                    <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none">${esc(c.author)}</span>
+                    <input
+                      type="text"
+                      id="input-reply-${c.id}"
+                      autoFocus
+                      placeholder="Tulis balasan..."
+                      onkeydown="if(event.key==='Enter') submitReplyComment(${post.id}, ${c.id})"
+                      class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0"
+                    />
+                    <button
+                      type="button"
+                      onclick="submitReplyComment(${post.id}, ${c.id})"
+                      class="ml-2 text-[13px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer flex-shrink-0"
+                    >
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      return `
+        <div id="activity-card-${post.id}" class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white">
+          <!-- Repost Header jika ada -->
+          ${repostHeaderHTML}
+
+          <!-- Konten Post Header -->
+          <div class="p-5">
+            <div class="flex items-start justify-between">
+              <div class="flex items-start gap-3.5">
+                ${post.authorAvatar ? `
+                  <img
+                    alt="${esc(post.authorName)}"
+                    class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0"
+                    src="${post.authorAvatar}"
+                  />
+                ` : `
+                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base">
+                    ${esc(post.authorName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase())}
+                  </div>
+                `}
+                <div class="flex flex-col">
+                  <div class="flex items-center gap-2">
+                    <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors">
+                      ${esc(post.authorName)}
+                    </h4>
+                  </div>
+                  <p class="text-[14px] text-gray-500 leading-snug mt-1">
+                    ${esc(post.authorHeadline)}
+                  </p>
+                  <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
+                    <span>${post.date}</span>
+                    <span>•</span>
+                    <span class="inline-flex items-center gap-1 text-[12px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                      ${post.visibility === 'Pengikut' ? `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" />
+                          <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        <span>Pengikut</span>
+                      ` : `
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                          <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        <span>Semua orang</span>
+                      `}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Isi Postingan -->
+            ${(post.isRepost && post.repostedBy) ? `
+              <div class="mt-3.5">
+                <h5 class="text-[17px] font-semibold text-gray-900">Machine Learning Algorithms Cheatsheet</h5>
+                <p class="text-[15px] text-gray-700 mt-1 leading-relaxed">
+                  Ringkasan komprehensif algoritma Machine Learning populer untuk referensi cepat mahasiswa dan alumni Bengkel Koding.
+                </p>
+              </div>
+            ` : ''}
+
+            <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line">
+              ${formattedContent}
+            </p>
+          </div>
+
+          <!-- GAMBAR POSTINGAN -->
+          ${post.imageUrl ? `
+            <div class="px-5 pb-5">
+              <img
+                src="${post.imageUrl}"
+                alt="Gambar postingan"
+                class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80"
+              />
+            </div>
+          ` : ''}
+
+          <!-- TABLE PREVIEW EMBED -->
+          ${tableHTML}
+
+          <!-- Baris Reaksi & Statistik Interaksi -->
+          <div class="px-5 py-2.5 border-t border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-[12px]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                </svg>
+              </span>
+              <span class="font-medium text-gray-700">${post.likes} menyukai</span>
+            </div>
+            <div class="flex items-center gap-4 text-gray-500">
+              <span>${comments.length || post.commentsCount} komentar</span>
+              <span>${post.repostsCount} dibagikan</span>
+            </div>
+          </div>
+
+          <!-- Tombol Interaksi (Like, Comment, Repost, Send) -->
+          <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold text-gray-600 relative">
+            <!-- SUKA -->
+            <button
+              id="btn-like-${post.id}"
+              type="button"
+              onclick="handleToggleLike(${post.id})"
+              class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${isLiked ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="${isLiked ? '#1E3A8A' : 'none'}">
+                <path
+                  d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span>Suka</span>
+            </button>
+
+            <!-- KOMENTAR -->
+            <button
+              id="btn-comment-${post.id}"
+              type="button"
+              onclick="handleToggleComment(${post.id})"
+              class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${isCommentActive ? 'text-[#1E3A8A]' : ''}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>Komentar</span>
+            </button>
+
+            <!-- BAGIKAN DENGAN DROPDOWN -->
+            <div class="relative">
+              <button
+                id="btn-share-${post.id}"
+                type="button"
+                onclick="toggleShareDropdown(event, ${post.id})"
+                class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Bagikan</span>
+              </button>
+
+              <!-- Dropdown Menu Bagikan -->
+              <div
+                id="dropdown-share-${post.id}"
+                class="hidden absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[260px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden z-50 animate-in fade-in duration-150"
+                onclick="event.stopPropagation()"
+              >
+                <button
+                  type="button"
+                  onclick="openShareOpinionModal(${post.id})"
+                  class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="text-[15px] font-semibold text-gray-900">Bagikan disertai pendapat</span>
+                </button>
+                <div class="border-t border-gray-100"></div>
+                <button
+                  type="button"
+                  onclick="handleInstantRepost(${post.id})"
+                  class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span class="text-[15px] font-semibold text-gray-900">Bagikan secara instan</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- KIRIM -->
+            <button
+              id="btn-send-${post.id}"
+              type="button"
+              onclick="openSendModal(${post.id})"
+              class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>Kirim</span>
+            </button>
+          </div>
+
+          <!-- Footer Analytics -->
+          <div class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
+            <div class="flex items-center gap-2 font-medium text-gray-700">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <span>${post.impressions} impresi dilihat</span>
+            </div>
+            <button onclick="showDashboardToast('Melihat ringkasan impresi dan jangkauan postingan.')" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer">
+              <span>Lihat analitik</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- ── DROPDOWN KOMENTAR ── -->
+          ${isCommentActive ? `
+            <div class="border-t border-gray-100 bg-white px-5 py-4">
+              <!-- Input komentar baru -->
+              <div class="flex items-start gap-3 mb-4">
+                <img
+                  src="${ALUMNI_DATA.profile.avatarUrl}"
+                  alt="Avatar"
+                  class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200"
+                />
+                <div class="flex-1 relative">
+                  <input
+                    type="text"
+                    id="input-comment-${post.id}"
+                    placeholder="Tulis komentar..."
+                    onkeydown="if(event.key==='Enter') submitComment(${post.id})"
+                    class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10"
+                  />
+                  <button
+                    type="button"
+                    onclick="submitComment(${post.id})"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sortir & daftar komentar -->
+              <div class="flex items-center gap-1 mb-3 text-[14px] font-semibold text-gray-700">
+                <span>Paling relevan</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="space-y-4">
+                ${commentsHTML || '<p class="text-xs text-neutral3 py-2">Belum ada komentar.</p>'}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 3. Like Post Handler
+  window.handleToggleLike = function(postId) {
+    const post = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!post) return;
+    post.isLiked = !post.isLiked;
+    post.likes = post.isLiked ? (post.likes + 1) : Math.max(0, post.likes - 1);
+    savePostsData();
+    renderFeedPosts();
+  };
+
+  // 4. Toggle Comments Section
+  window.handleToggleComment = function(postId) {
+    activeCommentId = activeCommentId === postId ? null : postId;
+    activeReplyCommentId = null;
+    renderFeedPosts();
+    if (activeCommentId === postId) {
+      setTimeout(() => {
+        const inp = document.getElementById(`input-comment-${postId}`);
+        if (inp) inp.focus();
+      }, 50);
+    }
+  };
+
+  // 5. Submit Komentar Baru
+  window.submitComment = function(postId) {
+    const inp = document.getElementById(`input-comment-${postId}`);
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+
+    const post = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!post) return;
+    if (!post.comments) post.comments = [];
+
+    post.comments.push({
+      id: Date.now(),
+      author: ALUMNI_DATA.profile.name,
+      avatar: ALUMNI_DATA.profile.avatarUrl,
+      text: text,
+      time: "Baru saja",
+      likes: 0,
+      replies: []
+    });
+    post.commentsCount = post.comments.length;
+    savePostsData();
+    renderFeedPosts();
+  };
+
+  // 6. Like Comment & Reply Comment
+  window.handleLikeComment = function(postId, commentId) {
+    const post = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!post || !post.comments) return;
+    const c = post.comments.find(item => item.id === commentId);
+    if (c) {
+      c.likes = (c.likes || 0) + 1;
+      savePostsData();
+      renderFeedPosts();
+    }
+  };
+
+  window.toggleInlineReply = function(commentId) {
+    activeReplyCommentId = activeReplyCommentId === commentId ? null : commentId;
+    renderFeedPosts();
+    if (activeReplyCommentId === commentId) {
+      setTimeout(() => {
+        const inp = document.getElementById(`input-reply-${commentId}`);
+        if (inp) inp.focus();
+      }, 50);
+    }
+  };
+
+  window.submitReplyComment = function(postId, commentId) {
+    const inp = document.getElementById(`input-reply-${commentId}`);
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+
+    const post = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!post || !post.comments) return;
+    const c = post.comments.find(item => item.id === commentId);
+    if (!c) return;
+    if (!c.replies) c.replies = [];
+
+    c.replies.push({
+      id: Date.now(),
+      author: ALUMNI_DATA.profile.name,
+      avatar: ALUMNI_DATA.profile.avatarUrl,
+      text: text,
+      time: "Baru saja",
+      likes: 0
+    });
+    activeReplyCommentId = null;
+    savePostsData();
+    renderFeedPosts();
+  };
+
+  // 7. Share Dropdown & Instant Repost
+  window.toggleShareDropdown = function(e, postId) {
+    e.stopPropagation();
+    const dropdown = document.getElementById(`dropdown-share-${postId}`);
+    if (!dropdown) return;
+    const isHidden = dropdown.classList.contains('hidden');
+
+    // Tutup dropdown lain
+    document.querySelectorAll('[id^="dropdown-share-"]').forEach(d => d.classList.add('hidden'));
+
+    if (isHidden) {
+      dropdown.classList.remove('hidden');
+    }
+  };
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('[id^="dropdown-share-"]').forEach(d => d.classList.add('hidden'));
+  });
+
+  window.handleInstantRepost = function(postId) {
+    const post = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!post) return;
+
+    const reposted = {
+      ...post,
+      id: Date.now(),
+      isRepost: true,
+      repostedBy: ALUMNI_DATA.profile.name,
+      date: "Baru saja",
+      likes: 0,
+      isLiked: false,
+      commentsCount: 0,
+      repostsCount: 0,
+      impressions: 1,
+      comments: []
+    };
+    ALUMNI_DATA.posts.unshift(reposted);
+    savePostsData();
+    renderFeedPosts();
+    showDashboardToast("Postingan berhasil dibagikan ulang ke linimasa");
+  };
+
+  // 8. Share With Opinion Modal
+  window.openShareOpinionModal = function(postId) {
+    currentSharePost = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!currentSharePost) return;
+
+    document.getElementById('share-user-name').textContent = ALUMNI_DATA.profile.name;
+    document.getElementById('share-user-avatar').src = ALUMNI_DATA.profile.avatarUrl;
+    document.getElementById('share-opinion-textarea').value = '';
+
+    document.getElementById('share-preview-author-avatar').src = currentSharePost.authorAvatar || DEFAULT_AVATAR;
+    document.getElementById('share-preview-author-name').textContent = currentSharePost.authorName;
+    document.getElementById('share-preview-author-headline').textContent = currentSharePost.authorHeadline || 'Alumni Bengkel Koding';
+    document.getElementById('share-preview-content').textContent = currentSharePost.content;
+
+    const imgWrap = document.getElementById('share-preview-image-wrap');
+    const imgEl = document.getElementById('share-preview-image');
+    if (currentSharePost.imageUrl) {
+      imgEl.src = currentSharePost.imageUrl;
+      imgWrap.classList.remove('hidden');
+    } else {
+      imgWrap.classList.add('hidden');
+    }
+
+    openModal('modal-share-opinion-dashboard');
+  };
+
+  window.handleSaveShareOpinion = function() {
+    if (!currentSharePost) return;
+    const opinionText = document.getElementById('share-opinion-textarea').value.trim();
+
+    const newRepost = {
+      id: Date.now(),
+      authorName: ALUMNI_DATA.profile.name,
+      authorHeadline: ALUMNI_DATA.profile.headline,
+      authorAvatar: ALUMNI_DATA.profile.avatarUrl,
+      date: "Baru saja",
+      content: opinionText
+        ? `${opinionText}\n\n---\nRepost dari @${currentSharePost.authorName}:\n${currentSharePost.content}`
+        : currentSharePost.content,
+      imageUrl: currentSharePost.imageUrl,
+      likes: 0,
+      isLiked: false,
+      commentsCount: 0,
+      repostsCount: 0,
+      impressions: 1,
+      isRepost: true,
+      repostedBy: ALUMNI_DATA.profile.name,
+      comments: []
+    };
+
+    ALUMNI_DATA.posts.unshift(newRepost);
+    savePostsData();
+    closeModal('modal-share-opinion-dashboard');
+    renderFeedPosts();
+    showDashboardToast("Postingan berhasil dibagikan dengan pemikiran Anda");
+  };
+
+  // 9. Send Post in Direct Message Modal
+  window.openSendModal = function(postId) {
+    currentSendPost = (ALUMNI_DATA.posts || []).find(p => p.id === postId);
+    if (!currentSendPost) return;
+
+    selectedRecipientAlumni = null;
+    document.getElementById('send-search-input').value = '';
+    document.getElementById('send-view-select-recipient').classList.remove('hidden');
+    document.getElementById('send-view-chat').classList.add('hidden');
+
+    renderRecipientsList('');
+    openModal('modal-send-post-dashboard');
+  };
+
+  function renderRecipientsList(search) {
+    const container = document.getElementById('send-recipients-list');
+    if (!container) return;
+
+    const query = search.trim().toLowerCase();
+    const directory = (ALUMNI_DATA.directory || []).filter(a =>
+      !query || a.name.toLowerCase().includes(query) || (a.headline && a.headline.toLowerCase().includes(query))
+    );
+
+    container.innerHTML = directory.map(alumni => {
+      const isSent = sentToRecipients.includes(alumni.id);
+
+      return `
+        <div
+          onclick="selectSendRecipient('${alumni.id}')"
+          class="flex items-center justify-between p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all cursor-pointer group"
+        >
+          <div class="flex items-center gap-3 min-w-0">
+            <img
+              src="${alumni.avatarUrl}"
+              alt="${esc(alumni.name)}"
+              class="w-11 h-11 rounded-full object-cover border border-gray-200 flex-shrink-0"
+            />
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <p class="font-bold text-[14px] text-gray-900 group-hover:text-[#1E3A8A] truncate">
+                  ${esc(alumni.name)}
+                </p>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="#1E3A8A" class="flex-shrink-0">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </div>
+              <p class="text-[12px] text-gray-500 truncate max-w-[280px]">
+                ${esc(alumni.headline)}
+              </p>
+              <span class="text-[11px] font-medium text-gray-400">
+                Angkatan ${alumni.batch}
+              </span>
+            </div>
+          </div>
+          <div class="flex-shrink-0 ml-3">
+            ${isSent ? `
+              <span class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-emerald-50 text-emerald-700 text-[12px] font-semibold border border-emerald-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Terkirim
+              </span>
+            ` : `
+              <button
+                type="button"
+                onclick="event.stopPropagation(); selectSendRecipient('${alumni.id}')"
+                class="px-4 py-1.5 rounded-full border border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-[13px] font-semibold transition-colors cursor-pointer"
+              >
+                Kirim
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  window.handleSearchRecipients = function(val) {
+    renderRecipientsList(val);
+  };
+
+  window.selectSendRecipient = function(alumniId) {
+    selectedRecipientAlumni = (ALUMNI_DATA.directory || []).find(a => a.id === alumniId);
+    if (!selectedRecipientAlumni || !currentSendPost) return;
+
+    document.getElementById('chat-recipient-avatar').src = selectedRecipientAlumni.avatarUrl;
+    document.getElementById('chat-recipient-name').textContent = selectedRecipientAlumni.name;
+    document.getElementById('chat-recipient-headline').textContent = selectedRecipientAlumni.headline;
+
+    document.getElementById('chat-post-avatar').src = currentSendPost.authorAvatar || DEFAULT_AVATAR;
+    document.getElementById('chat-post-author').textContent = currentSendPost.authorName;
+    document.getElementById('chat-post-date').textContent = currentSendPost.date;
+    document.getElementById('chat-post-content').textContent = currentSendPost.content;
+
+    document.getElementById('chat-message-input').value = '';
+
+    document.getElementById('send-view-select-recipient').classList.add('hidden');
+    document.getElementById('send-view-chat').classList.remove('hidden');
+  };
+
+  window.backToSelectRecipient = function() {
+    selectedRecipientAlumni = null;
+    document.getElementById('send-view-select-recipient').classList.remove('hidden');
+    document.getElementById('send-view-chat').classList.add('hidden');
+  };
+
+  window.setQuickMessage = function(chipText) {
+    document.getElementById('chat-message-input').value = chipText;
+  };
+
+  window.handleSendDirectMessage = function() {
+    if (!selectedRecipientAlumni) return;
+    if (!sentToRecipients.includes(selectedRecipientAlumni.id)) {
+      sentToRecipients.push(selectedRecipientAlumni.id);
+    }
+    showDashboardToast(`Postingan berhasil dikirim ke ${selectedRecipientAlumni.name}`);
+    closeModal('modal-send-post-dashboard');
+  };
+
+  // 10. Create Post Modal Logic (100% Identik dengan PostModals.tsx)
+  window.openPostModal = function() {
+    document.getElementById('post-modal-content').value = '';
+    document.getElementById('post-modal-visibility').value = 'Semua orang';
+    clearUploadedImage();
+    openModal('modal-create-post');
+  };
+
+  window.handleImageUpload = function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      alert("Ukuran berkas gambar maksimal 8MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      uploadedPostImage = ev.target.result;
+      document.getElementById('post-image-filename').textContent = file.name;
+      document.getElementById('post-image-preview-img').src = uploadedPostImage;
+      document.getElementById('post-image-preview-box').classList.remove('hidden');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  window.clearUploadedImage = function() {
+    uploadedPostImage = '';
+    const fileInput = document.getElementById('post-image-file');
+    if (fileInput) fileInput.value = '';
+    const nameEl = document.getElementById('post-image-filename');
+    if (nameEl) nameEl.textContent = 'Format JPG/PNG, maks 8MB';
+    const boxEl = document.getElementById('post-image-preview-box');
+    if (boxEl) boxEl.classList.add('hidden');
+  };
+
+  window.handleSavePost = function(e) {
+    e.preventDefault();
+    const content = document.getElementById('post-modal-content').value.trim();
+    if (!content && !uploadedPostImage) return;
+
+    const newPost = {
+      id: Date.now(),
+      authorName: ALUMNI_DATA.profile.name,
+      authorAvatar: ALUMNI_DATA.profile.avatarUrl,
+      authorHeadline: ALUMNI_DATA.profile.headline,
+      date: "Baru saja",
+      content: content || "Membagikan foto kegiatan dan pencapaian alumni Bengkel Koding.",
+      visibility: document.getElementById('post-modal-visibility').value,
+      imageUrl: uploadedPostImage || "",
+      likes: 0,
+      isLiked: false,
+      commentsCount: 0,
+      repostsCount: 0,
+      impressions: 1,
+      comments: []
+    };
+
+    ALUMNI_DATA.posts.unshift(newPost);
+    savePostsData();
+    closeModal('modal-create-post');
+    renderFeedPosts();
+    showDashboardToast("Postingan berhasil diterbitkan");
+  };
+
+  // Initial Load
+  document.addEventListener('DOMContentLoaded', () => {
+    renderFeedPosts();
+  });
+</script>
+</body>
+</html>
