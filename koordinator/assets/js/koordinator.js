@@ -205,7 +205,7 @@ function initTabs(root = document) {
   if (btns[0]) btns[0].click();
 }
 
-// ===================== LAYOUT (Sidebar + Topbar) =====================
+// ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
 document.addEventListener('DOMContentLoaded', () => {
   const main = document.querySelector('main[data-title]');
   if (!main) return;
@@ -219,39 +219,74 @@ document.addEventListener('DOMContentLoaded', () => {
   }).join('');
 
   document.body.insertAdjacentHTML('afterbegin', `
-    <div id="sidebar-overlay" class="fixed inset-0 bg-black/40 z-20 hidden lg:hidden"></div>
-    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-30 flex flex-col -translate-x-full lg:translate-x-0 transition-transform duration-200" aria-label="Menu Koordinator">
-      <a href="../index.html" class="flex items-center gap-3 py-6 px-5 border-b border-neutral4">
-        <div class="w-10 h-10 rounded-xl bg-primary1 flex items-center justify-center text-white shadow-md shadow-primary1/20"><i data-lucide="graduation-cap" class="w-6 h-6"></i></div>
-        <div>
-          <div class="font-bold text-base text-primary1 tracking-tight leading-none">Bengkel Koding</div>
-          <div class="text-[11px] text-primary3 font-semibold tracking-wider mt-1">KOORDINATOR</div>
-        </div>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu Koordinator">
+      <a href="../index.html" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
+        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
       </a>
-      <nav class="flex-1 overflow-y-auto no-scrollbar p-4 space-y-1">${navItems}</nav>
-      <div class="p-4 border-t border-neutral4">
-        <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3 hover:text-red1">
+      <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
+      <div class="p-3 border-t border-neutral4">
+        <a href="http://127.0.0.1:5500/" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
       </div>
     </aside>`);
 
+  // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
+  const isDashboard = current === 'dashboard.html' || main.dataset.title === 'Dashboard';
+  const pageTitle = esc(main.dataset.title);
+
+  const breadcrumbHTML = isDashboard
+    ? `<a href="dashboard.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1">Koordinator</span>`
+    : `<a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors">Koordinator</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+
   const wrapper = document.createElement('div');
-  wrapper.className = 'lg:ml-64 min-h-screen flex flex-col';
+  wrapper.id = 'main-wrapper';
+  wrapper.className = 'lg:ml-64 min-h-screen flex flex-col transition-all duration-300';
   wrapper.innerHTML = `
-    <header class="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-neutral4 h-16 px-4 sm:px-6 flex items-center justify-between gap-4">
-      <div class="flex items-center gap-3 min-w-0">
-        <button id="sidebar-toggle" class="lg:hidden p-2 rounded-lg text-neutral2 hover:bg-neutral5 focus:outline-none focus:ring-2 focus:ring-primary3" aria-label="Buka menu" aria-controls="sidebar" aria-expanded="false">
-          <i data-lucide="menu" class="w-5 h-5"></i></button>
-        <h1 class="!text-lg font-semibold text-neutral1 truncate">${esc(main.dataset.title)}</h1>
+    <!-- Topbar Header Identik dengan lms-bengkod-web Nav.tsx -->
+    <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-2 min-w-0 flex-1">
+        <!-- Hamburger Menu Toggle (Selalu tampil dan berfungsi seperti di lms-bengkod-web) -->
+        <button
+          id="sidebar-toggle"
+          type="button"
+          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0"
+          aria-label="Toggle sidebar"
+          aria-expanded="true"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M20 11H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1zM4 18h10c.55 0-1 .45-1 1s.45 1 1 1H4c-.55 0-1-.45-1-1s.45-1-1-1zM20 6H4c-.55 0-1 .45-1 1v.01c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1z"/>
+          </svg>
+        </button>
+
+        <!-- Breadcrumb Nav -->
+        <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">
+          ${breadcrumbHTML}
+        </nav>
       </div>
-      <div class="flex items-center gap-3">
-        <div class="text-right hidden sm:block">
-          <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(KOOR.user.name)}</div>
-          <div class="text-xs text-neutral3">Koordinator Alumni</div>
+
+      <!-- Right Header: Profil User -->
+      <div class="flex items-center gap-3 shrink-0">
+        <!-- Profil Avatar & Identitas -->
+        <div class="flex items-center gap-2.5">
+          <div class="text-right hidden sm:block">
+            <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(KOOR.user.name)}</div>
+            <div class="text-[11px] text-neutral3">Koordinator Alumni</div>
+          </div>
+          <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50">
+            AL
+          </div>
         </div>
-        <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-semibold text-sm">AL</div>
       </div>
     </header>`;
+
   main.classList.add('flex-1', 'p-4', 'sm:p-6', 'space-y-6');
   main.before(wrapper);
   wrapper.appendChild(main);
@@ -274,16 +309,58 @@ document.addEventListener('DOMContentLoaded', () => {
     pendingConfirm = null;
   });
 
-  // Toggle sidebar mobile
+  // Toggle sidebar desktop collapse & mobile drawer (100% Mengikuti Aside.tsx lms-bengkod-web)
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebar-overlay');
   const toggleBtn = document.getElementById('sidebar-toggle');
-  const setOpen = open => {
-    sidebar.classList.toggle('-translate-x-full', !open);
-    overlay.classList.toggle('hidden', !open);
-    toggleBtn.setAttribute('aria-expanded', open);
-  };
-  toggleBtn.addEventListener('click', () => setOpen(true));
-  overlay.addEventListener('click', () => setOpen(false));
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') setOpen(false); });
+
+  const checkIsDesktop = () => window.innerWidth >= 1024;
+  let sidebarOpen = checkIsDesktop();
+
+  function applySidebarState() {
+    const desktop = checkIsDesktop();
+    if (sidebarOpen) {
+      sidebar.classList.remove('-translate-x-full');
+      sidebar.classList.add('translate-x-0');
+      if (desktop) {
+        wrapper.classList.remove('lg:ml-0');
+        wrapper.classList.add('lg:ml-64');
+        overlay.classList.add('hidden');
+      } else {
+        wrapper.classList.remove('lg:ml-64');
+        wrapper.classList.add('lg:ml-0');
+        overlay.classList.remove('hidden');
+      }
+    } else {
+      sidebar.classList.remove('translate-x-0');
+      sidebar.classList.add('-translate-x-full');
+      wrapper.classList.remove('lg:ml-64');
+      wrapper.classList.add('lg:ml-0');
+      overlay.classList.add('hidden');
+    }
+    toggleBtn.setAttribute('aria-expanded', sidebarOpen ? 'true' : 'false');
+  }
+
+  // Terapkan state awal saat DOM siap
+  applySidebarState();
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    sidebarOpen = !sidebarOpen;
+    applySidebarState();
+  });
+
+  overlay.addEventListener('click', () => {
+    sidebarOpen = false;
+    applySidebarState();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !checkIsDesktop() && sidebarOpen) {
+      sidebarOpen = false;
+      applySidebarState();
+    }
+  });
+
+  if (window.lucide) window.lucide.createIcons();
 });
