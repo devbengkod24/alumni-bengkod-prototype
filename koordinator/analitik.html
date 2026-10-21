@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analitik Tracer | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Analitik Tracer Study & Masa Tunggu">
+
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-neutral1">Analitik Tracer Study</h2>
+      <p class="text-sm text-neutral2 mt-1">Status karir per tahun lulus dan rata-rata masa tunggu sampai mendapat pekerjaan pertama.</p>
+    </div>
+    <div class="w-full sm:w-56">
+      <label for="rentang" class="label">Rentang tahun lulus</label>
+      <select id="rentang" class="input">
+        <option value="0">Semua tahun</option>
+        <option value="5">5 tahun terakhir</option>
+        <option value="3">3 tahun terakhir</option>
+      </select>
+    </div>
+  </div>
+
+  <section id="kpi" class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Indikator utama"></section>
+
+  <section class="card">
+    <h3 class="font-semibold text-neutral1">Grafik Tracer Study per Tahun Lulus</h3>
+    <p class="text-xs text-neutral3 mt-0.5 mb-4">Jumlah alumni terdaftar berdasarkan status karir</p>
+    <div class="h-80"><canvas id="chart-tracer" aria-label="Grafik batang tracer study per tahun lulus" role="img"></canvas></div>
+  </section>
+
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+    <section class="card xl:col-span-2">
+      <h3 class="font-semibold text-neutral1">Rata-rata Masa Tunggu (bulan)</h3>
+      <p class="text-xs text-neutral3 mt-0.5 mb-4">Dari tanggal lulus sampai mendapat pekerjaan pertama</p>
+      <div class="h-72"><canvas id="chart-masa" aria-label="Grafik garis rata-rata masa tunggu per tahun lulus" role="img"></canvas></div>
+    </section>
+    <section class="card">
+      <h3 class="font-semibold text-neutral1">Kelompok Masa Tunggu</h3>
+      <p class="text-xs text-neutral3 mt-0.5 mb-4">Alumni yang sudah bekerja / wirausaha</p>
+      <div class="h-56"><canvas id="chart-bucket" aria-label="Grafik donat kelompok masa tunggu" role="img"></canvas></div>
+    </section>
+  </div>
+
+</main>
+
+<script>
+  Chart.defaults.font.family = 'Poppins, sans-serif';
+  Chart.defaults.color = '#55585E';
+
+  const STATUS = [
+    ['fulltime', 'Bekerja Full Time', '#1E3A8A'],
+    ['parttime', 'Bekerja Part Time', '#3B82F6'],
+    ['wirausaha', 'Wirausaha', '#FFC150'],
+    ['studi', 'Melanjutkan Pendidikan', '#068913'],
+    ['mencari', 'Mencari Pekerjaan', '#D73D3D'],
+  ];
+  let charts = [];
+
+  function render() {
+    const n = +document.getElementById('rentang').value;
+    const data = n ? KOOR.rekap.slice(-n) : KOOR.rekap;
+    const labels = data.map(r => r.tahun);
+    charts.forEach(c => c.destroy());
+
+    const terdaftar = data.reduce((s, r) => s + r.terdaftar, 0);
+    const bekerja = data.reduce((s, r) => s + r.fulltime + r.parttime + r.wirausaha, 0);
+    const avgMasa = data.reduce((s, r) => s + r.masaTunggu * r.terdaftar, 0) / terdaftar;
+    // ponytail: pembagian kelompok masa tunggu memakai rasio tetap (data dummy); di API dari endpoint /stats-masa-tunggu
+    const bucket = [Math.round(bekerja * 0.72), Math.round(bekerja * 0.21)];
+    bucket.push(bekerja - bucket[0] - bucket[1]);
+
+    document.getElementById('kpi').innerHTML = [
+      ['Tingkat Keterserapan', Math.round(bekerja / terdaftar * 100) + '%', 'Bekerja + wirausaha dari alumni terdaftar'],
+      ['Rata-rata Masa Tunggu', avgMasa.toFixed(1) + ' bulan', 'Tertimbang jumlah alumni per tahun'],
+      ['Dapat Kerja < 6 Bulan', Math.round(bucket[0] / bekerja * 100) + '%', `${bucket[0]} dari ${bekerja} alumni`],
+    ].map(([label, value, sub]) => `
+      <div class="bg-white rounded-xl border border-neutral4 p-5 elevation1">
+        <div class="text-sm text-neutral2">${label}</div>
+        <div class="text-2xl font-semibold text-primary1 mt-1">${value}</div>
+        <div class="text-xs text-neutral3 mt-0.5">${sub}</div>
+      </div>`).join('');
+
+    charts = [
+      new Chart(document.getElementById('chart-tracer'), {
+        type: 'bar',
+        data: { labels, datasets: STATUS.map(([k, label, color]) => ({ label, data: data.map(r => r[k]), backgroundColor: color, borderRadius: 4 })) },
+        options: { maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } },
+      }),
+      new Chart(document.getElementById('chart-masa'), {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Masa tunggu (bulan)', data: data.map(r => r.masaTunggu), borderColor: '#1E3A8A', backgroundColor: '#DBEAFE', fill: true, tension: 0.3, pointRadius: 4 }] },
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } },
+      }),
+      new Chart(document.getElementById('chart-bucket'), {
+        type: 'doughnut',
+        data: { labels: ['< 6 bulan', '6–12 bulan', '> 12 bulan'], datasets: [{ data: bucket, backgroundColor: ['#068913', '#FFC150', '#D73D3D'] }] },
+        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+      }),
+    ];
+  }
+
+  document.getElementById('rentang').addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>

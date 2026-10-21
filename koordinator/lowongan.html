@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lowongan | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Lowongan">
+
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-neutral1">Lowongan</h2>
+      <p class="text-sm text-neutral2 mt-1">Review pengajuan lowongan dari mitra, pantau semua lowongan, dan kelola lowongan milik koordinator.</p>
+    </div>
+    <button onclick="openForm()" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Lowongan</button>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="flex border-b border-neutral4 px-2 overflow-x-auto" role="tablist">
+      <button data-tab="pengajuan" role="tab">Pengajuan <span id="count" class="ml-1 px-1.5 rounded-full bg-yellow3 text-yellow1 text-xs"></span></button>
+      <button data-tab="semua" role="tab">Semua Lowongan</button>
+      <button data-tab="saya" role="tab">Kelola (Lowongan Saya)</button>
+    </div>
+
+    <div id="tab-pengajuan" role="tabpanel"><ul id="pengajuan" class="divide-y divide-neutral4"></ul></div>
+
+    <div id="tab-semua" role="tabpanel">
+      <div class="p-4 border-b border-neutral4">
+        <select id="f-status" class="input sm:w-56" aria-label="Filter status">
+          <option value="">Semua status</option><option>Terverifikasi</option><option>Belum Verifikasi</option><option>Ditolak</option>
+        </select>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead><tr><th class="th">Posisi</th><th class="th">Kategori</th><th class="th">Diajukan oleh</th><th class="th">Berlaku s/d</th><th class="th">Status</th><th class="th text-right">Aksi</th></tr></thead>
+          <tbody id="semua"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="tab-saya" role="tabpanel" class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr><th class="th">Posisi</th><th class="th">Tipe</th><th class="th">Berlaku s/d</th><th class="th">Status</th><th class="th text-right">Aksi</th></tr></thead>
+        <tbody id="saya"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<!-- Tolak pengajuan (wajib keterangan) -->
+<div id="tolak-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="tolak-form" class="modal max-w-md" role="dialog" aria-modal="true" aria-labelledby="tolak-title">
+    <h3 id="tolak-title" class="font-semibold text-base text-neutral1">Tolak pengajuan lowongan</h3>
+    <p id="tolak-desc" class="text-sm text-neutral2 mt-1 mb-4"></p>
+    <label for="tolak-ket" class="label">Alasan penolakan</label>
+    <textarea id="tolak-ket" rows="4" class="input" required placeholder="Akan dikirim ke mitra sebagai catatan perbaikan"></textarea>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('tolak-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-danger">Tolak Pengajuan</button>
+    </div>
+  </form>
+</div>
+
+<!-- Form tambah / edit lowongan koordinator -->
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-lg" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
+    <input type="hidden" name="id">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="sm:col-span-2"><label for="f-posisi" class="label">Posisi</label><input id="f-posisi" name="posisi" class="input" required></div>
+      <div class="sm:col-span-2"><label for="f-perusahaan" class="label">Perusahaan</label><input id="f-perusahaan" name="nama_perusahaan" class="input" required value="Bengkel Koding UDINUS"></div>
+      <div><label for="f-kota" class="label">Kota</label><input id="f-kota" name="kota" class="input" required value="Semarang"></div>
+      <div><label for="f-tipe" class="label">Tipe kerja</label>
+        <select id="f-tipe" name="tipe_kerja" class="input"><option>Full Time</option><option>Part Time</option><option>Magang</option><option>Freelance</option></select></div>
+      <div><label for="f-kategori" class="label">Kategori</label>
+        <select id="f-kategori" name="kategori_lowongan" class="input"><option>Kerja</option><option>Magang</option></select></div>
+      <div><label for="f-berlaku" class="label">Berlaku sampai</label><input id="f-berlaku" name="masa_berlaku" type="date" class="input" required></div>
+    </div>
+    <p class="text-xs text-neutral3 mt-3">Lowongan dari koordinator langsung terverifikasi tanpa review.</p>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('form');
+  const find = id => KOOR.lowongan.find(l => l.id === id);
+  let tolakId = null;
+
+  function render() {
+    const pengajuan = KOOR.lowongan.filter(l => l.status === 'Belum Verifikasi');
+    document.getElementById('count').textContent = pengajuan.length;
+
+    document.getElementById('pengajuan').innerHTML = pengajuan.map(l => `
+      <li class="p-5 flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="font-medium text-neutral1">${esc(l.posisi)}</div>
+          <div class="text-sm text-neutral2 mt-0.5">${esc(l.nama_perusahaan)} · ${esc(l.kota)}</div>
+          <div class="flex flex-wrap gap-2 mt-2">${badge(l.tipe_kerja)} ${badge(l.kategori_lowongan)}
+            <span class="text-xs text-neutral3 self-center">Berlaku s/d ${fmtDate(l.masa_berlaku)}</span></div>
+        </div>
+        <div class="flex gap-2 shrink-0">
+          <button class="btn-outline" onclick="openTolak(${l.id})">Tolak</button>
+          <button class="btn-success" onclick="setujui(${l.id})"><i data-lucide="check" class="w-4 h-4"></i> Setujui</button>
+        </div>
+      </li>`).join('') || '<li class="p-10 text-center text-sm text-neutral3">Tidak ada pengajuan yang menunggu review.</li>';
+
+    const st = document.getElementById('f-status').value;
+    document.getElementById('semua').innerHTML = KOOR.lowongan.filter(l => !st || l.status === st).map(l => `
+      <tr class="tr">
+        <td class="td"><div class="font-medium">${esc(l.posisi)}</div><div class="text-xs text-neutral3">${esc(l.nama_perusahaan)}</div>
+          ${l.keterangan ? `<div class="text-xs text-red1 mt-1">Catatan: ${esc(l.keterangan)}</div>` : ''}</td>
+        <td class="td">${badge(l.kategori_lowongan)}</td>
+        <td class="td capitalize">${l.oleh}</td>
+        <td class="td whitespace-nowrap">${fmtDate(l.masa_berlaku)}</td>
+        <td class="td">${badge(l.status)}</td>
+        <td class="td text-right"><button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${l.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
+      </tr>`).join('') || '<tr><td colspan="6" class="td text-center text-neutral3 py-8">Tidak ada lowongan.</td></tr>';
+
+    document.getElementById('saya').innerHTML = KOOR.lowongan.filter(l => l.oleh === 'koordinator').map(l => `
+      <tr class="tr">
+        <td class="td"><div class="font-medium">${esc(l.posisi)}</div><div class="text-xs text-neutral3">${esc(l.nama_perusahaan)} · ${esc(l.kota)}</div></td>
+        <td class="td">${badge(l.tipe_kerja)}</td>
+        <td class="td whitespace-nowrap">${fmtDate(l.masa_berlaku)}</td>
+        <td class="td">${badge(l.status)}</td>
+        <td class="td"><div class="flex justify-end gap-1">
+          <button class="btn-icon" onclick="openForm(${l.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${l.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </div></td>
+      </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Belum ada lowongan dari koordinator.</td></tr>';
+    refreshIcons();
+  }
+
+  function setujui(id) {
+    const l = find(id);
+    confirmAction({ title: 'Setujui lowongan?', message: `"${l.posisi}" dari ${l.nama_perusahaan} akan tampil untuk seluruh alumni.`, okLabel: 'Setujui' }, () => {
+      l.status = 'Terverifikasi';
+      audit('Approve lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+      render();
+      showToast('Lowongan disetujui dan dipublikasikan.');
+    });
+  }
+
+  function openTolak(id) {
+    const l = find(id);
+    tolakId = id;
+    document.getElementById('tolak-desc').textContent = `${l.posisi} · ${l.nama_perusahaan}`;
+    document.getElementById('tolak-ket').value = '';
+    openModal('tolak-modal');
+  }
+
+  document.getElementById('tolak-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const l = find(tolakId);
+    Object.assign(l, { status: 'Ditolak', keterangan: document.getElementById('tolak-ket').value.trim() });
+    audit('Tolak lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+    closeModal('tolak-modal');
+    render();
+    showToast('Pengajuan ditolak, catatan dikirim ke mitra.');
+  });
+
+  function hapus(id) {
+    const l = find(id);
+    confirmAction({ title: 'Hapus lowongan?', message: `"${l.posisi}" dari ${l.nama_perusahaan} akan dihapus.`, okLabel: 'Hapus', danger: true }, () => {
+      KOOR.lowongan = KOOR.lowongan.filter(x => x.id !== id);
+      audit('Hapus lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+      render();
+      showToast('Lowongan dihapus.');
+    });
+  }
+
+  function openForm(id) {
+    const l = find(id);
+    form.reset();
+    document.getElementById('form-title').textContent = l ? 'Edit Lowongan' : 'Tambah Lowongan';
+    if (l) ['id', 'posisi', 'nama_perusahaan', 'kota', 'tipe_kerja', 'kategori_lowongan', 'masa_berlaku'].forEach(k => form.elements[k].value = l[k]);
+    openModal('form-modal');
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    const l = find(+data.id);
+    delete data.id;
+    if (l) Object.assign(l, data);
+    else KOOR.lowongan.unshift({ id: Date.now(), ...data, status: 'Terverifikasi', oleh: 'koordinator', keterangan: '' });
+    closeModal('form-modal');
+    render();
+    showToast(l ? 'Lowongan diperbarui.' : 'Lowongan ditambahkan.');
+  });
+
+  document.getElementById('f-status').addEventListener('change', render);
+  render();
+  initTabs();
+</script>
+</body>
+</html>

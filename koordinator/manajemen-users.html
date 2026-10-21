@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Management Users | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Management Users">
+
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-neutral1">Management Users</h2>
+      <p class="text-sm text-neutral2 mt-1">Tambah dan kelola akun alumni dan mitra.</p>
+    </div>
+    <button onclick="openForm()" class="btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Akun</button>
+  </div>
+
+  <div class="flex items-start gap-3 p-4 rounded-xl bg-primary5/60 border border-primary4/50 text-sm text-primary1">
+    <i data-lucide="lock" class="w-4 h-4 mt-0.5 shrink-0"></i>
+    <p class="text-sm">Koordinator hanya dapat mengelola akun <strong>alumni</strong> dan <strong>mitra</strong>. Akun SuperAdmin dan koordinator lain hanya bisa dilihat.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 flex flex-col sm:flex-row gap-3 border-b border-neutral4">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="q" type="search" class="input !pl-9" placeholder="Cari nama atau email" aria-label="Cari user">
+      </div>
+      <select id="filter-role" class="input sm:w-48" aria-label="Filter role">
+        <option value="">Semua role</option>
+        <option value="alumnus">Alumni</option>
+        <option value="mitra">Mitra</option>
+        <option value="koordinator">Koordinator</option>
+        <option value="superadmin">SuperAdmin</option>
+      </select>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr><th class="th">Nama</th><th class="th">Role</th><th class="th">Status</th><th class="th text-right">Aksi</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-md" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
+    <input type="hidden" name="id">
+    <div class="space-y-4">
+      <div><label for="f-name" class="label">Nama</label><input id="f-name" name="name" class="input" required></div>
+      <div><label for="f-email" class="label">Email</label><input id="f-email" name="email" type="email" class="input" required></div>
+      <div>
+        <label for="f-role" class="label">Role</label>
+        <select id="f-role" name="role" class="input">
+          <option value="alumnus">Alumni</option>
+          <option value="mitra">Mitra</option>
+        </select>
+        <p class="text-xs text-neutral3 mt-1">Role koordinator dan SuperAdmin tidak tersedia untuk koordinator.</p>
+      </div>
+    </div>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
+  const EDITABLE = ['alumnus', 'mitra'];
+  const form = document.getElementById('form');
+  const find = id => KOOR.users.find(u => u.id === id);
+
+  function render() {
+    const q = document.getElementById('q').value.toLowerCase();
+    const role = document.getElementById('filter-role').value;
+    const list = KOOR.users.filter(u => (!role || u.role === role) && (u.name + u.email).toLowerCase().includes(q));
+    document.getElementById('rows').innerHTML = list.map(u => {
+      const can = EDITABLE.includes(u.role);
+      const lock = can ? '' : 'disabled title="Di luar wewenang koordinator"';
+      return `<tr class="tr">
+        <td class="td"><div class="font-medium">${esc(u.name)}</div><div class="text-xs text-neutral3">${esc(u.email)}</div></td>
+        <td class="td">${badge(ROLE_LABEL[u.role])}</td>
+        <td class="td">${badge(u.aktif ? 'Aktif' : 'Nonaktif')}</td>
+        <td class="td"><div class="flex justify-end gap-1">
+          ${can ? '' : '<i data-lucide="lock" class="w-4 h-4 text-neutral3 m-2" aria-label="Terkunci"></i>'}
+          <button class="btn-icon" onclick="openForm(${u.id})" aria-label="Edit" ${lock || 'title="Edit"'}><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button class="btn-icon" onclick="resetPassword(${u.id})" aria-label="Reset password" ${lock || 'title="Reset password"'}><i data-lucide="key-round" class="w-4 h-4"></i></button>
+          <button class="btn-icon ${u.aktif ? 'hover:!bg-red3 hover:!text-red1' : 'hover:!bg-green3 hover:!text-green1'}" onclick="toggleAktif(${u.id})"
+            aria-label="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}" ${lock || `title="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}"`}>
+            <i data-lucide="${u.aktif ? 'user-x' : 'user-check'}" class="w-4 h-4"></i></button>
+        </div></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" class="td text-center text-neutral3 py-8">Tidak ada user yang cocok.</td></tr>';
+    refreshIcons();
+  }
+
+  function openForm(id) {
+    const u = find(id);
+    form.reset();
+    document.getElementById('form-title').textContent = u ? 'Edit Akun' : 'Tambah Akun';
+    if (u) ['id', 'name', 'email', 'role'].forEach(k => form.elements[k].value = u[k]);
+    openModal('form-modal');
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const data = Object.fromEntries(new FormData(form));
+    if (!EDITABLE.includes(data.role)) return showToast('Role tidak diizinkan.', 'error');
+    const u = find(+data.id);
+    if (u) {
+      Object.assign(u, { name: data.name, email: data.email, role: data.role });
+      audit('Edit akun', `${data.name} (${ROLE_LABEL[data.role]})`);
+    } else {
+      KOOR.users.unshift({ id: Date.now(), name: data.name, email: data.email, role: data.role, aktif: true });
+      audit('Tambah akun', `${data.name} (${ROLE_LABEL[data.role]})`);
+    }
+    closeModal('form-modal');
+    render();
+    showToast(u ? 'Akun diperbarui.' : 'Akun dibuat, undangan dikirim ke email.');
+  });
+
+  function resetPassword(id) {
+    const u = find(id);
+    confirmAction({ title: 'Reset password?', message: `Tautan reset password akan dikirim ke ${u.email}.`, okLabel: 'Kirim Tautan' }, () => {
+      audit('Reset password', u.name);
+      showToast('Tautan reset password terkirim.');
+    });
+  }
+
+  function toggleAktif(id) {
+    const u = find(id);
+    const off = u.aktif;
+    confirmAction({
+      title: off ? 'Nonaktifkan akun?' : 'Aktifkan akun?',
+      message: off ? `${u.name} tidak akan bisa login sampai diaktifkan kembali.` : `${u.name} akan bisa login kembali.`,
+      okLabel: off ? 'Nonaktifkan' : 'Aktifkan', danger: off,
+    }, () => {
+      u.aktif = !off;
+      audit(off ? 'Nonaktifkan akun' : 'Aktifkan akun', u.name);
+      render();
+      showToast(off ? 'Akun dinonaktifkan.' : 'Akun diaktifkan.');
+    });
+  }
+
+  document.getElementById('q').addEventListener('input', render);
+  document.getElementById('filter-role').addEventListener('change', render);
+  render();
+</script>
+</body>
+</html>
