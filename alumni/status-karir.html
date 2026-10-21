@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Karir | Portal Alumni Bengkel Koding</title>
+  <meta name="description" content="Pembaruan 7 kondisi status karir alumni Bengkel Koding UDINUS untuk pelaporan tracer study dan masa tunggu kerja.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/alumni.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Status Karir">
+
+  <!-- Container Utama (100% Identik dengan layout lms-bengkod-web) -->
+  <div class="w-full max-w-4xl mx-auto flex flex-col gap-6 py-2">
+
+    <!-- Header Section -->
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Pembaruan Status Karir</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          Pilih kondisi karir Anda saat ini untuk pembaharuan data masa tunggu alumni resmi Universitas Dian Nuswantoro
+        </p>
+      </div>
+      <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green3 text-green1 border border-green2/30 shrink-0">
+        Tracer Study Terhubung
+      </span>
+    </div>
+
+    <!-- Form Status Karir (7 Pilihan Sesuai Jobdesk) -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+      <form id="career-status-form" onsubmit="handleCareerSubmit(event)" class="space-y-6">
+
+        <!-- 7 Pilihan Status Karir -->
+        <div>
+          <label class="block text-sm font-semibold text-neutral1 mb-1">
+            Pilih Status Karir Utama Anda <span class="text-red1">*</span>
+          </label>
+          <p class="text-xs text-neutral3 mb-4">Setiap opsi akan memunculkan field formulir rincian yang relevan secara otomatis.</p>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            <!-- 1. Bekerja Full Time -->
+            <label data-status-card class="border border-[#1E3A8A] bg-blue-50/50 ring-2 ring-[#1E3A8A]/20 p-4 rounded-xl cursor-pointer transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="fulltime" checked onchange="handleStatusChange('fulltime')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Bekerja Full Time</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Karyawan tetap / kontrak penuh waktu</div>
+              </div>
+            </label>
+
+            <!-- 2. Part-Time -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="parttime" onchange="handleStatusChange('parttime')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Bekerja Part-Time</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Paruh waktu / freelance terikat</div>
+              </div>
+            </label>
+
+            <!-- 3. Wirausaha -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="wirausaha" onchange="handleStatusChange('wirausaha')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Wirausaha</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Pemilik usaha / founder startup</div>
+              </div>
+            </label>
+
+            <!-- 4. Mencari Pekerjaan -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="mencari_kerja" onchange="handleStatusChange('mencari_kerja')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Mencari Pekerjaan</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Sedang aktif melamar pekerjaan</div>
+              </div>
+            </label>
+
+            <!-- 5. Melanjutkan Pendidikan -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="studi_lanjut" onchange="handleStatusChange('studi_lanjut')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Melanjutkan Pendidikan</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Studi Magister (S2) / Profesi</div>
+              </div>
+            </label>
+
+            <!-- 6. Belum Memungkinkan Bekerja -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3">
+              <input type="radio" name="career_status" value="belum_memungkinkan" onchange="handleStatusChange('belum_memungkinkan')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Belum Memungkinkan</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Kondisi kesehatan atau istirahat</div>
+              </div>
+            </label>
+
+            <!-- 7. Menikah / Mengurus Keluarga -->
+            <label data-status-card class="border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3 sm:col-span-2 lg:col-span-1">
+              <input type="radio" name="career_status" value="menikah" onchange="handleStatusChange('menikah')" class="mt-1 text-[#1E3A8A] focus:ring-[#1E3A8A]">
+              <div>
+                <div class="font-semibold text-sm text-neutral1">Menikah / Keluarga</div>
+                <div class="text-[11px] text-neutral3 mt-0.5">Fokus mengurus rumah tangga</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Bidang Formulir Dinamis Berdasarkan Opsi -->
+        <!-- Skenario 1 & 2: Bekerja Full Time & Part Time -->
+        <div id="fields-bekerja" class="p-5 rounded-xl bg-neutral5/80 border border-neutral4/80 space-y-4">
+          <div class="flex items-center gap-2 text-primary1 font-bold text-xs sm:text-sm">
+            <i data-lucide="building-2" class="w-4 h-4"></i>
+            <span>Rincian Informasi Pekerjaan</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label for="inp-comp" class="label text-xs">Nama Perusahaan / Instansi</label>
+              <input type="text" id="inp-comp" value="PT Traveloka Indonesia" placeholder="Contoh: PT GoTo Gojek Tokopedia" class="input">
+            </div>
+            <div>
+              <label for="inp-role" class="label text-xs">Posisi / Jabatan</label>
+              <input type="text" id="inp-role" value="Data Scientist Associate" placeholder="Contoh: Data Scientist" class="input">
+            </div>
+            <div>
+              <label for="inp-city" class="label text-xs">Kota Penempatan</label>
+              <input type="text" id="inp-city" value="Jakarta Selatan (Hybrid)" placeholder="Contoh: Jakarta / Semarang" class="input">
+            </div>
+            <div>
+              <label for="inp-start" class="label text-xs">Tanggal Mulai Bekerja</label>
+              <input type="date" id="inp-start" value="2025-03-01" class="input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Skenario 3: Wirausaha -->
+        <div id="fields-wirausaha" class="hidden p-5 rounded-xl bg-neutral5/80 border border-neutral4/80 space-y-4">
+          <div class="flex items-center gap-2 text-secondary1 font-bold text-xs sm:text-sm">
+            <i data-lucide="briefcase" class="w-4 h-4"></i>
+            <span>Rincian Usaha Mandiri</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+              <label class="label text-xs">Nama Usaha / Usaha Rintisan</label>
+              <input type="text" placeholder="Contoh: Koding Studio Nusantara" class="input">
+            </div>
+            <div>
+              <label class="label text-xs">Bidang Usaha</label>
+              <input type="text" placeholder="Contoh: Agensi Digital / IT Solution" class="input">
+            </div>
+            <div>
+              <label class="label text-xs">Tahun Mulai Beroperasi</label>
+              <input type="number" placeholder="2025" min="2015" max="2030" class="input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Skenario 4: Mencari Kerja -->
+        <div id="fields-mencari" class="hidden p-5 rounded-xl bg-neutral5/80 border border-neutral4/80 space-y-4">
+          <div class="flex items-center gap-2 text-blue-600 font-bold text-xs sm:text-sm">
+            <i data-lucide="search" class="w-4 h-4"></i>
+            <span>Rincian Pencarian Kerja</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label class="label text-xs">Tanggal Mulai Mencari Kerja</label>
+              <input type="date" value="2026-01-10" class="input">
+              <p class="text-[10px] text-neutral3 mt-1">Dihitung sejak yudisium untuk mengukur masa tunggu kerja.</p>
+            </div>
+            <div>
+              <label class="label text-xs">Preferensi Posisi yang Diminati</label>
+              <input type="text" placeholder="Contoh: Machine Learning Engineer, Data Analyst" class="input">
+            </div>
+          </div>
+        </div>
+
+        <!-- Skenario 5: Studi Lanjut -->
+        <div id="fields-studi" class="hidden p-5 rounded-xl bg-neutral5/80 border border-neutral4/80 space-y-4">
+          <div class="flex items-center gap-2 text-purple-700 font-bold text-xs sm:text-sm">
+            <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+            <span>Rincian Studi Lanjut</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+            <div>
+              <label class="label text-xs">Nama Perguruan Tinggi</label>
+              <input type="text" placeholder="Contoh: Institut Teknologi Bandung" class="input">
+            </div>
+            <div>
+              <label class="label text-xs">Program Studi</label>
+              <input type="text" placeholder="Contoh: Magister Informatika" class="input">
+            </div>
+            <div>
+              <label class="label text-xs">Jenjang</label>
+              <select class="input bg-white">
+                <option value="S2">Magister (S2)</option>
+                <option value="S3">Doktor (S3)</option>
+                <option value="Profesi">Pendidikan Profesi</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skenario 6 & 7: Belum Memungkinkan / Menikah -->
+        <div id="fields-opsional" class="hidden p-5 rounded-xl bg-neutral5/80 border border-neutral4/80 space-y-2">
+          <label class="label text-xs">Keterangan Catatan Tambahan (Opsional)</label>
+          <textarea rows="3" placeholder="Tuliskan catatan singkat jika berkenan (misal: persiapan keluarga, pemulihan kesehatan, dll)..." class="input"></textarea>
+        </div>
+
+        <!-- Action Button -->
+        <div class="pt-4 border-t border-gray-100 flex items-center justify-end gap-3">
+          <button type="submit" class="px-6 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors shadow-sm cursor-pointer">
+            Simpan Pembaruan Status Karir
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Riwayat Perubahan Status Karir (Masa Tunggu Tracker) -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div>
+          <h3 class="text-[18px] font-bold text-gray-900 tracking-tight">Riwayat Pembaruan Status Karir</h3>
+          <p class="text-xs text-gray-500 mt-0.5">Tercatat kronologis untuk memastikan keakuratan pelaporan tracer study</p>
+        </div>
+        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green3 text-green1 border border-green2/30">
+          Tersinkron ke Koordinator
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse text-[14px]">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-gray-700 font-semibold">
+              <th class="p-3 text-left">Tanggal Diperbarui</th>
+              <th class="p-3 text-left">Status Karir</th>
+              <th class="p-3 text-left">Rincian Perusahaan / Kegiatan</th>
+              <th class="p-3 text-left">Masa Tunggu Terhitung</th>
+            </tr>
+          </thead>
+          <tbody id="career-history-tbody" class="divide-y divide-gray-100 text-gray-700">
+            <tr class="hover:bg-blue-50/20 transition-colors">
+              <td class="p-3 whitespace-nowrap font-medium text-gray-900">15 Maret 2026</td>
+              <td class="p-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary5 text-primary1">Bekerja Full Time</span></td>
+              <td class="p-3 text-gray-600">Data Scientist Associate di PT Traveloka Indonesia (Jakarta Selatan)</td>
+              <td class="p-3 text-green2 font-semibold">2.1 Bulan</td>
+            </tr>
+            <tr class="hover:bg-blue-50/20 transition-colors">
+              <td class="p-3 whitespace-nowrap font-medium text-gray-900">10 Januari 2026</td>
+              <td class="p-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow3 text-yellow1">Mencari Pekerjaan</span></td>
+              <td class="p-3 text-gray-600">Mulai aktif melamar pekerjaan setelah yudisium kelulusan</td>
+              <td class="p-3 text-gray-400">Fase Aktif</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+  window.handleStatusChange = function(status) {
+    document.querySelectorAll('[data-status-card]').forEach(card => {
+      const radio = card.querySelector('input[type="radio"]');
+      if (radio && radio.checked) {
+        card.className = 'border border-[#1E3A8A] bg-blue-50/50 ring-2 ring-[#1E3A8A]/20 p-4 rounded-xl cursor-pointer transition-all flex items-start gap-3';
+      } else {
+        card.className = 'border border-neutral4 bg-white p-4 rounded-xl cursor-pointer hover:border-[#1E3A8A] transition-all flex items-start gap-3';
+      }
+    });
+
+    document.getElementById('fields-bekerja').classList.toggle('hidden', status !== 'fulltime' && status !== 'parttime');
+    document.getElementById('fields-wirausaha').classList.toggle('hidden', status !== 'wirausaha');
+    document.getElementById('fields-mencari').classList.toggle('hidden', status !== 'mencari_kerja');
+    document.getElementById('fields-studi').classList.toggle('hidden', status !== 'studi_lanjut');
+    document.getElementById('fields-opsional').classList.toggle('hidden', status !== 'belum_memungkinkan' && status !== 'menikah');
+  };
+
+  window.handleCareerSubmit = function(e) {
+    e.preventDefault();
+    const checkedRadio = document.querySelector('input[name="career_status"]:checked');
+    const statusVal = checkedRadio ? checkedRadio.value : 'fulltime';
+
+    const labels = {
+      fulltime: 'Bekerja Full Time',
+      parttime: 'Bekerja Part Time',
+      wirausaha: 'Wirausaha',
+      mencari_kerja: 'Mencari Pekerjaan',
+      studi_lanjut: 'Melanjutkan Pendidikan',
+      belum_memungkinkan: 'Belum Memungkinkan Bekerja',
+      menikah: 'Menikah / Mengurus Keluarga'
+    };
+
+    if (typeof showToast === 'function') {
+      showToast(`Status karir berhasil diperbarui menjadi "${labels[statusVal]}"!`);
+    }
+
+    const tbody = document.getElementById('career-history-tbody');
+    if (tbody) {
+      const todayStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+      const newTr = document.createElement('tr');
+      newTr.className = 'hover:bg-blue-50/20 transition-colors border-b border-gray-100';
+      newTr.innerHTML = `
+        <td class="p-3 whitespace-nowrap font-medium text-gray-900">${todayStr}</td>
+        <td class="p-3"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary5 text-primary1">${labels[statusVal]}</span></td>
+        <td class="p-3 text-gray-600">Diperbarui mandiri melalui dashboard alumni</td>
+        <td class="p-3 text-green2 font-semibold">Tercatat</td>
+      `;
+      tbody.insertBefore(newTr, tbody.firstChild);
+    }
+  };
+</script>
+</body>
+</html>
