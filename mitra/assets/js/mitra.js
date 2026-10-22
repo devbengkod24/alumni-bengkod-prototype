@@ -69,6 +69,7 @@ const MITRA_DEFAULT = {
       nama: 'Rizky Pratama',
       nim: 'A11.2019.11823',
       gender: 'Laki-laki',
+      status_pekerjaan: 'Sudah Bekerja',
       jenis_pekerjaan: 'Full Time',
       status_karir: 'Bekerja Full Time',
       angkatan: 2019,
@@ -91,6 +92,7 @@ const MITRA_DEFAULT = {
       nama: 'Nadia Putri',
       nim: 'A11.2019.11902',
       gender: 'Perempuan',
+      status_pekerjaan: 'Sudah Bekerja',
       jenis_pekerjaan: 'Full Time',
       status_karir: 'Bekerja Full Time',
       angkatan: 2019,
@@ -113,8 +115,9 @@ const MITRA_DEFAULT = {
       nama: 'Fajar Nugroho',
       nim: 'A11.2020.12011',
       gender: 'Laki-laki',
+      status_pekerjaan: 'Mencari Pekerjaan',
       jenis_pekerjaan: 'Part Time',
-      status_karir: 'Bekerja Part Time',
+      status_karir: 'Mencari Pekerjaan',
       angkatan: 2020,
       tahun_lulus: 2024,
       ipk: 3.54,
@@ -122,7 +125,7 @@ const MITRA_DEFAULT = {
       telepon: '0814-3333-4444',
       kota_domisili: 'Semarang',
       skill: ['React', 'Node.js', 'PostgreSQL', 'Docker', 'Tailwind'],
-      bio: 'Fullstack Web Developer yang antusias dengan arsitektur microservices modern dan UX interaktif responsif.',
+      bio: 'Fullstack Web Developer yang antusias dengan arsitektur microservices modern dan UX interaktif responsif. Terbuka untuk peluang kerja baru.',
       pendidikan: 'S1 Teknik Informatika - Universitas Dian Nuswantoro (2020 - 2024)',
       pengalaman: 'Web Developer Freelance (2024 - Sekarang) · Koordinator Lab Pemrograman Web Bengkel Koding (2022 - 2024)',
       proyek: 'Platform LMS Kelas Online, Sistem Kasir POS Cloud UMKM',
@@ -135,6 +138,7 @@ const MITRA_DEFAULT = {
       nama: 'Ananda Wulan',
       nim: 'A11.2021.13301',
       gender: 'Perempuan',
+      status_pekerjaan: 'Sudah Bekerja',
       jenis_pekerjaan: 'Full Time',
       status_karir: 'Bekerja Full Time',
       angkatan: 2021,
@@ -157,6 +161,7 @@ const MITRA_DEFAULT = {
       nama: 'Intan Maharani',
       nim: 'A11.2018.10544',
       gender: 'Perempuan',
+      status_pekerjaan: 'Sudah Bekerja',
       jenis_pekerjaan: 'Part Time',
       status_karir: 'Bekerja Part Time',
       angkatan: 2018,
@@ -179,8 +184,9 @@ const MITRA_DEFAULT = {
       nama: 'Bagas Saputra',
       nim: 'A11.2021.13120',
       gender: 'Laki-laki',
+      status_pekerjaan: 'Mencari Pekerjaan',
       jenis_pekerjaan: 'Full Time',
-      status_karir: 'Bekerja Full Time',
+      status_karir: 'Mencari Pekerjaan',
       angkatan: 2021,
       tahun_lulus: 2025,
       ipk: 3.43,
@@ -188,9 +194,9 @@ const MITRA_DEFAULT = {
       telepon: '0817-6666-7777',
       kota_domisili: 'Semarang',
       skill: ['Python', 'Machine Learning', 'TensorFlow', 'SQL', 'FastAPI'],
-      bio: 'AI & Data Specialist lulusan Bengkel Koding dengan fokus pada klasifikasi teks NLP, computer vision, dan deployment model machine learning.',
+      bio: 'AI & Data Specialist lulusan Bengkel Koding dengan fokus pada klasifikasi teks NLP, computer vision, dan deployment model machine learning. Aktif mencari peluang karir di bidang Data & AI.',
       pendidikan: 'S1 Teknik Informatika - Universitas Dian Nuswantoro (2021 - 2025)',
-      pengalaman: 'Junior AI Engineer di PT Inovasi Cerdas (2025 - Sekarang) · Asisten Riset AI Laboratorium (2023 - 2025)',
+      pengalaman: 'Asisten Riset AI Laboratorium Bengkel Koding UDINUS (2023 - 2025)',
       proyek: 'Deteksi Kualitas Produk dengan Computer Vision, Chatbot Layanan Akademik',
       izin_bagikan: true,
       cv_url: '#',
@@ -263,10 +269,45 @@ function refreshIcons() {
 
 // CV Audit log
 const CV_AUDIT_KEY = 'mitra-cv-audit';
-function getCvAudit() { return lsGet(CV_AUDIT_KEY, []); }
-function logCvAccess(alumniId, alumniNama) {
-  const log = [{ alumniId, alumniNama, akses_oleh: MITRA.profil.nama_perusahaan, waktu: new Date().toISOString() }, ...getCvAudit()].slice(0, 100);
+const DEFAULT_CV_AUDIT = [
+  { id: 'log-1', alumniId: 1, alumniNama: 'Rizky Pratama', nim: 'A11.2019.11823', akses_oleh: 'PT Solusi Digital Jateng', aktivitas: 'Melihat CV', waktu: '2026-10-21T14:32:00' },
+  { id: 'log-2', alumniId: 2, alumniNama: 'Nadia Putri', nim: 'A11.2019.11902', akses_oleh: 'PT Solusi Digital Jateng', aktivitas: 'Mengunduh CV (PDF)', waktu: '2026-10-20T10:15:00' },
+  { id: 'log-3', alumniId: 6, alumniNama: 'Bagas Saputra', nim: 'A11.2021.13120', akses_oleh: 'PT Solusi Digital Jateng', aktivitas: 'Melihat CV', waktu: '2026-10-19T16:45:00' },
+  { id: 'log-4', alumniId: 4, alumniNama: 'Ananda Wulan', nim: 'A11.2021.13301', akses_oleh: 'PT Solusi Digital Jateng', aktivitas: 'Mengunduh CV (PDF)', waktu: '2026-10-18T11:20:00' },
+  { id: 'log-5', alumniId: 3, alumniNama: 'Fajar Nugroho', nim: 'A11.2020.12011', akses_oleh: 'PT Solusi Digital Jateng', aktivitas: 'Melihat CV', waktu: '2026-10-17T09:05:00' },
+];
+
+function getCvAudit() {
+  const stored = lsGet(CV_AUDIT_KEY);
+  if (stored !== null) return stored;
+  return DEFAULT_CV_AUDIT;
+}
+
+function logCvAccess(alumniId, alumniNama, aktivitas = 'Melihat CV', extra = {}) {
+  const alumnus = (MITRA.alumni || []).find(x => x.id === alumniId) || {};
+  const nim = extra.nim || alumnus.nim || '-';
+  const entry = {
+    id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+    alumniId,
+    alumniNama: alumniNama || alumnus.nama || 'Alumni Bengkel Koding',
+    nim,
+    akses_oleh: (MITRA.profil && MITRA.profil.nama_perusahaan) || 'PT Solusi Digital Jateng',
+    aktivitas: aktivitas || 'Melihat CV',
+    waktu: new Date().toISOString(),
+    ...extra
+  };
+  const currentLogs = getCvAudit();
+  const log = [entry, ...currentLogs].slice(0, 100);
   lsSet(CV_AUDIT_KEY, log);
+  return entry;
+}
+
+function clearCvAudit() {
+  lsSet(CV_AUDIT_KEY, []);
+}
+
+function resetCvAuditDefault() {
+  lsSet(CV_AUDIT_KEY, DEFAULT_CV_AUDIT);
 }
 
 // Confirm dialog
@@ -296,6 +337,7 @@ const _rootBase = _depth >= 2 ? '../../' : '../';
 const MITRA_NAV = [
   { href: _base + 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   { href: _base + 'data-alumni.html', icon: 'users', label: 'Data Alumni', match: 'data-alumni.html' },
+  { href: _base + 'log-riwayat-cv.html', icon: 'history', label: 'Log Riwayat CV', match: 'log-riwayat-cv.html' },
   { href: _base + 'profil-perusahaan.html', icon: 'building-2', label: 'Profil Perusahaan', match: 'profil-perusahaan.html' },
   { href: _base + 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman', match: 'pengumuman.html' },
   { href: _base + 'forum.html', icon: 'messages-square', label: 'Forum', match: 'forum.html' },
