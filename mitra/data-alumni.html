@@ -28,7 +28,7 @@
       <i data-lucide="shield-check" class="w-5 h-5"></i>
     </div>
     <div class="text-sm text-neutral1 flex-1">
-      <strong class="text-primary1 font-bold">Akses Data Alumni & CV Resmi:</strong> Menampilkan profil alumni purna tugas Bengkel Koding UDINUS mencakup <strong>Nama, Jenis Pekerjaan (Fulltime/Parttime), Gender, Email, Telepon, Tahun Lulus, dan NIM</strong>. Mitra dapat langsung melihat dokumen CV alumni terverifikasi dengan jejak audit log otomatis.
+      <strong class="text-primary1 font-bold">Akses Data Alumni & CV Resmi:</strong> Menampilkan profil alumni purna tugas Bengkel Koding UDINUS mencakup <strong>Nama, Status Pekerjaan (Mencari Pekerjaan / Sudah Bekerja), Jenis Pekerjaan (Fulltime/Parttime), Gender, Email, Telepon, Tahun Lulus, dan NIM</strong>. Mitra dapat langsung melihat dokumen CV alumni terverifikasi dengan jejak audit log otomatis.
     </div>
   </div>
 
@@ -125,25 +125,6 @@
     </div>
   </section>
 
-  <!-- CV Access Audit Log -->
-  <section class="card">
-    <div class="flex items-center justify-between mb-4 pb-3 border-b border-neutral4/60">
-      <div>
-        <h3 class="font-bold text-base text-neutral1 flex items-center gap-2">
-          <i data-lucide="history" class="w-5 h-5 text-primary1"></i>
-          <span>Log Riwayat Akses Dokumen CV</span>
-        </h3>
-        <p class="text-xs text-neutral3 mt-0.5">Catatan transparansi audit saat mitra membuka atau mengunduh CV alumni</p>
-      </div>
-      <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-        <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Audit Aktif
-      </span>
-    </div>
-    <div id="cv-audit-log">
-      <div class="text-sm text-neutral3 text-center py-6">Belum ada riwayat akses CV.</div>
-    </div>
-  </section>
-
 </main>
 
 <!-- ==================== MODAL 1: PREVIEW CV LANGSUNG (Direct Interactive CV Viewer) ==================== -->
@@ -162,7 +143,7 @@
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="window.print()" class="px-3 py-1.5 rounded-lg border border-neutral4 text-neutral1 text-xs font-semibold hover:bg-white flex items-center gap-1.5 transition-colors" title="Cetak CV atau Simpan sebagai PDF">
+        <button onclick="downloadOrPrintCV()" class="px-3 py-1.5 rounded-lg border border-neutral4 text-neutral1 text-xs font-semibold hover:bg-white flex items-center gap-1.5 transition-colors" title="Cetak CV atau Simpan sebagai PDF">
           <i data-lucide="printer" class="w-3.5 h-3.5"></i>
           <span class="hidden sm:inline">Cetak / Unduh PDF</span>
         </button>
@@ -203,6 +184,27 @@
 let currentView = 'grid';
 let filtered = [...MITRA.alumni];
 
+function getStatusPekerjaan(a) {
+  if (a.status_pekerjaan) return a.status_pekerjaan;
+  if (a.status_karir === 'Mencari Pekerjaan' || a.status === 'Mencari Pekerjaan') return 'Mencari Pekerjaan';
+  return 'Sudah Bekerja';
+}
+
+function getStatusPekerjaanBadge(status) {
+  if (status === 'Sudah Bekerja') {
+    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+      <i data-lucide="briefcase" class="w-3 h-3 text-emerald-600"></i>
+      <span>Sudah Bekerja</span>
+    </span>`;
+  }
+  return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+    <i data-lucide="search" class="w-3 h-3 text-amber-600"></i>
+    <span>Mencari Pekerjaan</span>
+  </span>`;
+}
+
 function getJenisPekerjaanBadge(jenis) {
   if (jenis === 'Full Time') {
     return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -233,20 +235,24 @@ function renderGrid(list) {
     const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
     const gender = a.gender || 'Laki-laki';
     const jenis = a.jenis_pekerjaan || 'Full Time';
+    const statusPekerjaan = getStatusPekerjaan(a);
 
     return `
     <div class="bg-white border border-neutral4 rounded-2xl p-5 hover:border-primary3 hover:shadow-lg transition-all flex flex-col justify-between group">
       <div>
-        <!-- 1. Header: Avatar, Nama, NIM & Gender -->
+        <!-- 1. Header: Avatar, Nama, NIM & Status Pekerjaan, Gender -->
         <div class="flex items-start justify-between gap-3 mb-3.5">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary1 to-primary3 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary1 to-primary3 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0 mt-0.5">
               ${initials}
             </div>
-            <div class="min-w-0">
+            <div class="min-w-0 flex-1">
               <h4 class="font-bold text-neutral1 text-base group-hover:text-primary1 transition-colors truncate" title="${esc(a.nama)}">${esc(a.nama)}</h4>
-              <div class="text-xs font-medium text-neutral3 mt-0.5">
+              <div class="text-xs font-medium text-neutral3 mt-0.5 mb-1.5">
                 NIM: <strong class="text-neutral1 font-semibold">${esc(a.nim)}</strong>
+              </div>
+              <div class="flex items-center gap-1.5">
+                ${getStatusPekerjaanBadge(statusPekerjaan)}
               </div>
             </div>
           </div>
@@ -329,6 +335,7 @@ function renderTable(list) {
     const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
     const gender = a.gender || 'Laki-laki';
     const jenis = a.jenis_pekerjaan || 'Full Time';
+    const statusPekerjaan = getStatusPekerjaan(a);
 
     return `
     <tr class="tr">
@@ -341,6 +348,7 @@ function renderTable(list) {
           <div>
             <div class="font-bold text-neutral1 text-sm">${esc(a.nama)}</div>
             <div class="text-xs text-neutral3 font-mono font-medium">NIM: ${esc(a.nim)}</div>
+            <div class="mt-1">${getStatusPekerjaanBadge(statusPekerjaan)}</div>
           </div>
         </div>
       </td>
@@ -417,11 +425,13 @@ function applyFilter() {
   const thn = document.getElementById('filter-tahun-lulus').value;
 
   filtered = MITRA.alumni.filter(a => {
+    const statusPekerjaan = getStatusPekerjaan(a);
     const matchQ = !q ||
       a.nama.toLowerCase().includes(q) ||
       a.nim.toLowerCase().includes(q) ||
       (a.email && a.email.toLowerCase().includes(q)) ||
       (a.telepon && a.telepon.toLowerCase().includes(q)) ||
+      statusPekerjaan.toLowerCase().includes(q) ||
       a.skill.some(s => s.toLowerCase().includes(q));
 
     const matchJenis = !jenis || (a.jenis_pekerjaan === jenis || a.status_karir.includes(jenis));
@@ -435,17 +445,29 @@ function applyFilter() {
 }
 
 // ==================== BUKA CV LANGSUNG (Direct Rich CV Viewer) ====================
+let currentDirectCvAlumni = null;
+
+function downloadOrPrintCV() {
+  if (currentDirectCvAlumni) {
+    logCvAccess(currentDirectCvAlumni.id, currentDirectCvAlumni.nama, 'Mengunduh CV (PDF)', { nim: currentDirectCvAlumni.nim });
+    showToast(`Aktivitas unduh CV ${currentDirectCvAlumni.nama} dicatat ke audit log.`, 'success');
+  }
+  window.print();
+}
+
 function viewCVDirect(id) {
   const a = MITRA.alumni.find(x => x.id === id);
   if (!a) return;
 
+  currentDirectCvAlumni = a;
+
   // Catat audit log akses CV
-  logCvAccess(a.id, a.nama);
+  logCvAccess(a.id, a.nama, 'Melihat CV', { nim: a.nim });
   showToast(`CV ${a.nama} berhasil dibuka. Jejak audit telah dicatat.`, 'success');
-  renderAuditLog();
 
   const gender = a.gender || 'Laki-laki';
   const jenis = a.jenis_pekerjaan || 'Full Time';
+  const statusPekerjaan = getStatusPekerjaan(a);
   const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
   const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short' });
 
@@ -466,9 +488,11 @@ function viewCVDirect(id) {
           <div class="text-primary4 text-sm mt-1 flex flex-wrap items-center justify-center sm:justify-start gap-3">
             <span>NIM: <strong class="text-white">${esc(a.nim)}</strong></span>
             <span>•</span>
-            <span>Jenis Kelamin: <strong class="text-white">${gender}</strong></span>
+            <span>Status: <strong class="text-white">${statusPekerjaan}</strong></span>
             <span>•</span>
-            <span>Status: <strong class="text-white">${jenis}</strong></span>
+            <span>Peminatan: <strong class="text-white">${jenis}</strong></span>
+            <span>•</span>
+            <span>Jenis Kelamin: <strong class="text-white">${gender}</strong></span>
           </div>
         </div>
       </div>
@@ -585,6 +609,7 @@ function openAlumniDetail(id) {
 
   const gender = a.gender || 'Laki-laki';
   const jenis = a.jenis_pekerjaan || 'Full Time';
+  const statusPekerjaan = getStatusPekerjaan(a);
   const initials = a.nama.split(' ').map(w => w[0]).slice(0, 2).join('');
 
   document.getElementById('modal-alumni-content').innerHTML = `
@@ -596,7 +621,7 @@ function openAlumniDetail(id) {
         <div class="flex-1 min-w-0">
           <h3 class="text-xl font-bold truncate">${esc(a.nama)}</h3>
           <div class="text-primary4 text-xs mt-0.5">NIM: ${esc(a.nim)} · Angkatan ${a.angkatan} · Lulus ${a.tahun_lulus}</div>
-          <div class="text-primary4 text-xs mt-0.5">IPK: ${a.ipk.toFixed(2)} · ${gender} · ${jenis}</div>
+          <div class="text-primary4 text-xs mt-0.5">IPK: ${a.ipk.toFixed(2)} · ${statusPekerjaan} · ${gender} · ${jenis}</div>
         </div>
         <button onclick="closeModal('modal-alumni')" class="p-2 rounded-lg hover:bg-white/20 transition-colors">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -604,7 +629,11 @@ function openAlumniDetail(id) {
       </div>
     </div>
     <div class="p-6 space-y-4">
-      <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+          <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Status Pekerjaan</div>
+          <div class="text-xs font-bold ${statusPekerjaan === 'Sudah Bekerja' ? 'text-emerald-700' : 'text-amber-700'}">${statusPekerjaan}</div>
+        </div>
         <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
           <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Gender</div>
           <div class="text-xs font-bold text-neutral1">${gender}</div>
@@ -621,7 +650,7 @@ function openAlumniDetail(id) {
           <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Email</div>
           <a href="mailto:${esc(a.email)}" class="text-xs font-bold text-primary1 hover:underline truncate block">${esc(a.email)}</a>
         </div>
-        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60">
+        <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/60 sm:col-span-2">
           <div class="text-[11px] text-neutral3 font-semibold mb-0.5">Telepon</div>
           <a href="tel:${esc(a.telepon)}" class="text-xs font-bold text-neutral1 hover:text-primary1 block">${esc(a.telepon)}</a>
         </div>
@@ -650,36 +679,8 @@ function openAlumniDetail(id) {
   refreshIcons();
 }
 
-function renderAuditLog() {
-  const log = getCvAudit();
-  const el = document.getElementById('cv-audit-log');
-  if (!log.length) {
-    el.innerHTML = '<div class="text-sm text-neutral3 text-center py-6">Belum ada riwayat akses CV.</div>';
-    return;
-  }
-  el.innerHTML = `<div class="divide-y divide-neutral4">
-    ${log.slice(0, 10).map(l => `
-      <div class="py-3 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-8 h-8 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-          </div>
-          <div class="min-w-0">
-            <div class="text-sm font-semibold text-neutral1 truncate">${esc(l.alumniNama)}</div>
-            <div class="text-xs text-neutral3">CV diakses oleh ${esc(MITRA.profil.nama_perusahaan)} · ${fmtDateTime(l.waktu)}</div>
-          </div>
-        </div>
-        <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 shrink-0">
-          ✓ Tercatat
-        </span>
-      </div>`).join('')}
-  </div>`;
-  refreshIcons();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   render(MITRA.alumni);
-  renderAuditLog();
 
   ['search-input', 'filter-jenis-pekerjaan', 'filter-gender', 'filter-tahun-lulus'].forEach(id => {
     const el = document.getElementById(id);
