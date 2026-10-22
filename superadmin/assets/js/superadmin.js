@@ -98,6 +98,35 @@ const SUPERADMIN_DEFAULT = {
     { id: 102, nama: 'Siti Nurhaliza, M.Kom', nidn: '0615089202', email: 'siti.nurhaliza@dinus.ac.id', prodi: 'Sistem Informasi' },
     { id: 103, nama: 'Agus Setiawan, M.T', nidn: '0605118701', email: 'agus.setiawan@dinus.ac.id', prodi: 'Teknik Informatika' },
     { id: 104, nama: 'Dewi Rahmawati, M.Cs', nidn: '0620029003', email: 'dewi.rahmawati@dinus.ac.id', prodi: 'Ilmu Komunikasi / TI' }
+  ],
+  alumni: [
+    { id: 1, nama: 'Rizky Pratama', nim: 'A11.2019.11823', email: 'rizky.pratama@gmail.com', tahun_lulus: 2023, divisi: 'Divisi Developer', status_karir: 'Bekerja Full Time', perusahaan: 'PT Telkom Indonesia', jabatan: 'Backend Engineer', status_akun: 'Aktif', terdaftar: '2026-01-10' },
+    { id: 2, nama: 'Nadia Putri', nim: 'A11.2019.11902', email: 'nadia.putri@gmail.com', tahun_lulus: 2023, divisi: 'Divisi Data Science', status_karir: 'Bekerja Full Time', perusahaan: 'Gojek', jabatan: 'Data Analyst', status_akun: 'Aktif', terdaftar: '2026-01-15' },
+    { id: 3, nama: 'Fajar Nugroho', nim: 'A11.2020.12011', email: 'fajar.nugroho@gmail.com', tahun_lulus: 2024, divisi: 'Divisi Developer', status_karir: 'Wirausaha', perusahaan: 'Studio Kode Semarang', jabatan: 'Founder & CEO', status_akun: 'Aktif', terdaftar: '2026-02-01' },
+    { id: 4, nama: 'Salsa Ramadhani', nim: 'A11.2020.12088', email: 'salsa.ramadhani@gmail.com', tahun_lulus: 2024, divisi: 'Divisi Data Science', status_karir: 'Melanjutkan Pendidikan', perusahaan: 'Universitas Gadjah Mada', jabatan: 'S2 Ilmu Komputer', status_akun: 'Aktif', terdaftar: '2026-02-12' },
+    { id: 5, nama: 'Bagas Saputra', nim: 'A11.2021.13120', email: 'bagas.saputra@gmail.com', tahun_lulus: 2025, divisi: 'Divisi Developer', status_karir: 'Mencari Pekerjaan', perusahaan: '-', jabatan: '-', status_akun: 'Nonaktif', terdaftar: '2026-03-05' },
+    { id: 6, nama: 'Intan Maharani', nim: 'A11.2018.10544', email: 'intan.maharani@gmail.com', tahun_lulus: 2022, divisi: 'Divisi Developer', status_karir: 'Bekerja Part Time', perusahaan: 'Dicoding Academy', jabatan: 'Code Reviewer', status_akun: 'Aktif', terdaftar: '2026-01-08' },
+    { id: 7, nama: 'Dimas Arya', nim: 'A11.2018.10601', email: 'dimas.arya@gmail.com', tahun_lulus: 2022, divisi: 'Divisi Developer', status_karir: 'Bekerja Full Time', perusahaan: 'Bank BCA', jabatan: 'Mobile Developer', status_akun: 'Aktif', terdaftar: '2026-01-18' },
+    { id: 8, nama: 'Ananda Wulan', nim: 'A11.2021.13301', email: 'ananda.wulan@gmail.com', tahun_lulus: 2025, divisi: 'Divisi Data Science', status_karir: 'Bekerja Full Time', perusahaan: 'Tokopedia', jabatan: 'Frontend Engineer', status_akun: 'Aktif', terdaftar: '2026-03-10' },
+  ],
+  mitra: [
+    { id: 1, nama_perusahaan: 'PT Telkom Indonesia', bidang_usaha: 'Telekomunikasi & IT', kota: 'Bandung', email: 'hr@telkom.co.id', pic: 'Hendra W.', telp: '0812-3456-7890', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 2, terdaftar: '2026-01-12' },
+    { id: 2, nama_perusahaan: 'Gojek', bidang_usaha: 'Teknologi & Ride Hailing', kota: 'Jakarta', email: 'recruitment@gojek.com', pic: 'Maya Safitri', telp: '0812-9876-5432', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-01-20' },
+    { id: 3, nama_perusahaan: 'CV Solusi Digital Jateng', bidang_usaha: 'Software House', kota: 'Semarang', email: 'hr@solusidigital.id', pic: 'Andi Kurniawan', telp: '0813-4567-8901', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-02-05' },
+    { id: 4, nama_perusahaan: 'PT Data Nusantara', bidang_usaha: 'Big Data & AI Services', kota: 'Yogyakarta', email: 'contact@datanusantara.id', pic: 'Rina Pramestia', telp: '0815-6789-0123', status_verifikasi: 'Belum Verifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-03-01' },
+    { id: 5, nama_perusahaan: 'PT Abal Sejahtera', bidang_usaha: 'Konsultan IT', kota: 'Kudus', email: 'info@abalsejahtera.com', pic: 'Budi Santoso', telp: '0817-8901-2345', status_verifikasi: 'Ditolak', status_akun: 'Nonaktif', loker_count: 0, terdaftar: '2026-03-15' },
+  ],
+  activityLogs: [
+    { id: 1, waktu: '2026-10-22 09:15', user: 'Super Admin', role: 'SuperAdmin', action: 'Penugasan Koordinator', detail: 'Menugaskan Dr. Ayu Lestari, M.Kom sebagai Koordinator Divisi Dev & DS', ip: '10.14.0.1', status: 'Sukses' },
+    { id: 2, waktu: '2026-10-22 08:30', user: 'Dr. Ayu Lestari, M.Kom', role: 'Koordinator', action: 'Verifikasi Tracer Study', detail: 'Memverifikasi data tracer study Rizky Pratama (NIM: A11.2019.11823)', ip: '10.14.2.45', status: 'Sukses' },
+    { id: 3, waktu: '2026-10-21 16:45', user: 'Super Admin', role: 'SuperAdmin', action: 'Reset Password Akun', detail: 'Mereset kredensial password untuk akun Koordinator Bambang Nugroho, M.T', ip: '10.14.0.1', status: 'Sukses' },
+    { id: 4, waktu: '2026-10-21 14:20', user: 'Maya Safitri (Gojek)', role: 'Mitra', action: 'Pengajuan Lowongan Baru', detail: 'Mengajukan loker Mobile Engineer (Flutter) Full Time', ip: '180.252.16.8', status: 'Sukses' },
+    { id: 5, waktu: '2026-10-21 11:10', user: 'Dr. Ayu Lestari, M.Kom', role: 'Koordinator', action: 'Moderasi Lowongan', detail: 'Menyetujui publikasi lowongan QA Engineer dari PT Telkom Indonesia', ip: '10.14.2.45', status: 'Sukses' },
+    { id: 6, waktu: '2026-10-20 15:30', user: 'Super Admin', role: 'SuperAdmin', action: 'Aktivasi Akun Mitra', detail: 'Memverifikasi dan mengaktifkan akun CV Solusi Digital Jateng', ip: '10.14.0.1', status: 'Sukses' },
+    { id: 7, waktu: '2026-10-20 13:05', user: 'Bagas Saputra', role: 'Alumni', action: 'Pembaruan Status Karir', detail: 'Memperbarui status karir ke Mencari Pekerjaan', ip: '114.122.34.12', status: 'Sukses' },
+    { id: 8, waktu: '2026-10-20 10:00', user: 'Super Admin', role: 'SuperAdmin', action: 'Nonaktifkan Akun', detail: 'Menonaktifkan sementara akun alumni Bagas Saputra', ip: '10.14.0.1', status: 'Sukses' },
+    { id: 9, waktu: '2026-10-19 14:15', user: 'Budi Santoso (PT Abal)', role: 'Mitra', action: 'Pendaftaran Akun Mitra', detail: 'Mengisi form registrasi mitra industri baru dari Kudus', ip: '125.160.77.2', status: 'Menunggu' },
+    { id: 10, waktu: '2026-10-19 09:00', user: 'Super Admin', role: 'SuperAdmin', action: 'Autentikasi Sesi', detail: 'Login SuperAdmin berhasil melalui SSO Lab Bengkel Koding', ip: '10.14.0.1', status: 'Sukses' },
   ]
 };
 
@@ -105,10 +134,43 @@ const SUPERADMIN = {
   user: SUPERADMIN_DEFAULT.user,
   koordinator: lsGet('superadmin-koordinator', SUPERADMIN_DEFAULT.koordinator),
   kandidatDosen: SUPERADMIN_DEFAULT.kandidatDosen,
+  alumni: lsGet('superadmin-alumni', SUPERADMIN_DEFAULT.alumni),
+  mitra: lsGet('superadmin-mitra', SUPERADMIN_DEFAULT.mitra),
+  activityLogs: lsGet('superadmin-activity-logs', SUPERADMIN_DEFAULT.activityLogs),
 };
 
 function saveKoordinator() {
   lsSet('superadmin-koordinator', SUPERADMIN.koordinator);
+}
+
+function saveAlumni() {
+  lsSet('superadmin-alumni', SUPERADMIN.alumni);
+}
+
+function saveMitra() {
+  lsSet('superadmin-mitra', SUPERADMIN.mitra);
+}
+
+function saveActivityLogs() {
+  lsSet('superadmin-activity-logs', SUPERADMIN.activityLogs);
+}
+
+function addActivityLog(action, detail, role = 'SuperAdmin', user = 'Super Admin') {
+  const now = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  const waktu = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  const newLog = {
+    id: Date.now(),
+    waktu,
+    user,
+    role,
+    action,
+    detail,
+    ip: '10.14.0.1',
+    status: 'Sukses'
+  };
+  SUPERADMIN.activityLogs.unshift(newLog);
+  saveActivityLogs();
 }
 
 // ===================== HELPERS =====================
@@ -117,11 +179,22 @@ const BADGE = {
   yellow: 'bg-yellow3 text-yellow1 border-yellow2/30',
   red: 'bg-red3 text-red1 border-red2/30',
   blue: 'bg-primary5 text-primary1 border-primary4/50',
+  purple: 'bg-purple-100 text-purple-700 border-purple-200',
 };
 const BADGE_COLOR = {
   'Aktif': 'green',
+  'Terverifikasi': 'green',
+  'Sukses': 'green',
   'Menunggu Undangan': 'yellow',
+  'Belum Verifikasi': 'yellow',
+  'Menunggu': 'yellow',
   'Nonaktif': 'red',
+  'Ditolak': 'red',
+  'Gagal': 'red',
+  'SuperAdmin': 'purple',
+  'Koordinator': 'blue',
+  'Mitra': 'green',
+  'Alumni': 'yellow',
 };
 
 function badge(status) {
@@ -134,7 +207,7 @@ function esc(s) {
 }
 
 function fmtDate(iso) {
-  return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : ':';
+  return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
 }
 
 // Dialog konfirmasi generik untuk aksi sensitif
@@ -153,25 +226,19 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
   openModal('confirm-modal');
 }
 
-// Navigasi SuperAdmin (Sesuai Aside.tsx lms-bengkod-web dengan menu Pengguna bertingkat)
+// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Mitra, Koordinator) dan Log Aktivitas)
 const SUPERADMIN_NAV = [
   { href: 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   {
-    label: 'Pengguna',
+    label: 'Management Users',
     icon: 'users',
     submenu: [
-      { href: '#', icon: 'shield', label: 'Admin', match: 'admin' },
-      { href: '#', icon: 'user-check', label: 'Dosen', match: 'dosen' },
-      { href: '#', icon: 'award', label: 'Asisten', match: 'asisten' },
-      { href: '#', icon: 'user', label: 'Mahasiswa', match: 'mahasiswa' },
-      { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator Alumni', match: 'koordinator.html', badge: 'Baru' },
+      { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator', match: 'koordinator.html' },
+      { href: 'alumni.html', icon: 'user-check', label: 'Alumni', match: 'alumni.html' },
+      { href: 'mitra.html', icon: 'building-2', label: 'Mitra', match: 'mitra.html' },
     ]
   },
-  { href: '#', icon: 'layers', label: 'Kelas' },
-  { href: '#', icon: 'book-open', label: 'Kursus' },
-  { href: '#', icon: 'route', label: 'Learning Path' },
-  { href: '#', icon: 'file-text', label: 'Manajemen Konten' },
-  { href: '#', icon: 'history', label: 'Log Aktivitas' },
+  { href: 'log-aktivitas.html', icon: 'history', label: 'Log Aktivitas', match: 'log-aktivitas.html' },
 ];
 
 // ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
@@ -223,22 +290,27 @@ document.addEventListener('DOMContentLoaded', () => {
       </a>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
-        <a href="http://127.0.0.1:5500/" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
       </div>
     </aside>`);
 
   // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
   const isDashboard = current === 'index.html' || main.dataset.title === 'Dashboard';
+  const isLogAktivitas = current === 'log-aktivitas.html' || main.dataset.title === 'Log Aktivitas';
   const pageTitle = esc(main.dataset.title);
 
   const breadcrumbHTML = isDashboard
     ? `<a href="index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <span class="font-medium text-neutral1">SuperAdmin</span>`
+    : isLogAktivitas
+    ? `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1">${pageTitle}</span>`
     : `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Pengguna</a>
+       <a href="koordinator.html" class="text-neutral2 hover:text-primary1 transition-colors">Management Users</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
@@ -359,7 +431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Submenu toggle untuk Pengguna
+  // Submenu toggle untuk Management Users
   document.querySelectorAll('[data-submenu-toggle]').forEach(btn => {
     btn.addEventListener('click', () => {
       const submenu = btn.nextElementSibling;
