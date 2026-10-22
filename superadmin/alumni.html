@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Alumni | SuperAdmin Bengkel Koding</title>
+  <meta name="description" content="Manajemen Akun Alumni oleh SuperAdmin Bengkel Koding UDINUS. Kelola hak akses, status karir, reset password, dan status aktif.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Manajemen Alumni" class="space-y-5">
+
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-neutral1">Manajemen Akun Alumni</h2>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+          Khusus SuperAdmin
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-neutral2 mt-1">
+        Kelola hak akses akun alumni asisten lab Bengkel Koding, reset password, status akun, dan data karir purna tugas.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button
+        onclick="exportAlumniCSV()"
+        class="btn-outline text-xs sm:text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-2"
+        title="Unduh seluruh data alumni dalam format CSV"
+      >
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Export CSV</span>
+      </button>
+      <button
+        onclick="openAddAlumniModal()"
+        class="btn-primary text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2"
+      >
+        <i data-lucide="user-plus" class="w-4 h-4"></i>
+        <span>Tambah Alumni</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Role Tabs Switcher (Management Users: Koordinator, Alumni, Mitra) -->
+  <div class="flex items-center gap-2 border-b border-neutral4 pb-3 overflow-x-auto no-scrollbar">
+    <a href="koordinator.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+      <span>Koordinator Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-koor">3</span>
+    </a>
+    <a href="alumni.html" class="px-4 py-2 rounded-xl text-xs font-semibold bg-primary1 text-white shadow-sm flex items-center gap-2 shrink-0">
+      <i data-lucide="user-check" class="w-4 h-4"></i>
+      <span>Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-bold" id="badge-tab-alumni">8</span>
+    </a>
+    <a href="mitra.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="building-2" class="w-4 h-4"></i>
+      <span>Mitra Industri</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-mitra">5</span>
+    </a>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- Search Input -->
+    <div class="relative flex-1 max-w-md">
+      <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input
+        type="text"
+        id="search-input"
+        oninput="handleSearch(this.value)"
+        placeholder="Cari nama alumni, NIM, email, perusahaan..."
+        class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3 transition-all"
+      >
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <select id="filter-divisi" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Divisi</option>
+        <option value="Divisi Developer">Divisi Developer</option>
+        <option value="Divisi Data Science">Divisi Data Science</option>
+      </select>
+
+      <select id="filter-status-karir" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status Karir</option>
+        <option value="Bekerja Full Time">Bekerja Full Time</option>
+        <option value="Bekerja Part Time">Bekerja Part Time</option>
+        <option value="Wirausaha">Wirausaha</option>
+        <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan</option>
+        <option value="Mencari Pekerjaan">Mencari Pekerjaan</option>
+      </select>
+
+      <select id="filter-status-akun" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status Akun</option>
+        <option value="Aktif">Status: Aktif</option>
+        <option value="Nonaktif">Status: Nonaktif</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Table Section -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 elevation2 overflow-hidden">
+    <!-- Table Header Summary -->
+    <div class="px-5 py-4 border-b border-neutral4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-neutral1 uppercase tracking-wider">Daftar Akun Alumni</span>
+        <span id="badge-total-count" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral5 text-neutral2 border border-neutral4">
+          8 Akun
+        </span>
+      </div>
+      <span class="text-[11px] text-neutral3 hidden sm:inline">
+        Asisten lab purna tugas Divisi Developer &amp; Data Science
+      </span>
+    </div>
+
+    <!-- Table Responsive Wrapper -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="alumni-table">
+        <thead>
+          <tr>
+            <th class="th">Nama &amp; NIM Alumni</th>
+            <th class="th">Email Resmi</th>
+            <th class="th">Divisi &amp; Lulus</th>
+            <th class="th">Status Karir &amp; Institusi</th>
+            <th class="th">Status Akun</th>
+            <th class="th">Terdaftar</th>
+            <th class="th text-center">Aksi Manajemen</th>
+          </tr>
+        </thead>
+        <tbody id="alumni-tbody" class="divide-y divide-neutral4">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State View -->
+    <div id="empty-state-view" class="hidden p-12 text-center flex flex-col items-center justify-center space-y-3">
+      <div class="w-16 h-16 rounded-2xl bg-neutral5 border border-neutral4/80 text-neutral3 flex items-center justify-center">
+        <i data-lucide="user-x" class="w-8 h-8"></i>
+      </div>
+      <div class="max-w-sm">
+        <h3 class="text-base font-bold text-neutral1">Tidak Ada Data Alumni</h3>
+        <p class="text-xs text-neutral2 mt-1 leading-relaxed">
+          Tidak ditemukan akun alumni yang cocok dengan kriteria pencarian atau filter yang dipilih.
+        </p>
+      </div>
+      <button onclick="resetFilters()" class="btn-primary text-xs px-4 py-2 rounded-xl mt-2">
+        Reset Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- Security Audit Policy Note -->
+  <div class="p-4 bg-teal-50/70 border border-teal-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-teal-900">
+    <div class="flex items-center gap-2.5">
+      <i data-lucide="shield-check" class="w-5 h-5 text-teal-700 shrink-0"></i>
+      <span>
+        <strong>Wewenang SuperAdmin:</strong> SuperAdmin berwenang penuh mereset password, mengubah status akun alumni menjadi Nonaktif jika terjadi pelanggaran, atau memperbarui informasi profil alumni.
+      </span>
+    </div>
+    <span class="text-[11px] text-teal-700 font-semibold shrink-0">Akun Terproteksi</span>
+  </div>
+
+</main>
+
+<!-- MODAL: Tambah Akun Alumni Baru -->
+<div id="add-alumni-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+    <button onclick="closeModal('add-alumni-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold">
+        <i data-lucide="user-plus" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="add-modal-title" class="font-bold text-base text-neutral1">Tambah Akun Alumni Baru</h3>
+        <p class="text-xs text-neutral3">Daftarkan asisten lab purna tugas ke platform alumni.</p>
+      </div>
+    </div>
+
+    <form id="add-alumni-form" onsubmit="handleAddAlumniSubmit(event)" class="space-y-4 text-xs">
+      <div>
+        <label for="input-nama" class="label text-xs">Nama Lengkap</label>
+        <input type="text" id="input-nama" required placeholder="Contoh: Rizky Pratama" class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-nim" class="label text-xs">NIM Mahasiswa</label>
+          <input type="text" id="input-nim" required placeholder="A11.2019.11823" class="input">
+        </div>
+        <div>
+          <label for="input-email" class="label text-xs">Email Resmi / Pribadi</label>
+          <input type="email" id="input-email" required placeholder="alumni@gmail.com" class="input">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-divisi" class="label text-xs">Divisi Spesialisasi</label>
+          <select id="input-divisi" class="input bg-white cursor-pointer">
+            <option value="Divisi Developer">Divisi Developer</option>
+            <option value="Divisi Data Science">Divisi Data Science</option>
+          </select>
+        </div>
+        <div>
+          <label for="input-tahun-lulus" class="label text-xs">Tahun Lulus</label>
+          <select id="input-tahun-lulus" class="input bg-white cursor-pointer">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023" selected>2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="input-status-karir" class="label text-xs">Status Karir Saat Ini</label>
+        <select id="input-status-karir" class="input bg-white cursor-pointer">
+          <option value="Bekerja Full Time">Bekerja Full Time</option>
+          <option value="Bekerja Part Time">Bekerja Part Time</option>
+          <option value="Wirausaha">Wirausaha</option>
+          <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan</option>
+          <option value="Mencari Pekerjaan">Mencari Pekerjaan</option>
+          <option value="Belum Memungkinkan Bekerja">Belum Memungkinkan Bekerja</option>
+          <option value="Menikah / Mengurus Keluarga">Menikah / Mengurus Keluarga</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-perusahaan" class="label text-xs">Nama Perusahaan / Usaha / Kampus</label>
+          <input type="text" id="input-perusahaan" placeholder="PT Telkom Indonesia (opsional)" class="input">
+        </div>
+        <div>
+          <label for="input-jabatan" class="label text-xs">Posisi / Jabatan / Prodi</label>
+          <input type="text" id="input-jabatan" placeholder="Backend Engineer (opsional)" class="input">
+        </div>
+      </div>
+
+      <!-- Password Default Info -->
+      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/80 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-neutral1 text-[11px]">Password Default Akun:</span>
+          <span class="font-mono font-bold text-primary1 text-xs px-2 py-0.5 bg-primary5 rounded">bengkod2026</span>
+        </div>
+        <p class="text-[10px] text-neutral3">Alumni dapat mengubah password ini setelah login pertama kali di portal alumni.</p>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('add-alumni-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan Akun Alumni
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Edit Akun Alumni -->
+<div id="edit-alumni-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <button onclick="closeModal('edit-alumni-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center font-bold">
+        <i data-lucide="pencil" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="edit-modal-title" class="font-bold text-base text-neutral1">Edit Akun Alumni</h3>
+        <p class="text-xs text-neutral3">Perbarui data atau status keaktifan akun alumni.</p>
+      </div>
+    </div>
+
+    <form id="edit-alumni-form" onsubmit="handleEditAlumniSubmit(event)" class="space-y-4 text-xs">
+      <input type="hidden" id="edit-id">
+
+      <div>
+        <label for="edit-nama" class="label text-xs">Nama Lengkap</label>
+        <input type="text" id="edit-nama" required class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-nim" class="label text-xs">NIM Mahasiswa</label>
+          <input type="text" id="edit-nim" required class="input">
+        </div>
+        <div>
+          <label for="edit-email" class="label text-xs">Email Resmi / Pribadi</label>
+          <input type="email" id="edit-email" required class="input">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-divisi" class="label text-xs">Divisi Spesialisasi</label>
+          <select id="edit-divisi" class="input bg-white cursor-pointer">
+            <option value="Divisi Developer">Divisi Developer</option>
+            <option value="Divisi Data Science">Divisi Data Science</option>
+          </select>
+        </div>
+        <div>
+          <label for="edit-tahun-lulus" class="label text-xs">Tahun Lulus</label>
+          <select id="edit-tahun-lulus" class="input bg-white cursor-pointer">
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label for="edit-status-karir" class="label text-xs">Status Karir</label>
+        <select id="edit-status-karir" class="input bg-white cursor-pointer">
+          <option value="Bekerja Full Time">Bekerja Full Time</option>
+          <option value="Bekerja Part Time">Bekerja Part Time</option>
+          <option value="Wirausaha">Wirausaha</option>
+          <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan</option>
+          <option value="Mencari Pekerjaan">Mencari Pekerjaan</option>
+          <option value="Belum Memungkinkan Bekerja">Belum Memungkinkan Bekerja</option>
+          <option value="Menikah / Mengurus Keluarga">Menikah / Mengurus Keluarga</option>
+        </select>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-perusahaan" class="label text-xs">Nama Perusahaan / Institusi</label>
+          <input type="text" id="edit-perusahaan" class="input">
+        </div>
+        <div>
+          <label for="edit-status-akun" class="label text-xs">Status Akun</label>
+          <select id="edit-status-akun" class="input bg-white cursor-pointer">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('edit-alumni-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let searchQuery = '';
+  let filterDivisi = 'all';
+  let filterStatusKarir = 'all';
+  let filterStatusAkun = 'all';
+
+  function renderAlumniTable() {
+    const tbody = document.getElementById('alumni-tbody');
+    const tableEl = document.getElementById('alumni-table');
+    const emptyViewEl = document.getElementById('empty-state-view');
+    const badgeCount = document.getElementById('badge-total-count');
+    if (!tbody) return;
+
+    let items = [...(SUPERADMIN.alumni || [])];
+
+    if (filterDivisi !== 'all') {
+      items = items.filter(a => a.divisi === filterDivisi);
+    }
+    if (filterStatusKarir !== 'all') {
+      items = items.filter(a => a.status_karir === filterStatusKarir);
+    }
+    if (filterStatusAkun !== 'all') {
+      items = items.filter(a => a.status_akun === filterStatusAkun);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(a =>
+        a.nama.toLowerCase().includes(q) ||
+        a.nim.toLowerCase().includes(q) ||
+        a.email.toLowerCase().includes(q) ||
+        (a.perusahaan || '').toLowerCase().includes(q)
+      );
+    }
+
+    if (badgeCount) badgeCount.textContent = `${items.length} Akun`;
+
+    if (items.length === 0) {
+      if (tableEl) tableEl.classList.add('hidden');
+      if (emptyViewEl) emptyViewEl.classList.remove('hidden');
+    } else {
+      if (tableEl) tableEl.classList.remove('hidden');
+      if (emptyViewEl) emptyViewEl.classList.add('hidden');
+
+      tbody.innerHTML = items.map(a => {
+        const isAktif = a.status_akun === 'Aktif';
+        return `
+          <tr class="tr group">
+            <!-- 1. Nama & NIM -->
+            <td class="td">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 font-bold text-xs flex items-center justify-center shrink-0 border border-teal-200">
+                  ${esc(a.nama.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase())}
+                </div>
+                <div class="min-w-0">
+                  <div class="font-semibold text-neutral1 text-sm">${esc(a.nama)}</div>
+                  <div class="text-[11px] text-neutral3 font-mono">NIM: ${esc(a.nim)}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- 2. Email -->
+            <td class="td text-xs text-neutral1">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="mail" class="w-3.5 h-3.5 text-neutral3"></i>
+                <a href="mailto:${esc(a.email)}" class="hover:text-primary1 hover:underline">${esc(a.email)}</a>
+              </div>
+            </td>
+
+            <!-- 3. Divisi & Lulus -->
+            <td class="td text-xs text-neutral1">
+              <div class="font-medium">${esc(a.divisi)}</div>
+              <div class="text-[11px] text-neutral3">Lulus Tahun ${a.tahun_lulus}</div>
+            </td>
+
+            <!-- 4. Status Karir & Institusi -->
+            <td class="td text-xs">
+              <div class="font-semibold text-neutral1">${esc(a.status_karir)}</div>
+              <div class="text-[11px] text-neutral3 mt-0.5 truncate max-w-[180px]">${a.perusahaan !== '-' ? esc(a.perusahaan) : '<span class="italic text-neutral3">Belum terisi</span>'}</div>
+            </td>
+
+            <!-- 5. Status Akun -->
+            <td class="td">
+              ${badge(a.status_akun)}
+            </td>
+
+            <!-- 6. Terdaftar -->
+            <td class="td text-xs text-neutral3 whitespace-nowrap">
+              ${fmtDate(a.terdaftar)}
+            </td>
+
+            <!-- 7. Aksi -->
+            <td class="td text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1">
+                <!-- Edit -->
+                <button
+                  type="button"
+                  onclick="openEditModal(${a.id})"
+                  class="btn-icon"
+                  title="Edit Data Alumni"
+                >
+                  <i data-lucide="pencil" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Reset Password -->
+                <button
+                  type="button"
+                  onclick="handleResetPassword(${a.id}, '${esc(a.nama)}')"
+                  class="btn-icon text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                  title="Reset Password Akun"
+                >
+                  <i data-lucide="key-round" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Nonaktifkan / Aktifkan Akun -->
+                ${isAktif ? `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${a.id}, '${esc(a.nama)}', 'Nonaktif')"
+                    class="btn-icon text-red1 hover:text-red2 hover:bg-red3/40"
+                    title="Nonaktifkan Akun Alumni"
+                  >
+                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                  </button>
+                ` : `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${a.id}, '${esc(a.nama)}', 'Aktif')"
+                    class="btn-icon text-green2 hover:text-green1 hover:bg-green3/40"
+                    title="Aktifkan Kembali Akun"
+                  >
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  window.handleSearch = function(val) {
+    searchQuery = val;
+    renderAlumniTable();
+  };
+
+  window.handleFilterChange = function() {
+    filterDivisi = document.getElementById('filter-divisi').value;
+    filterStatusKarir = document.getElementById('filter-status-karir').value;
+    filterStatusAkun = document.getElementById('filter-status-akun').value;
+    renderAlumniTable();
+  };
+
+  window.resetFilters = function() {
+    searchQuery = '';
+    filterDivisi = 'all';
+    filterStatusKarir = 'all';
+    filterStatusAkun = 'all';
+    document.getElementById('search-input').value = '';
+    document.getElementById('filter-divisi').value = 'all';
+    document.getElementById('filter-status-karir').value = 'all';
+    document.getElementById('filter-status-akun').value = 'all';
+    renderAlumniTable();
+  };
+
+  window.openAddAlumniModal = function() {
+    document.getElementById('add-alumni-form').reset();
+    openModal('add-alumni-modal');
+  };
+
+  window.handleAddAlumniSubmit = function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('input-nama').value.trim();
+    const nim = document.getElementById('input-nim').value.trim();
+    const email = document.getElementById('input-email').value.trim();
+    const divisi = document.getElementById('input-divisi').value;
+    const tahun = Number(document.getElementById('input-tahun-lulus').value);
+    const karir = document.getElementById('input-status-karir').value;
+    const perusahaan = document.getElementById('input-perusahaan').value.trim() || '-';
+    const jabatan = document.getElementById('input-jabatan').value.trim() || '-';
+
+    const newAlumni = {
+      id: Date.now(),
+      nama,
+      nim,
+      email,
+      tahun_lulus: tahun,
+      divisi,
+      status_karir: karir,
+      perusahaan,
+      jabatan,
+      status_akun: 'Aktif',
+      terdaftar: new Date().toISOString().split('T')[0]
+    };
+
+    SUPERADMIN.alumni.unshift(newAlumni);
+    saveAlumni();
+    addActivityLog('Pendaftaran Akun Alumni', `Mendaftarkan akun alumni ${nama} (${nim}) - ${divisi}`);
+    closeModal('add-alumni-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Akun alumni "${nama}" berhasil didaftarkan dengan password default.`);
+    }
+    updateTabBadges();
+    renderAlumniTable();
+  };
+
+  window.openEditModal = function(id) {
+    const a = (SUPERADMIN.alumni || []).find(item => item.id === id);
+    if (!a) return;
+
+    document.getElementById('edit-id').value = a.id;
+    document.getElementById('edit-nama').value = a.nama;
+    document.getElementById('edit-nim').value = a.nim;
+    document.getElementById('edit-email').value = a.email;
+    document.getElementById('edit-divisi').value = a.divisi;
+    document.getElementById('edit-tahun-lulus').value = a.tahun_lulus;
+    document.getElementById('edit-status-karir').value = a.status_karir;
+    document.getElementById('edit-perusahaan').value = a.perusahaan !== '-' ? a.perusahaan : '';
+    document.getElementById('edit-status-akun').value = a.status_akun;
+
+    openModal('edit-alumni-modal');
+  };
+
+  window.handleEditAlumniSubmit = function(e) {
+    e.preventDefault();
+    const id = Number(document.getElementById('edit-id').value);
+    const a = (SUPERADMIN.alumni || []).find(item => item.id === id);
+    if (!a) return;
+
+    a.nama = document.getElementById('edit-nama').value.trim();
+    a.nim = document.getElementById('edit-nim').value.trim();
+    a.email = document.getElementById('edit-email').value.trim();
+    a.divisi = document.getElementById('edit-divisi').value;
+    a.tahun_lulus = Number(document.getElementById('edit-tahun-lulus').value);
+    a.status_karir = document.getElementById('edit-status-karir').value;
+    a.perusahaan = document.getElementById('edit-perusahaan').value.trim() || '-';
+    a.status_akun = document.getElementById('edit-status-akun').value;
+
+    saveAlumni();
+    addActivityLog('Edit Akun Alumni', `Memperbarui profil akun alumni ${a.nama} (${a.nim})`);
+    closeModal('edit-alumni-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Data akun alumni "${a.nama}" berhasil diperbarui.`);
+    }
+    renderAlumniTable();
+  };
+
+  window.handleToggleStatus = function(id, nama, targetStatus) {
+    const isDeactivate = targetStatus === 'Nonaktif';
+
+    confirmAction({
+      title: isDeactivate ? 'Nonaktifkan Akun Alumni' : 'Aktifkan Akun Alumni',
+      message: isDeactivate
+        ? `Apakah Anda yakin ingin menonaktifkan akun alumni "${nama}"? Alumni ini tidak dapat login ke portal alumni hingga diaktifkan kembali.`
+        : `Aktifkan kembali akun alumni "${nama}" agar dapat mengakses layanan alumni?`,
+      okLabel: isDeactivate ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+      danger: isDeactivate
+    }, () => {
+      const a = (SUPERADMIN.alumni || []).find(item => item.id === id);
+      if (a) {
+        a.status_akun = targetStatus;
+        saveAlumni();
+        addActivityLog(isDeactivate ? 'Nonaktifkan Akun' : 'Aktivasi Akun', `${isDeactivate ? 'Menonaktifkan' : 'Mengaktifkan kembali'} akun alumni ${nama}`);
+        renderAlumniTable();
+        if (typeof showToast === 'function') {
+          showToast(`Akun alumni "${nama}" berhasil diubah menjadi ${targetStatus}.`, isDeactivate ? 'error' : 'success');
+        }
+      }
+    });
+  };
+
+  window.handleResetPassword = function(id, nama) {
+    confirmAction({
+      title: 'Reset Password Akun Alumni',
+      message: `Reset password akun alumni "${nama}" ke password default (bengkod2026)? Notifikasi akan dikirimkan ke email alumni.`,
+      okLabel: 'Reset Password',
+      danger: false
+    }, () => {
+      addActivityLog('Reset Password Alumni', `Mereset password akun alumni ${nama} ke default`);
+      if (typeof showToast === 'function') {
+        showToast(`Password akun alumni "${nama}" berhasil direset ke "bengkod2026".`);
+      }
+    });
+  };
+
+  window.exportAlumniCSV = function() {
+    const list = SUPERADMIN.alumni || [];
+    let csv = 'Nama,NIM,Email,Divisi,Tahun Lulus,Status Karir,Perusahaan,Status Akun,Terdaftar\n';
+    list.forEach(a => {
+      csv += `"${a.nama}","${a.nim}","${a.email}","${a.divisi}","${a.tahun_lulus}","${a.status_karir}","${a.perusahaan}","${a.status_akun}","${a.terdaftar}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data-alumni-bengkod-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    addActivityLog('Export Data', 'Mengekspor seluruh direktori data alumni ke file CSV');
+    if (typeof showToast === 'function') {
+      showToast('Data alumni berhasil diekspor ke file CSV.');
+    }
+  };
+
+  function updateTabBadges() {
+    const bKoor = document.getElementById('badge-tab-koor');
+    const bAlumni = document.getElementById('badge-tab-alumni');
+    const bMitra = document.getElementById('badge-tab-mitra');
+    if (bKoor) bKoor.textContent = (SUPERADMIN.koordinator || []).length;
+    if (bAlumni) bAlumni.textContent = (SUPERADMIN.alumni || []).length;
+    if (bMitra) bMitra.textContent = (SUPERADMIN.mitra || []).length;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateTabBadges();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'tambah') {
+      setTimeout(() => openAddAlumniModal(), 200);
+    }
+    renderAlumniTable();
+  });
+</script>
+</body>
+</html>

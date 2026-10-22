@@ -40,6 +40,25 @@
     </div>
   </div>
 
+  <!-- Role Tabs Switcher (Management Users: Koordinator, Alumni, Mitra) -->
+  <div class="flex items-center gap-2 border-b border-neutral4 pb-3 overflow-x-auto no-scrollbar">
+    <a href="koordinator.html" class="px-4 py-2 rounded-xl text-xs font-semibold bg-primary1 text-white shadow-sm flex items-center gap-2 shrink-0">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+      <span>Koordinator Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-bold" id="badge-tab-koor">3</span>
+    </a>
+    <a href="alumni.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="user-check" class="w-4 h-4"></i>
+      <span>Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-alumni">8</span>
+    </a>
+    <a href="mitra.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="building-2" class="w-4 h-4"></i>
+      <span>Mitra Industri</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-mitra">5</span>
+    </a>
+  </div>
+
   <!-- Filter, Search, & Prototype Empty State Toggle Toolbar -->
   <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex flex-col md:flex-row md:items-center justify-between gap-3">
     <!-- Search Input -->
@@ -505,11 +524,13 @@
 
     SUPERADMIN.koordinator.unshift(newKoor);
     saveKoordinator();
+    addActivityLog('Penugasan Koordinator', `Menugaskan ${nama} sebagai Koordinator Alumni (${divisi})`);
     closeModal('add-koordinator-modal');
 
     if (typeof showToast === 'function') {
       showToast(`Koordinator "${nama}" berhasil ditugaskan! ${sendInvite ? 'Email undangan telah dikirimkan.' : ''}`);
     }
+    updateTabBadges();
     renderKoordinatorTable();
   };
 
@@ -541,6 +562,7 @@
     k.status = document.getElementById('edit-status').value;
 
     saveKoordinator();
+    addActivityLog('Edit Koordinator', `Memperbarui data dan alokasi divisi koordinator ${k.nama}`);
     closeModal('edit-koordinator-modal');
 
     if (typeof showToast === 'function') {
@@ -565,6 +587,7 @@
       if (k) {
         k.status = targetStatus;
         saveKoordinator();
+        addActivityLog(isDeactivate ? 'Nonaktifkan Akun' : 'Aktivasi Akun', `${isDeactivate ? 'Menonaktifkan' : 'Mengaktifkan kembali'} akun koordinator ${nama}`);
         renderKoordinatorTable();
         if (typeof showToast === 'function') {
           showToast(`Akun koordinator "${nama}" berhasil diubah menjadi ${targetStatus}.`, isDeactivate ? 'error' : 'success');
@@ -581,6 +604,7 @@
       okLabel: 'Reset Password',
       danger: false
     }, () => {
+      addActivityLog('Reset Password', `Mereset password kredensial koordinator ${nama}`);
       if (typeof showToast === 'function') {
         showToast(`Tautan reset password baru berhasil dikirimkan ke email ${nama}.`);
       }
@@ -589,13 +613,24 @@
 
   // 7. Kirim Ulang Undangan Aksi
   window.handleResendInvitation = function(id, nama, email) {
+    addActivityLog('Kirim Ulang Undangan', `Mengirimkan ulang email undangan aktivasi kepada ${nama} (${email})`);
     if (typeof showToast === 'function') {
       showToast(`Undangan aktivasi peran Koordinator Alumni berhasil dikirimkan ulang ke ${email}.`);
     }
   };
 
+  function updateTabBadges() {
+    const bKoor = document.getElementById('badge-tab-koor');
+    const bAlumni = document.getElementById('badge-tab-alumni');
+    const bMitra = document.getElementById('badge-tab-mitra');
+    if (bKoor) bKoor.textContent = (SUPERADMIN.koordinator || []).length;
+    if (bAlumni) bAlumni.textContent = (SUPERADMIN.alumni || []).length;
+    if (bMitra) bMitra.textContent = (SUPERADMIN.mitra || []).length;
+  }
+
   // Initial Load
   document.addEventListener('DOMContentLoaded', () => {
+    updateTabBadges();
     // Cek query parameter jika dipicu dari aksi cepat (?action=tambah)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('action') === 'tambah') {

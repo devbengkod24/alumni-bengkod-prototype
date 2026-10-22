@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log Aktivitas | SuperAdmin Bengkel Koding</title>
+  <meta name="description" content="Log Aktivitas Sistem dan Audit Trail oleh SuperAdmin Bengkel Koding UDINUS. Pantau riwayat aksi pengguna, perubahan data, dan otentikasi.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Log Aktivitas" class="space-y-5">
+
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-neutral1">Log Aktivitas Sistem (Audit Trail)</h2>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-100 text-blue-700 border border-blue-200">
+          Security Audit
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-neutral2 mt-1">
+        Rekam jejak seluruh operasi pengguna, penugasan peran, otentikasi, dan moderasi di platform Bengkel Koding.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button
+        onclick="exportLogsCSV()"
+        class="btn-outline text-xs sm:text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-2"
+        title="Unduh catatan log aktivitas dalam format CSV"
+      >
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Export Log CSV</span>
+      </button>
+      <button
+        onclick="refreshLogs()"
+        class="btn-primary text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2"
+      >
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+        <span>Segarkan Log</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 4 STAT CARDS AUDIT TRAIL -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+        <i data-lucide="history" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">TOTAL LOG</p>
+        <p id="stat-total-logs" class="text-xl font-bold text-neutral1 leading-none">10</p>
+        <p class="text-[10px] text-neutral3 mt-1">Seluruh audit trail</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0">
+        <i data-lucide="shield" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">AKSI SUPERADMIN</p>
+        <p id="stat-sa-logs" class="text-xl font-bold text-neutral1 leading-none">5</p>
+        <p class="text-[10px] text-neutral3 mt-1">Manajemen akun &amp; wewenang</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
+        <i data-lucide="users" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">KOOR &amp; MITRA</p>
+        <p id="stat-user-logs" class="text-xl font-bold text-neutral1 leading-none">4</p>
+        <p class="text-[10px] text-neutral3 mt-1">Verifikasi &amp; lowongan</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-green-50 text-green1 flex items-center justify-center shrink-0">
+        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">KEBERHASILAN</p>
+        <p id="stat-success-rate" class="text-xl font-bold text-green1 leading-none">100%</p>
+        <p class="text-[10px] text-neutral3 mt-1">Semua operasi valid</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- Search Input -->
+    <div class="relative flex-1 max-w-md">
+      <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input
+        type="text"
+        id="search-input"
+        oninput="handleSearch(this.value)"
+        placeholder="Cari aksi, pengguna, rincian aktivitas, IP..."
+        class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3 transition-all"
+      >
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <select id="filter-role" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Role Aktor</option>
+        <option value="SuperAdmin">Role: SuperAdmin</option>
+        <option value="Koordinator">Role: Koordinator</option>
+        <option value="Mitra">Role: Mitra</option>
+        <option value="Alumni">Role: Alumni</option>
+      </select>
+
+      <select id="filter-status" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status</option>
+        <option value="Sukses">Status: Sukses</option>
+        <option value="Menunggu">Status: Menunggu</option>
+        <option value="Gagal">Status: Gagal</option>
+      </select>
+
+      <button
+        type="button"
+        onclick="resetFilters()"
+        class="px-3 py-2 border border-dashed border-neutral4 hover:border-primary3 text-neutral2 hover:text-primary1 rounded-xl font-medium transition-colors"
+      >
+        Reset Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Table Section -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 elevation2 overflow-hidden">
+    <!-- Table Header Summary -->
+    <div class="px-5 py-4 border-b border-neutral4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-neutral1 uppercase tracking-wider">Rekam Log Aktivitas</span>
+        <span id="badge-total-count" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral5 text-neutral2 border border-neutral4">
+          10 Entri
+        </span>
+      </div>
+      <span class="text-[11px] text-neutral3 hidden sm:inline">
+        Tercatat secara otomatis berdasarkan peristiwa sistem &amp; mutasi data
+      </span>
+    </div>
+
+    <!-- Table Responsive Wrapper -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="logs-table">
+        <thead>
+          <tr>
+            <th class="th">Waktu &amp; Tanggal</th>
+            <th class="th">Aktor / Pengguna</th>
+            <th class="th">Role</th>
+            <th class="th">Operasi / Aksi</th>
+            <th class="th">Rincian Aktivitas</th>
+            <th class="th">IP Address</th>
+            <th class="th text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="logs-tbody" class="divide-y divide-neutral4">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State View -->
+    <div id="empty-state-view" class="hidden p-12 text-center flex flex-col items-center justify-center space-y-3">
+      <div class="w-16 h-16 rounded-2xl bg-neutral5 border border-neutral4/80 text-neutral3 flex items-center justify-center">
+        <i data-lucide="history" class="w-8 h-8"></i>
+      </div>
+      <div class="max-w-sm">
+        <h3 class="text-base font-bold text-neutral1">Tidak Ada Catatan Log</h3>
+        <p class="text-xs text-neutral2 mt-1 leading-relaxed">
+          Tidak ditemukan catatan audit trail yang cocok dengan filter atau kata kunci pencarian.
+        </p>
+      </div>
+      <button onclick="resetFilters()" class="btn-primary text-xs px-4 py-2 rounded-xl mt-2">
+        Reset Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- Security Compliance Note -->
+  <div class="p-4 bg-purple-50/70 border border-purple-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-purple-900">
+    <div class="flex items-center gap-2.5">
+      <i data-lucide="shield-check" class="w-5 h-5 text-purple-700 shrink-0"></i>
+      <span>
+        <strong>Integritas Audit Trail:</strong> Seluruh riwayat aktivitas sistem bersifat <em>append-only</em> dan dilindungi integritasnya guna keperluan audit berkala serta kepatuhan keamanan informasi akademik UDINUS.
+      </span>
+    </div>
+    <span class="text-[11px] text-purple-700 font-semibold shrink-0">Append-Only Log</span>
+  </div>
+
+</main>
+
+<script>
+  let searchQuery = '';
+  let filterRole = 'all';
+  let filterStatus = 'all';
+
+  function renderLogsTable() {
+    const tbody = document.getElementById('logs-tbody');
+    const tableEl = document.getElementById('logs-table');
+    const emptyViewEl = document.getElementById('empty-state-view');
+    const badgeCount = document.getElementById('badge-total-count');
+    if (!tbody) return;
+
+    let items = [...(SUPERADMIN.activityLogs || [])];
+
+    if (filterRole !== 'all') {
+      items = items.filter(l => l.role === filterRole);
+    }
+    if (filterStatus !== 'all') {
+      items = items.filter(l => l.status === filterStatus);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(l =>
+        l.user.toLowerCase().includes(q) ||
+        l.action.toLowerCase().includes(q) ||
+        l.detail.toLowerCase().includes(q) ||
+        l.ip.toLowerCase().includes(q)
+      );
+    }
+
+    if (badgeCount) badgeCount.textContent = `${items.length} Entri`;
+
+    if (items.length === 0) {
+      if (tableEl) tableEl.classList.add('hidden');
+      if (emptyViewEl) emptyViewEl.classList.remove('hidden');
+    } else {
+      if (tableEl) tableEl.classList.remove('hidden');
+      if (emptyViewEl) emptyViewEl.classList.add('hidden');
+
+      tbody.innerHTML = items.map(l => `
+        <tr class="tr group">
+          <!-- 1. Waktu & Tanggal -->
+          <td class="td text-xs text-neutral2 whitespace-nowrap font-mono">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral3"></i>
+              <span>${esc(l.waktu)}</span>
+            </div>
+          </td>
+
+          <!-- 2. Pengguna -->
+          <td class="td text-xs font-semibold text-neutral1 whitespace-nowrap">
+            ${esc(l.user)}
+          </td>
+
+          <!-- 3. Role -->
+          <td class="td">
+            ${badge(l.role)}
+          </td>
+
+          <!-- 4. Aksi / Operasi -->
+          <td class="td text-xs font-semibold text-neutral1">
+            ${esc(l.action)}
+          </td>
+
+          <!-- 5. Rincian Aktivitas -->
+          <td class="td text-xs text-neutral2 max-w-xs">
+            <span class="line-clamp-2" title="${esc(l.detail)}">${esc(l.detail)}</span>
+          </td>
+
+          <!-- 6. IP Address -->
+          <td class="td text-xs font-mono text-neutral3 whitespace-nowrap">
+            ${esc(l.ip)}
+          </td>
+
+          <!-- 7. Status -->
+          <td class="td text-center whitespace-nowrap">
+            ${badge(l.status)}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  function updateStatCards() {
+    const list = SUPERADMIN.activityLogs || [];
+    const totalEl = document.getElementById('stat-total-logs');
+    const saEl = document.getElementById('stat-sa-logs');
+    const userEl = document.getElementById('stat-user-logs');
+
+    if (totalEl) totalEl.textContent = list.length;
+    if (saEl) saEl.textContent = list.filter(l => l.role === 'SuperAdmin').length;
+    if (userEl) userEl.textContent = list.filter(l => l.role === 'Koordinator' || l.role === 'Mitra').length;
+  }
+
+  window.handleSearch = function(val) {
+    searchQuery = val;
+    renderLogsTable();
+  };
+
+  window.handleFilterChange = function() {
+    filterRole = document.getElementById('filter-role').value;
+    filterStatus = document.getElementById('filter-status').value;
+    renderLogsTable();
+  };
+
+  window.resetFilters = function() {
+    searchQuery = '';
+    filterRole = 'all';
+    filterStatus = 'all';
+    document.getElementById('search-input').value = '';
+    document.getElementById('filter-role').value = 'all';
+    document.getElementById('filter-status').value = 'all';
+    renderLogsTable();
+  };
+
+  window.refreshLogs = function() {
+    SUPERADMIN.activityLogs = lsGet('superadmin-activity-logs', SUPERADMIN_DEFAULT.activityLogs);
+    renderLogsTable();
+    updateStatCards();
+    if (typeof showToast === 'function') {
+      showToast('Log aktivitas berhasil disegarkan.');
+    }
+  };
+
+  window.exportLogsCSV = function() {
+    const list = SUPERADMIN.activityLogs || [];
+    let csv = 'Waktu,Pengguna,Role,Aksi,Rincian,IP Address,Status\n';
+    list.forEach(l => {
+      csv += `"${l.waktu}","${l.user}","${l.role}","${l.action}","${l.detail}","${l.ip}","${l.status}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `audit-log-bengkod-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    if (typeof showToast === 'function') {
+      showToast('Log aktivitas berhasil diekspor ke file CSV.');
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateStatCards();
+    renderLogsTable();
+  });
+</script>
+</body>
+</html>

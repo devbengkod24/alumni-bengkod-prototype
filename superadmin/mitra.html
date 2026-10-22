@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Mitra | SuperAdmin Bengkel Koding</title>
+  <meta name="description" content="Manajemen Akun Mitra Industri oleh SuperAdmin Bengkel Koding UDINUS. Verifikasi perusahaan, kelola hak akses rekrutmen, dan reset password.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Manajemen Mitra" class="space-y-5">
+
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <h2 class="text-xl sm:text-2xl font-bold text-neutral1">Manajemen Akun Mitra Industri</h2>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+          Khusus SuperAdmin
+        </span>
+      </div>
+      <p class="text-xs sm:text-sm text-neutral2 mt-1">
+        Kelola verifikasi perusahaan mitra, hak akses pemasangan lowongan kerja &amp; magang, serta kredensial akun mitra.
+      </p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button
+        onclick="exportMitraCSV()"
+        class="btn-outline text-xs sm:text-sm px-3.5 py-2.5 rounded-xl flex items-center gap-2"
+        title="Unduh seluruh data mitra dalam format CSV"
+      >
+        <i data-lucide="download" class="w-4 h-4"></i>
+        <span>Export CSV</span>
+      </button>
+      <button
+        onclick="openAddMitraModal()"
+        class="btn-primary text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2"
+      >
+        <i data-lucide="building" class="w-4 h-4"></i>
+        <span>Tambah Mitra</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Role Tabs Switcher (Management Users: Koordinator, Alumni, Mitra) -->
+  <div class="flex items-center gap-2 border-b border-neutral4 pb-3 overflow-x-auto no-scrollbar">
+    <a href="koordinator.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+      <span>Koordinator Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-koor">3</span>
+    </a>
+    <a href="alumni.html" class="px-4 py-2 rounded-xl text-xs font-medium bg-white text-neutral2 hover:text-neutral1 hover:bg-neutral5 border border-neutral4 transition-colors flex items-center gap-2 shrink-0">
+      <i data-lucide="user-check" class="w-4 h-4"></i>
+      <span>Alumni</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-neutral5 text-neutral2 font-bold" id="badge-tab-alumni">8</span>
+    </a>
+    <a href="mitra.html" class="px-4 py-2 rounded-xl text-xs font-semibold bg-primary1 text-white shadow-sm flex items-center gap-2 shrink-0">
+      <i data-lucide="building-2" class="w-4 h-4"></i>
+      <span>Mitra Industri</span>
+      <span class="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-bold" id="badge-tab-mitra">5</span>
+    </a>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 p-4 elevation1 flex flex-col md:flex-row md:items-center justify-between gap-3">
+    <!-- Search Input -->
+    <div class="relative flex-1 max-w-md">
+      <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+      <input
+        type="text"
+        id="search-input"
+        oninput="handleSearch(this.value)"
+        placeholder="Cari nama perusahaan, bidang usaha, PIC, kota..."
+        class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3 transition-all"
+      >
+    </div>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap items-center gap-2 text-xs">
+      <select id="filter-verifikasi" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status Verifikasi</option>
+        <option value="Terverifikasi">Terverifikasi</option>
+        <option value="Belum Verifikasi">Belum Verifikasi</option>
+        <option value="Ditolak">Ditolak</option>
+      </select>
+
+      <select id="filter-status-akun" onchange="handleFilterChange()" class="px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
+        <option value="all">Semua Status Akun</option>
+        <option value="Aktif">Status: Aktif</option>
+        <option value="Nonaktif">Status: Nonaktif</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main Table Section -->
+  <div class="bg-white rounded-2xl border border-neutral4/80 elevation2 overflow-hidden">
+    <!-- Table Header Summary -->
+    <div class="px-5 py-4 border-b border-neutral4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-bold text-neutral1 uppercase tracking-wider">Daftar Akun Mitra Perusahaan</span>
+        <span id="badge-total-count" class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral5 text-neutral2 border border-neutral4">
+          5 Akun
+        </span>
+      </div>
+      <span class="text-[11px] text-neutral3 hidden sm:inline">
+        Perusahaan mitra penyedia bursa karir &amp; rekrutmen alumni
+      </span>
+    </div>
+
+    <!-- Table Responsive Wrapper -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse" id="mitra-table">
+        <thead>
+          <tr>
+            <th class="th">Perusahaan &amp; Bidang</th>
+            <th class="th">PIC &amp; Kontak</th>
+            <th class="th">Kota / Lokasi</th>
+            <th class="th text-center">Loker Aktif</th>
+            <th class="th">Verifikasi</th>
+            <th class="th">Status Akun</th>
+            <th class="th">Terdaftar</th>
+            <th class="th text-center">Aksi Manajemen</th>
+          </tr>
+        </thead>
+        <tbody id="mitra-tbody" class="divide-y divide-neutral4">
+          <!-- Rendered via JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State View -->
+    <div id="empty-state-view" class="hidden p-12 text-center flex flex-col items-center justify-center space-y-3">
+      <div class="w-16 h-16 rounded-2xl bg-neutral5 border border-neutral4/80 text-neutral3 flex items-center justify-center">
+        <i data-lucide="building" class="w-8 h-8"></i>
+      </div>
+      <div class="max-w-sm">
+        <h3 class="text-base font-bold text-neutral1">Tidak Ada Data Mitra</h3>
+        <p class="text-xs text-neutral2 mt-1 leading-relaxed">
+          Tidak ditemukan akun perusahaan mitra yang sesuai dengan pencarian atau filter saat ini.
+        </p>
+      </div>
+      <button onclick="resetFilters()" class="btn-primary text-xs px-4 py-2 rounded-xl mt-2">
+        Reset Filter
+      </button>
+    </div>
+  </div>
+
+  <!-- Security Audit Policy Note -->
+  <div class="p-4 bg-orange-50/70 border border-orange-200/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-orange-900">
+    <div class="flex items-center gap-2.5">
+      <i data-lucide="shield-alert" class="w-5 h-5 text-orange-700 shrink-0"></i>
+      <span>
+        <strong>Verifikasi Mitra:</strong> Perusahaan mitra yang berstatus <em>Belum Verifikasi</em> tidak dapat menerbitkan lowongan kerja ke publik sebelum disetujui oleh SuperAdmin atau Koordinator Alumni.
+      </span>
+    </div>
+    <span class="text-[11px] text-orange-700 font-semibold shrink-0">Pilar Keamanan</span>
+  </div>
+
+</main>
+
+<!-- MODAL: Tambah Akun Mitra Baru -->
+<div id="add-mitra-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+    <button onclick="closeModal('add-mitra-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold">
+        <i data-lucide="building-2" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="add-modal-title" class="font-bold text-base text-neutral1">Tambah Akun Mitra Perusahaan</h3>
+        <p class="text-xs text-neutral3">Daftarkan perusahaan mitra baru ke platform bursa karir.</p>
+      </div>
+    </div>
+
+    <form id="add-mitra-form" onsubmit="handleAddMitraSubmit(event)" class="space-y-4 text-xs">
+      <div>
+        <label for="input-perusahaan" class="label text-xs">Nama Perusahaan / Organisasi</label>
+        <input type="text" id="input-perusahaan" required placeholder="Contoh: PT Telkom Indonesia" class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-bidang" class="label text-xs">Bidang Usaha / Industri</label>
+          <input type="text" id="input-bidang" required placeholder="Telekomunikasi / Software House" class="input">
+        </div>
+        <div>
+          <label for="input-kota" class="label text-xs">Kota Domisili Kantor</label>
+          <input type="text" id="input-kota" required placeholder="Semarang / Jakarta" class="input">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="input-pic" class="label text-xs">Nama PIC (Person in Charge)</label>
+          <input type="text" id="input-pic" required placeholder="Hendra Wibowo" class="input">
+        </div>
+        <div>
+          <label for="input-telp" class="label text-xs">No. Telp / WhatsApp</label>
+          <input type="text" id="input-telp" required placeholder="0812-3456-7890" class="input">
+        </div>
+      </div>
+
+      <div>
+        <label for="input-email" class="label text-xs">Email Resmi Perusahaan / HR</label>
+        <input type="email" id="input-email" required placeholder="hr@perusahaan.co.id" class="input">
+      </div>
+
+      <div>
+        <label for="input-verifikasi" class="label text-xs">Status Verifikasi Awal</label>
+        <select id="input-verifikasi" class="input bg-white cursor-pointer">
+          <option value="Terverifikasi">Langsung Terverifikasi (Dapat Pasang Loker)</option>
+          <option value="Belum Verifikasi">Belum Verifikasi (Menunggu Dokumen Legalitas)</option>
+        </select>
+      </div>
+
+      <!-- Password Default Info -->
+      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/80 space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="font-semibold text-neutral1 text-[11px]">Password Default Akun:</span>
+          <span class="font-mono font-bold text-primary1 text-xs px-2 py-0.5 bg-primary5 rounded">mitrabengkod2026</span>
+        </div>
+        <p class="text-[10px] text-neutral3">Mitra dapat mengubah password setelah pertama kali mengakses portal mitra.</p>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('add-mitra-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan Akun Mitra
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL: Edit Akun Mitra -->
+<div id="edit-mitra-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+    <button onclick="closeModal('edit-mitra-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
+      <i data-lucide="x" class="w-5 h-5"></i>
+    </button>
+
+    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
+      <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center font-bold">
+        <i data-lucide="pencil" class="w-5 h-5"></i>
+      </div>
+      <div>
+        <h3 id="edit-modal-title" class="font-bold text-base text-neutral1">Edit Akun Mitra Perusahaan</h3>
+        <p class="text-xs text-neutral3">Perbarui profil kontak atau status verifikasi mitra.</p>
+      </div>
+    </div>
+
+    <form id="edit-mitra-form" onsubmit="handleEditMitraSubmit(event)" class="space-y-4 text-xs">
+      <input type="hidden" id="edit-id">
+
+      <div>
+        <label for="edit-perusahaan" class="label text-xs">Nama Perusahaan / Organisasi</label>
+        <input type="text" id="edit-perusahaan" required class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-bidang" class="label text-xs">Bidang Usaha</label>
+          <input type="text" id="edit-bidang" required class="input">
+        </div>
+        <div>
+          <label for="edit-kota" class="label text-xs">Kota Domisili</label>
+          <input type="text" id="edit-kota" required class="input">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-pic" class="label text-xs">Nama PIC</label>
+          <input type="text" id="edit-pic" required class="input">
+        </div>
+        <div>
+          <label for="edit-telp" class="label text-xs">No. Telp / WhatsApp</label>
+          <input type="text" id="edit-telp" required class="input">
+        </div>
+      </div>
+
+      <div>
+        <label for="edit-email" class="label text-xs">Email Resmi</label>
+        <input type="email" id="edit-email" required class="input">
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label for="edit-verifikasi" class="label text-xs">Status Verifikasi</label>
+          <select id="edit-verifikasi" class="input bg-white cursor-pointer">
+            <option value="Terverifikasi">Terverifikasi</option>
+            <option value="Belum Verifikasi">Belum Verifikasi</option>
+            <option value="Ditolak">Ditolak</option>
+          </select>
+        </div>
+        <div>
+          <label for="edit-status-akun" class="label text-xs">Status Akun</label>
+          <select id="edit-status-akun" class="input bg-white cursor-pointer">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="pt-3 border-t border-neutral4 flex items-center justify-end gap-2.5">
+        <button type="button" onclick="closeModal('edit-mitra-modal')" class="btn-outline text-xs">
+          Batal
+        </button>
+        <button type="submit" class="btn-primary text-xs">
+          Simpan Perubahan
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let searchQuery = '';
+  let filterVerifikasi = 'all';
+  let filterStatusAkun = 'all';
+
+  function renderMitraTable() {
+    const tbody = document.getElementById('mitra-tbody');
+    const tableEl = document.getElementById('mitra-table');
+    const emptyViewEl = document.getElementById('empty-state-view');
+    const badgeCount = document.getElementById('badge-total-count');
+    if (!tbody) return;
+
+    let items = [...(SUPERADMIN.mitra || [])];
+
+    if (filterVerifikasi !== 'all') {
+      items = items.filter(m => m.status_verifikasi === filterVerifikasi);
+    }
+    if (filterStatusAkun !== 'all') {
+      items = items.filter(m => m.status_akun === filterStatusAkun);
+    }
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(m =>
+        m.nama_perusahaan.toLowerCase().includes(q) ||
+        m.bidang_usaha.toLowerCase().includes(q) ||
+        m.kota.toLowerCase().includes(q) ||
+        m.pic.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q)
+      );
+    }
+
+    if (badgeCount) badgeCount.textContent = `${items.length} Akun`;
+
+    if (items.length === 0) {
+      if (tableEl) tableEl.classList.add('hidden');
+      if (emptyViewEl) emptyViewEl.classList.remove('hidden');
+    } else {
+      if (tableEl) tableEl.classList.remove('hidden');
+      if (emptyViewEl) emptyViewEl.classList.add('hidden');
+
+      tbody.innerHTML = items.map(m => {
+        const isAktif = m.status_akun === 'Aktif';
+        const isVerified = m.status_verifikasi === 'Terverifikasi';
+        return `
+          <tr class="tr group">
+            <!-- 1. Perusahaan & Bidang -->
+            <td class="td">
+              <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-orange-100 text-orange-700 font-bold text-xs flex items-center justify-center shrink-0 border border-orange-200">
+                  <i data-lucide="building-2" class="w-4 h-4"></i>
+                </div>
+                <div class="min-w-0">
+                  <div class="font-semibold text-neutral1 text-sm">${esc(m.nama_perusahaan)}</div>
+                  <div class="text-[11px] text-neutral3">${esc(m.bidang_usaha)}</div>
+                </div>
+              </div>
+            </td>
+
+            <!-- 2. PIC & Kontak -->
+            <td class="td text-xs text-neutral1">
+              <div class="font-medium">${esc(m.pic)}</div>
+              <div class="text-[11px] text-neutral3">${esc(m.email)} · ${esc(m.telp)}</div>
+            </td>
+
+            <!-- 3. Kota / Lokasi -->
+            <td class="td text-xs text-neutral1 whitespace-nowrap">
+              <div class="flex items-center gap-1.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-neutral3"></i>
+                <span>${esc(m.kota)}</span>
+              </div>
+            </td>
+
+            <!-- 4. Loker Aktif -->
+            <td class="td text-center text-xs font-semibold text-neutral1">
+              <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                ${m.loker_count || 0}
+              </span>
+            </td>
+
+            <!-- 5. Verifikasi -->
+            <td class="td">
+              ${badge(m.status_verifikasi)}
+            </td>
+
+            <!-- 6. Status Akun -->
+            <td class="td">
+              ${badge(m.status_akun)}
+            </td>
+
+            <!-- 7. Terdaftar -->
+            <td class="td text-xs text-neutral3 whitespace-nowrap">
+              ${fmtDate(m.terdaftar)}
+            </td>
+
+            <!-- 8. Aksi -->
+            <td class="td text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1">
+                <!-- Verifikasi Cepat (Jika Belum Terverifikasi) -->
+                ${!isVerified && m.status_verifikasi !== 'Ditolak' ? `
+                  <button
+                    type="button"
+                    onclick="handleQuickVerify(${m.id}, '${esc(m.nama_perusahaan)}')"
+                    class="btn-icon text-green2 hover:text-green1 hover:bg-green3/40"
+                    title="Verifikasi Perusahaan Ini"
+                  >
+                    <i data-lucide="badge-check" class="w-4 h-4"></i>
+                  </button>
+                ` : ''}
+
+                <!-- Edit -->
+                <button
+                  type="button"
+                  onclick="openEditModal(${m.id})"
+                  class="btn-icon"
+                  title="Edit Data Mitra"
+                >
+                  <i data-lucide="pencil" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Reset Password -->
+                <button
+                  type="button"
+                  onclick="handleResetPassword(${m.id}, '${esc(m.nama_perusahaan)}')"
+                  class="btn-icon text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                  title="Reset Password Akun"
+                >
+                  <i data-lucide="key-round" class="w-4 h-4"></i>
+                </button>
+
+                <!-- Nonaktifkan / Aktifkan Akun -->
+                ${isAktif ? `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${m.id}, '${esc(m.nama_perusahaan)}', 'Nonaktif')"
+                    class="btn-icon text-red1 hover:text-red2 hover:bg-red3/40"
+                    title="Nonaktifkan Akun Mitra"
+                  >
+                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                  </button>
+                ` : `
+                  <button
+                    type="button"
+                    onclick="handleToggleStatus(${m.id}, '${esc(m.nama_perusahaan)}', 'Aktif')"
+                    class="btn-icon text-green2 hover:text-green1 hover:bg-green3/40"
+                    title="Aktifkan Kembali Akun"
+                  >
+                    <i data-lucide="user-check" class="w-4 h-4"></i>
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    if (window.lucide) window.lucide.createIcons();
+  }
+
+  window.handleSearch = function(val) {
+    searchQuery = val;
+    renderMitraTable();
+  };
+
+  window.handleFilterChange = function() {
+    filterVerifikasi = document.getElementById('filter-verifikasi').value;
+    filterStatusAkun = document.getElementById('filter-status-akun').value;
+    renderMitraTable();
+  };
+
+  window.resetFilters = function() {
+    searchQuery = '';
+    filterVerifikasi = 'all';
+    filterStatusAkun = 'all';
+    document.getElementById('search-input').value = '';
+    document.getElementById('filter-verifikasi').value = 'all';
+    document.getElementById('filter-status-akun').value = 'all';
+    renderMitraTable();
+  };
+
+  window.openAddMitraModal = function() {
+    document.getElementById('add-mitra-form').reset();
+    openModal('add-mitra-modal');
+  };
+
+  window.handleAddMitraSubmit = function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('input-perusahaan').value.trim();
+    const bidang = document.getElementById('input-bidang').value.trim();
+    const kota = document.getElementById('input-kota').value.trim();
+    const pic = document.getElementById('input-pic').value.trim();
+    const telp = document.getElementById('input-telp').value.trim();
+    const email = document.getElementById('input-email').value.trim();
+    const verifikasi = document.getElementById('input-verifikasi').value;
+
+    const newMitra = {
+      id: Date.now(),
+      nama_perusahaan: nama,
+      bidang_usaha: bidang,
+      kota,
+      pic,
+      telp,
+      email,
+      status_verifikasi: verifikasi,
+      status_akun: 'Aktif',
+      loker_count: 0,
+      terdaftar: new Date().toISOString().split('T')[0]
+    };
+
+    SUPERADMIN.mitra.unshift(newMitra);
+    saveMitra();
+    addActivityLog('Pendaftaran Akun Mitra', `Mendaftarkan mitra ${nama} (${bidang}, Kota ${kota})`);
+    closeModal('add-mitra-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Akun mitra "${nama}" berhasil didaftarkan.`);
+    }
+    updateTabBadges();
+    renderMitraTable();
+  };
+
+  window.openEditModal = function(id) {
+    const m = (SUPERADMIN.mitra || []).find(item => item.id === id);
+    if (!m) return;
+
+    document.getElementById('edit-id').value = m.id;
+    document.getElementById('edit-perusahaan').value = m.nama_perusahaan;
+    document.getElementById('edit-bidang').value = m.bidang_usaha;
+    document.getElementById('edit-kota').value = m.kota;
+    document.getElementById('edit-pic').value = m.pic;
+    document.getElementById('edit-telp').value = m.telp;
+    document.getElementById('edit-email').value = m.email;
+    document.getElementById('edit-verifikasi').value = m.status_verifikasi;
+    document.getElementById('edit-status-akun').value = m.status_akun;
+
+    openModal('edit-mitra-modal');
+  };
+
+  window.handleEditMitraSubmit = function(e) {
+    e.preventDefault();
+    const id = Number(document.getElementById('edit-id').value);
+    const m = (SUPERADMIN.mitra || []).find(item => item.id === id);
+    if (!m) return;
+
+    m.nama_perusahaan = document.getElementById('edit-perusahaan').value.trim();
+    m.bidang_usaha = document.getElementById('edit-bidang').value.trim();
+    m.kota = document.getElementById('edit-kota').value.trim();
+    m.pic = document.getElementById('edit-pic').value.trim();
+    m.telp = document.getElementById('edit-telp').value.trim();
+    m.email = document.getElementById('edit-email').value.trim();
+    m.status_verifikasi = document.getElementById('edit-verifikasi').value;
+    m.status_akun = document.getElementById('edit-status-akun').value;
+
+    saveMitra();
+    addActivityLog('Edit Akun Mitra', `Memperbarui data dan verifikasi mitra ${m.nama_perusahaan}`);
+    closeModal('edit-mitra-modal');
+
+    if (typeof showToast === 'function') {
+      showToast(`Data akun mitra "${m.nama_perusahaan}" berhasil diperbarui.`);
+    }
+    renderMitraTable();
+  };
+
+  window.handleQuickVerify = function(id, nama) {
+    confirmAction({
+      title: 'Verifikasi Mitra Industri',
+      message: `Setujui verifikasi legalitas perusahaan "${nama}"? Setelah diverifikasi, mitra dapat langsung mempublikasikan lowongan kerja dan magang ke alumni.`,
+      okLabel: 'Ya, Verifikasi Mitra',
+      danger: false
+    }, () => {
+      const m = (SUPERADMIN.mitra || []).find(item => item.id === id);
+      if (m) {
+        m.status_verifikasi = 'Terverifikasi';
+        saveMitra();
+        addActivityLog('Verifikasi Mitra', `Menyetujui verifikasi perusahaan ${nama}`);
+        renderMitraTable();
+        if (typeof showToast === 'function') {
+          showToast(`Perusahaan mitra "${nama}" berhasil diverifikasi.`);
+        }
+      }
+    });
+  };
+
+  window.handleToggleStatus = function(id, nama, targetStatus) {
+    const isDeactivate = targetStatus === 'Nonaktif';
+
+    confirmAction({
+      title: isDeactivate ? 'Nonaktifkan Akun Mitra' : 'Aktifkan Akun Mitra',
+      message: isDeactivate
+        ? `Apakah Anda yakin ingin menonaktifkan akun mitra "${nama}"? Seluruh lowongan aktif dari mitra ini akan ditangguhkan sementara.`
+        : `Aktifkan kembali akun mitra "${nama}" agar dapat mengakses bursa karir?`,
+      okLabel: isDeactivate ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan',
+      danger: isDeactivate
+    }, () => {
+      const m = (SUPERADMIN.mitra || []).find(item => item.id === id);
+      if (m) {
+        m.status_akun = targetStatus;
+        saveMitra();
+        addActivityLog(isDeactivate ? 'Nonaktifkan Akun' : 'Aktivasi Akun', `${isDeactivate ? 'Menonaktifkan' : 'Mengaktifkan kembali'} akun mitra ${nama}`);
+        renderMitraTable();
+        if (typeof showToast === 'function') {
+          showToast(`Akun mitra "${nama}" berhasil diubah menjadi ${targetStatus}.`, isDeactivate ? 'error' : 'success');
+        }
+      }
+    });
+  };
+
+  window.handleResetPassword = function(id, nama) {
+    confirmAction({
+      title: 'Reset Password Akun Mitra',
+      message: `Reset password akun mitra "${nama}" ke password default (mitrabengkod2026)? Notifikasi akan dikirimkan ke email PIC mitra.`,
+      okLabel: 'Reset Password',
+      danger: false
+    }, () => {
+      addActivityLog('Reset Password Mitra', `Mereset password akun mitra ${nama} ke default`);
+      if (typeof showToast === 'function') {
+        showToast(`Password akun mitra "${nama}" berhasil direset ke "mitrabengkod2026".`);
+      }
+    });
+  };
+
+  window.exportMitraCSV = function() {
+    const list = SUPERADMIN.mitra || [];
+    let csv = 'Nama Perusahaan,Bidang Usaha,Kota,PIC,Telepon,Email,Verifikasi,Status Akun,Loker Aktif,Terdaftar\n';
+    list.forEach(m => {
+      csv += `"${m.nama_perusahaan}","${m.bidang_usaha}","${m.kota}","${m.pic}","${m.telp}","${m.email}","${m.status_verifikasi}","${m.status_akun}",${m.loker_count},"${m.terdaftar}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `data-mitra-bengkod-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    addActivityLog('Export Data', 'Mengekspor seluruh direktori mitra industri ke file CSV');
+    if (typeof showToast === 'function') {
+      showToast('Data mitra industri berhasil diekspor ke file CSV.');
+    }
+  };
+
+  function updateTabBadges() {
+    const bKoor = document.getElementById('badge-tab-koor');
+    const bAlumni = document.getElementById('badge-tab-alumni');
+    const bMitra = document.getElementById('badge-tab-mitra');
+    if (bKoor) bKoor.textContent = (SUPERADMIN.koordinator || []).length;
+    if (bAlumni) bAlumni.textContent = (SUPERADMIN.alumni || []).length;
+    if (bMitra) bMitra.textContent = (SUPERADMIN.mitra || []).length;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    updateTabBadges();
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('action') === 'tambah') {
+      setTimeout(() => openAddMitraModal(), 200);
+    }
+    renderMitraTable();
+  });
+</script>
+</body>
+</html>
