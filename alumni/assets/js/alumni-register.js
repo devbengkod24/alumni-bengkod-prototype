@@ -1,186 +1,214 @@
 /**
- * Script Khusus Registrasi Alumni Bengkel Koding
- * Menangani validasi form, show/hide password, upload preview, loading state, dan modal sukses
+ * Registrasi Alumni Bengkel Koding: validasi form, toggle password, dan dialog sukses.
+ * Prototipe statis, data tidak dikirim ke server.
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // 1. Inisialisasi ikon Lucide
-  if (window.lucide) {
-    window.lucide.createIcons();
-  }
+  const form = document.getElementById('alumni-register-form');
+  if (!form) return;
 
-  const registerForm = document.getElementById('alumni-register-form');
   const submitBtn = document.getElementById('submit-btn');
   const submitSpinner = document.getElementById('submit-spinner');
   const submitText = document.getElementById('submit-text');
 
-  // Input elements
-  const namaInput = document.getElementById('nama_lengkap');
-  const emailInput = document.getElementById('email');
-  const nimInput = document.getElementById('nim');
-  const phoneInput = document.getElementById('phone');
-  const tahunLulusSelect = document.getElementById('tahun_lulus');
-  const passwordInput = document.getElementById('password');
-  const confirmPasswordInput = document.getElementById('password_confirmation');
-  const agreementCheckbox = document.getElementById('agreement_tracer');
+  const nama = document.getElementById('nama_lengkap');
+  const nim = document.getElementById('nim');
+  const email = document.getElementById('email');
+  const phone = document.getElementById('phone');
+  const tahun = document.getElementById('tahun_lulus');
+  const password = document.getElementById('password');
+  const passwordConfirm = document.getElementById('password_confirmation');
+  const agreement = document.getElementById('agreement_tracer');
+  const cvFile = document.getElementById('cv_file');
+  const fotoFile = document.getElementById('foto_profil');
 
-  // Error elements
+  const nimError = document.getElementById('nim-error');
+  const emailError = document.getElementById('email-error');
   const phoneError = document.getElementById('phone-error');
   const passwordError = document.getElementById('password-error');
-  const emailError = document.getElementById('email-error');
-  const nimError = document.getElementById('nim-error');
-
-  // Photo & CV upload elements
-  const fotoInput = document.getElementById('foto_profil');
-  const fotoPreview = document.getElementById('foto-preview');
-  const fotoPlaceholder = document.getElementById('foto-placeholder');
-  const cvInput = document.getElementById('cv_file');
-  const cvFileName = document.getElementById('cv-file-name');
   const cvError = document.getElementById('cv-error');
+  const fotoError = document.getElementById('foto-error');
 
-  // 2. Toggle Visibility Password
-  window.togglePasswordVisibility = function(inputId, iconId) {
-    const input = document.getElementById(inputId);
-    const iconContainer = document.getElementById(iconId);
-    if (!input || !iconContainer) return;
-
-    if (input.type === 'password') {
-      input.type = 'text';
-      iconContainer.innerHTML = '<i data-lucide="eye-off" class="w-4 h-4 text-neutral2"></i>';
+  function setError(input, errorEl, message) {
+    if (message) {
+      errorEl.textContent = message;
+      errorEl.classList.remove('hidden');
+      input.setAttribute('aria-invalid', 'true');
     } else {
-      input.type = 'password';
-      iconContainer.innerHTML = '<i data-lucide="eye" class="w-4 h-4 text-neutral2"></i>';
+      errorEl.textContent = '';
+      errorEl.classList.add('hidden');
+      input.removeAttribute('aria-invalid');
     }
-    if (window.lucide) {
-      window.lucide.createIcons();
+  }
+
+  // Ikon mata: terbuka saat password terlihat, dicoret saat tersembunyi
+  const ICON_EYE = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const ICON_EYE_OFF = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.6 5.2A9.9 9.9 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.2 6.2A17 17 0 0 0 2 12s3.6 7 10 7a9.7 9.7 0 0 0 4.2-.9"/><path d="M3 3l18 18"/></svg>';
+
+  window.togglePasswordVisibility = function (inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '-toggle-icon');
+    const button = icon ? icon.closest('button') : null;
+    if (!input || !icon) return;
+
+    const showing = input.type === 'text';
+    input.type = showing ? 'password' : 'text';
+    icon.innerHTML = showing ? ICON_EYE : ICON_EYE_OFF;
+    icon.classList.toggle('text-primary1', !showing);
+
+    if (button) {
+      button.setAttribute('aria-label', showing ? 'Tampilkan password' : 'Sembunyikan password');
+      button.setAttribute('aria-pressed', String(!showing));
     }
   };
 
-  // 3. Validasi Realtime Nomor Telepon (Hanya Angka, Format Indonesia +62 atau 08)
-  if (phoneInput) {
-    phoneInput.addEventListener('input', (e) => {
-      let val = e.target.value;
+  // NIM: format A11.20xx.xxxxx
+  const nimPattern = /^[A-Za-z]\d{2}\.\d{4}\.\d{5}$/;
+  nim.addEventListener('blur', () => {
+    const value = nim.value.trim();
+    if (!value) return setError(nim, nimError, '');
+    setError(nim, nimError, nimPattern.test(value) ? '' : 'Format NIM belum sesuai, contoh A11.2021.13456.');
+  });
 
-      // Filter karakter: hanya izinkan digit dan tanda plus di awal
-      if (!/^[0-9+]*$/.test(val)) {
-        val = val.replace(/[^0-9+]/g, '');
-        e.target.value = val;
-      }
+  // Email
+  email.addEventListener('blur', () => {
+    const value = email.value.trim();
+    if (!value) return setError(email, emailError, '');
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    setError(email, emailError, ok ? '' : 'Alamat email belum valid.');
+  });
 
-      // Validasi awalan nomor telepon Indonesia
-      if (val.length >= 3) {
-        const isValidPrefix = val.startsWith('+62') || val.startsWith('62') || val.startsWith('08');
-        if (!isValidPrefix) {
-          phoneError.textContent = 'Nomor telepon harus berformat Indonesia (+62 atau diawali 08).';
-          phoneError.classList.remove('hidden');
-          phoneInput.classList.add('border-red1', 'focus:ring-red3');
-        } else if (val.length < 10) {
-          phoneError.textContent = 'Nomor telepon terlalu pendek (minimal 10 digit).';
-          phoneError.classList.remove('hidden');
-          phoneInput.classList.add('border-red1', 'focus:ring-red3');
-        } else {
-          phoneError.classList.add('hidden');
-          phoneInput.classList.remove('border-red1', 'focus:ring-red3');
-        }
-      } else if (val.length === 0) {
-        phoneError.classList.add('hidden');
-        phoneInput.classList.remove('border-red1', 'focus:ring-red3');
-      }
-    });
-  }
+  // Telepon: hanya digit dan plus di awal
+  phone.addEventListener('input', () => {
+    const cleaned = phone.value.replace(/[^0-9+]/g, '').replace(/(?!^)\+/g, '');
+    if (cleaned !== phone.value) phone.value = cleaned;
 
-  // 4. Validasi NIM Realtime
-  if (nimInput) {
-    nimInput.addEventListener('blur', () => {
-      const val = nimInput.value.trim();
-      if (val.length > 0 && val.length < 8) {
-        nimError.textContent = 'Format NIM tidak valid (contoh: A11.2021.13456).';
-        nimError.classList.remove('hidden');
-        nimInput.classList.add('border-red1');
-      } else {
-        nimError.classList.add('hidden');
-        nimInput.classList.remove('border-red1');
-      }
-    });
-  }
+    const value = cleaned;
+    if (!value) return setError(phone, phoneError, '');
 
-  // 5. Validasi Email Realtime
-  if (emailInput) {
-    emailInput.addEventListener('blur', () => {
-      const val = emailInput.value.trim();
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (val.length > 0 && !emailRegex.test(val)) {
-        emailError.textContent = 'Format alamat email tidak valid.';
-        emailError.classList.remove('hidden');
-        emailInput.classList.add('border-red1');
-      } else {
-        emailError.classList.add('hidden');
-        emailInput.classList.remove('border-red1');
-      }
-    });
-  }
+    const prefixOk = value.startsWith('+62') || value.startsWith('62') || value.startsWith('08');
+    if (!prefixOk) return setError(phone, phoneError, 'Nomor harus diawali 08 atau +62.');
+    if (value.replace(/\D/g, '').length < 10) return setError(phone, phoneError, 'Nomor terlalu pendek, minimal 10 digit.');
+    setError(phone, phoneError, '');
+  });
 
-  // 6. Preview Foto Profil
-  if (fotoInput && fotoPreview && fotoPlaceholder) {
-    fotoInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.size > 2 * 1024 * 1024) {
-          alert('Ukuran foto profil maksimal 2MB.');
-          fotoInput.value = '';
-          return;
-        }
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          fotoPreview.src = event.target.result;
-          fotoPreview.classList.remove('hidden');
-          fotoPlaceholder.classList.add('hidden');
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-  }
+  // Nama berkas tampil di baris yang sama dengan tombol pilih
+  const cvFileName = document.getElementById('cv-file-name');
+  const fotoFileName = document.getElementById('foto-file-name');
 
-  // 7. Preview & Validasi File CV PDF
-  if (cvInput && cvFileName) {
-    cvInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        if (file.type !== 'application/pdf') {
-          cvError.textContent = 'Berkas CV harus dalam format PDF.';
-          cvError.classList.remove('hidden');
-          cvInput.value = '';
-          cvFileName.textContent = 'Belum ada berkas dipilih';
-          return;
-        }
-        if (file.size > 5 * 1024 * 1024) {
-          cvError.textContent = 'Ukuran berkas CV maksimal 5MB.';
-          cvError.classList.remove('hidden');
-          cvInput.value = '';
-          cvFileName.textContent = 'Belum ada berkas dipilih';
-          return;
-        }
-        cvError.classList.add('hidden');
-        cvFileName.textContent = `${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-      }
-    });
-  }
+  // Berkas CV
+  cvFile.addEventListener('change', () => {
+    const file = cvFile.files[0];
+    if (!file) {
+      cvFileName.textContent = 'Belum ada berkas';
+      return setError(cvFile, cvError, '');
+    }
+    if (file.type !== 'application/pdf') {
+      cvFile.value = '';
+      cvFileName.textContent = 'Belum ada berkas';
+      return setError(cvFile, cvError, 'Berkas CV harus PDF.');
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      cvFile.value = '';
+      cvFileName.textContent = 'Belum ada berkas';
+      return setError(cvFile, cvError, 'Ukuran CV melebihi 5 MB.');
+    }
+    cvFileName.textContent = file.name;
+    setError(cvFile, cvError, '');
+  });
 
-  // 8. Submit Handler Khusus Prototype (Arahkan Button Registrasi ke Halaman Login)
-  if (registerForm) {
-    registerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
+  // Berkas foto
+  fotoFile.addEventListener('change', () => {
+    const file = fotoFile.files[0];
+    if (!file) {
+      fotoFileName.textContent = 'Belum ada berkas';
+      return setError(fotoFile, fotoError, '');
+    }
+    if (!['image/jpeg', 'image/png'].includes(file.type)) {
+      fotoFile.value = '';
+      fotoFileName.textContent = 'Belum ada berkas';
+      return setError(fotoFile, fotoError, 'Foto harus JPG atau PNG.');
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      fotoFile.value = '';
+      fotoFileName.textContent = 'Belum ada berkas';
+      return setError(fotoFile, fotoError, 'Ukuran foto melebihi 2 MB.');
+    }
+    fotoFileName.textContent = file.name;
+    setError(fotoFile, fotoError, '');
+  });
 
-      // Aktifkan Loading State pada Tombol Submit
-      submitBtn.disabled = true;
-      submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-      submitSpinner.classList.remove('hidden');
-      submitText.textContent = 'Mendaftar & Mengarahkan ke Login...';
+  // Validasi saat submit
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-      // Langsung arahkan ke halaman login
-      setTimeout(() => {
-        window.location.href = 'login.html';
-      }, 400);
-    });
-  }
+    const problems = [];
+
+    if (!nama.value.trim()) {
+      nama.setAttribute('aria-invalid', 'true');
+      problems.push(nama);
+    } else {
+      nama.removeAttribute('aria-invalid');
+    }
+
+    if (!nimPattern.test(nim.value.trim())) {
+      setError(nim, nimError, 'Format NIM belum sesuai, contoh A11.2021.13456.');
+      problems.push(nim);
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim())) {
+      setError(email, emailError, 'Alamat email belum valid.');
+      problems.push(email);
+    }
+
+    if (!tahun.value) {
+      tahun.setAttribute('aria-invalid', 'true');
+      problems.push(tahun);
+    } else {
+      tahun.removeAttribute('aria-invalid');
+    }
+
+    if (phone.getAttribute('aria-invalid') === 'true' || !phone.value.trim()) {
+      if (!phone.value.trim()) setError(phone, phoneError, 'Nomor WhatsApp wajib diisi.');
+      problems.push(phone);
+    }
+
+    if (password.value.length < 8) {
+      setError(password, passwordError, 'Password minimal 8 karakter.');
+      problems.push(password);
+    } else if (password.value !== passwordConfirm.value) {
+      setError(passwordConfirm, passwordError, 'Konfirmasi password tidak sama.');
+      problems.push(passwordConfirm);
+    } else {
+      setError(password, passwordError, '');
+    }
+
+    if (!agreement.checked) {
+      problems.push(agreement);
+    }
+
+    if (problems.length > 0) {
+      problems[0].focus();
+      return;
+    }
+
+    // Prototipe: tampilkan dialog sukses, tanpa mengirim data
+    submitBtn.disabled = true;
+    submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    submitSpinner.classList.remove('hidden');
+    submitText.textContent = 'Menyimpan';
+
+    setTimeout(() => {
+      document.getElementById('registered-name').textContent = nama.value.trim();
+      document.getElementById('registered-email').textContent = email.value.trim();
+      document.getElementById('registered-nim').textContent = nim.value.trim();
+
+      submitBtn.disabled = false;
+      submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+      submitSpinner.classList.add('hidden');
+      submitText.textContent = 'Daftar';
+
+      openModal('registration-success-modal');
+    }, 500);
+  });
 });
