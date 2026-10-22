@@ -53,7 +53,10 @@ const KOOR = {
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
     { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
-    { href: 'tracer-data.html', icon: 'database', label: 'Tracer Data' },
+    { icon: 'database', label: 'Tracer Data', submenu: [
+      { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
+      { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
+    ] },
     { href: 'lowongan.html', icon: 'briefcase', label: 'Lowongan' },
   ],
 
@@ -69,31 +72,54 @@ const KOOR = {
   ],
 
   alumni: [
-    { id: 1, nama: 'Rizky Pratama', nim: 'A11.2019.11823', tahun_lulus: 2023, status: 'Bekerja Full Time', nama_perusahaan: 'PT Telkom Indonesia', jabatan: 'Backend Engineer', masa_tunggu: 2, verifikasi: 'Terverifikasi' },
-    { id: 2, nama: 'Nadia Putri', nim: 'A11.2019.11902', tahun_lulus: 2023, status: 'Bekerja Full Time', nama_perusahaan: 'Gojek', jabatan: 'Data Analyst', masa_tunggu: 4, verifikasi: 'Belum Verifikasi' },
-    { id: 3, nama: 'Fajar Nugroho', nim: 'A11.2020.12011', tahun_lulus: 2024, status: 'Wirausaha', nama_perusahaan: 'Studio Kode Semarang', jabatan: 'Founder', masa_tunggu: 1, verifikasi: 'Terverifikasi' },
-    { id: 4, nama: 'Salsa Ramadhani', nim: 'A11.2020.12088', tahun_lulus: 2024, status: 'Melanjutkan Pendidikan', nama_perusahaan: 'Universitas Gadjah Mada', jabatan: 'S2 Ilmu Komputer', masa_tunggu: 0, verifikasi: 'Belum Verifikasi' },
-    { id: 5, nama: 'Bagas Saputra', nim: 'A11.2021.13120', tahun_lulus: 2025, status: 'Mencari Pekerjaan', nama_perusahaan: '-', jabatan: '-', masa_tunggu: 5, verifikasi: 'Belum Verifikasi' },
-    { id: 6, nama: 'Intan Maharani', nim: 'A11.2018.10544', tahun_lulus: 2022, status: 'Bekerja Part Time', nama_perusahaan: 'Dicoding', jabatan: 'Code Reviewer', masa_tunggu: 7, verifikasi: 'Terverifikasi' },
-    { id: 7, nama: 'Dimas Arya', nim: 'A11.2018.10601', tahun_lulus: 2022, status: 'Bekerja Full Time', nama_perusahaan: 'Bank BCA', jabatan: 'Mobile Developer', masa_tunggu: 3, verifikasi: 'Ditolak' },
-    { id: 8, nama: 'Ananda Wulan', nim: 'A11.2021.13301', tahun_lulus: 2025, status: 'Bekerja Full Time', nama_perusahaan: 'Tokopedia', jabatan: 'Frontend Engineer', masa_tunggu: 2, verifikasi: 'Belum Verifikasi' },
+    { id: 1, nama: 'Rizky Pratama', nim: 'A11.2019.11823', tahun_lulus: 2023, status: 'Bekerja Full Time', nama_perusahaan: 'PT Telkom Indonesia', jabatan: 'Backend Engineer' },
+    { id: 2, nama: 'Nadia Putri', nim: 'A11.2019.11902', tahun_lulus: 2023, status: 'Bekerja Full Time', nama_perusahaan: 'Gojek', jabatan: 'Data Analyst' },
+    { id: 3, nama: 'Fajar Nugroho', nim: 'A11.2020.12011', tahun_lulus: 2024, status: 'Wirausaha', nama_perusahaan: 'Studio Kode Semarang', jabatan: 'Founder' },
+    { id: 4, nama: 'Salsa Ramadhani', nim: 'A11.2020.12088', tahun_lulus: 2024, status: 'Melanjutkan Pendidikan', nama_perusahaan: 'Universitas Gadjah Mada', jabatan: 'S2 Ilmu Komputer' },
+    { id: 5, nama: 'Bagas Saputra', nim: 'A11.2021.13120', tahun_lulus: 2025, status: 'Mencari Pekerjaan', nama_perusahaan: '-', jabatan: '-' },
+    { id: 6, nama: 'Intan Maharani', nim: 'A11.2018.10544', tahun_lulus: 2022, status: 'Bekerja Part Time', nama_perusahaan: 'Dicoding', jabatan: 'Code Reviewer' },
+    { id: 7, nama: 'Dimas Arya', nim: 'A11.2018.10601', tahun_lulus: 2022, status: 'Bekerja Full Time', nama_perusahaan: 'Bank BCA', jabatan: 'Mobile Developer' },
+    { id: 8, nama: 'Ananda Wulan', nim: 'A11.2021.13301', tahun_lulus: 2025, status: 'Bekerja Full Time', nama_perusahaan: 'Tokopedia', jabatan: 'Frontend Engineer' },
   ],
 
   mitra: [
-    { id: 1, nama_perusahaan: 'PT Telkom Indonesia', bidang_usaha: 'Telekomunikasi', kota: 'Bandung', pic: 'Hendra W.', alumni: 6, verifikasi: 'Terverifikasi' },
-    { id: 2, nama_perusahaan: 'Gojek', bidang_usaha: 'Teknologi', kota: 'Jakarta', pic: 'Maya S.', alumni: 4, verifikasi: 'Terverifikasi' },
-    { id: 3, nama_perusahaan: 'CV Solusi Digital Jateng', bidang_usaha: 'Software House', kota: 'Semarang', pic: 'Andi K.', alumni: 2, verifikasi: 'Belum Verifikasi' },
-    { id: 4, nama_perusahaan: 'PT Data Nusantara', bidang_usaha: 'Data & AI', kota: 'Yogyakarta', pic: 'Rina P.', alumni: 1, verifikasi: 'Belum Verifikasi' },
+    { id: 1, nama_perusahaan: 'PT Telkom Indonesia', bidang_usaha: 'Telekomunikasi', kota: 'Bandung', pic: 'Hendra Wijaya', alumni: 6 },
+    { id: 2, nama_perusahaan: 'Gojek', bidang_usaha: 'Teknologi', kota: 'Jakarta', pic: 'Maya Safitri', alumni: 4 },
+    { id: 3, nama_perusahaan: 'PT Solusi Digital Jateng', bidang_usaha: 'Software House', kota: 'Semarang', pic: 'Andi Kurniawan', alumni: 2 },
+    { id: 4, nama_perusahaan: 'PT Data Nusantara', bidang_usaha: 'Data & AI', kota: 'Yogyakarta', pic: 'Rina Pertiwi', alumni: 1 },
   ],
 
-  // status lowongan: Belum Verifikasi | Terverifikasi | Ditolak (enum alumni-api)
+  // status lowongan: Belum Verifikasi | Terverifikasi | Ditolak (enum alumni-api).
+  // Field mengikuti LowonganData alumni-api + data lowongan di mitra.js (gaji_min/max, tags).
   lowongan: [
-    { id: 1, posisi: 'Backend Developer (Laravel)', nama_perusahaan: 'CV Solusi Digital Jateng', kota: 'Semarang', tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', masa_berlaku: '2026-11-30', status: 'Belum Verifikasi', oleh: 'mitra', keterangan: '' },
-    { id: 2, posisi: 'Data Science Intern', nama_perusahaan: 'PT Data Nusantara', kota: 'Yogyakarta', tipe_kerja: 'Magang', kategori_lowongan: 'Magang', masa_berlaku: '2026-12-15', status: 'Belum Verifikasi', oleh: 'mitra', keterangan: '' },
-    { id: 3, posisi: 'Mobile Engineer (Flutter)', nama_perusahaan: 'Gojek', kota: 'Jakarta', tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', masa_berlaku: '2026-11-20', status: 'Terverifikasi', oleh: 'mitra', keterangan: '' },
-    { id: 4, posisi: 'Asisten Lab Bengkel Koding', nama_perusahaan: 'Bengkel Koding UDINUS', kota: 'Semarang', tipe_kerja: 'Part Time', kategori_lowongan: 'Kerja', masa_berlaku: '2026-11-10', status: 'Terverifikasi', oleh: 'koordinator', keterangan: '' },
-    { id: 5, posisi: 'IT Support', nama_perusahaan: 'PT Abal Sejahtera', kota: 'Kudus', tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', masa_berlaku: '2026-10-30', status: 'Ditolak', oleh: 'mitra', keterangan: 'Deskripsi pekerjaan dan gaji tidak jelas.' },
-    { id: 6, posisi: 'QA Engineer', nama_perusahaan: 'PT Telkom Indonesia', kota: 'Bandung', tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', masa_berlaku: '2026-12-01', status: 'Terverifikasi', oleh: 'mitra', keterangan: '' },
+    { id: 1, posisi: 'Frontend Developer (React)', nama_perusahaan: 'PT Solusi Digital Jateng', alamat: 'Jl. Pemuda No. 120, Semarang', kota: 'Semarang', email: 'hr@solusidigital.id', telepon: '024-7612345', website: 'https://solusidigital.id',
+      tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', pengalaman: 'Fresh Graduate', gaji_min: 3500000, gaji_max: 5000000, tags: ['React', 'TypeScript', 'Tailwind'],
+      deskripsi: 'Kami membutuhkan Frontend Developer yang paham React.\n\nKualifikasi:\n- Memahami React dan state management\n- HTML/CSS/JavaScript yang solid',
+      masa_berlaku: '2026-12-15', status: 'Belum Verifikasi', oleh: 'mitra', pengaju: 'Andi Kurniawan', diajukan: '2026-10-18', keterangan: '' },
+    { id: 2, posisi: 'Mobile Engineer (Flutter)', nama_perusahaan: 'Gojek', alamat: 'Pasaraya Blok M Gedung B, Jakarta Selatan', kota: 'Jakarta', email: 'hr@gojek.com', telepon: '021-50251110', website: 'https://www.gojek.com',
+      tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', pengalaman: '2-3 Tahun', gaji_min: 9000000, gaji_max: 14000000, tags: ['Flutter', 'Dart', 'Firebase'],
+      deskripsi: 'Bergabung dengan tim Driver App untuk membangun fitur baru yang dipakai jutaan mitra driver.\n\nKualifikasi:\n- Minimal 2 tahun pengalaman Flutter\n- Memahami state management (Bloc/Riverpod)\n- Pernah publish aplikasi ke Play Store',
+      masa_berlaku: '2026-11-20', status: 'Belum Verifikasi', oleh: 'mitra', pengaju: 'Maya Safitri', diajukan: '2026-10-21', keterangan: '' },
+    { id: 3, posisi: 'Data Science Intern', nama_perusahaan: 'PT Data Nusantara', alamat: 'Jl. Kaliurang Km 5, Sleman', kota: 'Yogyakarta', email: 'career@datanusantara.id', telepon: '', website: '',
+      tipe_kerja: 'Magang', kategori_lowongan: 'Magang', pengalaman: 'Mahasiswa', gaji_min: 1000000, gaji_max: 1500000, tags: ['Python', 'Machine Learning', 'SQL'],
+      deskripsi: 'Program magang 3 bulan di tim Data & AI.\n\nPersyaratan:\n- Mahasiswa tingkat akhir / fresh graduate\n- Mengenal Python dan dasar statistik',
+      masa_berlaku: '2026-12-15', status: 'Belum Verifikasi', oleh: 'mitra', pengaju: 'Rina Pertiwi', diajukan: '2026-10-20', keterangan: '' },
+    { id: 4, posisi: 'Backend Developer (Laravel)', nama_perusahaan: 'PT Solusi Digital Jateng', alamat: 'Jl. Pemuda No. 120, Semarang', kota: 'Semarang', email: 'hr@solusidigital.id', telepon: '024-7612345', website: 'https://solusidigital.id',
+      tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', pengalaman: '1-2 Tahun', gaji_min: 4000000, gaji_max: 6000000, tags: ['Laravel', 'PHP', 'MySQL'],
+      deskripsi: 'Kami mencari Backend Developer yang berpengalaman dengan Laravel.\n\nKualifikasi:\n- Minimal 1 tahun pengalaman Laravel\n- Memahami RESTful API\n- Familiar dengan Git dan CI/CD',
+      masa_berlaku: '2026-11-30', status: 'Terverifikasi', oleh: 'mitra', pengaju: 'Andi Kurniawan', diajukan: '2026-10-15', keterangan: '' },
+    { id: 5, posisi: 'Asisten Lab Bengkel Koding', nama_perusahaan: 'Bengkel Koding UDINUS', alamat: 'Jl. Imam Bonjol No. 207, Semarang', kota: 'Semarang', email: 'bengkelkoding@dinus.ac.id', telepon: '024-3517261', website: 'https://bengkelkoding.dinus.ac.id',
+      tipe_kerja: 'Part Time', kategori_lowongan: 'Kerja', pengalaman: 'Fresh Graduate', gaji_min: 0, gaji_max: 0, tags: ['Mentoring', 'Web Development'],
+      deskripsi: 'Membantu praktikum dan mentoring peserta Bengkel Koding.\n\nKualifikasi:\n- Alumni Bengkel Koding\n- Komunikatif dan senang mengajar',
+      masa_berlaku: '2026-11-10', status: 'Terverifikasi', oleh: 'koordinator', pengaju: 'Dr. Ayu Lestari', diajukan: '2026-10-05', keterangan: '' },
+    { id: 6, posisi: 'QA Engineer', nama_perusahaan: 'PT Telkom Indonesia', alamat: 'Jl. Japati No. 1, Bandung', kota: 'Bandung', email: 'recruitment@telkom.co.id', telepon: '022-4521510', website: 'https://www.telkom.co.id',
+      tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', pengalaman: '1-2 Tahun', gaji_min: 7000000, gaji_max: 10000000, tags: ['Selenium', 'Postman', 'Testing'],
+      deskripsi: 'Menjamin kualitas produk digital Telkom melalui pengujian manual dan otomatis.\n\nKualifikasi:\n- Memahami test case & bug reporting\n- Pengalaman automation testing jadi nilai plus',
+      masa_berlaku: '2026-12-01', status: 'Terverifikasi', oleh: 'mitra', pengaju: 'Hendra Wijaya', diajukan: '2026-10-12', keterangan: '' },
+    { id: 7, posisi: 'Mobile Developer (Flutter)', nama_perusahaan: 'PT Solusi Digital Jateng', alamat: 'Jl. Pemuda No. 120, Semarang', kota: 'Semarang', email: 'hr@solusidigital.id', telepon: '024-7612345', website: 'https://solusidigital.id',
+      tipe_kerja: 'Full Time', kategori_lowongan: 'Kerja', pengalaman: '2-3 Tahun', gaji_min: 5000000, gaji_max: 8000000, tags: ['Flutter', 'Dart', 'Firebase'],
+      deskripsi: 'Dibutuhkan Mobile Developer Flutter berpengalaman.\n\nKualifikasi:\n- Minimal 2 tahun pengalaman Flutter\n- Pengalaman publish ke App Store dan Play Store',
+      masa_berlaku: '2026-10-25', status: 'Ditolak', oleh: 'mitra', pengaju: 'Andi Kurniawan', diajukan: '2026-09-15', keterangan: 'Deskripsi pekerjaan dan persyaratan kurang jelas. Mohon lengkapi informasi gaji dan benefit.' },
   ],
 
   // role: alumnus | mitra | koordinator | superadmin. Dua terakhir terkunci untuk koordinator.
@@ -101,8 +127,8 @@ const KOOR = {
     { id: 1, name: 'Rizky Pratama', email: 'rizky.pratama@gmail.com', role: 'alumnus', aktif: true },
     { id: 2, name: 'Nadia Putri', email: 'nadia.putri@gmail.com', role: 'alumnus', aktif: true },
     { id: 3, name: 'Bagas Saputra', email: 'bagas.s@gmail.com', role: 'alumnus', aktif: false },
-    { id: 4, name: 'Gojek (Maya S.)', email: 'hr@gojek.com', role: 'mitra', aktif: true },
-    { id: 5, name: 'CV Solusi Digital Jateng', email: 'hr@solusidigital.id', role: 'mitra', aktif: true },
+    { id: 4, name: 'Gojek (Maya Safitri)', email: 'hr@gojek.com', role: 'mitra', aktif: true },
+    { id: 5, name: 'PT Solusi Digital Jateng', email: 'hr@solusidigital.id', role: 'mitra', aktif: true },
     { id: 6, name: 'Dr. Ayu Lestari', email: 'koordinator@dinus.ac.id', role: 'koordinator', aktif: true },
     { id: 7, name: 'Super Admin', email: 'superadmin@dinus.ac.id', role: 'superadmin', aktif: true },
   ],
@@ -120,10 +146,12 @@ const KOOR = {
     { id: 3, judul: 'Share soal ujian kompetensi', penulis: 'Dimas Arya', jenis: 'Postingan', reason: 'Melanggar aturan', pelapor: 1, status: 'pending', tanggal: '2026-10-17' },
   ],
 
+  // Field sama dengan forum di mitra.js
   threads: [
-    { id: 1, judul: 'Tips lolos interview backend di startup', penulis: 'Rizky Pratama', komentar: 24, tanggal: '2026-10-19' },
-    { id: 2, judul: 'Sharing gaji fresh graduate Semarang 2026', penulis: 'Intan Maharani', komentar: 41, tanggal: '2026-10-16' },
-    { id: 3, judul: 'Rekomendasi kursus Data Science gratis', penulis: 'Salsa Ramadhani', komentar: 12, tanggal: '2026-10-12' },
+    { id: 1, judul: 'Tips Menulis JD yang Menarik untuk Fresh Graduate', penulis: 'Andi Kurniawan', peran: 'Mitra', tags: ['Rekrutmen', 'Tips'], isi: 'Halo rekan mitra, saya ingin berbagi pengalaman dalam menulis job description yang menarik bagi fresh graduate.', komentar: 8, tanggal: '2026-10-19' },
+    { id: 2, judul: 'Tips lolos interview backend di startup', penulis: 'Rizky Pratama', peran: 'Alumni', tags: ['Karir', 'Interview'], isi: 'Berikut tips yang berhasil saya gunakan ketika interview di beberapa startup tech.', komentar: 24, tanggal: '2026-10-19' },
+    { id: 3, judul: 'Sharing gaji fresh graduate Semarang 2026', penulis: 'Intan Maharani', peran: 'Alumni', tags: ['Gaji', 'Karir'], isi: 'Berdasarkan survei informal di grup alumni, berikut range gaji fresh graduate di Semarang.', komentar: 41, tanggal: '2026-10-16' },
+    { id: 4, judul: 'Rekomendasi kursus Data Science gratis', penulis: 'Salsa Ramadhani', peran: 'Alumni', tags: ['Belajar', 'Data Science'], isi: 'Kumpulan kursus Data Science gratis yang saya coba dan rekomendasikan.', komentar: 12, tanggal: '2026-10-12' },
   ],
 };
 
@@ -152,6 +180,12 @@ function esc(s) {
 
 function fmtDate(iso) {
   return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
+}
+
+function fmtGaji(min, max) {
+  const rp = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+  if (!min && !max) return 'Tidak dicantumkan';
+  return min && max ? `${rp(min)} - ${rp(max)}` : rp(min || max);
 }
 
 function refreshIcons() {
@@ -212,6 +246,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const current = location.pathname.split('/').pop() || 'dashboard.html';
 
   const navItems = KOOR.nav.map(n => {
+    // Menu bertingkat (pola sama dengan sidebar mitra)
+    if (n.submenu) {
+      const open = n.submenu.some(s => s.href === current);
+      const subItems = n.submenu.map(s => {
+        const active = s.href === current;
+        return `<a href="${s.href}" ${active ? 'aria-current="page"' : ''}
+          class="flex items-center gap-2.5 w-full pl-9 pr-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral2 hover:bg-primary5 hover:text-primary1'}">
+          <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0"></i><span>${s.label}</span></a>`;
+      }).join('');
+      return `<div class="space-y-0.5">
+        <button type="button" data-submenu-toggle aria-expanded="${open}" class="flex items-center justify-between gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${open ? 'text-primary1 bg-primary5' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
+          <span class="flex items-center gap-3"><i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span>${n.label}</span></span>
+          <i data-lucide="chevron-down" class="w-4 h-4 shrink-0 transition-transform ${open ? 'rotate-180' : ''}"></i>
+        </button>
+        <div class="space-y-0.5 ${open ? '' : 'hidden'}">${subItems}</div>
+      </div>`;
+    }
     const active = n.href === current;
     return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
       class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
@@ -361,6 +412,12 @@ document.addEventListener('DOMContentLoaded', () => {
       applySidebarState();
     }
   });
+
+  document.querySelectorAll('[data-submenu-toggle]').forEach(btn => btn.addEventListener('click', () => {
+    const hidden = btn.nextElementSibling.classList.toggle('hidden');
+    btn.setAttribute('aria-expanded', !hidden);
+    btn.lastElementChild.classList.toggle('rotate-180', !hidden);
+  }));
 
   if (window.lucide) window.lucide.createIcons();
 });

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Mitra | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Data Mitra">
+
+  <div>
+    <h2 class="text-2xl font-semibold text-neutral1">Data Mitra</h2>
+    <p class="text-sm text-neutral2 mt-1">Lihat profil mitra perusahaan.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full table-fixed min-w-[720px]">
+        <thead><tr><th class="th w-[28%]">Perusahaan</th><th class="th w-[22%]">Bidang Usaha</th><th class="th w-[18%]">Kota</th><th class="th w-[20%]">PIC</th><th class="th w-[12%]">Alumni</th></tr></thead>
+        <tbody id="mitra"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  document.getElementById('mitra').innerHTML = KOOR.mitra.map(m => `
+    <tr class="tr">
+      <td class="td font-medium">${esc(m.nama_perusahaan)}</td>
+      <td class="td">${esc(m.bidang_usaha)}</td>
+      <td class="td">${esc(m.kota)}</td>
+      <td class="td">${esc(m.pic)}</td>
+      <td class="td">${m.alumni}</td>
+    </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada data.</td></tr>';
+</script>
+</body>
+</html>

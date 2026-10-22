@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Alumni | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+<main data-title="Data Alumni">
+
+  <div>
+    <h2 class="text-2xl font-semibold text-neutral1">Data Alumni</h2>
+    <p class="text-sm text-neutral2 mt-1">Lihat data tracer study yang diisi alumni.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 flex flex-col sm:flex-row gap-3 border-b border-neutral4">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="q" type="search" class="input !pl-9" placeholder="Cari nama atau NIM" aria-label="Cari alumni">
+      </div>
+      <select id="f-tahun" class="input sm:w-48" aria-label="Filter tahun lulus"><option value="">Semua tahun lulus</option></select>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full table-fixed min-w-[720px]">
+        <thead><tr><th class="th w-[24%]">Alumni</th><th class="th w-[10%]">Lulus</th><th class="th w-[20%]">Status Karir</th><th class="th w-[24%]">Instansi</th><th class="th w-[22%]">Jabatan</th></tr></thead>
+        <tbody id="alumni"></tbody>
+      </table>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const tahunSel = document.getElementById('f-tahun');
+  [...new Set(KOOR.alumni.map(a => a.tahun_lulus))].sort().forEach(t => tahunSel.add(new Option(t, t)));
+
+  function render() {
+    const t = tahunSel.value, q = document.getElementById('q').value.toLowerCase();
+    const list = KOOR.alumni.filter(a => (!t || a.tahun_lulus == t) && (a.nama + a.nim).toLowerCase().includes(q));
+    document.getElementById('alumni').innerHTML = list.map(a => `
+      <tr class="tr">
+        <td class="td"><div class="font-medium">${esc(a.nama)}</div><div class="text-xs text-neutral3">${a.nim}</div></td>
+        <td class="td">${a.tahun_lulus}</td>
+        <td class="td">${badge(a.status)}</td>
+        <td class="td">${esc(a.nama_perusahaan)}</td>
+        <td class="td">${esc(a.jabatan)}</td>
+      </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada data.</td></tr>';
+    refreshIcons();
+  }
+
+  tahunSel.addEventListener('change', render);
+  document.getElementById('q').addEventListener('input', render);
+  render();
+</script>
+</body>
+</html>

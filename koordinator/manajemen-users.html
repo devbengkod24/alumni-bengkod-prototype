@@ -65,6 +65,14 @@
         </select>
         <p class="text-xs text-neutral3 mt-1">Role koordinator dan SuperAdmin tidak tersedia untuk koordinator.</p>
       </div>
+      <div id="password-field">
+        <label for="f-password" class="label">Password Default</label>
+        <div class="flex gap-2">
+          <input id="f-password" name="password" class="input font-mono" required minlength="8">
+          <button type="button" onclick="copyPassword()" class="btn-outline shrink-0" aria-label="Salin password" title="Salin password"><i data-lucide="copy" class="w-4 h-4"></i></button>
+        </div>
+        <p class="text-xs text-neutral3 mt-1">Bagikan ke pemilik akun. User wajib mengganti password saat login pertama.</p>
+      </div>
     </div>
     <div class="mt-6 flex justify-end gap-2">
       <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
@@ -76,6 +84,7 @@
 <script>
   const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
   const EDITABLE = ['alumnus', 'mitra'];
+  const DEFAULT_PASSWORD = 'bengkod2026';
   const form = document.getElementById('form');
   const find = id => KOOR.users.find(u => u.id === id);
 
@@ -108,6 +117,10 @@
     form.reset();
     document.getElementById('form-title').textContent = u ? 'Edit Akun' : 'Tambah Akun';
     if (u) ['id', 'name', 'email', 'role'].forEach(k => form.elements[k].value = u[k]);
+    // Password default hanya untuk akun baru; edit akun pakai tombol reset password
+    document.getElementById('password-field').hidden = !!u;
+    form.elements.password.disabled = !!u;
+    form.elements.password.value = DEFAULT_PASSWORD;
     openModal('form-modal');
   }
 
@@ -125,8 +138,13 @@
     }
     closeModal('form-modal');
     render();
-    showToast(u ? 'Akun diperbarui.' : 'Akun dibuat, undangan dikirim ke email.');
+    showToast(u ? 'Akun diperbarui.' : 'Akun dibuat dengan password default.');
   });
+
+  function copyPassword() {
+    navigator.clipboard.writeText(form.elements.password.value)
+      .then(() => showToast('Password disalin.'), () => showToast('Gagal menyalin password.', 'error'));
+  }
 
   function resetPassword(id) {
     const u = find(id);

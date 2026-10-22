@@ -32,7 +32,7 @@
   <!-- 4 STAT CARDS WITH EXACT VIVID GRADIENTS (100% Identik dengan StatCard lms-bengkod-web) -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
     <!-- Card 1: Total Alumni (Purple / Indigo) -->
-    <a href="tracer-data.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);">
+    <a href="data-alumni.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);">
       <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
       <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
       <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
@@ -46,7 +46,7 @@
     </a>
 
     <!-- Card 2: Alumni Terdaftar (Teal / Emerald) -->
-    <a href="tracer-data.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#0f766e 0%,#0d9488 100%);">
+    <a href="data-alumni.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#0f766e 0%,#0d9488 100%);">
       <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
       <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
       <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
@@ -231,18 +231,16 @@
         `;
       }).join('');
     } else {
-      if (linkAll) linkAll.href = 'tracer-data.html';
+      if (linkAll) linkAll.href = 'data-alumni.html';
       const items = (KOOR.alumni || []).slice(0, 5);
 
       container.innerHTML = items.map(a => {
-        const isVerified = a.verifikasi === 'Terverifikasi';
-        const badgeClass = isVerified ? 'bg-green3 text-green1' : a.verifikasi === 'Ditolak' ? 'bg-red3 text-red1' : 'bg-yellow3 text-yellow1';
         const jobDesc = (a.status === 'Bekerja Full Time' || a.status === 'Bekerja Part Time')
           ? `${a.jabatan} di ${a.nama_perusahaan}`
           : a.nama_perusahaan !== '-' ? `${a.jabatan} (${a.nama_perusahaan})` : a.status;
 
         return `
-          <a href="tracer-data.html" class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors cursor-pointer group border border-transparent hover:border-neutral4/80">
+          <a href="data-alumni.html" class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors cursor-pointer group border border-transparent hover:border-neutral4/80">
             <div class="flex items-center gap-3 min-w-0">
               <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white bg-gradient-to-tr from-primary1 to-primary3 shadow-sm">
                 <i data-lucide="user" class="w-4 h-4"></i>
@@ -252,9 +250,7 @@
                 <p class="text-[10px] text-neutral3 truncate">${esc(jobDesc)} · Lulus ${a.tahun_lulus}</p>
               </div>
             </div>
-            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass} shrink-0">
-              ${a.verifikasi}
-            </span>
+            <span class="shrink-0">${badge(a.status)}</span>
           </a>
         `;
       }).join('');

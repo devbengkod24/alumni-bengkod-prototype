@@ -11,11 +11,14 @@
   <script src="../assets/js/main.js"></script>
 </head>
 <body class="bg-neutral5 text-neutral1 antialiased font-sans">
-<main data-title="Moderasi Forum">
+<main data-title="Forum">
 
-  <div>
-    <h2 class="text-2xl font-semibold text-neutral1">Moderasi Forum</h2>
-    <p class="text-sm text-neutral2 mt-1">Tinjau laporan pengguna dan hapus thread atau komentar yang melanggar aturan.</p>
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-semibold text-neutral1">Forum</h2>
+      <p class="text-sm text-neutral2 mt-1">Buat diskusi, tinjau laporan pengguna, dan hapus thread atau komentar yang melanggar aturan.</p>
+    </div>
+    <button onclick="openForm()" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Buat Diskusi</button>
   </div>
 
   <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
@@ -35,6 +38,26 @@
   </section>
 
 </main>
+
+<!-- Buat diskusi (field sama dengan forum mitra) -->
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-lg" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4">Buat Diskusi Baru</h3>
+    <div class="space-y-4">
+      <div><label for="f-judul" class="label">Judul Diskusi <span class="text-red2">*</span></label>
+        <input id="f-judul" name="judul" class="input" placeholder="Topik yang ingin didiskusikan..." required maxlength="255"></div>
+      <div><label for="f-isi" class="label">Isi Diskusi <span class="text-red2">*</span></label>
+        <textarea id="f-isi" name="isi" rows="5" class="input resize-none" placeholder="Jelaskan topik diskusi secara detail..." required></textarea></div>
+      <div><label for="f-tags" class="label">Tags</label>
+        <input id="f-tags" name="tags" class="input" placeholder="Pisahkan dengan koma, contoh: Karir, Info">
+        <p class="text-xs text-neutral3 mt-1">Maksimal 3 tag</p></div>
+    </div>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-primary"><i data-lucide="send" class="w-4 h-4"></i> Kirim Diskusi</button>
+    </div>
+  </form>
+</div>
 
 <script>
   function render() {
@@ -57,7 +80,9 @@
 
     document.getElementById('threads').innerHTML = KOOR.threads.map(t => `
       <tr class="tr">
-        <td class="td"><div class="font-medium">${esc(t.judul)}</div><div class="text-xs text-neutral3">oleh ${esc(t.penulis)}</div></td>
+        <td class="td"><div class="font-medium">${esc(t.judul)}</div>
+          <div class="text-xs text-neutral3">oleh ${esc(t.penulis)} · ${esc(t.peran)}</div>
+          ${t.tags.length ? `<div class="flex flex-wrap gap-1 mt-1.5">${t.tags.map(tag => `<span class="px-2 py-0.5 rounded-full bg-neutral5 text-neutral2 text-xs">${esc(tag)}</span>`).join('')}</div>` : ''}</td>
         <td class="td text-right">${t.komentar}</td>
         <td class="td whitespace-nowrap">${fmtDate(t.tanggal)}</td>
         <td class="td text-right"><button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapusThread(${t.id})" aria-label="Hapus thread" title="Hapus thread"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td>
@@ -86,6 +111,24 @@
       showToast('Thread dihapus.');
     });
   }
+
+  const form = document.getElementById('form');
+  function openForm() {
+    form.reset();
+    openModal('form-modal');
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const tags = d.tags.split(',').map(t => t.trim()).filter(Boolean).slice(0, 3);
+    KOOR.threads.unshift({ id: Date.now(), judul: d.judul.trim(), isi: d.isi.trim(), tags, penulis: KOOR.user.name, peran: 'Koordinator', komentar: 0, tanggal: new Date().toISOString().slice(0, 10) });
+    audit('Buat thread forum', d.judul.trim());
+    closeModal('form-modal');
+    render();
+    document.querySelector('[data-tab="thread"]').click();
+    showToast('Diskusi dipublikasikan.');
+  });
 
   render();
   initTabs();

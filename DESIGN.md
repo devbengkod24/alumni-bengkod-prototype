@@ -175,7 +175,8 @@ root/
 │   ├── pengumuman.html
 │   ├── manajemen-users.html           # Hanya role alumni & mitra yang bisa dikelola
 │   ├── forum.html                     # Moderasi laporan & thread
-│   ├── tracer-data.html               # Verifikasi data alumni & mitra
+│   ├── data-alumni.html               # Tracer data alumni
+│   ├── data-mitra.html                # Tracer data mitra
 │   ├── lowongan.html                  # Pengajuan (setujui/tolak), semua, kelola
 │   └── assets/
 │       └── js/koordinator.js          # Sidebar, data dummy, helper bersama
