@@ -388,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </a>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
-        <a href="http://127.0.0.1:5500/" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <a href="${_rootBase}index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
       </div>
     </aside>`);

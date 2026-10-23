@@ -1,622 +1,879 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en" data-color-mode="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bursa Lowongan Kerja Mitra | Portal Alumni Bengkel Koding</title>
-  <meta name="description" content="Papan bursa kerja dan magang terkurasi dari mitra industri resmi Bengkel Koding UDINUS.">
+  <title>Bengkel Koding</title>
+  <meta name="description" content="Bengkel Koding Universitas Dian Nuswantoro Semarang">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css">
   <script src="assets/js/alumni.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
 </head>
-<body class="bg-white text-neutral1 antialiased font-sans">
-<main data-title="Lowongan Kerja" class="space-y-4 max-w-7xl mx-auto py-2">
-
-  <!-- Header Banner -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-neutral4 gap-3">
-    <div>
-      <h1 class="text-2xl sm:text-3xl font-bold text-primary1 tracking-tight">Bursa Karir &amp; Magang Mitra</h1>
-      <p class="text-xs sm:text-sm text-neutral3 mt-0.5">
-        Peluang karir terkurasi khusus alumni dan lulusan berprestasi Bengkel Koding UDINUS
-      </p>
-    </div>
-    <!-- 3 Nav Tabs -->
-    <div class="flex items-center bg-white border border-neutral4/80 rounded-xl p-1 gap-1 shadow-sm shrink-0">
-      <button id="tab-btn-explore" onclick="switchMainTab('explore')" class="px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all">
-        Jelajahi Lowongan
-      </button>
-      <button id="tab-btn-saved" onclick="switchMainTab('saved')" class="px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5">
-        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
-        <span>Disimpan (<strong id="saved-count-badge">1</strong>)</span>
-      </button>
-      <button id="tab-btn-applied" onclick="switchMainTab('applied')" class="px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5">
-        <i data-lucide="send" class="w-3.5 h-3.5"></i>
-        <span>Lamaran Saya (<strong id="applied-count-badge">1</strong>)</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- Search & Filter Toolbar (Hanya Tampil di Tab Explore & Saved) -->
-  <div id="toolbar-search-filter" class="bg-white rounded-2xl border border-neutral4 p-4 elevation1 space-y-3">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-      <!-- Search Keyword -->
-      <div class="relative lg:col-span-2">
-        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-        <input
-          type="text"
-          id="search-job-input"
-          oninput="handleSearchJobs(this.value)"
-          placeholder="Cari posisi kerja, nama mitra, atau skill (Python, React)..."
-          class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3"
-        >
+<body>
+<!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/lowongan/page.tsx + _components/ApplyJobModal.tsx -->
+<main data-route="lowongan">
+  <div x-data="jobsPage" class="w-full flex flex-col gap-6 py-2">
+    <!-- Toast Notifikasi -->
+    <template x-if="toast">
+      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
+        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+        <span x-text="toast"></span>
       </div>
+    </template>
 
-      <!-- Filter Model Kerja -->
-      <div>
-        <select id="filter-work-model" onchange="handleFilterChange()" class="w-full px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
-          <option value="Semua">Model Kerja: Semua</option>
-          <option value="Jarak Jauh (Remote)">Remote (Jarak Jauh)</option>
-          <option value="Hybrid">Hybrid</option>
-          <option value="Di Kantor (On-site)">On-site (Di Kantor)</option>
-        </select>
-      </div>
-
-      <!-- Filter Tipe Kerja -->
-      <div>
-        <select id="filter-emp-type" onchange="handleFilterChange()" class="w-full px-3 py-2 border border-neutral4 rounded-xl text-xs bg-white text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary5 cursor-pointer">
-          <option value="Semua">Tipe Kerja: Semua</option>
-          <option value="Penuh Waktu (Full-time)">Full-time (Penuh Waktu)</option>
-          <option value="Magang (Internship)">Magang (Internship)</option>
-          <option value="Kontrak (Contract)">Kontrak</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB VIEW 1 & 2: 2-COLUMN SPLIT (List Kiri & Detail Kanan Sesuai lowongan/page.tsx) -->
-  <div id="view-explore-saved" class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-
-    <!-- LEFT COLUMN: Daftar Lowongan (5 Kolom pada Desktop) -->
-    <div class="lg:col-span-5 space-y-3 max-h-[calc(100vh-210px)] overflow-y-auto pr-1" id="jobs-list-col">
-      <!-- Rendered via JS -->
-    </div>
-
-    <!-- RIGHT COLUMN: Panel Rincian Lowongan Terpilih (7 Kolom pada Desktop) -->
-    <div class="lg:col-span-7 bg-white rounded-2xl border border-neutral4 elevation2 p-6 sticky top-20 max-h-[calc(100vh-210px)] overflow-y-auto space-y-5" id="job-detail-col">
-      <!-- Rendered via JS -->
-    </div>
-
-  </div>
-
-  <!-- TAB VIEW 3: LAMARAN SAYA (Tracking Status Lamaran) -->
-  <div id="view-applied" class="hidden bg-white rounded-2xl border border-neutral4 elevation2 p-6 space-y-4">
-    <div class="flex items-center justify-between pb-3 border-b border-neutral4">
-      <div>
-        <h3 class="font-bold text-base text-neutral1">Riwayat &amp; Pelacakan Lamaran Kerja</h3>
-        <p class="text-xs text-neutral3 mt-0.5">Pantau tahapan seleksi berkas dari mitra industri secara transparan</p>
-      </div>
-      <span class="text-xs font-semibold text-primary1" id="applied-total-text">1 Lamaran Aktif</span>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse text-xs">
-        <thead>
-          <tr>
-            <th class="th">Posisi &amp; Perusahaan</th>
-            <th class="th">Tanggal Melamar</th>
-            <th class="th">Status Seleksi</th>
-            <th class="th text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="applied-tbody" class="divide-y divide-neutral4">
-          <!-- Rendered via JS -->
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-</main>
-
-<!-- MODAL: Easy Apply (Lamar Cepat ke Mitra Industri) -->
-<div id="apply-job-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="bg-white rounded-2xl max-w-lg w-full p-6 sm:p-7 elevation5 relative max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-apply-title">
-    <button onclick="closeModal('apply-job-modal')" aria-label="Tutup Dialog" class="absolute top-5 right-5 text-neutral3 hover:text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1 rounded-lg p-1">
-      <i data-lucide="x" class="w-5 h-5"></i>
-    </button>
-
-    <div class="flex items-center gap-3 mb-5 pb-3 border-b border-neutral4">
-      <img id="apply-modal-logo" src="" alt="Logo Perusahaan" class="w-12 h-12 rounded-xl object-cover border border-neutral4 shadow-sm">
-      <div class="min-w-0">
-        <h3 id="modal-apply-title" class="font-bold text-base text-neutral1 truncate">Lamar Pekerjaan</h3>
-        <p id="apply-modal-subtitle" class="text-xs text-neutral3 truncate">GoTo Group &bull; Jakarta Selatan</p>
-      </div>
-    </div>
-
-    <form onsubmit="handleApplySubmit(event)" class="space-y-4 text-xs">
-      <!-- Data Pemohon Terverifikasi -->
-      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4/80 space-y-1">
-        <div class="text-[11px] font-semibold text-neutral1">Data Pelamar Terverifikasi (Dari Profil):</div>
-        <p class="text-xs text-neutral2 font-medium" id="apply-applicant-info">Aisha Dwi Rahmawati &bull; aisha.rahma@alumni.dinus.ac.id &bull; +62 812-3456-7890</p>
-      </div>
-
-      <!-- Pilihan Resume / CV -->
-      <div>
-        <label class="block font-semibold text-neutral2 mb-1.5">Berkas CV / Resume yang Digunakan <span class="text-red1">*</span></label>
-        <div class="space-y-2">
-          <label class="flex items-center gap-2.5 p-3 rounded-xl border border-primary1 bg-blue-50/40 cursor-pointer">
-            <input type="radio" name="apply_resume" value="cv_profile" checked class="text-primary1 focus:ring-primary1">
-            <div class="flex-1">
-              <span class="font-semibold text-neutral1 block">Gunakan CV Digital Profil Bengkel Koding</span>
-              <span class="text-[11px] text-neutral3">Terdiri dari ringkasan portofolio, modul lab, dan sertifikasi terverifikasi</span>
-            </div>
-            <i data-lucide="check-circle" class="w-4 h-4 text-primary1 shrink-0"></i>
-          </label>
-        </div>
-      </div>
-
-      <!-- Catatan Singkat untuk Tim HR -->
-      <div>
-        <label for="apply-note" class="block font-semibold text-neutral2 mb-1">Pesan Singkat untuk HR / Hiring Team (Opsional)</label>
-        <textarea id="apply-note" rows="3" placeholder="Tuliskan motivasi singkat atau ketersediaan waktu Anda..." class="input"></textarea>
-      </div>
-
-      <div class="p-3 rounded-xl bg-blue-50/50 border border-blue-200/70 text-[11px] text-blue-900 flex items-start gap-2">
-        <i data-lucide="info" class="w-4 h-4 text-blue-700 shrink-0 mt-0.5"></i>
-        <span>Lamaran Anda akan langsung diteruskan ke dasbor mitra industri dan notifikasi statusnya dapat Anda pantau pada tab Lamaran Saya.</span>
-      </div>
-
-      <div class="pt-3 border-t border-neutral4 flex justify-end gap-2.5">
-        <button type="button" onclick="closeModal('apply-job-modal')" class="btn-outline text-xs">
-          Batal
-        </button>
-        <button type="submit" id="apply-submit-btn" class="btn-primary text-xs">
-          Kirim Lamaran Sekarang
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-  let currentMainTab = 'explore';
-  let activeSelectedJobId = ALUMNI_DATA.jobs[0].id;
-  let searchKeyword = '';
-  let filterWorkModel = 'Semua';
-  let filterEmpType = 'Semua';
-
-  // 1. Switch Tab Utama
-  window.switchMainTab = function(tab) {
-    currentMainTab = tab;
-    const btnExplore = document.getElementById('tab-btn-explore');
-    const btnSaved = document.getElementById('tab-btn-saved');
-    const btnApplied = document.getElementById('tab-btn-applied');
-    const toolbar = document.getElementById('toolbar-search-filter');
-    const viewExploreSaved = document.getElementById('view-explore-saved');
-    const viewApplied = document.getElementById('view-applied');
-
-    // Reset buttons
-    [btnExplore, btnSaved, btnApplied].forEach(btn => {
-      btn.className = 'px-4 py-1.5 rounded-lg text-xs font-medium text-neutral2 hover:text-primary1 transition-all flex items-center gap-1.5';
-    });
-
-    if (tab === 'explore') {
-      btnExplore.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all';
-      toolbar.classList.remove('hidden');
-      viewExploreSaved.classList.remove('hidden');
-      viewApplied.classList.add('hidden');
-      renderJobsList();
-    } else if (tab === 'saved') {
-      btnSaved.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all flex items-center gap-1.5';
-      toolbar.classList.remove('hidden');
-      viewExploreSaved.classList.remove('hidden');
-      viewApplied.classList.add('hidden');
-      renderJobsList();
-    } else {
-      btnApplied.className = 'px-4 py-1.5 rounded-lg text-xs font-semibold bg-primary1 text-white shadow-sm transition-all flex items-center gap-1.5';
-      toolbar.classList.add('hidden');
-      viewExploreSaved.classList.add('hidden');
-      viewApplied.classList.remove('hidden');
-      renderAppliedTable();
-    }
-
-    if (window.lucide) window.lucide.createIcons();
-  };
-
-  // 2. Render Daftar Lowongan Kiri
-  function renderJobsList() {
-    const listCol = document.getElementById('jobs-list-col');
-    if (!listCol) return;
-
-    let items = [...(ALUMNI_DATA.jobs || [])];
-
-    if (currentMainTab === 'saved') {
-      items = items.filter(j => (ALUMNI_DATA.savedJobs || []).includes(j.id));
-    }
-
-    if (searchKeyword.trim()) {
-      const q = searchKeyword.toLowerCase();
-      items = items.filter(j =>
-        j.title.toLowerCase().includes(q) ||
-        j.company.toLowerCase().includes(q) ||
-        (j.skillsRequired || []).some(s => s.toLowerCase().includes(q))
-      );
-    }
-
-    if (filterWorkModel !== 'Semua') {
-      items = items.filter(j => j.workModel === filterWorkModel);
-    }
-
-    if (filterEmpType !== 'Semua') {
-      items = items.filter(j => j.employmentType === filterEmpType);
-    }
-
-    if (items.length === 0) {
-      listCol.innerHTML = `
-        <div class="bg-white rounded-2xl border border-neutral4 p-8 text-center text-xs text-neutral3 space-y-2">
-          <i data-lucide="search-x" class="w-8 h-8 mx-auto text-neutral3"></i>
-          <p class="font-semibold text-neutral1 text-sm">Tidak ada lowongan yang sesuai</p>
-          <p>Coba ubah kata kunci pencarian atau sesuaikan filter model kerja.</p>
-        </div>
-      `;
-      document.getElementById('job-detail-col').innerHTML = `
-        <div class="text-center py-12 text-neutral3 text-xs">
-          Pilih lowongan untuk melihat rincian kualifikasi dan melamar.
-        </div>
-      `;
-      if (window.lucide) window.lucide.createIcons();
-      return;
-    }
-
-    // Pastikan selected job ada di filtered items
-    if (!items.some(j => j.id === activeSelectedJobId)) {
-      activeSelectedJobId = items[0].id;
-    }
-
-    listCol.innerHTML = items.map(job => {
-      const isSelected = job.id === activeSelectedJobId;
-      const isSaved = (ALUMNI_DATA.savedJobs || []).includes(job.id);
-
-      return `
-        <div
-          onclick="selectJob('${job.id}')"
-          class="p-4 rounded-2xl border transition-all cursor-pointer relative ${isSelected ? 'border-primary1 bg-blue-50/40 shadow-sm' : 'border-neutral4 bg-white hover:border-neutral4/90 hover:bg-neutral5/30'}"
-        >
-          <div class="flex items-start gap-3.5">
-            <img src="${job.companyLogo}" alt="${esc(job.company)}" class="w-12 h-12 rounded-xl object-cover border border-neutral4 shadow-sm shrink-0 bg-white">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-start justify-between gap-2">
-                <h3 class="font-bold text-sm text-neutral1 leading-tight hover:text-primary1 transition-colors truncate">
-                  ${esc(job.title)}
-                </h3>
-                <button
-                  type="button"
-                  onclick="event.stopPropagation(); toggleSaveJob('${job.id}')"
-                  class="p-1 rounded-lg hover:bg-neutral5 text-neutral3 ${isSaved ? 'text-primary1 fill-primary1' : ''}"
-                  title="${isSaved ? 'Hapus Simpanan' : 'Simpan Lowongan'}"
-                >
-                  <i data-lucide="bookmark" class="w-4 h-4"></i>
-                </button>
-              </div>
-
-              <p class="text-xs font-medium text-neutral2 mt-0.5 truncate">${esc(job.company)}</p>
-              <p class="text-[11px] text-neutral3 mt-0.5">${esc(job.location)} &bull; <span class="font-semibold text-primary2">${esc(job.workModel)}</span></p>
-
-              <div class="flex flex-wrap items-center gap-1.5 mt-2.5">
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-primary5 text-primary1 border border-primary4/50">
-                  ${esc(job.employmentType)}
-                </span>
-                <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-green3 text-green1 border border-green2/30">
-                  Mitra Resmi
-                </span>
-              </div>
-
-              <div class="flex items-center justify-between text-[10px] text-neutral3 mt-3 pt-2 border-t border-neutral4/50">
-                <span>Ditayangkan ${job.datePosted}</span>
-                <span>${job.applicantsCount} Pelamar</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    renderSelectedJobDetail();
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  // 3. Render Detail Lowongan Kanan
-  function renderSelectedJobDetail() {
-    const detailCol = document.getElementById('job-detail-col');
-    if (!detailCol) return;
-
-    const job = (ALUMNI_DATA.jobs || []).find(j => j.id === activeSelectedJobId);
-    if (!job) return;
-
-    const isSaved = (ALUMNI_DATA.savedJobs || []).includes(job.id);
-    const hasApplied = (ALUMNI_DATA.applications || []).some(a => a.jobId === job.id);
-
-    detailCol.innerHTML = `
-      <!-- Header Detail -->
-      <div class="border-b border-neutral4 pb-5">
-        <div class="flex items-start justify-between gap-4">
-          <div class="flex items-start gap-4">
-            <img src="${job.companyLogo}" alt="${esc(job.company)}" class="w-16 h-16 rounded-2xl object-cover border border-neutral4 shadow-sm bg-white shrink-0">
-            <div>
-              <div class="flex items-center gap-2">
-                <h2 class="text-lg sm:text-xl font-bold text-neutral1 leading-tight">${esc(job.title)}</h2>
-              </div>
-              <p class="text-xs font-semibold text-primary2 mt-1">${esc(job.company)} &bull; <span class="text-neutral3 font-normal">${esc(job.location)}</span></p>
-              <p class="text-xs font-bold text-green2 mt-1.5">${esc(job.salaryRange)}</p>
-            </div>
-          </div>
+    <!-- ============================================================
+        HEADER & NAVIGASI TABS
+    ============================================================ -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-[28px] sm:text-[32px] font-bold text-gray-900 tracking-tight">
+            Lowongan Kerja &amp; Karir Alumni
+          </h1>
+          <p class="text-[15px] text-gray-500 mt-1 font-normal">
+            Peluang karir terverifikasi dari ekosistem mitra startup teknologi dan korporasi terkemuka.
+          </p>
         </div>
 
-        <!-- Meta Pills -->
-        <div class="flex flex-wrap items-center gap-2 mt-4 text-xs">
-          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
-            <i data-lucide="map-pin" class="w-3 h-3 text-neutral3"></i> ${esc(job.workModel)}
-          </span>
-          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
-            <i data-lucide="briefcase" class="w-3 h-3 text-neutral3"></i> ${esc(job.employmentType)}
-          </span>
-          <span class="px-2.5 py-1 rounded-full bg-neutral5 border border-neutral4 text-neutral1 font-medium flex items-center gap-1">
-            <i data-lucide="user-check" class="w-3 h-3 text-neutral3"></i> ${esc(job.experienceLevel)}
-          </span>
-          <span class="px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 text-primary1 font-medium flex items-center gap-1">
-            <i data-lucide="building-2" class="w-3 h-3 text-primary1"></i> ${esc(job.companySize)}
-          </span>
-        </div>
-
-        <!-- Action CTAs -->
-        <div class="flex flex-wrap items-center gap-3 mt-5 pt-4 border-t border-neutral4/60">
-          ${hasApplied ? `
-            <button disabled class="px-6 py-2.5 rounded-xl bg-green3 text-green1 font-semibold text-xs border border-green2/30 flex items-center gap-1.5 cursor-not-allowed">
-              <i data-lucide="check" class="w-4 h-4"></i>
-              <span>Lamaran Telah Terkirim</span>
-            </button>
-          ` : `
-            <button onclick="openApplyModal('${job.id}')" class="btn-primary text-xs px-6 py-2.5 rounded-xl shadow-sm flex items-center gap-2">
-              <i data-lucide="zap" class="w-4 h-4"></i>
-              <span>Lamar Cepat (Easy Apply)</span>
-            </button>
-          `}
+        <!-- Tab Navigasi Simpel ala Profile & Dashboard -->
+        <div class="flex items-center bg-gray-100 p-1 rounded-full w-fit">
+          <button
+            @click="activeTab = 'explore'"
+            class="px-5 py-2.5 rounded-full text-[15px] font-semibold transition-colors cursor-pointer whitespace-nowrap"
+            :class="activeTab === 'explore' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+          >
+            Jelajahi
+          </button>
 
           <button
-            onclick="toggleSaveJob('${job.id}')"
-            class="btn-outline text-xs px-4 py-2.5 rounded-xl flex items-center gap-1.5"
+            @click="activeTab = 'saved'"
+            class="px-5 py-2.5 rounded-full text-[15px] font-semibold transition-colors cursor-pointer whitespace-nowrap"
+            :class="activeTab === 'saved' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'"
           >
-            <i data-lucide="bookmark" class="w-4 h-4 ${isSaved ? 'text-primary1 fill-primary1' : ''}"></i>
-            <span>${isSaved ? 'Tersimpan' : 'Simpan Lowongan'}</span>
+            Tersimpan
+          </button>
+
+          <button
+            @click="activeTab = 'applied'"
+            class="px-5 py-2.5 rounded-full text-[15px] font-semibold transition-colors cursor-pointer whitespace-nowrap"
+            :class="activeTab === 'applied' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+          >
+            Lamaran Saya
           </button>
         </div>
       </div>
 
-      <!-- Alumni Connection Highlight (Sesuai lowongan/page.tsx) -->
-      ${(job.alumniConnections && job.alumniConnections.length > 0) ? `
-        <div class="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 space-y-2">
-          <div class="flex items-center gap-2 text-xs font-semibold text-primary1">
-            <i data-lucide="users" class="w-4 h-4"></i>
-            <span>Koneksi Alumni Bengkel Koding di Perusahaan Ini</span>
-          </div>
-          <div class="space-y-1.5 pt-1">
-            ${job.alumniConnections.map(ac => `
-              <div class="flex items-center gap-2.5 text-xs">
-                <img src="${ac.avatar}" alt="${esc(ac.name)}" class="w-7 h-7 rounded-full object-cover border border-white shadow-sm">
-                <span class="font-semibold text-neutral1">${esc(ac.name)}</span>
-                <span class="text-neutral3">&bull;</span>
-                <span class="text-neutral2">${esc(ac.role)} (Alumni ${ac.batch})</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-
-      <!-- Deskripsi Pekerjaan -->
-      <div class="space-y-2 text-xs">
-        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Tentang Pekerjaan</h4>
-        <p class="text-neutral2 leading-relaxed whitespace-pre-line">${esc(job.description)}</p>
-      </div>
-
-      <!-- Tanggung Jawab -->
-      <div class="space-y-2 text-xs">
-        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Tanggung Jawab Utama</h4>
-        <ul class="space-y-1.5 list-disc pl-4 text-neutral2 leading-relaxed">
-          ${(job.responsibilities || []).map(r => `<li>${esc(r)}</li>`).join('')}
-        </ul>
-      </div>
-
-      <!-- Kualifikasi -->
-      <div class="space-y-2 text-xs">
-        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Kualifikasi Kandidat</h4>
-        <ul class="space-y-1.5 list-disc pl-4 text-neutral2 leading-relaxed">
-          ${(job.qualifications || []).map(q => `<li>${esc(q)}</li>`).join('')}
-        </ul>
-      </div>
-
-      <!-- Keahlian yang Dibutuhkan -->
-      <div class="space-y-2 text-xs">
-        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Keahlian yang Dibutuhkan</h4>
-        <div class="flex flex-wrap gap-1.5">
-          ${(job.skillsRequired || []).map(s => `
-            <span class="px-2.5 py-1 rounded-lg bg-neutral5 border border-neutral4 text-neutral1 text-[11px] font-semibold">
-              ${esc(s)}
-            </span>
-          `).join('')}
-        </div>
-      </div>
-
-      <!-- Benefit & Fasilitas -->
-      <div class="space-y-2 text-xs">
-        <h4 class="font-bold text-sm text-neutral1 uppercase tracking-wider text-[11px]">Fasilitas &amp; Benefit</h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-          ${(job.benefits || []).map(b => `
-            <div class="flex items-center gap-2 p-2 rounded-lg bg-neutral5 border border-neutral4/60 text-neutral2 text-[11px]">
-              <i data-lucide="check" class="w-3.5 h-3.5 text-green2 shrink-0"></i>
-              <span>${esc(b)}</span>
+      <!-- ============================================================
+          BAR PENCARIAN & FILTER KATA KUNCI (HANYA MUNCUL DI EXPLORE/SAVED)
+          BARIS 1 & 2 SEJAJAR PERSIS DALAM 12-KOLOM DENGAN KONTROL OVAL
+      ============================================================ -->
+      <template x-if="activeTab !== 'applied'">
+        <div class="mt-6 pt-5 border-t border-gray-100 space-y-3">
+          <!-- ── BARIS 1: PENCARIAN & RESET FILTER ── -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+            <!-- Input Kata Kunci (Col 1-6) -->
+            <div class="md:col-span-6 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Cari posisi pekerjaan, keahlian (Python, Next.js), atau perusahaan..."
+                x-model="searchKeyword"
+                class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors shadow-2xs"
+              >
             </div>
-          `).join('')}
+
+            <!-- Input Lokasi (Col 7-10) -->
+            <div class="md:col-span-4 relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Kota (Semarang, Jakarta) atau 'Remote'..."
+                x-model="searchLocation"
+                class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors shadow-2xs"
+              >
+            </div>
+
+            <!-- Reset Filter Button (Col 11-12) -->
+            <div class="md:col-span-2">
+              <button
+                type="button"
+                @click="searchKeyword = ''; searchLocation = ''; filterWorkModel = 'Semua'; filterEmpType = 'Semua'; filterExpLevel = 'Semua'"
+                class="w-full py-2.5 px-4 border border-gray-200 hover:border-gray-300 rounded-full text-[14px] font-semibold text-gray-600 hover:text-[#1E3A8A] bg-white transition-colors cursor-pointer text-center shadow-2xs"
+              >
+                Reset Filter
+              </button>
+            </div>
+          </div>
+
+          <!-- ── BARIS 2: FILTER DROPDOWN (3 KOLOM SEIMBANG) ── -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+            <!-- Filter Model Kerja -->
+            <div>
+              <select
+                x-model="filterWorkModel"
+                class="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[15px] text-gray-700 hover:border-gray-300 focus:outline-none focus:border-[#1E3A8A] cursor-pointer shadow-2xs"
+              >
+                <option value="Semua">Model Kerja: Semua</option>
+                <option value="Remote">Jarak Jauh (Remote)</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="On-site">Di Kantor (On-site)</option>
+              </select>
+            </div>
+
+            <!-- Filter Tipe Pekerjaan -->
+            <div>
+              <select
+                x-model="filterEmpType"
+                class="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[15px] text-gray-700 hover:border-gray-300 focus:outline-none focus:border-[#1E3A8A] cursor-pointer shadow-2xs"
+              >
+                <option value="Semua">Tipe: Semua</option>
+                <option value="Full-time">Penuh Waktu (Full-time)</option>
+                <option value="Internship">Magang (Internship)</option>
+                <option value="Contract">Kontrak</option>
+              </select>
+            </div>
+
+            <!-- Filter Pengalaman -->
+            <div>
+              <select
+                x-model="filterExpLevel"
+                class="w-full px-4 py-2.5 rounded-full border border-gray-200 bg-white text-[15px] text-gray-700 hover:border-gray-300 focus:outline-none focus:border-[#1E3A8A] cursor-pointer shadow-2xs"
+              >
+                <option value="Semua">Pengalaman: Semua</option>
+                <option value="Fresh Graduate">Fresh Graduate</option>
+                <option value="Junior">Junior (0-2 thn)</option>
+                <option value="Mid-Level">Mid-Level (2-4 thn)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <!-- ============================================================
+        KONTEN TAB: "LAMARAN SAYA" (APPLICATION TRACKER)
+    ============================================================ -->
+    <template x-if="activeTab === 'applied'">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-2xs">
+        <template x-if="applications.length === 0">
+          <div class="text-center py-16 text-gray-400 space-y-3">
+            <div class="w-16 h-16 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <p class="text-[17px] font-semibold text-gray-900">Belum Ada Lamaran yang Dikirim</p>
+            <p class="text-[15px] text-gray-500 max-w-md mx-auto">
+              Eksplorasi lowongan kerja dari mitra Bengkel Koding dan kirimkan lamaran Anda!
+            </p>
+          </div>
+        </template>
+        <template x-if="applications.length > 0">
+          <div>
+            <!-- Delete action bar — hanya muncul jika ada item dipilih -->
+            <template x-if="selectedAppIds.length > 0">
+              <div class="flex items-center justify-between px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <span class="text-[14px] font-medium text-[#1E3A8A]" x-text="selectedAppIds.length + ' lamaran dipilih'"></span>
+                <button
+                  @click="handleDeleteSelected()"
+                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-blue-900 text-white text-[14px] font-semibold transition-colors cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M15 9l-6 6M9 9l6 6" />
+                  </svg>
+                  Batalkan
+                </button>
+              </div>
+            </template>
+
+            <!-- Header Kolom: Checkbox + "Pekerjaan" -->
+            <div class="flex items-center gap-5 px-6 py-3.5 border-b border-gray-100 bg-gray-50/70">
+              <input
+                type="checkbox"
+                :checked="selectedAppIds.length === applications.length && applications.length > 0"
+                @change="handleToggleSelectAll()"
+                class="w-4.5 h-4.5 rounded-[4px] border-2 border-gray-400 text-[#1E3A8A] focus:ring-0 cursor-pointer"
+                aria-label="Pilih semua pekerjaan"
+              >
+              <span class="font-semibold text-[13px] text-gray-500 uppercase tracking-wide">Pekerjaan</span>
+            </div>
+
+            <!-- Rows List -->
+            <div class="divide-y divide-gray-100">
+              <template x-for="app in applications" :key="app.id">
+                <div
+                  @click="selectedJobId = app.jobId; activeTab = 'explore'"
+                  class="flex items-center gap-5 px-6 py-5 hover:bg-blue-50/30 transition-colors cursor-pointer"
+                  :class="selectedAppIds.includes(app.id) ? 'bg-blue-50/50' : ''"
+                >
+                  <!-- Checkbox -->
+                  <input
+                    type="checkbox"
+                    :checked="selectedAppIds.includes(app.id)"
+                    @click.stop
+                    @change.stop="handleToggleSelectApp(app.id)"
+                    class="w-4.5 h-4.5 flex-shrink-0 rounded-[4px] border-2 border-gray-300 text-[#1E3A8A] focus:ring-0 cursor-pointer"
+                    :aria-label="'Pilih ' + app.jobTitle"
+                  >
+
+                  <!-- Logo -->
+                  <img :src="app.companyLogo" :alt="app.company" class="w-11 h-11 rounded-lg object-cover border border-gray-200 flex-shrink-0">
+
+                  <!-- Info -->
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-[15px] font-semibold text-gray-900 hover:text-[#1E3A8A] transition-colors leading-snug truncate" x-text="app.jobTitle"></h3>
+                    </div>
+                    <p class="text-[14px] text-gray-600 mt-0.5 truncate" x-text="app.company + ' · ' + app.applicantLocation"></p>
+                    <p class="text-[13px] text-gray-400 mt-0.5" x-text="'Dilamar ' + app.appliedAt"></p>
+                  </div>
+
+                  <!-- Status badge -->
+                  <div class="flex-shrink-0">
+                    <span
+                      class="inline-block px-3 py-1 rounded-full text-[13px] font-medium"
+                      :class="app.status === 'Diterima'
+                        ? 'bg-green-50 text-green-700'
+                        : app.status === 'Ditolak'
+                        ? 'bg-red-50 text-red-600'
+                        : app.status === 'Proses Interview'
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'bg-gray-100 text-gray-500'"
+                      x-text="app.status"
+                    ></span>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        KONTEN UTAMA: LINKEDIN SPLIT SCREEN 2-COLUMN (EXPLORE & SAVED)
+    ============================================================ -->
+    <template x-if="activeTab !== 'applied'">
+      <div class="flex flex-col lg:flex-row gap-6 items-start">
+        <!-- ── KOLOM KIRI: DAFTAR KARTU LOWONGAN (FEED) ─────────────── -->
+        <div class="w-full lg:w-[410px] xl:w-[440px] flex-shrink-0 flex flex-col gap-3.5">
+          <div class="flex items-center justify-between px-1 text-[14px] font-medium text-gray-500">
+            <span x-text="'Menampilkan ' + filteredJobs.length + ' lowongan'"></span>
+            <span class="text-[13px] text-gray-400">Diurutkan: Paling Relevan</span>
+          </div>
+
+          <template x-if="filteredJobs.length === 0">
+            <div class="bg-white rounded-xl border border-gray-200 p-10 text-center text-gray-400 shadow-xs">
+              <p class="text-[15px] font-semibold text-gray-700">Tidak ada lowongan yang cocok</p>
+              <p class="text-[14px] text-gray-400 mt-1">Coba sesuaikan kata kunci atau bersihkan filter pencarian.</p>
+            </div>
+          </template>
+          <template x-if="filteredJobs.length > 0">
+            <div class="space-y-3.5 max-h-[840px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <template x-for="job in filteredJobs" :key="job.id">
+                <div
+                  @click="selectedJobId = job.id"
+                  class="p-5 rounded-xl border transition-all cursor-pointer relative bg-white"
+                  :class="selectedJob && selectedJob.id === job.id
+                    ? 'border-[#1E3A8A] ring-2 ring-[#1E3A8A]/15 shadow-sm'
+                    : 'border-gray-200/90 hover:border-gray-300 hover:shadow-xs'"
+                >
+                  <!-- Atas: Logo, Info Utama, Bookmark -->
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3.5 min-w-0">
+                      <img :src="job.companyLogo" :alt="job.company" class="w-11 h-11 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+                      <div class="min-w-0">
+                        <h3 class="text-[15px] font-semibold text-gray-900 leading-snug hover:text-[#1E3A8A] transition-colors line-clamp-1" x-text="job.title"></h3>
+                        <p class="text-[14px] font-normal text-[#1E3A8A] line-clamp-1 mt-0.5" x-text="job.company"></p>
+                        <p class="text-[13px] text-gray-400 line-clamp-1 mt-0.5" x-text="job.location.replace(/\s*\(.*?\)\s*/g, '').trim()"></p>
+                        <p class="text-[13px] text-gray-400 mt-0.5" x-text="job.datePosted"></p>
+                      </div>
+                    </div>
+
+                    <!-- Tombol Bookmark -->
+                    <button
+                      type="button"
+                      @click.stop="handleToggleBookmark(job.id)"
+                      :title="savedJobIds.includes(job.id) ? 'Hapus dari tersimpan' : 'Simpan lowongan'"
+                      class="w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
+                      :class="savedJobIds.includes(job.id) ? 'text-[#1E3A8A] bg-blue-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" :fill="savedJobIds.includes(job.id) ? 'currentColor' : 'none'">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <!-- ── KOLOM KANAN: RINCIAN LENGKAP LOWONGAN (DETAIL VIEW) ──── -->
+        <div class="flex-1 min-w-0 bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 sticky top-4 max-h-[860px] overflow-y-auto space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <template x-if="selectedJob">
+            <div class="contents space-y-6">
+              <!-- Header Card Detail -->
+              <div class="border-b border-gray-100 pb-5">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-4">
+                    <img :src="selectedJob.companyLogo" :alt="selectedJob.company" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-xs flex-shrink-0">
+                    <div>
+                      <h2 class="text-[20px] font-bold text-gray-900 tracking-tight leading-tight" x-text="selectedJob.title"></h2>
+                      <div class="flex items-center gap-2 mt-1">
+                        <a :href="selectedJob.companyWebsite" target="_blank" rel="noreferrer" class="text-[15px] font-semibold text-[#1E3A8A] hover:underline" x-text="selectedJob.company"></a>
+                      </div>
+                      <p class="text-[14px] text-gray-700 mt-1" x-text="selectedJob.location + ' • ' + selectedJob.workModel + ' • Diposting ' + selectedJob.datePosted + ' • ' + selectedJob.applicantsCount + ' pelamar'"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tombol Aksi Utama (Lamar Sekarang & Simpan) -->
+                <div class="mt-5 flex flex-wrap items-center gap-3">
+                  <template x-if="applicationForSelectedJob">
+                    <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 text-[#1E3A8A] border border-blue-200 text-[15px] font-semibold">
+                      <span x-text="'Lamaran Terkirim (' + applicationForSelectedJob.status + ')'"></span>
+                    </div>
+                  </template>
+                  <template x-if="!applicationForSelectedJob">
+                    <button
+                      type="button"
+                      id="btn-apply-job"
+                      @click="handleOpenApply(selectedJob)"
+                      class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[15px] rounded-full shadow-sm transition-colors cursor-pointer"
+                    >
+                      Lamar Sekarang
+                    </button>
+                  </template>
+
+                  <button
+                    type="button"
+                    @click="handleToggleBookmark(selectedJob.id)"
+                    class="px-5 py-2.5 rounded-full text-[15px] font-semibold border transition-colors cursor-pointer"
+                    :class="savedJobIds.includes(selectedJob.id) ? 'border-[#1E3A8A] text-[#1E3A8A] bg-blue-50/60' : 'border-gray-300 text-gray-700 hover:bg-gray-100'"
+                    x-text="savedJobIds.includes(selectedJob.id) ? 'Tersimpan' : 'Simpan'"
+                  ></button>
+
+                  <button
+                    type="button"
+                    @click="navigator.clipboard.writeText(window.location.href); setToast('Tautan lowongan berhasil disalin ke clipboard!')"
+                    class="p-2.5 rounded-full text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
+                    title="Salin tautan lowongan"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2" />
+                      <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                      <circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2" />
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Informasi Ringkas Posisi (Tersusun ke Bawah Secara Rapi) -->
+                <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-[15px]">
+                  <div class="flex items-center">
+                    <span class="text-gray-700 w-36 flex-shrink-0">Tipe Pekerjaan</span>
+                    <span class="text-gray-700 mr-2">:</span>
+                    <span class="text-gray-700" x-text="selectedJob.employmentType.split(' (')[0]"></span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-700 w-36 flex-shrink-0">Pengalaman</span>
+                    <span class="text-gray-700 mr-2">:</span>
+                    <span class="text-gray-700" x-text="selectedJob.experienceLevel"></span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-700 w-36 flex-shrink-0">Estimasi Gaji</span>
+                    <span class="text-gray-700 mr-2">:</span>
+                    <span class="text-gray-700" x-text="selectedJob.salaryRange.split(' /')[0]"></span>
+                  </div>
+                  <div class="flex items-center">
+                    <span class="text-gray-700 w-36 flex-shrink-0">Skala Perusahaan</span>
+                    <span class="text-gray-700 mr-2">:</span>
+                    <span class="text-gray-700" x-text="selectedJob.companySize"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── KEAHLIAN YANG DIBUTUHKAN ── -->
+              <div class="space-y-2.5">
+                <h3 class="text-[15px] font-bold text-gray-900">Keahlian yang Dibutuhkan:</h3>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="(skill, i) in selectedJob.skillsRequired" :key="i">
+                    <span class="px-3 py-1 rounded-full text-[13px] font-medium bg-gray-100 text-gray-800" x-text="skill"></span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- ── DESKRIPSI & RINCIAN PERAN ── -->
+              <div class="space-y-4 text-[15px] text-gray-800 leading-relaxed border-t border-gray-100 pt-5">
+                <div>
+                  <h3 class="text-[15px] font-bold text-gray-900 mb-2">Tentang Posisi Ini</h3>
+                  <p class="text-gray-700" x-text="selectedJob.description"></p>
+                </div>
+
+                <div>
+                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Tanggung Jawab Utama:</h4>
+                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
+                    <template x-for="(res, i) in selectedJob.responsibilities" :key="i"><li x-text="res"></li></template>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Kualifikasi &amp; Persyaratan:</h4>
+                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
+                    <template x-for="(q, i) in selectedJob.qualifications" :key="i"><li x-text="q"></li></template>
+                  </ul>
+                </div>
+
+                <div>
+                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Benefit &amp; Fasilitas:</h4>
+                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
+                    <template x-for="(b, i) in selectedJob.benefits" :key="i"><li x-text="b"></li></template>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- ── TENTANG PERUSAHAAN ── -->
+              <div class="border-t border-gray-100 pt-5 space-y-2">
+                <h3 class="text-[15px] font-bold text-gray-900" x-text="'Tentang ' + selectedJob.company"></h3>
+                <p class="text-[15px] text-gray-700 leading-relaxed" x-text="selectedJob.aboutCompany"></p>
+              </div>
+            </div>
+          </template>
         </div>
       </div>
+    </template>
 
-      <!-- Tentang Mitra -->
-      <div class="p-4 rounded-xl border border-neutral4 bg-neutral5/40 space-y-2 text-xs">
-        <h4 class="font-bold text-neutral1 text-[11px] uppercase tracking-wider">Tentang ${esc(job.company)}</h4>
-        <p class="text-neutral2 leading-relaxed">${esc(job.aboutCompany)}</p>
-        <div class="pt-2">
-          <a href="${job.companyWebsite}" target="_blank" class="text-primary1 font-semibold hover:underline inline-flex items-center gap-1">
-            <span>Kunjungi Website Resmi</span>
-            <i data-lucide="external-link" class="w-3 h-3"></i>
-          </a>
+    <!-- ============================================================
+        MODAL: LAMAR PEKERJAAN (EASY APPLY MULTI-STEP) — _components/ApplyJobModal.tsx
+    ============================================================ -->
+    <template x-if="applyModalOpen && applyingJob">
+      <div
+        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200"
+        @mousedown.self="applyModalOpen = false"
+      >
+        <div
+          style="width: 90vw; max-width: 1024px"
+          class="bg-white rounded-xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+        >
+          <!-- Header Modal -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+            <div class="flex items-center gap-3">
+              <img :src="applyingJob.companyLogo" :alt="applyingJob.company" class="w-11 h-11 rounded-xl object-cover border border-gray-200">
+              <div>
+                <h3 class="text-[20px] font-medium text-gray-900 tracking-tight leading-tight" x-text="'Lamar ke ' + applyingJob.company"></h3>
+                <p class="text-[14px] text-gray-500 truncate max-w-[340px] mt-0.5" x-text="applyingJob.title + ' • ' + applyingJob.location"></p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="applyModalOpen = false"
+              class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Progress Bar (Step Indicator) -->
+          <div class="px-6 pt-3 pb-2 bg-gray-50/60 border-b border-gray-100">
+            <div class="flex items-center justify-between text-[14px] font-medium text-gray-500 mb-1.5">
+              <span :class="ap.step >= 1 ? 'text-[#1E3A8A]' : ''">1. Kontak</span>
+              <span :class="ap.step >= 2 ? 'text-[#1E3A8A]' : ''">2. Resume / CV</span>
+              <span :class="ap.step >= 3 ? 'text-[#1E3A8A]' : ''">3. Portofolio</span>
+              <span :class="ap.step >= 4 ? 'text-[#1E3A8A]' : ''">4. Tinjau</span>
+            </div>
+            <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
+              <div class="bg-[#1E3A8A] h-full transition-all duration-300 rounded-full" :style="{ width: (ap.step / 4) * 100 + '%' }"></div>
+            </div>
+          </div>
+
+          <!-- Body Content by Step -->
+          <div class="p-6 overflow-y-auto space-y-4 flex-1 text-[15px]">
+            <!-- STEP 1: INFO KONTAK -->
+            <template x-if="ap.step === 1">
+              <div class="space-y-4">
+                <div>
+                  <h4 class="text-[15px] font-medium text-gray-900">Informasi Kontak Anda</h4>
+                  <p class="text-[14px] text-gray-500 mt-0.5" x-text="'Recruiter dari ' + applyingJob.company + ' akan menghubungi Anda melalui kontak di bawah ini.'"></p>
+                </div>
+
+                <div>
+                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Nama Lengkap *</label>
+                  <input type="text" x-model="ap.name" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Alamat Email *</label>
+                    <input type="email" x-model="ap.email" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
+                  </div>
+                  <div>
+                    <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Nomor WhatsApp / HP *</label>
+                    <input type="text" x-model="ap.phone" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Domisili / Kota Saat Ini *</label>
+                  <input type="text" x-model="ap.location" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
+                </div>
+
+                <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5 text-[14px] text-blue-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-0.5 text-[#1E3A8A]">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                  <span>Data di atas disinkronkan otomatis dari profil resmi Alumni Bengkel Koding Anda.</span>
+                </div>
+              </div>
+            </template>
+
+            <!-- STEP 2: RESUME / CV — Revisi UX: CV dibuat otomatis dari profil, tanpa unggah -->
+            <template x-if="ap.step === 2">
+              <div class="space-y-4">
+                <div>
+                  <h4 class="text-[15px] font-medium text-gray-900">Resume / CV Otomatis</h4>
+                  <p class="text-[14px] text-gray-500 mt-0.5" x-text="'CV untuk posisi ' + applyingJob.title + ' dibuat otomatis dari profil alumni Anda.'"></p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-[#1E3A8A] bg-blue-50/50 ring-2 ring-[#1E3A8A]/10 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-medium text-[12px] border border-blue-200">
+                      PDF
+                    </div>
+                    <div>
+                      <p class="text-[15px] font-medium text-gray-900" x-text="cvFileName"></p>
+                      <p class="text-[13px] text-gray-500">Dibuat otomatis dari profil</p>
+                    </div>
+                  </div>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A] flex-shrink-0">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    <polyline points="8 12.5 11 15.5 16 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+
+                <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5 text-[14px] text-blue-900">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-0.5 text-[#1E3A8A]">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                    <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2" />
+                  </svg>
+                  <span>CV berisi data profil, pendidikan, proyek, keahlian, dan sertifikasi Anda. Untuk mengubah isinya, perbarui halaman <a href="profil.html" class="font-semibold underline">Profil Saya</a>.</span>
+                </div>
+              </div>
+            </template>
+
+            <!-- STEP 3: PORTOFOLIO & CATATAN PENGANTAR -->
+            <template x-if="ap.step === 3">
+              <div class="space-y-4">
+                <div>
+                  <h4 class="text-[15px] font-medium text-gray-900">Tautan Portofolio &amp; Pengantar</h4>
+                  <p class="text-[14px] text-gray-500 mt-0.5">
+                    Berikan bukti pencapaian riset, proyek capstone, atau link akun profesional Anda.
+                  </p>
+                </div>
+
+                <div>
+                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Tautan GitHub / Portofolio Web</label>
+                  <input type="url" x-model="ap.portfolioUrl" placeholder="https://github.com/username" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs">
+                </div>
+
+                <div>
+                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Tautan Profil LinkedIn</label>
+                  <input type="url" x-model="ap.linkedinUrl" placeholder="https://linkedin.com/in/username" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs">
+                </div>
+
+                <div>
+                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">
+                    Surat Pengantar Singkat / Cover Note (Opsional)
+                  </label>
+                  <textarea rows="3" x-model="ap.coverNote" placeholder="Ceritakan secara ringkas mengapa Anda antusias melamar posisi ini..." class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 resize-none leading-relaxed shadow-xs"></textarea>
+                </div>
+              </div>
+            </template>
+
+            <!-- STEP 4: TINJAU & KONFIRMASI -->
+            <template x-if="ap.step === 4">
+              <div class="space-y-4">
+                <div>
+                  <h4 class="text-[15px] font-medium text-gray-900">Tinjau Lamaran Anda</h4>
+                  <p class="text-[15px] text-gray-500 mt-0.5" x-text="'Pastikan semua data sudah benar sebelum mengirimkan ke tim rekrutmen ' + applyingJob.company + '.'"></p>
+                </div>
+
+                <div class="bg-gray-50/70 rounded-xl p-4 border border-gray-200 space-y-3">
+                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <span class="text-gray-700">Posisi Lowongan:</span>
+                    <span class="text-gray-700" x-text="applyingJob.title"></span>
+                  </div>
+                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <span class="text-gray-700">Nama Pelamar:</span>
+                    <span class="text-gray-700" x-text="ap.name"></span>
+                  </div>
+                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <span class="text-gray-700">Email &amp; HP:</span>
+                    <span class="text-gray-700 text-right" x-text="ap.email + ' • ' + ap.phone"></span>
+                  </div>
+                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
+                    <span class="text-gray-700">File Resume Terpilih:</span>
+                    <span class="text-[#1E3A8A] flex items-center gap-1.5">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A] flex-shrink-0">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span x-text="cvFileName"></span>
+                    </span>
+                  </div>
+                  <template x-if="ap.portfolioUrl">
+                    <div class="flex items-center justify-between">
+                      <span class="text-gray-700">Tautan Portofolio:</span>
+                      <span class="text-gray-700 truncate max-w-[240px]" x-text="ap.portfolioUrl"></span>
+                    </div>
+                  </template>
+                </div>
+
+                <label class="flex items-start gap-2.5 p-3 rounded-xl border border-gray-200 bg-white cursor-pointer select-none">
+                  <input type="checkbox" x-model="ap.consentCheck" class="w-4 h-4 mt-0.5 text-[#1E3A8A] rounded">
+                  <span class="text-[14px] text-gray-700 leading-snug">
+                    Saya mengonfirmasi bahwa data yang diberikan adalah benar dan mengizinkan tim rekrutmen <strong x-text="applyingJob.company"></strong> untuk melihat profil portofolio serta riwayat proyek saya.
+                  </span>
+                </label>
+              </div>
+            </template>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+            <template x-if="ap.step > 1">
+              <button
+                type="button"
+                @click="ap.step--"
+                class="px-5 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold text-[14px] rounded-full transition-colors cursor-pointer"
+              >
+                Kembali
+              </button>
+            </template>
+            <template x-if="ap.step <= 1">
+              <button
+                type="button"
+                @click="applyModalOpen = false"
+                class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 font-semibold text-[14px] rounded-full transition-colors cursor-pointer"
+              >
+                Batal
+              </button>
+            </template>
+
+            <template x-if="ap.step < 4">
+              <button
+                type="button"
+                @click="ap.step++"
+                class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[14px] rounded-full shadow-sm transition-colors cursor-pointer"
+              >
+                Lanjutkan
+              </button>
+            </template>
+            <template x-if="ap.step >= 4">
+              <button
+                type="button"
+                id="btn-submit-job-application"
+                :disabled="!ap.consentCheck"
+                @click="handleApplySubmit()"
+                class="px-6 py-2.5 text-white font-semibold text-[14px] rounded-full shadow-sm transition-colors cursor-pointer flex items-center gap-2"
+                :class="ap.consentCheck ? 'bg-[#1E3A8A] hover:bg-[#1D4ED8]' : 'bg-gray-400 cursor-not-allowed'"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <span>Kirim Lamaran Sekarang</span>
+              </button>
+            </template>
+          </div>
         </div>
       </div>
-    `;
+    </template>
+  </div>
+</main>
 
-    if (window.lucide) window.lucide.createIcons();
-  }
+<script>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("jobsPage", () => {
+      const currentAlumni = ALUMNI_DIRECTORY[0];
+      const defaultProfile = {
+        name: currentAlumni.name,
+        email: currentAlumni.email || "aisha.rahma@alumni.dinus.ac.id",
+        phone: "+62 812-3456-7890",
+        location: currentAlumni.location,
+        headline: currentAlumni.headline,
+        github: currentAlumni.github,
+        linkedin: currentAlumni.linkedin,
+        skills: ["Python", "Machine Learning", "Data Science", "SQL", "Next.js", "TypeScript", "React"],
+      };
+      return {
+        profile: { ...defaultProfile },
+        activeTab: "explore",
+        jobs: INITIAL_JOBS,
+        selectedJobId: INITIAL_JOBS[0].id,
+        searchKeyword: "",
+        searchLocation: "",
+        filterWorkModel: "Semua",
+        filterEmpType: "Semua",
+        filterExpLevel: "Semua",
+        savedJobIds: [],
+        applications: [],
+        selectedAppIds: [],
+        applyModalOpen: false,
+        applyingJob: null,
+        toast: "",
+        toastTimer: null,
 
-  // 4. Tab Lamaran Saya (Applied Table)
-  function renderAppliedTable() {
-    const tbody = document.getElementById('applied-tbody');
-    const totalText = document.getElementById('applied-total-text');
-    if (!tbody) return;
+        // State ApplyJobModal (tetap tersimpan antar buka/tutup seperti komponen React yang selalu ter-mount)
+        ap: {
+          step: 1,
+          name: defaultProfile.name,
+          email: defaultProfile.email,
+          phone: defaultProfile.phone,
+          location: defaultProfile.location,
+          portfolioUrl: defaultProfile.github || "https://github.com/aishaadr",
+          linkedinUrl: defaultProfile.linkedin || "https://linkedin.com/in/aisharah",
+          coverNote: "",
+          consentCheck: true,
+        },
 
-    const apps = ALUMNI_DATA.applications || [];
-    if (totalText) totalText.textContent = `${apps.length} Lamaran Terkirim`;
+        init() {
+          this.savedJobIds = loadSavedJobs();
+          this.applications = loadJobApplications();
+          try {
+            const savedProf = localStorage.getItem("bengkod_alumni_profile");
+            if (savedProf) {
+              const parsed = JSON.parse(savedProf);
+              this.profile = {
+                ...this.profile,
+                name: parsed.name || this.profile.name,
+                headline: parsed.headline || this.profile.headline,
+                location: parsed.location || this.profile.location,
+                email: parsed.email || this.profile.email,
+              };
+            }
+          } catch {}
+        },
 
-    if (apps.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="4" class="td text-center text-neutral3 py-8">
-            <i data-lucide="send" class="w-8 h-8 mx-auto mb-2 text-neutral3"></i>
-            <div>Belum ada lamaran yang dikirimkan. Jelajahi lowongan mitra dan gunakan tombol Easy Apply.</div>
-          </td>
-        </tr>
-      `;
-      if (window.lucide) window.lucide.createIcons();
-      return;
-    }
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => (this.toast = ""), 2800);
+        },
 
-    tbody.innerHTML = apps.map(app => `
-      <tr class="tr">
-        <td class="td">
-          <div class="font-semibold text-neutral1">${esc(app.jobTitle)}</div>
-          <div class="text-[11px] text-neutral3">${esc(app.company)}</div>
-        </td>
-        <td class="td whitespace-nowrap text-neutral3">${app.appliedAt}</td>
-        <td class="td">
-          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 border border-blue-200">
-            ${app.status || 'Ditinjau oleh HR'}
-          </span>
-        </td>
-        <td class="td text-center">
-          <button onclick="if(typeof showToast==='function') showToast('Status lamaran Anda sedang diproses oleh HR mitra.');" class="text-xs font-semibold text-primary1 hover:underline">
-            Rincian
-          </button>
-        </td>
-      </tr>
-    `).join('');
+        get filteredJobs() {
+          return this.jobs.filter((job) => {
+            if (this.activeTab === "saved" && !this.savedJobIds.includes(job.id)) return false;
+            if (this.searchKeyword.trim()) {
+              const q = this.searchKeyword.toLowerCase();
+              const matchTitle = job.title.toLowerCase().includes(q);
+              const matchCompany = job.company.toLowerCase().includes(q);
+              const matchSkills = job.skillsRequired.some((s) => s.toLowerCase().includes(q));
+              if (!matchTitle && !matchCompany && !matchSkills) return false;
+            }
+            if (this.searchLocation.trim()) {
+              const loc = this.searchLocation.toLowerCase();
+              const matchLoc = job.location.toLowerCase().includes(loc);
+              const matchModel = job.workModel.toLowerCase().includes(loc);
+              if (!matchLoc && !matchModel) return false;
+            }
+            if (this.filterWorkModel !== "Semua" && !job.workModel.toLowerCase().includes(this.filterWorkModel.toLowerCase())) return false;
+            if (this.filterEmpType !== "Semua" && !job.employmentType.toLowerCase().includes(this.filterEmpType.toLowerCase())) return false;
+            if (this.filterExpLevel !== "Semua" && !job.experienceLevel.toLowerCase().includes(this.filterExpLevel.toLowerCase())) return false;
+            return true;
+          });
+        },
 
-    if (window.lucide) window.lucide.createIcons();
-  }
+        // Revisi UX: nama berkas CV otomatis dari nama pelamar
+        get cvFileName() {
+          return "CV_" + this.ap.name.trim().split(/\s+/).join("_") + "_2026.pdf";
+        },
 
-  // 5. Select Job
-  window.selectJob = function(jobId) {
-    activeSelectedJobId = jobId;
-    renderJobsList();
-  };
+        get selectedJob() {
+          return this.jobs.find((j) => j.id === this.selectedJobId) || this.filteredJobs[0] || this.jobs[0];
+        },
 
-  // 6. Bookmark / Toggle Save Job
-  window.toggleSaveJob = function(jobId) {
-    if (!ALUMNI_DATA.savedJobs) ALUMNI_DATA.savedJobs = [];
-    const idx = ALUMNI_DATA.savedJobs.indexOf(jobId);
+        get applicationForSelectedJob() {
+          return this.applications.find((a) => a.jobId === (this.selectedJob && this.selectedJob.id));
+        },
 
-    if (idx >= 0) {
-      ALUMNI_DATA.savedJobs.splice(idx, 1);
-      if (typeof showToast === 'function') showToast('Lowongan dihapus dari daftar simpanan.');
-    } else {
-      ALUMNI_DATA.savedJobs.push(jobId);
-      if (typeof showToast === 'function') showToast('Lowongan berhasil disimpan!');
-    }
+        handleToggleBookmark(id) {
+          let updated;
+          if (this.savedJobIds.includes(id)) {
+            updated = this.savedJobIds.filter((itemId) => itemId !== id);
+            this.setToast("Lowongan dihapus dari daftar tersimpan");
+          } else {
+            updated = [...this.savedJobIds, id];
+            this.setToast("Lowongan disimpan ke daftar tersimpan");
+          }
+          this.savedJobIds = updated;
+          saveSavedJobs(updated);
+        },
 
-    saveSavedJobsData();
-    updateBadges();
-    renderJobsList();
-  };
+        handleOpenApply(jobToApply) {
+          this.applyingJob = jobToApply;
+          this.applyModalOpen = true;
+        },
 
-  // 7. Search & Filter Handlers
-  window.handleSearchJobs = function(val) {
-    searchKeyword = val;
-    renderJobsList();
-  };
+        handleApplySubmit() {
+          const job = this.applyingJob;
+          const newApp = {
+            id: `app-${Date.now()}`,
+            jobId: job.id,
+            jobTitle: job.title,
+            company: job.company,
+            companyLogo: job.companyLogo,
+            applicantName: this.ap.name,
+            applicantEmail: this.ap.email,
+            applicantPhone: this.ap.phone,
+            applicantLocation: this.ap.location,
+            resumeFileName: this.cvFileName,
+            portfolioUrl: this.ap.portfolioUrl || undefined,
+            linkedinUrl: this.ap.linkedinUrl || undefined,
+            coverNote: this.ap.coverNote || undefined,
+            status: "Lamaran Terkirim",
+            appliedAt: "Baru saja",
+          };
+          const updated = [newApp, ...this.applications];
+          this.applications = updated;
+          saveJobApplications(updated);
+          this.applyModalOpen = false;
+          this.setToast(`Lamaran berhasil dikirim ke ${newApp.company}!`);
+          this.ap.step = 1;
+        },
 
-  window.handleFilterChange = function() {
-    filterWorkModel = document.getElementById('filter-work-model').value;
-    filterEmpType = document.getElementById('filter-emp-type').value;
-    renderJobsList();
-  };
+        handleToggleSelectAll() {
+          if (this.selectedAppIds.length === this.applications.length) this.selectedAppIds = [];
+          else this.selectedAppIds = this.applications.map((a) => a.id);
+        },
 
-  // 8. Easy Apply Modal Handlers
-  let applyingJobId = null;
+        handleToggleSelectApp(id) {
+          this.selectedAppIds = this.selectedAppIds.includes(id)
+            ? this.selectedAppIds.filter((item) => item !== id)
+            : [...this.selectedAppIds, id];
+        },
 
-  window.openApplyModal = function(jobId) {
-    applyingJobId = jobId;
-    const job = (ALUMNI_DATA.jobs || []).find(j => j.id === jobId);
-    if (!job) return;
-
-    document.getElementById('modal-apply-title').textContent = `Lamar: ${job.title}`;
-    document.getElementById('apply-modal-subtitle').textContent = `${job.company} &bull; ${job.location}`;
-    document.getElementById('apply-modal-logo').src = job.companyLogo;
-
-    openModal('apply-job-modal');
-  };
-
-  window.handleApplySubmit = function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('apply-submit-btn');
-    btn.disabled = true;
-    btn.textContent = 'Mengirim Lamaran...';
-
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = 'Kirim Lamaran Sekarang';
-
-      const job = (ALUMNI_DATA.jobs || []).find(j => j.id === applyingJobId);
-      if (job) {
-        if (!ALUMNI_DATA.applications) ALUMNI_DATA.applications = [];
-        ALUMNI_DATA.applications.unshift({
-          id: `app-${Date.now()}`,
-          jobId: job.id,
-          jobTitle: job.title,
-          company: job.company,
-          status: 'Lamaran Terkirim',
-          appliedAt: new Date().toISOString().split('T')[0]
-        });
-        saveApplicationsData();
-      }
-
-      closeModal('apply-job-modal');
-      updateBadges();
-      renderSelectedJobDetail();
-
-      if (typeof showToast === 'function') {
-        showToast('Lamaran berhasil dikirimkan kepada mitra industri! Pantau statusnya di tab Lamaran Saya.');
-      }
-    }, 500);
-  };
-
-  function updateBadges() {
-    const savedBadge = document.getElementById('saved-count-badge');
-    const appliedBadge = document.getElementById('applied-count-badge');
-    if (savedBadge) savedBadge.textContent = (ALUMNI_DATA.savedJobs || []).length;
-    if (appliedBadge) appliedBadge.textContent = (ALUMNI_DATA.applications || []).length;
-  }
-
-  // Initial Load
-  document.addEventListener('DOMContentLoaded', () => {
-    updateBadges();
-    renderJobsList();
+        // Revisi UX: aksi "Hapus" diganti "Batalkan" lamaran
+        handleDeleteSelected() {
+          const count = this.selectedAppIds.length;
+          this.applications = this.applications.filter((a) => !this.selectedAppIds.includes(a.id));
+          this.selectedAppIds = [];
+          this.setToast(`${count} lamaran berhasil dibatalkan.`);
+        },
+      };
+    });
   });
 </script>
 </body>
