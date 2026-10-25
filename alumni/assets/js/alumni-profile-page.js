@@ -71,22 +71,21 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                     <span x-text="${field === "email" ? "profile.email" : `stripProto(profile.${field})`}"></span>
                   </a>
                 </template>`;
-  return `<input type="file" x-ref="coverFileInput" accept="image/*" class="hidden" @change="handleCoverFileUpload($event)">
-      <input type="file" x-ref="avatarFileInput" accept="image/*" class="hidden" @change="handleAvatarFileUpload($event)">
-
-      <div id="section-header-profil" class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden">
-        <div class="h-48 sm:h-56 relative p-6 flex flex-col justify-between overflow-hidden"
+  return `<div id="section-header-profil" class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden">
+        <input type="file" x-ref="coverFileInput" accept="image/*" class="hidden" hidden @change="handleCoverFileUpload($event)">
+        <input type="file" x-ref="avatarFileInput" accept="image/*" class="hidden" hidden @change="handleAvatarFileUpload($event)">
+        <div class="h-36 sm:h-44 relative p-4 sm:p-5 flex flex-col justify-between overflow-hidden"
           :class="profile.coverImageUrl ? 'bg-gray-900' : 'bg-gradient-to-r ' + profile.coverGradient">
           <template x-if="profile.coverImageUrl">
-            <img :src="profile.coverImageUrl" alt="Cover Banner" class="absolute inset-0 w-full h-full object-cover">
+            <img :src="profile.coverImageUrl" alt="Cover Banner" class="absolute inset-0 w-full h-full object-cover object-center">
           </template>
-          <div class="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none"></div>
-          <div class="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-white/10 pointer-events-none"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none"></div>
+          <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
           <div class="flex items-center justify-end z-10">
             <button id="btn-ubah-cover" @click="coverUrlDraft = profile.coverImageUrl; editCoverOpen = true"
-              class="bg-white/95 hover:bg-white text-[#1E3A8A] text-[15px] font-semibold px-5 py-2.5 rounded-full shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
+              class="bg-white/90 hover:bg-white text-[#1E3A8A] text-[13px] font-semibold px-3.5 py-1.5 rounded-full shadow-sm backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer border border-white/60 hover:shadow-md"
               title="Ganti foto atau tema cover">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
                 <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -97,7 +96,7 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
 
         <div class="px-6 sm:px-8 pb-7">
           <div class="flex items-start">
-            <div class="relative z-10 -mt-[60px] sm:-mt-20 w-[120px] h-[120px] sm:w-40 sm:h-40 flex-shrink-0">
+            <div class="relative z-10 -mt-[56px] sm:-mt-[68px] w-[112px] h-[112px] sm:w-[136px] sm:h-[136px] flex-shrink-0">
               <div class="w-full h-full rounded-full border-4 border-white shadow-xl bg-gray-100 overflow-hidden ring-2 ring-blue-100">
                 <template x-if="profile.avatarUrl && !avatarBroken">
                   <img :alt="profile.name" class="w-full h-full object-cover" :src="profile.avatarUrl" @error="avatarBroken = true">
@@ -107,9 +106,9 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                 </template>
               </div>
               <button id="btn-ganti-foto-profil" aria-label="Ganti Foto Profil" @click="avatarUrlDraft = profile.avatarUrl; avatarModalOpen = true"
-                class="absolute bottom-1 right-1 z-20 w-9 h-9 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center shadow-md border-2 border-white hover:bg-[#1D4ED8] transition-all cursor-pointer hover:scale-110"
+                class="absolute bottom-1 right-1 z-20 w-8 h-8 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center shadow-md border-2 border-white hover:bg-[#1D4ED8] transition-all cursor-pointer hover:scale-110"
                 title="Ganti Foto Profil">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
                   ${CAMERA_PATH}
                   <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
                 </svg>
@@ -128,14 +127,6 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                   class="bg-[#1E3A8A] hover:bg-[#152A66] text-white px-6 py-2.5 rounded-full text-[15px] font-semibold flex items-center gap-2 transition-colors shadow-sm cursor-pointer" title="Edit Profil">
                   ${EDIT_ICON_16}
                   <span>Edit Profil</span>
-                </button>
-                <button id="btn-pratinjau-publik" @click="publicPreviewOpen = true"
-                  class="bg-[#1E3A8A] hover:bg-[#152A66] text-white px-5 py-2.5 rounded-full text-[15px] font-semibold flex items-center gap-2 transition-colors shadow-sm cursor-pointer" title="Lihat Pratinjau Publik">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Pratinjau</span>
                 </button>
               </div>
             </div>

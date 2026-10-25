@@ -16,7 +16,12 @@
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/profil/page.tsx -->
 <main data-route="profil">
   <div x-data="profilPage" class="w-full space-y-6 pb-12 antialiased" @click.window="shareDropdownId = null">
-    <div data-partial="profile-top" data-variant="profil"></div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- ======================================================
+          KOLOM UTAMA (KIRI/TENGAH)
+      ====================================================== -->
+      <div class="lg:col-span-8 space-y-6">
+        <div data-partial="profile-top" data-variant="profil"></div>
 
     <!-- ======================================================
         SECTION 3: ACTIVITY / POSTINGAN (CARD KETIGA)
@@ -215,14 +220,6 @@
                   </div>
                 </template>
               </div>
-
-              <button :id="'btn-save-' + post.id" @click="handleToggleSave(post.id)"
-                class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" :class="post.isSaved ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="post.isSaved ? '#1E3A8A' : 'none'">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <span x-text="post.isSaved ? 'Tersimpan' : 'Simpan'"></span>
-              </button>
             </div>
 
             <!-- Footer Analytics -->
@@ -233,12 +230,12 @@
                 </svg>
                 <span x-text="post.impressions + ' impresi dilihat'"></span>
               </div>
-              <button class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer">
+              <a :href="'analitik-postingan.html?id=' + post.id" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer" title="Lihat analitik postingan ini">
                 <span>Lihat analitik</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
                   <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-              </button>
+              </a>
             </div>
 
             <!-- ── DROPDOWN KOMENTAR ── -->
@@ -343,6 +340,173 @@
         </template>
       </div>
     </div>
+
+        <div data-partial="profile-bottom" data-variant="profil"></div>
+      </div>
+
+      <!-- ======================================================
+          KOLOM SAMPING (KANAN) - GAMBAR 1 & GAMBAR 2
+      ====================================================== -->
+      <div class="lg:col-span-4 space-y-6 self-stretch relative">
+
+        <!-- ── CARD 1: LOWONGAN TERBARU DARI MITRA ── -->
+        <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-[16px] font-semibold text-gray-900 tracking-tight">Lowongan Terbaru</h3>
+              <p class="text-[13px] text-gray-500 font-normal mt-0.5">Dari mitra Bengkel Koding</p>
+            </div>
+            <a href="lowongan" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer flex-shrink-0">Lihat semua</a>
+          </div>
+          <div class="mt-4 space-y-0 divide-y divide-gray-100">
+            <!-- Job 1 -->
+            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
+              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
+                <img src="https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?w=80&auto=format&fit=crop&q=80" alt="Mandiri" class="w-full h-full object-cover">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Frontend Web Developer</p>
+                <p class="text-[13px] text-gray-500 mt-0.5 truncate">PT Bank Mandiri • Jakarta Pusat</p>
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Hybrid</span>
+                  <span class="text-[13px] text-gray-500 font-normal">• 1 hari lalu</span>
+                </div>
+              </div>
+            </a>
+            <!-- Job 2 -->
+            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
+              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80&auto=format&fit=crop&q=80" alt="GoTo" class="w-full h-full object-cover">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Junior AI & ML Engineer</p>
+                <p class="text-[13px] text-gray-500 mt-0.5 truncate">GoTo Group • Jakarta Selatan</p>
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Gabungan</span>
+                  <span class="text-[13px] text-gray-500 font-normal">• 3 hari lalu</span>
+                </div>
+              </div>
+            </a>
+            <!-- Job 3 -->
+            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
+              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
+                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=80&auto=format&fit=crop&q=80" alt="Traveloka" class="w-full h-full object-cover">
+              </div>
+              <div class="min-w-0 flex-1">
+                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Product Data Analyst</p>
+                <p class="text-[13px] text-gray-500 mt-0.5 truncate">Traveloka • Tangerang Selatan</p>
+                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Di Kantor</span>
+                  <span class="text-[13px] text-gray-500 font-normal">• 1 minggu lalu</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+
+
+        <!-- ── CARD 3: ORANG YANG MUNGKIN ANDA KENAL (Gambar 2 - Sticky Pinned Saat Scroll) ── -->
+        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/90 shadow-sm p-6">
+          <div>
+            <h3 class="text-[16px] font-semibold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
+            <p class="text-[13px] text-gray-500 font-normal mt-0.5">Dari sekolah Anda</p>
+          </div>
+
+          <div class="mt-4 space-y-4 divide-y divide-gray-100">
+            <template x-for="person in recommendedPeople" :key="person.id">
+              <div class="pt-4 first:pt-0 flex items-start gap-3.5">
+                <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 flex-shrink-0 mt-0.5">
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1 flex-wrap">
+                    <h4 class="text-[15px] font-semibold text-gray-900 leading-snug hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="person.name"></h4>
+                    <template x-if="person.verified">
+                      <svg class="w-4 h-4 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                      </svg>
+                    </template>
+                    <span class="text-[13px] text-gray-500 font-normal"> • Ke-2</span>
+                  </div>
+                  <p class="text-[13px] text-gray-600 leading-snug line-clamp-2 mt-0.5" x-text="person.headline"></p>
+                  <button type="button" @click="toggleConnect(person.id)"
+                    class="mt-2.5 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border transition-all duration-150 text-[13px] font-semibold cursor-pointer"
+                    :class="connectedPeopleIds.includes(person.id)
+                      ? 'bg-blue-50 text-[#1E3A8A] border-[#1E3A8A]'
+                      : 'border-gray-400 hover:border-gray-800 text-gray-700 hover:text-gray-900 hover:bg-gray-50'">
+                    <template x-if="connectedPeopleIds.includes(person.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Terkirim</span>
+                      </span>
+                    </template>
+                    <template x-if="!connectedPeopleIds.includes(person.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        <span>Hubungkan</span>
+                      </span>
+                    </template>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Modals Edit Bahasa & URL Publik -->
+    <template x-if="editLanguageModalOpen">
+      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editLanguageModalOpen = false">
+        <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-[17px] font-bold text-gray-900">Ubah Bahasa Profil</h3>
+            <button type="button" @click="editLanguageModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-[14px] font-semibold text-gray-700 mb-2">Pilih Bahasa</label>
+              <select x-model="tempLanguage" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 bg-white">
+                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                <option value="English (US)">English (US)</option>
+              </select>
+            </div>
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+              <button type="button" @click="editLanguageModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+              <button type="button" @click="saveLanguage()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="editPublicUrlModalOpen">
+      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editPublicUrlModalOpen = false">
+        <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-[17px] font-bold text-gray-900">Ubah Profil Publik dan URL</h3>
+            <button type="button" @click="editPublicUrlModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="p-6 space-y-4">
+            <div>
+              <label class="block text-[14px] font-semibold text-gray-700 mb-1.5">Kustomisasi URL Profil Anda</label>
+              <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 bg-white">
+                <span class="px-3 py-2.5 text-sm text-gray-400 bg-gray-50 border-r border-gray-200 select-none">https://</span>
+                <input type="text" x-model="tempPublicUrl" class="w-full px-3 py-2.5 text-[14px] text-gray-900 focus:outline-none">
+              </div>
+              <p class="text-[12px] text-gray-500 mt-1.5">Bagikan URL unik ini di CV, portofolio, atau media sosial Anda.</p>
+            </div>
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+              <button type="button" @click="editPublicUrlModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+              <button type="button" @click="savePublicUrl()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
 
     <div data-partial="profile-modals"></div>
     <div data-partial="modal-add-cert"></div>
@@ -603,7 +767,7 @@
     </template>
 
     <div data-partial="profile-preview"></div>
-    <div data-partial="profile-bottom" data-variant="profil"></div>
+    
   </div>
 </main>
 
@@ -612,6 +776,65 @@
   document.addEventListener("alpine:init", () => {
     Alpine.data("profilPage", () =>
       profilePageData("profil", {
+        profileLanguage: 'Bahasa Indonesia',
+        profilePublicUrl: 'www.bengkelkoding.com/alumni/aisharah',
+        tempLanguage: 'Bahasa Indonesia',
+        tempPublicUrl: 'www.bengkelkoding.com/alumni/aisharah',
+        editLanguageModalOpen: false,
+        editPublicUrlModalOpen: false,
+        connectedPeopleIds: [],
+        toggleConnect(id) {
+          if (this.connectedPeopleIds.includes(id)) {
+            this.connectedPeopleIds = this.connectedPeopleIds.filter(i => i !== id);
+          } else {
+            this.connectedPeopleIds.push(id);
+          }
+        },
+        saveLanguage() {
+          this.profileLanguage = this.tempLanguage;
+          this.editLanguageModalOpen = false;
+        },
+        savePublicUrl() {
+          this.profilePublicUrl = this.tempPublicUrl;
+          this.editPublicUrlModalOpen = false;
+        },
+        recommendedPeople: [
+          {
+            id: 1,
+            name: 'Muhammad Rizal Pratama',
+            avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80',
+            headline: 'Mobile Developer | SwiftUI • Kotlin • Flutter |  Apple Developer Academy',
+            verified: false,
+          },
+          {
+            id: 2,
+            name: 'Azmi Khofipah',
+            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
+            headline: 'Informatics Engineering Student at Universitas Dian Nuswantoro',
+            verified: false,
+          },
+          {
+            id: 3,
+            name: 'Chandra Lukita Buana',
+            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+            headline: 'PhD Researcher @ UTeM | Explainable AI (XAI)',
+            verified: true,
+          },
+          {
+            id: 4,
+            name: 'Tri Yuliana',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+            headline: 'Frontend Developer Intern @ Firstudio | Frontend Developer & UI Enthusiast',
+            verified: false,
+          },
+          {
+            id: 5,
+            name: 'Muhammad Rakha Keanura',
+            avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+            headline: 'Informatics Engineering Student at Universitas Dian Nuswantoro',
+            verified: false,
+          },
+        ],
         postModalOpen: false,
         editingPost: null,
         pmContent: "",
