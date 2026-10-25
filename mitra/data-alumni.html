@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
   <script src="assets/js/mitra.js"></script>
   <script src="../assets/js/main.js"></script>
   <style>
@@ -191,40 +192,15 @@ function getStatusPekerjaan(a) {
 }
 
 function getStatusPekerjaanBadge(status) {
-  if (status === 'Sudah Bekerja') {
-    return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-      <i data-lucide="briefcase" class="w-3 h-3 text-emerald-600"></i>
-      <span>Sudah Bekerja</span>
-    </span>`;
-  }
-  return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
-    <i data-lucide="search" class="w-3 h-3 text-amber-600"></i>
-    <span>Mencari Pekerjaan</span>
-  </span>`;
+  return badge(status);
 }
 
 function getJenisPekerjaanBadge(jenis) {
-  if (jenis === 'Full Time') {
-    return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-      <i data-lucide="briefcase" class="w-3 h-3"></i> Full Time
-    </span>`;
-  }
-  return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-    <i data-lucide="clock" class="w-3 h-3"></i> Part Time
-  </span>`;
+  return badge(jenis);
 }
 
 function getGenderBadge(gender) {
-  if (gender === 'Laki-laki') {
-    return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-primary2 border border-blue-200">
-      <i data-lucide="user" class="w-3 h-3"></i> Laki-laki
-    </span>`;
-  }
-  return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-pink-50 text-pink-700 border border-pink-200">
-    <i data-lucide="user" class="w-3 h-3"></i> Perempuan
-  </span>`;
+  return badge(gender);
 }
 
 function renderGrid(list) {

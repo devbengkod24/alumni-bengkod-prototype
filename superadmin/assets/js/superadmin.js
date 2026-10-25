@@ -132,22 +132,45 @@ const SUPERADMIN_DEFAULT = {
 
 const SUPERADMIN = {
   user: SUPERADMIN_DEFAULT.user,
-  koordinator: lsGet('superadmin-koordinator', SUPERADMIN_DEFAULT.koordinator),
+  get koordinator() {
+    return window.BengkodStore ? window.BengkodStore.getKoordinator() : lsGet('superadmin-koordinator', SUPERADMIN_DEFAULT.koordinator);
+  },
+  set koordinator(val) {
+    if (window.BengkodStore) window.BengkodStore.saveKoordinator(val);
+    lsSet('superadmin-koordinator', val);
+  },
   kandidatDosen: SUPERADMIN_DEFAULT.kandidatDosen,
-  alumni: lsGet('superadmin-alumni', SUPERADMIN_DEFAULT.alumni),
-  mitra: lsGet('superadmin-mitra', SUPERADMIN_DEFAULT.mitra),
-  activityLogs: lsGet('superadmin-activity-logs', SUPERADMIN_DEFAULT.activityLogs),
+  get alumni() {
+    return window.BengkodStore ? window.BengkodStore.getAlumni() : lsGet('superadmin-alumni', SUPERADMIN_DEFAULT.alumni);
+  },
+  set alumni(val) {
+    if (window.BengkodStore) window.BengkodStore.saveAlumni(val);
+    lsSet('superadmin-alumni', val);
+  },
+  get mitra() {
+    return window.BengkodStore ? window.BengkodStore.getMitra() : lsGet('superadmin-mitra', SUPERADMIN_DEFAULT.mitra);
+  },
+  set mitra(val) {
+    if (window.BengkodStore) window.BengkodStore.saveMitra(val);
+    lsSet('superadmin-mitra', val);
+  },
+  get activityLogs() {
+    return window.BengkodStore ? window.BengkodStore.getLogs() : lsGet('superadmin-activity-logs', SUPERADMIN_DEFAULT.activityLogs);
+  },
 };
 
 function saveKoordinator() {
+  if (window.BengkodStore) window.BengkodStore.saveKoordinator(SUPERADMIN.koordinator);
   lsSet('superadmin-koordinator', SUPERADMIN.koordinator);
 }
 
 function saveAlumni() {
+  if (window.BengkodStore) window.BengkodStore.saveAlumni(SUPERADMIN.alumni);
   lsSet('superadmin-alumni', SUPERADMIN.alumni);
 }
 
 function saveMitra() {
+  if (window.BengkodStore) window.BengkodStore.saveMitra(SUPERADMIN.mitra);
   lsSet('superadmin-mitra', SUPERADMIN.mitra);
 }
 
@@ -156,50 +179,54 @@ function saveActivityLogs() {
 }
 
 function addActivityLog(action, detail, role = 'SuperAdmin', user = 'Super Admin') {
-  const now = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const waktu = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  const newLog = {
-    id: Date.now(),
-    waktu,
-    user,
-    role,
-    action,
-    detail,
-    ip: '10.14.0.1',
-    status: 'Sukses'
-  };
-  SUPERADMIN.activityLogs.unshift(newLog);
-  saveActivityLogs();
+  if (window.BengkodStore) {
+    window.BengkodStore.logActivity(role, action, detail);
+  } else {
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const waktu = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+    const newLog = {
+      id: Date.now(),
+      waktu,
+      user,
+      role,
+      action,
+      detail,
+      ip: '10.14.0.1',
+      status: 'Sukses'
+    };
+    SUPERADMIN.activityLogs.unshift(newLog);
+    saveActivityLogs();
+  }
 }
 
-// ===================== HELPERS =====================
+// ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
 const BADGE = {
   green: 'bg-green3 text-green1 border-green2/30',
   yellow: 'bg-yellow3 text-yellow1 border-yellow2/30',
   red: 'bg-red3 text-red1 border-red2/30',
   blue: 'bg-primary5 text-primary1 border-primary4/50',
   purple: 'bg-purple-100 text-purple-700 border-purple-200',
+  gray: 'bg-neutral5 text-neutral2 border-neutral4',
 };
 const BADGE_COLOR = {
-  'Aktif': 'green',
-  'Terverifikasi': 'green',
-  'Sukses': 'green',
-  'Menunggu Undangan': 'yellow',
-  'Belum Verifikasi': 'yellow',
-  'Menunggu': 'yellow',
-  'Nonaktif': 'red',
-  'Ditolak': 'red',
-  'Gagal': 'red',
-  'SuperAdmin': 'purple',
-  'Koordinator': 'blue',
-  'Mitra': 'green',
-  'Alumni': 'yellow',
+  'Aktif': 'green', 'Terverifikasi': 'green', 'Terbit': 'green', 'approved': 'green', 'Sukses': 'green',
+  'Sudah Bekerja': 'green', 'Bekerja Penuh Waktu': 'green', 'Bekerja Full Time': 'green', 'Wirausaha': 'green',
+  'Penuh Waktu': 'green', 'Full Time': 'green', 'Mitra': 'green', 'Mengunduh CV (PDF)': 'green',
+  'Belum Verifikasi': 'yellow', 'Menunggu Persetujuan': 'yellow', 'Menunggu Undangan': 'yellow', 'Menunggu': 'yellow',
+  'pending': 'yellow', 'Draft': 'gray', 'Mencari Pekerjaan': 'yellow', 'Belum Memungkinkan Bekerja': 'yellow',
+  'Bekerja Paruh Waktu': 'yellow', 'Bekerja Part Time': 'yellow', 'Paruh Waktu': 'yellow', 'Part Time': 'yellow',
+  'Belum Bekerja': 'yellow', 'Alumni': 'yellow',
+  'Ditolak': 'red', 'Nonaktif': 'red', 'rejected': 'red', 'Gagal': 'red', 'Kedaluwarsa': 'red',
+  'Melanjutkan Pendidikan': 'blue', 'Menikah / Mengurus Keluarga': 'blue', 'Magang': 'blue',
+  'Jarak Jauh': 'blue', 'Remote': 'blue', 'Koordinator': 'blue', 'Laki-laki': 'blue', 'Perempuan': 'blue',
+  'SuperAdmin': 'purple', 'Melihat CV': 'blue',
 };
 
 function badge(status) {
-  const cls = BADGE[BADGE_COLOR[status] || 'blue'];
-  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${status}</span>`;
+  const s = status || '-';
+  const cls = BADGE[BADGE_COLOR[s] || 'blue'];
+  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${s}</span>`;
 }
 
 function esc(s) {
@@ -240,6 +267,22 @@ const SUPERADMIN_NAV = [
   },
   { href: 'log-aktivitas.html', icon: 'history', label: 'Log Aktivitas', match: 'log-aktivitas.html' },
 ];
+
+// Submit Pengaturan Profil SuperAdmin
+window.handleSaProfileSubmit = function(e) {
+  e.preventDefault();
+  const nama = document.getElementById('sa-p-nama').value.trim();
+  const email = document.getElementById('sa-p-email').value.trim();
+  if (!nama || !email) return;
+
+  SUPERADMIN.user.name = nama;
+  SUPERADMIN.user.email = email;
+  lsSet('superadmin-user', SUPERADMIN.user);
+
+  closeModal('modal-pengaturan-profil-sa');
+  showToast('Profil SuperAdmin berhasil diperbarui!', 'success');
+  setTimeout(() => location.reload(), 300);
+};
 
 // ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -314,6 +357,8 @@ document.addEventListener('DOMContentLoaded', () => {
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
+  const saInitials = (SUPERADMIN.user.name || 'Super Admin').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA';
+
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
   wrapper.className = 'lg:ml-64 min-h-screen flex flex-col transition-all duration-300';
@@ -341,16 +386,66 @@ document.addEventListener('DOMContentLoaded', () => {
         </nav>
       </div>
 
-      <!-- Right Header: Profil User -->
+      <!-- Right Header: Profil User Interaktif (Sama persis dengan Alumni) -->
       <div class="flex items-center gap-3 shrink-0">
-        <!-- Profil Avatar & Identitas -->
-        <div class="flex items-center gap-2.5">
-          <div class="text-right hidden sm:block">
-            <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(SUPERADMIN.user.name)}</div>
-            <div class="text-[11px] text-neutral3">Super Administrator</div>
-          </div>
-          <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200">
-            SA
+        <div class="relative flex items-center" id="profile-dropdown-wrapper">
+          <button
+            type="button"
+            id="profile-menu-btn"
+            class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+            aria-expanded="false"
+            aria-label="Menu Pengguna"
+          >
+            <div class="text-right hidden sm:block">
+              <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors">${esc(SUPERADMIN.user.name)}</div>
+              <div class="text-[11px] text-neutral3">Super Administrator</div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200 shadow-xs">
+              ${saInitials}
+            </div>
+          </button>
+
+          <!-- Dropdown Popover Profil (100% Identik dengan Alumni) -->
+          <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
+            <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
+                  ${saInitials}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-semibold text-white truncate">${esc(SUPERADMIN.user.name)}</p>
+                  <p class="text-[11px] text-white/80 truncate">${esc(SUPERADMIN.user.email)}</p>
+                </div>
+              </div>
+            </div>
+            <ul class="py-1.5 text-sm text-neutral1">
+              <li>
+                <button type="button" onclick="openModal('modal-pengaturan-profil-sa')" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="3" />
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 1 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                  </span>
+                  <span>Pengaturan Profil</span>
+                </button>
+              </li>
+            </ul>
+            <div class="border-t border-neutral4/70"></div>
+            <ul class="py-1.5">
+              <li>
+                <button type="button" onclick="window.location.href='../index.html'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </span>
+                  <span>Keluar</span>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -360,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
   main.before(wrapper);
   wrapper.appendChild(main);
 
-  // Modal konfirmasi bersama
+  // Modal konfirmasi bersama & Modal Pengaturan Profil SuperAdmin
   document.body.insertAdjacentHTML('beforeend', `
     <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
       <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
@@ -371,6 +466,42 @@ document.addEventListener('DOMContentLoaded', () => {
           <button id="confirm-ok"></button>
         </div>
       </div>
+    </div>
+
+    <!-- Modal Pengaturan Profil SuperAdmin -->
+    <div id="modal-pengaturan-profil-sa" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 elevation5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-sa-profile-title">
+        <div class="flex items-center justify-between pb-3 border-b border-neutral4 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+              <i data-lucide="shield-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 id="modal-sa-profile-title" class="font-bold text-base text-neutral1">Pengaturan Akun SuperAdmin</h3>
+              <p class="text-xs text-neutral3">Kelola kredensial akun administrator utama</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeModal('modal-pengaturan-profil-sa')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="form-pengaturan-profil-sa" onsubmit="handleSaProfileSubmit(event)" class="space-y-4 text-xs">
+          <div>
+            <label for="sa-p-nama" class="label text-xs">Nama Administrator</label>
+            <input type="text" id="sa-p-nama" required class="input" value="${esc(SUPERADMIN.user.name)}">
+          </div>
+          <div>
+            <label for="sa-p-email" class="label text-xs">Email Administrator</label>
+            <input type="email" id="sa-p-email" required class="input" value="${esc(SUPERADMIN.user.email)}">
+          </div>
+          <div>
+            <label for="sa-p-password" class="label text-xs">Password Baru (Opsional)</label>
+            <input type="password" id="sa-p-password" placeholder="Biarkan kosong jika tidak diubah" class="input">
+          </div>
+          <div class="flex justify-end gap-2 pt-3 border-t border-neutral4">
+            <button type="button" onclick="closeModal('modal-pengaturan-profil-sa')" class="btn-outline text-xs px-4 py-2">Batal</button>
+            <button type="submit" class="btn-primary text-xs px-5 py-2 font-semibold">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
     </div>`);
 
   document.getElementById('confirm-ok').addEventListener('click', () => {
@@ -378,6 +509,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pendingConfirm) pendingConfirm();
     pendingConfirm = null;
   });
+
+  // Dropdown toggle & click outside (Sama dengan Alumni)
+  const profileBtn = document.getElementById('profile-menu-btn');
+  const profileDropdown = document.getElementById('dropdown-profile-menu');
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !profileDropdown.classList.contains('hidden');
+      profileDropdown.classList.toggle('hidden', isOpen);
+      profileBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !profileDropdown.classList.contains('hidden')) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   // Toggle sidebar desktop collapse & mobile drawer (100% Mengikuti Aside.tsx lms-bengkod-web)
   const sidebar = document.getElementById('sidebar');

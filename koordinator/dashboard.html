@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
@@ -40,7 +41,7 @@
       </div>
       <div class="relative z-10 flex-1 min-w-0">
         <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #C4B5FD;">TOTAL ALUMNI</p>
-        <p class="text-[22px] font-bold text-white leading-none">330</p>
+        <p id="stat-koor-total-alumni" class="text-[22px] font-bold text-white leading-none">-</p>
         <p class="text-[10px] mt-1" style="color: #C4B5FD;">Terdaftar aktif</p>
       </div>
     </a>
@@ -53,9 +54,9 @@
         <i data-lucide="graduation-cap" class="w-5 h-5"></i>
       </div>
       <div class="relative z-10 flex-1 min-w-0">
-        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #99F6E4;">ALUMNI TERDAFTAR</p>
-        <p class="text-[22px] font-bold text-white leading-none">311</p>
-        <p class="text-[10px] mt-1" style="color: #99F6E4;">94.2% respons tracer</p>
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #99F6E4;">ALUMNI TERVERIFIKASI</p>
+        <p id="stat-koor-terdaftar" class="text-[22px] font-bold text-white leading-none">-</p>
+        <p class="text-[10px] mt-1" style="color: #99F6E4;">Profil lengkap &amp; aktif</p>
       </div>
     </a>
 
@@ -68,8 +69,8 @@
       </div>
       <div class="relative z-10 flex-1 min-w-0">
         <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #FED7AA;">LOWONGAN AKTIF</p>
-        <p class="text-[22px] font-bold text-white leading-none">24</p>
-        <p class="text-[10px] mt-1" style="color: #FED7AA;">16 Loker · 8 Magang</p>
+        <p id="stat-koor-loker-aktif" class="text-[22px] font-bold text-white leading-none">-</p>
+        <p id="stat-koor-loker-sub" class="text-[10px] mt-1" style="color: #FED7AA;">Terverifikasi tayang</p>
       </div>
     </a>
 
@@ -82,8 +83,8 @@
       </div>
       <div class="relative z-10 flex-1 min-w-0">
         <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #FECDD3;">PENGUSULAN MITRA</p>
-        <p class="text-[22px] font-bold text-white leading-none">5</p>
-        <p class="text-[10px] mt-1" style="color: #FECDD3;">Perlu persetujuan</p>
+        <p id="stat-koor-pending" class="text-[22px] font-bold text-white leading-none">-</p>
+        <p class="text-[10px] mt-1" style="color: #FECDD3;">Perlu verifikasi</p>
       </div>
     </a>
   </div>
@@ -186,13 +187,41 @@
 </main>
 
 <script>
-  // 1. Tanggal Banner Resmi
+  // 1. Tanggal & Greeting Banner Resmi
   const today = new Date();
   const dateFormatted = today.toLocaleDateString('id-ID', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   }).toUpperCase();
   const dateBanner = document.getElementById('current-date-banner');
   if (dateBanner) dateBanner.textContent = dateFormatted;
+
+  const currentKoor = KOOR.user;
+  const greetHeading = document.querySelector('h1.text-xl');
+  if (greetHeading && currentKoor && currentKoor.name) {
+    greetHeading.textContent = `Halo, ${currentKoor.name}! 👋`;
+  }
+
+  // Update Dinamis Stat Cards dari SSOT Store
+  const alumniList = KOOR.alumni || [];
+  const lokerList = KOOR.lowongan || [];
+  const lokerAktif = lokerList.filter(l => l.status === 'Terverifikasi' || l.status === 'Aktif');
+  const lokerPending = lokerList.filter(l => l.status === 'Belum Verifikasi' || l.status === 'Menunggu Persetujuan');
+
+  const elTotal = document.getElementById('stat-koor-total-alumni');
+  const elTerdaftar = document.getElementById('stat-koor-terdaftar');
+  const elAktif = document.getElementById('stat-koor-loker-aktif');
+  const elPending = document.getElementById('stat-koor-pending');
+  const elSubAktif = document.getElementById('stat-koor-loker-sub');
+
+  if (elTotal) elTotal.textContent = alumniList.length;
+  if (elTerdaftar) elTerdaftar.textContent = alumniList.filter(a => a.status_akun === 'Aktif' || a.status_karir).length;
+  if (elAktif) elAktif.textContent = lokerAktif.length;
+  if (elPending) elPending.textContent = lokerPending.length;
+  if (elSubAktif) {
+    const kerja = lokerAktif.filter(l => (l.kategori_lowongan || l.kategori) !== 'Magang').length;
+    const magang = lokerAktif.filter(l => (l.kategori_lowongan || l.kategori) === 'Magang').length;
+    elSubAktif.textContent = `${kerja} Loker · ${magang} Magang`;
+  }
 
   // 2. Data Riil Konten Terbaru Diambil dari KOOR.lowongan & KOOR.alumni
   let currentContentTab = 'lowongan';

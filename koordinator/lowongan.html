@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
@@ -235,7 +236,11 @@
     closeModal('detail-modal');
     confirmAction({ title: 'Setujui lowongan?', message: `"${l.posisi}" dari ${l.nama_perusahaan} akan tampil untuk seluruh alumni.`, okLabel: 'Setujui' }, () => {
       l.status = 'Terverifikasi';
-      audit('Approve lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+      if (window.BengkodStore) {
+        window.BengkodStore.updateLowonganStatus(id, 'Terverifikasi');
+      } else {
+        audit('Approve lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+      }
       render();
       showToast('Lowongan disetujui dan dipublikasikan.');
     });
@@ -253,8 +258,13 @@
   document.getElementById('tolak-form').addEventListener('submit', e => {
     e.preventDefault();
     const l = find(tolakId);
-    Object.assign(l, { status: 'Ditolak', keterangan: document.getElementById('tolak-ket').value.trim() });
-    audit('Tolak lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+    const ket = document.getElementById('tolak-ket').value.trim();
+    Object.assign(l, { status: 'Ditolak', keterangan: ket, alasan_penolakan: ket });
+    if (window.BengkodStore) {
+      window.BengkodStore.updateLowonganStatus(tolakId, 'Ditolak', ket);
+    } else {
+      audit('Tolak lowongan', `${l.posisi} (${l.nama_perusahaan})`);
+    }
     closeModal('tolak-modal');
     render();
     showToast('Pengajuan ditolak, catatan dikirim ke mitra.');
