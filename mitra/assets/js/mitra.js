@@ -218,32 +218,97 @@ const MITRA_DEFAULT = {
   ],
 };
 
+function getMitraLowongan() {
+  if (window.BengkodStore) {
+    const all = window.BengkodStore.getLowongan();
+    return all.filter(l => l.nama_perusahaan === 'PT Solusi Digital Jateng' || l.oleh === 'mitra');
+  }
+  return lsGet('mitra-lowongan', MITRA_DEFAULT.lowongan);
+}
+
 const MITRA = {
   profil: lsGet('mitra-profil', MITRA_DEFAULT.profil),
-  lowongan: lsGet('mitra-lowongan', MITRA_DEFAULT.lowongan),
-  alumni: MITRA_DEFAULT.alumni,
-  pengumuman: MITRA_DEFAULT.pengumuman,
-  forum: lsGet('mitra-forum', MITRA_DEFAULT.forum),
+  get lowongan() {
+    return getMitraLowongan();
+  },
+  set lowongan(val) {
+    lsSet('mitra-lowongan', val);
+    if (window.BengkodStore) {
+      const all = window.BengkodStore.getLowongan();
+      val.forEach(myL => {
+        const idx = all.findIndex(x => x.id === myL.id);
+        if (idx >= 0) all[idx] = Object.assign(all[idx], myL);
+        else all.unshift(myL);
+      });
+      window.BengkodStore.saveLowongan(all);
+    }
+  },
+  get alumni() {
+    return window.BengkodStore ? window.BengkodStore.getAlumni() : MITRA_DEFAULT.alumni;
+  },
+  get pengumuman() {
+    return window.BengkodStore ? window.BengkodStore.getPengumuman('Mitra') : MITRA_DEFAULT.pengumuman;
+  },
+  get forum() {
+    return window.BengkodStore ? window.BengkodStore.getForum() : lsGet('mitra-forum', MITRA_DEFAULT.forum);
+  },
+  set forum(val) {
+    if (window.BengkodStore) window.BengkodStore.saveForum(val);
+    lsSet('mitra-forum', val);
+  }
 };
 
 function saveProfil() { lsSet('mitra-profil', MITRA.profil); }
-function saveLowongan() { lsSet('mitra-lowongan', MITRA.lowongan); }
-function saveForum() { lsSet('mitra-forum', MITRA.forum); }
+function saveLowongan() {
+  if (window.BengkodStore) {
+    const all = window.BengkodStore.getLowongan();
+    const myItems = getMitraLowongan();
+    myItems.forEach(myL => {
+      const idx = all.findIndex(x => x.id === myL.id);
+      if (idx >= 0) all[idx] = Object.assign(all[idx], myL);
+      else all.unshift(myL);
+    });
+    window.BengkodStore.saveLowongan(all);
+  }
+  lsSet('mitra-lowongan', getMitraLowongan());
+}
+function saveForum(val) {
+  if (window.BengkodStore) {
+    window.BengkodStore.saveForum(val || MITRA.forum);
+  } else {
+    lsSet('mitra-forum', val || MITRA.forum);
+  }
+}
 
-// ===================== HELPERS =====================
-const BADGE_MAP = {
-  'Aktif': 'bg-green3 text-green1 border-green2/30',
-  'Menunggu Persetujuan': 'bg-yellow3 text-yellow1 border-yellow2/30',
-  'Draft': 'bg-neutral5 text-neutral2 border-neutral4',
-  'Ditolak': 'bg-red3 text-red1 border-red2/30',
-  'Kedaluwarsa': 'bg-red3 text-red1 border-red2/30',
+// ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
+const BADGE_THEMES = {
+  green: 'bg-green3 text-green1 border-green2/30',
+  yellow: 'bg-yellow3 text-yellow1 border-yellow2/30',
+  red: 'bg-red3 text-red1 border-red2/30',
+  blue: 'bg-primary5 text-primary1 border-primary4/50',
+  purple: 'bg-purple-100 text-purple-700 border-purple-200',
+  gray: 'bg-neutral5 text-neutral2 border-neutral4',
 };
-const BADGE_ICON = { 'Aktif': '●', 'Menunggu Persetujuan': '◐', 'Draft': '○', 'Ditolak': '✕', 'Kedaluwarsa': '⌛' };
+
+const BADGE_COLOR_MAP = {
+  'Aktif': 'green', 'Terverifikasi': 'green', 'Terbit': 'green', 'approved': 'green', 'Sukses': 'green',
+  'Sudah Bekerja': 'green', 'Bekerja Penuh Waktu': 'green', 'Bekerja Full Time': 'green', 'Wirausaha': 'green',
+  'Penuh Waktu': 'green', 'Full Time': 'green', 'Mitra': 'green', 'Mengunduh CV (PDF)': 'green',
+  'Belum Verifikasi': 'yellow', 'Menunggu Persetujuan': 'yellow', 'Menunggu Undangan': 'yellow', 'Menunggu': 'yellow',
+  'pending': 'yellow', 'Draft': 'gray', 'Mencari Pekerjaan': 'yellow', 'Belum Memungkinkan Bekerja': 'yellow',
+  'Bekerja Paruh Waktu': 'yellow', 'Bekerja Part Time': 'yellow', 'Paruh Waktu': 'yellow', 'Part Time': 'yellow',
+  'Belum Bekerja': 'yellow', 'Alumni': 'yellow',
+  'Ditolak': 'red', 'Nonaktif': 'red', 'rejected': 'red', 'Gagal': 'red', 'Kedaluwarsa': 'red',
+  'Melanjutkan Pendidikan': 'blue', 'Menikah / Mengurus Keluarga': 'blue', 'Magang': 'blue',
+  'Jarak Jauh': 'blue', 'Remote': 'blue', 'Koordinator': 'blue', 'Laki-laki': 'blue', 'Perempuan': 'blue',
+  'SuperAdmin': 'purple', 'Melihat CV': 'blue',
+};
 
 function badge(status) {
-  const cls = BADGE_MAP[status] || 'bg-primary5 text-primary1 border-primary4/50';
-  const icon = BADGE_ICON[status] || '●';
-  return `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}"><span>${icon}</span>${status}</span>`;
+  const s = status || '-';
+  const theme = BADGE_COLOR_MAP[s] || 'blue';
+  const cls = BADGE_THEMES[theme] || BADGE_THEMES.blue;
+  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${s}</span>`;
 }
 
 function esc(s) {
@@ -434,16 +499,66 @@ document.addEventListener('DOMContentLoaded', () => {
         </nav>
       </div>
 
-      <!-- Right Header: Profil User -->
+      <!-- Right Header: Profil User Interaktif (Sama persis dengan Alumni) -->
       <div class="flex items-center gap-3 shrink-0">
-        <!-- Profil Avatar & Identitas -->
-        <div class="flex items-center gap-2.5">
-          <div class="text-right hidden sm:block">
-            <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(MITRA.profil.nama_perusahaan)}</div>
-            <div class="text-[11px] text-neutral3">Mitra Perusahaan</div>
-          </div>
-          <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50">
-            ${initials}
+        <div class="relative flex items-center" id="profile-dropdown-wrapper">
+          <button
+            type="button"
+            id="profile-menu-btn"
+            class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+            aria-expanded="false"
+            aria-label="Menu Pengguna"
+          >
+            <div class="text-right hidden sm:block">
+              <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors">${esc(MITRA.profil.nama_perusahaan)}</div>
+              <div class="text-[11px] text-neutral3">Mitra Perusahaan</div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+              ${initials}
+            </div>
+          </button>
+
+          <!-- Dropdown Popover Profil (100% Identik dengan Alumni) -->
+          <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
+            <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
+                  ${initials}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-semibold text-white truncate">${esc(MITRA.profil.nama_perusahaan)}</p>
+                  <p class="text-[11px] text-white/80 truncate">${esc(MITRA.profil.email || 'hr@solusidigital.id')}</p>
+                </div>
+              </div>
+            </div>
+            <ul class="py-1.5 text-sm text-neutral1">
+              <li>
+                <a href="${_base}profil-perusahaan.html" class="flex items-center gap-2.5 px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="3" />
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 1 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                  </span>
+                  <span>Pengaturan Profil</span>
+                </a>
+              </li>
+            </ul>
+            <div class="border-t border-neutral4/70"></div>
+            <ul class="py-1.5">
+              <li>
+                <button type="button" onclick="window.location.href='${_rootBase}index.html'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </span>
+                  <span>Keluar</span>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -533,6 +648,30 @@ document.addEventListener('DOMContentLoaded', () => {
       if (chevron) chevron.classList.toggle('rotate-180', !hidden);
     });
   });
+
+  // Dropdown toggle & click outside (Sama dengan Alumni)
+  const profileBtn = document.getElementById('profile-menu-btn');
+  const profileDropdown = document.getElementById('dropdown-profile-menu');
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !profileDropdown.classList.contains('hidden');
+      profileDropdown.classList.toggle('hidden', isOpen);
+      profileBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !profileDropdown.classList.contains('hidden')) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   if (window.lucide) window.lucide.createIcons();
 });

@@ -43,8 +43,8 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 </style>`);
 
 // ===================== DATA DUMMY =====================
-const KOOR = {
-  user: { name: 'Dr. Ayu Lestari', email: 'koordinator@dinus.ac.id' },
+const KOOR_DEFAULT = {
+  user: { name: 'Dr. Ayu Lestari, M.Kom', email: 'ayu.lestari@dinus.ac.id' },
 
   nav: [
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
@@ -155,23 +155,82 @@ const KOOR = {
   ],
 };
 
-// ===================== HELPER =====================
+const KOOR = {
+  get user() {
+    if (window.BengkodStore) {
+      const active = window.BengkodStore.getActiveKoordinator();
+      if (active) return { name: active.nama, email: active.email, divisi: active.divisi };
+    }
+    return KOOR_DEFAULT.user;
+  },
+  nav: KOOR_DEFAULT.nav,
+  rekap: KOOR_DEFAULT.rekap,
+  get alumni() {
+    return window.BengkodStore ? window.BengkodStore.getAlumni() : KOOR_DEFAULT.alumni;
+  },
+  get mitra() {
+    return window.BengkodStore ? window.BengkodStore.getMitra() : KOOR_DEFAULT.mitra;
+  },
+  get lowongan() {
+    return window.BengkodStore ? window.BengkodStore.getLowongan() : KOOR_DEFAULT.lowongan;
+  },
+  set lowongan(val) {
+    if (window.BengkodStore) {
+      window.BengkodStore.saveLowongan(val);
+    }
+    KOOR_DEFAULT.lowongan = val;
+  },
+  get pengumuman() {
+    return window.BengkodStore ? window.BengkodStore.getPengumuman() : KOOR_DEFAULT.pengumuman;
+  },
+  set pengumuman(val) {
+    if (window.BengkodStore) {
+      window.BengkodStore.savePengumuman(val);
+    }
+    KOOR_DEFAULT.pengumuman = val;
+  },
+  users: KOOR_DEFAULT.users,
+  laporanForum: KOOR_DEFAULT.laporanForum,
+  get threads() {
+    return window.BengkodStore ? window.BengkodStore.getForum() : KOOR_DEFAULT.threads;
+  },
+  set threads(val) {
+    if (window.BengkodStore) {
+      window.BengkodStore.saveForum(val);
+    }
+    KOOR_DEFAULT.threads = val;
+  }
+};
+
+// ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
 const BADGE = {
   green: 'bg-green3 text-green1 border-green2/30',
   yellow: 'bg-yellow3 text-yellow1 border-yellow2/30',
   red: 'bg-red3 text-red1 border-red2/30',
   blue: 'bg-primary5 text-primary1 border-primary4/50',
+  purple: 'bg-purple-100 text-purple-700 border-purple-200',
+  gray: 'bg-neutral5 text-neutral2 border-neutral4',
 };
+
 const BADGE_COLOR = {
-  'Terverifikasi': 'green', 'Aktif': 'green', 'Terbit': 'green', 'approved': 'green', 'Bekerja Full Time': 'green',
-  'Belum Verifikasi': 'yellow', 'Draft': 'yellow', 'pending': 'yellow', 'Bekerja Part Time': 'yellow', 'Mencari Pekerjaan': 'yellow',
-  'Ditolak': 'red', 'Nonaktif': 'red', 'rejected': 'red',
+  'Aktif': 'green', 'Terverifikasi': 'green', 'Terbit': 'green', 'approved': 'green', 'Sukses': 'green',
+  'Sudah Bekerja': 'green', 'Bekerja Penuh Waktu': 'green', 'Bekerja Full Time': 'green', 'Wirausaha': 'green',
+  'Penuh Waktu': 'green', 'Full Time': 'green', 'Mitra': 'green', 'Mengunduh CV (PDF)': 'green',
+  'Belum Verifikasi': 'yellow', 'Menunggu Persetujuan': 'yellow', 'Menunggu Undangan': 'yellow', 'Menunggu': 'yellow',
+  'pending': 'yellow', 'Draft': 'gray', 'Mencari Pekerjaan': 'yellow', 'Belum Memungkinkan Bekerja': 'yellow',
+  'Bekerja Paruh Waktu': 'yellow', 'Bekerja Part Time': 'yellow', 'Paruh Waktu': 'yellow', 'Part Time': 'yellow',
+  'Belum Bekerja': 'yellow', 'Alumni': 'yellow',
+  'Ditolak': 'red', 'Nonaktif': 'red', 'rejected': 'red', 'Gagal': 'red', 'Kedaluwarsa': 'red',
+  'Melanjutkan Pendidikan': 'blue', 'Menikah / Mengurus Keluarga': 'blue', 'Magang': 'blue',
+  'Jarak Jauh': 'blue', 'Remote': 'blue', 'Koordinator': 'blue', 'Laki-laki': 'blue', 'Perempuan': 'blue',
+  'SuperAdmin': 'purple', 'Melihat CV': 'blue',
 };
 const BADGE_LABEL = { pending: 'Menunggu', approved: 'Ditindak', rejected: 'Diabaikan' };
 
 function badge(status) {
-  const cls = BADGE[BADGE_COLOR[status] || 'blue'];
-  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${BADGE_LABEL[status] || status}</span>`;
+  const s = status || '-';
+  const cls = BADGE[BADGE_COLOR[s] || 'blue'];
+  return `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap ${cls}">${BADGE_LABEL[s] || s}</span>`;
 }
 
 function esc(s) {
@@ -193,12 +252,14 @@ function refreshIcons() {
 }
 
 // Audit log: aksi sensitif dicatat beserta waktu & pelakunya.
-// ponytail: disimpan di localStorage browser (prototype), di API nanti pakai spatie/activitylog yang sudah terpasang.
 const AUDIT_KEY = 'koor-audit-log';
 function getAudit() {
   try { return JSON.parse(localStorage.getItem(AUDIT_KEY)) || []; } catch { return []; }
 }
 function audit(aksi, target) {
+  if (window.BengkodStore) {
+    window.BengkodStore.logActivity('Koordinator', aksi, target);
+  }
   const log = [{ aksi, target, pelaku: KOOR.user.name, waktu: new Date().toISOString() }, ...getAudit()].slice(0, 50);
   try { localStorage.setItem(AUDIT_KEY, JSON.stringify(log)); } catch { /* storage diblokir: abaikan */ }
 }
@@ -238,6 +299,30 @@ function initTabs(root = document) {
   }));
   if (btns[0]) btns[0].click();
 }
+
+// Submit Pengaturan Profil Koordinator
+window.handleKoorProfileSubmit = function(e) {
+  e.preventDefault();
+  const nama = document.getElementById('koor-p-nama').value.trim();
+  const email = document.getElementById('koor-p-email').value.trim();
+  const divisi = document.getElementById('koor-p-divisi').value;
+  if (!nama || !email) return;
+
+  if (window.BengkodStore) {
+    const list = window.BengkodStore.getKoordinator();
+    const active = list.find(k => k.status === 'Aktif') || list[0];
+    if (active) {
+      active.nama = nama;
+      active.email = email;
+      active.divisi = divisi;
+      window.BengkodStore.saveKoordinator(list);
+    }
+  }
+
+  closeModal('modal-pengaturan-profil-koor');
+  showToast('Profil Koordinator berhasil diperbarui!', 'success');
+  setTimeout(() => location.reload(), 300);
+};
 
 // ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -296,6 +381,8 @@ document.addEventListener('DOMContentLoaded', () => {
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
+  const koorInitials = (KOOR.user.name || 'Ayu Lestari').replace(/^(Dr\.|Prof\.|Ir\.)\s*/i, '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AL';
+
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
   wrapper.className = 'lg:ml-64 min-h-screen flex flex-col transition-all duration-300';
@@ -323,16 +410,66 @@ document.addEventListener('DOMContentLoaded', () => {
         </nav>
       </div>
 
-      <!-- Right Header: Profil User -->
+      <!-- Right Header: Profil User Interaktif (Sama persis dengan Alumni) -->
       <div class="flex items-center gap-3 shrink-0">
-        <!-- Profil Avatar & Identitas -->
-        <div class="flex items-center gap-2.5">
-          <div class="text-right hidden sm:block">
-            <div class="text-sm font-semibold text-neutral1 leading-tight">${esc(KOOR.user.name)}</div>
-            <div class="text-[11px] text-neutral3">Koordinator Alumni</div>
-          </div>
-          <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50">
-            AL
+        <div class="relative flex items-center" id="profile-dropdown-wrapper">
+          <button
+            type="button"
+            id="profile-menu-btn"
+            class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+            aria-expanded="false"
+            aria-label="Menu Pengguna"
+          >
+            <div class="text-right hidden sm:block">
+              <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors">${esc(KOOR.user.name)}</div>
+              <div class="text-[11px] text-neutral3">Koordinator Alumni</div>
+            </div>
+            <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+              ${koorInitials}
+            </div>
+          </button>
+
+          <!-- Dropdown Popover Profil (100% Identik dengan Alumni) -->
+          <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
+            <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
+                  ${koorInitials}
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-sm font-semibold text-white truncate">${esc(KOOR.user.name)}</p>
+                  <p class="text-[11px] text-white/80 truncate">${esc(KOOR.user.email)}</p>
+                </div>
+              </div>
+            </div>
+            <ul class="py-1.5 text-sm text-neutral1">
+              <li>
+                <button type="button" onclick="openModal('modal-pengaturan-profil-koor')" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="3" />
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 1 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                    </svg>
+                  </span>
+                  <span>Pengaturan Profil</span>
+                </button>
+              </li>
+            </ul>
+            <div class="border-t border-neutral4/70"></div>
+            <ul class="py-1.5">
+              <li>
+                <button type="button" onclick="window.location.href='../index.html'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                  <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                  </span>
+                  <span>Keluar</span>
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -342,7 +479,7 @@ document.addEventListener('DOMContentLoaded', () => {
   main.before(wrapper);
   wrapper.appendChild(main);
 
-  // Modal konfirmasi bersama
+  // Modal konfirmasi bersama & Modal Pengaturan Profil Koordinator
   document.body.insertAdjacentHTML('beforeend', `
     <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
       <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
@@ -353,12 +490,81 @@ document.addEventListener('DOMContentLoaded', () => {
           <button id="confirm-ok"></button>
         </div>
       </div>
+    </div>
+
+    <!-- Modal Pengaturan Profil Koordinator -->
+    <div id="modal-pengaturan-profil-koor" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-white rounded-2xl max-w-md w-full p-6 elevation5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-koor-profile-title">
+        <div class="flex items-center justify-between pb-3 border-b border-neutral4 mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-xl bg-primary5 text-primary1 flex items-center justify-center font-bold">
+              <i data-lucide="user-cog" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 id="modal-koor-profile-title" class="font-bold text-base text-neutral1">Pengaturan Profil Koordinator</h3>
+              <p class="text-xs text-neutral3">Perbarui informasi identitas &amp; penugasan</p>
+            </div>
+          </div>
+          <button type="button" onclick="closeModal('modal-pengaturan-profil-koor')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+        <form id="form-pengaturan-profil-koor" onsubmit="handleKoorProfileSubmit(event)" class="space-y-4 text-xs">
+          <div>
+            <label for="koor-p-nama" class="label text-xs">Nama Lengkap &amp; Gelar</label>
+            <input type="text" id="koor-p-nama" required class="input" value="${esc(KOOR.user.name)}">
+          </div>
+          <div>
+            <label for="koor-p-email" class="label text-xs">Email Resmi UDINUS</label>
+            <input type="email" id="koor-p-email" required class="input" value="${esc(KOOR.user.email)}">
+          </div>
+          <div>
+            <label for="koor-p-divisi" class="label text-xs">Divisi Spesialisasi</label>
+            <select id="koor-p-divisi" class="input">
+              <option value="Developer &amp; Data Science" ${KOOR.user.divisi === 'Developer & Data Science' ? 'selected' : ''}>Developer &amp; Data Science</option>
+              <option value="Divisi Developer" ${KOOR.user.divisi === 'Divisi Developer' ? 'selected' : ''}>Divisi Developer</option>
+              <option value="Divisi Data Science" ${KOOR.user.divisi === 'Divisi Data Science' ? 'selected' : ''}>Divisi Data Science</option>
+            </select>
+          </div>
+          <div>
+            <label for="koor-p-password" class="label text-xs">Password Baru (Opsional)</label>
+            <input type="password" id="koor-p-password" placeholder="Biarkan kosong jika tidak diubah" class="input">
+          </div>
+          <div class="flex justify-end gap-2 pt-3 border-t border-neutral4">
+            <button type="button" onclick="closeModal('modal-pengaturan-profil-koor')" class="btn-outline text-xs px-4 py-2">Batal</button>
+            <button type="submit" class="btn-primary text-xs px-5 py-2 font-semibold">Simpan Perubahan</button>
+          </div>
+        </form>
+      </div>
     </div>`);
+
   document.getElementById('confirm-ok').addEventListener('click', () => {
     closeModal('confirm-modal');
     if (pendingConfirm) pendingConfirm();
     pendingConfirm = null;
   });
+
+  // Dropdown toggle & click outside
+  const profileBtn = document.getElementById('profile-menu-btn');
+  const profileDropdown = document.getElementById('dropdown-profile-menu');
+  if (profileBtn && profileDropdown) {
+    profileBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = !profileDropdown.classList.contains('hidden');
+      profileDropdown.classList.toggle('hidden', isOpen);
+      profileBtn.setAttribute('aria-expanded', String(!isOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !profileDropdown.classList.contains('hidden')) {
+        profileDropdown.classList.add('hidden');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   // Toggle sidebar desktop collapse & mobile drawer (100% Mengikuti Aside.tsx lms-bengkod-web)
   const sidebar = document.getElementById('sidebar');

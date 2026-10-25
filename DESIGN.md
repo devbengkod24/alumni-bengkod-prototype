@@ -163,9 +163,12 @@ root/
 │   ├── js/main.js
 │   └── images/
 ├── alumni/                            # Role: Alumni
+│   ├── login.html
 │   ├── register.html
-│   ├── status-karir.html
 │   ├── dashboard.html
+│   ├── profil.html
+│   ├── lowongan.html
+│   ├── detail.html
 │   └── assets/
 │       └── js/alumni.js
 ├── koordinator/                       # Role: Koordinator Alumni (8 menu sidebar)

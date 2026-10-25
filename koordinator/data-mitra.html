@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
@@ -36,7 +37,7 @@
       <td class="td">${esc(m.bidang_usaha)}</td>
       <td class="td">${esc(m.kota)}</td>
       <td class="td">${esc(m.pic)}</td>
-      <td class="td">${m.alumni}</td>
+      <td class="td">${m.alumni != null ? m.alumni : (m.alumni_count != null ? m.alumni_count : 0)}</td>
     </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada data.</td></tr>';
 </script>
 </body>

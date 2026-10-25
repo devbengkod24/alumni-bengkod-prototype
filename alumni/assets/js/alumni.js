@@ -47,7 +47,7 @@ tailwind.config = {
   },
 };
 
-// app/globals.css (bagian yang dipakai halaman alumni) + komponen lama untuk status-karir.html
+// app/globals.css (bagian yang dipakai halaman alumni)
 document.head.insertAdjacentHTML('beforeend', `
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
@@ -172,14 +172,8 @@ document.addEventListener("alpine:init", () => {
     isMobile: false,
     isHydrated: false,
     profileIsOpen: false,
-    notificationIsOpen: false,
     breadcrumbDropdownOpen: false,
     profile: alumniCurrentProfile(),
-    notifications: [
-      { id: 1, title: "Tugas baru dibuka", body: "Tugas 3 Linked List telah dibuka untuk dikerjakan.", time: "5 menit yang lalu", read: false, href: "#" },
-      { id: 2, title: "Deadline tugas besok", body: "Tugas Algoritma & Struktur Data akan berakhir besok.", time: "1 jam yang lalu", read: false, href: "#" },
-      { id: 3, title: "Pengumpulan berhasil", body: "Tugas Pemrograman Web berhasil dikumpulkan.", time: "Kemarin", read: true, href: "#" },
-    ],
     init() {
       this.checkMobile();
       window.addEventListener("resize", () => this.checkMobile());
@@ -188,7 +182,6 @@ document.addEventListener("alpine:init", () => {
       });
       document.addEventListener("mousedown", (event) => {
         const t = event.target;
-        if (this.$refs.notificationRef && !this.$refs.notificationRef.contains(t)) this.notificationIsOpen = false;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
         if (this.$refs.breadcrumbRef && !this.$refs.breadcrumbRef.contains(t)) this.breadcrumbDropdownOpen = false;
       });
@@ -200,27 +193,8 @@ document.addEventListener("alpine:init", () => {
       else this.sidebarIsOpen = localStorage.getItem("sidebar_open") !== "false";
       this.isHydrated = true;
     },
-    get unreadCount() {
-      return this.notifications.filter((n) => !n.read).length;
-    },
     toggleProfile() {
       this.profileIsOpen = !this.profileIsOpen;
-      this.notificationIsOpen = false;
-    },
-    toggleNotification() {
-      this.notificationIsOpen = !this.notificationIsOpen;
-      this.profileIsOpen = false;
-    },
-    handleNotificationClick(id) {
-      const n = this.notifications.find((item) => item.id === id);
-      this.notifications = this.notifications.map((item) => (item.id === id ? { ...item, read: true } : item));
-      if (n && n.href && n.href !== "#") window.location.href = n.href;
-    },
-    handleDeleteNotification(id) {
-      this.notifications = this.notifications.filter((n) => n.id !== id);
-    },
-    handleMarkAllAsRead() {
-      this.notifications = this.notifications.map((n) => ({ ...n, read: true }));
     },
     handleLogout() {
       window.location.href = "../index.html";
@@ -330,87 +304,6 @@ function alumniLayoutHTML(route, breadcrumbItems) {
             </div>
 
             <div class="flex items-center gap-3 shrink-0">
-              <div class="relative flex items-center" x-ref="notificationRef">
-                <button type="button" @click="toggleNotification()"
-                  class="relative flex items-center justify-center w-9 h-9 rounded-full text-neutral2 hover:bg-neutral5 hover:text-primary2 transition-colors focus:outline-none focus:ring-2 focus:ring-primary5"
-                  aria-label="Notifikasi" :aria-expanded="notificationIsOpen">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  <template x-if="unreadCount > 0">
-                    <span class="absolute -top-0.5 -right-0.5 min-w-[17px] h-[17px] px-1 rounded-full bg-red1 text-white text-[9px] font-semibold flex items-center justify-center border-2 border-white" x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
-                  </template>
-                </button>
-
-                <template x-if="notificationIsOpen">
-                  <div class="absolute top-11 right-0 z-[70] w-[350px] max-w-[calc(100vw-24px)] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
-                    <div class="px-4 py-3 border-b border-neutral4/70">
-                      <div class="flex items-center justify-between gap-3">
-                        <div>
-                          <h3 class="text-sm font-semibold text-neutral1">Notifikasi</h3>
-                          <p class="text-[11px] text-neutral3 mt-0.5" x-text="unreadCount > 0 ? unreadCount + ' notifikasi belum dibaca' : 'Semua sudah dibaca'"></p>
-                        </div>
-                        <template x-if="unreadCount > 0">
-                          <button type="button" @click="handleMarkAllAsRead()" class="text-[11px] font-medium text-primary2 hover:text-primary1 whitespace-nowrap">Tandai semua</button>
-                        </template>
-                      </div>
-                    </div>
-
-                    <div class="max-h-[360px] overflow-y-auto">
-                      <template x-if="notifications.length === 0">
-                        <div class="px-5 py-10 text-center">
-                          <div class="mx-auto mb-2 w-10 h-10 rounded-full bg-neutral5 flex items-center justify-center text-neutral3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
-                              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                          </div>
-                          <p class="text-xs font-medium text-neutral2">Tidak ada notifikasi</p>
-                          <p class="text-[11px] text-neutral3 mt-1">Notifikasi baru akan muncul di sini.</p>
-                        </div>
-                      </template>
-                      <template x-for="notification in notifications" :key="notification.id">
-                        <div @click="handleNotificationClick(notification.id)"
-                          class="group flex gap-3 px-4 py-3 border-b border-neutral4/50 cursor-pointer transition-colors hover:bg-primary5/40"
-                          :class="!notification.read ? 'bg-blue-50/60' : 'bg-white'">
-                          <div class="mt-0.5 shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" :class="!notification.read ? 'bg-primary5 text-primary2' : 'bg-neutral5 text-neutral3'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M12 3v18" />
-                              <path d="M5 8h14" />
-                              <path d="M5 16h14" />
-                            </svg>
-                          </div>
-                          <div class="min-w-0 flex-1">
-                            <div class="flex items-start justify-between gap-2">
-                              <p class="text-xs" :class="!notification.read ? 'font-semibold text-neutral1' : 'font-medium text-neutral2'" x-text="notification.title"></p>
-                              <template x-if="!notification.read">
-                                <span class="mt-1.5 shrink-0 w-1.5 h-1.5 rounded-full bg-primary2"></span>
-                              </template>
-                            </div>
-                            <p class="text-[11px] text-neutral3 leading-relaxed mt-1" x-text="notification.body"></p>
-                            <p class="text-[10px] text-neutral3 mt-1.5" x-text="notification.time"></p>
-                          </div>
-                          <button type="button" @click.stop="handleDeleteNotification(notification.id)"
-                            class="self-start shrink-0 opacity-0 group-hover:opacity-100 text-neutral3 hover:text-red1 transition-opacity p-1 rounded hover:bg-red3/40"
-                            aria-label="Hapus notifikasi">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M3 6h18" />
-                              <path d="M8 6V4h8v2" />
-                              <path d="M19 6l-1 14H6L5 6" />
-                              <path d="M10 11v5M14 11v5" />
-                            </svg>
-                          </button>
-                        </div>
-                      </template>
-                    </div>
-                    <div class="border-t border-neutral4/70 bg-white">
-                      <a href="#" @click="notificationIsOpen = false" class="flex items-center justify-center px-4 py-3 text-xs font-medium text-primary2 hover:bg-primary5 transition-colors">View all notification</a>
-                    </div>
-                  </div>
-                </template>
-              </div>
-
               <div class="relative flex items-center" x-ref="dropdownRef">
                 <div>
                   <button type="button" class="flex text-sm rounded-full focus:ring-4 focus:ring-primary5" :aria-expanded="profileIsOpen" @click="toggleProfile()">
