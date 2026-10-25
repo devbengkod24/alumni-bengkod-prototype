@@ -235,17 +235,10 @@
                     <p class="text-[13px] text-gray-400 mt-0.5" x-text="'Dilamar ' + app.appliedAt"></p>
                   </div>
 
-                  <!-- Status badge -->
+                  <!-- Status badge (Warna biru lembut bg-blue-50 & teks #1E3A8A, ukuran oval seragam) -->
                   <div class="flex-shrink-0">
                     <span
-                      class="inline-block px-3 py-1 rounded-full text-[13px] font-medium"
-                      :class="app.status === 'Diterima'
-                        ? 'bg-green-50 text-green-700'
-                        : app.status === 'Ditolak'
-                        ? 'bg-red-50 text-red-600'
-                        : app.status === 'Proses Interview'
-                        ? 'bg-blue-50 text-blue-700'
-                        : 'bg-gray-100 text-gray-500'"
+                      class="inline-flex items-center justify-center w-44 py-1.5 px-3 rounded-full text-[13px] font-semibold text-center bg-blue-50 text-[#1E3A8A] border border-blue-200/90 shadow-2xs"
                       x-text="app.status"
                     ></span>
                   </div>
@@ -326,11 +319,11 @@
                   <div class="flex items-start gap-4">
                     <img :src="selectedJob.companyLogo" :alt="selectedJob.company" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-xs flex-shrink-0">
                     <div>
-                      <h2 class="text-[20px] font-bold text-gray-900 tracking-tight leading-tight" x-text="selectedJob.title"></h2>
+                      <h2 class="text-[20px] font-semibold text-gray-900 tracking-tight leading-tight" x-text="selectedJob.title"></h2>
                       <div class="flex items-center gap-2 mt-1">
                         <a :href="selectedJob.companyWebsite" target="_blank" rel="noreferrer" class="text-[15px] font-semibold text-[#1E3A8A] hover:underline" x-text="selectedJob.company"></a>
                       </div>
-                      <p class="text-[14px] text-gray-700 mt-1" x-text="selectedJob.location + ' • ' + selectedJob.workModel + ' • Diposting ' + selectedJob.datePosted + ' • ' + selectedJob.applicantsCount + ' pelamar'"></p>
+                      <p class="text-[14px] font-semibold text-gray-900 mt-1" x-text="selectedJob.location + ' • ' + selectedJob.workModel + ' • Diposting ' + selectedJob.datePosted + ' • ' + selectedJob.applicantsCount + ' pelamar'"></p>
                     </div>
                   </div>
                 </div>
@@ -377,73 +370,88 @@
                   </button>
                 </div>
 
-                <!-- Informasi Ringkas Posisi (Tersusun ke Bawah Secara Rapi) -->
-                <div class="mt-4 pt-4 border-t border-gray-100 space-y-2 text-[15px]">
+                <!-- Informasi Ringkas Posisi (Tersusun Rapi & Seimbang) -->
+                <div class="mt-4 pt-4 border-t border-gray-100 space-y-2.5 text-[14px] sm:text-[15px]">
                   <div class="flex items-center">
-                    <span class="text-gray-700 w-36 flex-shrink-0">Tipe Pekerjaan</span>
-                    <span class="text-gray-700 mr-2">:</span>
-                    <span class="text-gray-700" x-text="selectedJob.employmentType.split(' (')[0]"></span>
+                    <span class="text-gray-500 font-medium w-40 flex-shrink-0">Tipe Pekerjaan</span>
+                    <span class="text-gray-400 mr-3">:</span>
+                    <span class="font-semibold text-gray-900" x-text="selectedJob.employmentType.split(' (')[0]"></span>
                   </div>
                   <div class="flex items-center">
-                    <span class="text-gray-700 w-36 flex-shrink-0">Pengalaman</span>
-                    <span class="text-gray-700 mr-2">:</span>
-                    <span class="text-gray-700" x-text="selectedJob.experienceLevel"></span>
+                    <span class="text-gray-500 font-medium w-40 flex-shrink-0">Pengalaman</span>
+                    <span class="text-gray-400 mr-3">:</span>
+                    <span class="font-semibold text-gray-900" x-text="selectedJob.experienceLevel"></span>
                   </div>
                   <div class="flex items-center">
-                    <span class="text-gray-700 w-36 flex-shrink-0">Estimasi Gaji</span>
-                    <span class="text-gray-700 mr-2">:</span>
-                    <span class="text-gray-700" x-text="selectedJob.salaryRange.split(' /')[0]"></span>
+                    <span class="text-gray-500 font-medium w-40 flex-shrink-0">Estimasi Gaji</span>
+                    <span class="text-gray-400 mr-3">:</span>
+                    <span class="font-semibold text-gray-900" x-text="selectedJob.salaryRange.split(' /')[0]"></span>
                   </div>
                   <div class="flex items-center">
-                    <span class="text-gray-700 w-36 flex-shrink-0">Skala Perusahaan</span>
-                    <span class="text-gray-700 mr-2">:</span>
-                    <span class="text-gray-700" x-text="selectedJob.companySize"></span>
+                    <span class="text-gray-500 font-medium w-40 flex-shrink-0">Skala Perusahaan</span>
+                    <span class="text-gray-400 mr-3">:</span>
+                    <span class="font-semibold text-gray-900" x-text="selectedJob.companySize"></span>
                   </div>
                 </div>
               </div>
 
               <!-- ── KEAHLIAN YANG DIBUTUHKAN ── -->
-              <div class="space-y-2.5">
-                <h3 class="text-[15px] font-bold text-gray-900">Keahlian yang Dibutuhkan:</h3>
+              <div class="space-y-3 pt-5 border-t border-gray-100">
+                <h3 class="text-[16px] font-semibold text-gray-900">Keahlian yang Dibutuhkan</h3>
                 <div class="flex flex-wrap gap-2">
                   <template x-for="(skill, i) in selectedJob.skillsRequired" :key="i">
-                    <span class="px-3 py-1 rounded-full text-[13px] font-medium bg-gray-100 text-gray-800" x-text="skill"></span>
+                    <span class="px-3.5 py-1.5 rounded-lg text-[13px] font-medium bg-blue-50/70 text-[#1E3A8A] border border-blue-100/90 shadow-2xs" x-text="skill"></span>
                   </template>
                 </div>
               </div>
 
               <!-- ── DESKRIPSI & RINCIAN PERAN ── -->
-              <div class="space-y-4 text-[15px] text-gray-800 leading-relaxed border-t border-gray-100 pt-5">
+              <div class="space-y-5 text-[15px] text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
                 <div>
-                  <h3 class="text-[15px] font-bold text-gray-900 mb-2">Tentang Posisi Ini</h3>
-                  <p class="text-gray-700" x-text="selectedJob.description"></p>
+                  <h3 class="text-[16px] font-semibold text-gray-900 mb-2">Tentang Posisi Ini</h3>
+                  <p class="text-gray-700 leading-relaxed" x-text="selectedJob.description"></p>
                 </div>
 
                 <div>
-                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Tanggung Jawab Utama:</h4>
-                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
-                    <template x-for="(res, i) in selectedJob.responsibilities" :key="i"><li x-text="res"></li></template>
+                  <h4 class="text-[16px] font-semibold text-gray-900 mb-2.5">Tanggung Jawab Utama</h4>
+                  <ul class="space-y-2 text-[15px] text-gray-700 leading-relaxed">
+                    <template x-for="(res, i) in selectedJob.responsibilities" :key="i">
+                      <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#1E3A8A] mt-2 flex-shrink-0"></span>
+                        <span x-text="res"></span>
+                      </li>
+                    </template>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Kualifikasi &amp; Persyaratan:</h4>
-                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
-                    <template x-for="(q, i) in selectedJob.qualifications" :key="i"><li x-text="q"></li></template>
+                  <h4 class="text-[16px] font-semibold text-gray-900 mb-2.5">Kualifikasi &amp; Persyaratan</h4>
+                  <ul class="space-y-2 text-[15px] text-gray-700 leading-relaxed">
+                    <template x-for="(q, i) in selectedJob.qualifications" :key="i">
+                      <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#1E3A8A] mt-2 flex-shrink-0"></span>
+                        <span x-text="q"></span>
+                      </li>
+                    </template>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 class="text-[15px] font-bold text-gray-900 mb-2">Benefit &amp; Fasilitas:</h4>
-                  <ul class="list-disc pl-5 space-y-1.5 text-gray-700">
-                    <template x-for="(b, i) in selectedJob.benefits" :key="i"><li x-text="b"></li></template>
+                  <h4 class="text-[16px] font-semibold text-gray-900 mb-2.5">Benefit &amp; Fasilitas</h4>
+                  <ul class="space-y-2 text-[15px] text-gray-700 leading-relaxed">
+                    <template x-for="(b, i) in selectedJob.benefits" :key="i">
+                      <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#1E3A8A] mt-2 flex-shrink-0"></span>
+                        <span x-text="b"></span>
+                      </li>
+                    </template>
                   </ul>
                 </div>
               </div>
 
               <!-- ── TENTANG PERUSAHAAN ── -->
               <div class="border-t border-gray-100 pt-5 space-y-2">
-                <h3 class="text-[15px] font-bold text-gray-900" x-text="'Tentang ' + selectedJob.company"></h3>
+                <h3 class="text-[16px] font-semibold text-gray-900" x-text="'Tentang ' + selectedJob.company"></h3>
                 <p class="text-[15px] text-gray-700 leading-relaxed" x-text="selectedJob.aboutCompany"></p>
               </div>
             </div>
