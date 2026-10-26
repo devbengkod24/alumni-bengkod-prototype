@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Pelamar | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Manajemen Pelamar">
+
+  <div>
+    <h2 class="text-2xl font-semibold text-neutral1">Manajemen Pelamar</h2>
+    <p class="text-sm text-neutral2 mt-1">Tinjau lamaran alumni untuk lowongan yang dibuat koordinator, evaluasi kandidat, dan kelola proses seleksinya.</p>
+  </div>
+
+  <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" aria-label="Ringkasan pelamar"></section>
+
+  <section class="card p-4 sm:p-5">
+    <div class="flex flex-col lg:flex-row gap-3">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="q" type="search" class="input !pl-9" placeholder="Cari nama alumni atau NIM" aria-label="Cari pelamar">
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex gap-2.5">
+        <select id="f-lowongan" class="input lg:w-72" aria-label="Filter lowongan"><option value="">Semua lowongan</option></select>
+        <select id="f-status" class="input lg:w-44" aria-label="Filter status"><option value="">Semua status</option></select>
+        <button id="btn-reset" type="button" class="btn-outline whitespace-nowrap"><i data-lucide="rotate-ccw" class="w-4 h-4"></i> Reset Filter</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 sm:p-5 border-b border-neutral4">
+      <h3 class="font-semibold text-neutral1 flex items-center gap-2">Daftar Pelamar <span id="badge-total" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary5 text-primary1"></span></h3>
+      <p class="text-xs text-neutral3 mt-0.5">Lamaran alumni untuk lowongan yang dibuat koordinator.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[760px]">
+        <thead><tr>
+          <th class="th">Alumni / Kandidat</th>
+          <th class="th">Posisi Dilamar</th>
+          <th class="th">Tanggal Melamar</th>
+          <th class="th">Status</th>
+          <th class="th text-right">Aksi</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 px-4 sm:px-5 py-4 border-t border-neutral4">
+      <p id="page-info" class="text-xs text-neutral3"></p>
+      <nav id="pagination" class="flex flex-wrap items-center justify-center gap-1.5" aria-label="Halaman daftar pelamar"></nav>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const PER_PAGE = 6;
+  const semua = gabungPelamar(getPelamar());
+  let page = 1;
+
+  const jumlah = s => semua.filter(p => p.status === s).length;
+  document.getElementById('stats').innerHTML = [
+    ['Total Pelamar', semua.length, 'users', 'bg-primary5 text-primary1', 'col-span-2 sm:col-span-1'],
+    ['Pelamar Baru', jumlah('applied'), 'user-plus', 'bg-blue-50 text-blue-700', ''],
+    ['Tahap Review', jumlah('review'), 'file-search', 'bg-yellow3 text-yellow1', ''],
+    ['Tahap Interview', jumlah('interview'), 'calendar-clock', 'bg-purple-50 text-purple-700', ''],
+    ['Diterima', jumlah('diterima'), 'circle-check', 'bg-green3 text-green1', ''],
+  ].map(([label, value, icon, tone, span]) => `
+    <div class="card p-4 flex items-center gap-3 ${span}">
+      <div class="w-11 h-11 rounded-xl ${tone} flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+      <div class="min-w-0">
+        <div class="text-sm text-neutral2 truncate">${label}</div>
+        <div class="text-2xl font-semibold text-primary1 mt-0.5">${value}</div>
+      </div>
+    </div>`).join('');
+
+  function render() {
+    const q = document.getElementById('q').value.trim().toLowerCase();
+    const low = document.getElementById('f-lowongan').value;
+    const st = document.getElementById('f-status').value;
+    const list = semua.filter(p => (!low || p.lowongan_id === +low) && (!st || p.status === st)
+      && `${p.alumni.nama} ${p.alumni.nim}`.toLowerCase().includes(q));
+
+    const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+    page = Math.min(page, pages);
+    const start = (page - 1) * PER_PAGE;
+    const shown = list.slice(start, start + PER_PAGE);
+
+    document.getElementById('badge-total').textContent = `${list.length} Kandidat`;
+    document.getElementById('rows').innerHTML = shown.map(rowHTML).join('')
+      || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada pelamar yang cocok.</td></tr>';
+    document.getElementById('page-info').innerHTML = list.length
+      ? `Menampilkan <strong class="text-neutral1">${start + 1}–${start + shown.length}</strong> dari <strong class="text-neutral1">${list.length}</strong> pelamar`
+      : 'Menampilkan 0 pelamar';
+    document.getElementById('pagination').innerHTML = paginationHTML(pages);
+    refreshIcons();
+  }
+
+  // Baris kedua posisi (pengalaman · tipe) membedakan lowongan bernama mirip, mis. Backend Junior vs Senior
+  function rowHTML(p) {
+    const a = p.alumni;
+    return `<tr class="tr">
+      <td class="td">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs shrink-0">${esc(inisial(a.nama))}</div>
+          <div class="min-w-0">
+            <div class="font-medium flex items-center gap-1">${esc(a.nama)}${a.status_akun === 'Aktif' ? '<i data-lucide="badge-check" class="w-4 h-4 text-primary3 shrink-0" aria-label="Akun alumni aktif"></i>' : ''}</div>
+            <div class="text-xs text-neutral3">Alumni ${esc(a.tahun_lulus)} • ${esc(a.divisi || '-')}</div>
+          </div>
+        </div>
+      </td>
+      <td class="td"><div class="font-medium">${esc(p.lowongan.posisi)}</div><div class="text-xs text-neutral3">${esc(p.lowongan.pengalaman || '-')} · ${esc(p.lowongan.tipe_kerja || '-')}</div></td>
+      <td class="td whitespace-nowrap">${fmtWaktu(p.tanggal)}</td>
+      <td class="td">${badge(STATUS_PELAMAR[p.status])}</td>
+      <td class="td"><div class="flex justify-end"><a href="detail-pelamar.html?id=${p.id}" class="btn-outline !py-1.5"><i data-lucide="eye" class="w-4 h-4"></i> Detail</a></div></td>
+    </tr>`;
+  }
+
+  function paginationHTML(pages) {
+    const btn = (label, target, active, disabled) => `<button type="button" ${disabled ? 'disabled' : `onclick="goPage(${target})"`}
+      ${active ? 'aria-current="page"' : ''} ${typeof label === 'number' ? `aria-label="Halaman ${label}"` : ''}
+      class="min-w-[2.25rem] h-9 px-3 rounded-lg border text-xs font-semibold transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${active ? 'bg-primary1 border-primary1 text-white' : 'bg-white border-neutral4 text-neutral2 hover:bg-neutral5'}">${label}</button>`;
+    return btn('Sebelumnya', page - 1, false, page === 1)
+      + Array.from({ length: pages }, (_, i) => btn(i + 1, i + 1, i + 1 === page, false)).join('')
+      + btn('Selanjutnya', page + 1, false, page === pages);
+  }
+
+  function goPage(n) {
+    page = n;
+    render();
+  }
+
+  // ===== Filter: tiap lowongan jadi opsi sendiri (berdasarkan id) beserta jumlah pelamarnya =====
+  const selLowongan = document.getElementById('f-lowongan');
+  const selStatus = document.getElementById('f-status');
+  lowonganPelamar().forEach(l => selLowongan.add(new Option(`${l.posisi} · ${l.pengalaman || '-'} (${semua.filter(p => p.lowongan_id === l.id).length})`, l.id)));
+  Object.entries(STATUS_PELAMAR).forEach(([value, label]) => selStatus.add(new Option(label, value)));
+
+  const filterBerubah = () => { page = 1; render(); };
+  document.getElementById('q').addEventListener('input', filterBerubah);
+  selLowongan.addEventListener('change', filterBerubah);
+  selStatus.addEventListener('change', filterBerubah);
+  document.getElementById('btn-reset').addEventListener('click', () => {
+    document.getElementById('q').value = '';
+    selLowongan.value = '';
+    selStatus.value = '';
+    filterBerubah();
+  });
+
+  render();
+</script>
+</body>
+</html>

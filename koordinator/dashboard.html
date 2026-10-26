@@ -218,8 +218,8 @@
   if (elAktif) elAktif.textContent = lokerAktif.length;
   if (elPending) elPending.textContent = lokerPending.length;
   if (elSubAktif) {
-    const kerja = lokerAktif.filter(l => (l.kategori_lowongan || l.kategori) !== 'Magang').length;
-    const magang = lokerAktif.filter(l => (l.kategori_lowongan || l.kategori) === 'Magang').length;
+    const kerja = lokerAktif.filter(l => (l.kategori || l.kategori_lowongan) !== 'Magang').length;
+    const magang = lokerAktif.filter(l => (l.kategori || l.kategori_lowongan) === 'Magang').length;
     elSubAktif.textContent = `${kerja} Loker · ${magang} Magang`;
   }
 
@@ -239,8 +239,9 @@
         const isVerified = l.status === 'Terverifikasi';
         const isRejected = l.status === 'Ditolak';
         const badgeClass = isVerified ? 'bg-green3 text-green1' : isRejected ? 'bg-red3 text-red1' : 'bg-yellow3 text-yellow1';
-        const iconName = l.kategori_lowongan === 'Magang' ? 'sparkles' : 'briefcase';
-        const iconBg = l.kategori_lowongan === 'Magang' ? 'bg-gradient-to-tr from-emerald-500 to-teal-600' : 'bg-gradient-to-tr from-primary1 to-primary2';
+        const isMagang = (l.kategori || l.kategori_lowongan) === 'Magang';
+        const iconName = isMagang ? 'sparkles' : 'briefcase';
+        const iconBg = isMagang ? 'bg-gradient-to-tr from-emerald-500 to-teal-600' : 'bg-gradient-to-tr from-primary1 to-primary2';
 
         return `
           <a href="lowongan.html" class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors cursor-pointer group border border-transparent hover:border-neutral4/80">

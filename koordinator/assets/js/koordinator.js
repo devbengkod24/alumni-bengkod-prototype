@@ -46,18 +46,25 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 const KOOR_DEFAULT = {
   user: { name: 'Dr. Ayu Lestari, M.Kom', email: 'ayu.lestari@dinus.ac.id' },
 
+  // Dikelompokkan per alur kerja: rekrutmen, komunikasi, tracer study, administrasi.
+  // { divider: true } = garis pemisah antarkelompok (Divider sidebar di DESIGN.md)
   nav: [
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
-    { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
-    { href: 'rekap-tahunan.html', icon: 'file-spreadsheet', label: 'Rekap Tahunan' },
+    { divider: true },
+    { href: 'lowongan.html', icon: 'briefcase', label: 'Lowongan' },
+    { href: 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar' },
+    { divider: true },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
-    { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
+    { divider: true },
     { icon: 'database', label: 'Tracer Data', submenu: [
       { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
       { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
     ] },
-    { href: 'lowongan.html', icon: 'briefcase', label: 'Lowongan' },
+    { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
+    { href: 'rekap-tahunan.html', icon: 'file-spreadsheet', label: 'Rekap Tahunan' },
+    { divider: true },
+    { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
   ],
 
   // Rekap per tahun lulus (status karir mengikuti enum alumni-api)
@@ -139,22 +146,68 @@ const KOOR_DEFAULT = {
     { id: 3, judul: 'Job Fair Bengkel Koding 2026', isi: 'Draft: rencana job fair Desember 2026, menunggu konfirmasi tanggal.', target: 'Alumni & Mitra', published: false, published_at: '' },
   ],
 
-  // ForumReport: status pending | approved | rejected
-  laporanForum: [
-    { id: 1, judul: 'Jual akun premium murah, DM aja', penulis: 'user_anon12', jenis: 'Postingan', reason: 'Spam / promosi', pelapor: 3, status: 'pending', tanggal: '2026-10-20' },
-    { id: 2, judul: 'Komentar: "dasar angkatan ga guna"', penulis: 'Bagas Saputra', jenis: 'Komentar', reason: 'Ujaran kebencian', pelapor: 2, status: 'pending', tanggal: '2026-10-19' },
-    { id: 3, judul: 'Share soal ujian kompetensi', penulis: 'Dimas Arya', jenis: 'Postingan', reason: 'Melanggar aturan', pelapor: 1, status: 'pending', tanggal: '2026-10-17' },
-  ],
-
-  // Field sama dengan forum di mitra.js
-  threads: [
-    { id: 1, judul: 'Tips Menulis JD yang Menarik untuk Fresh Graduate', penulis: 'Andi Kurniawan', peran: 'Mitra', tags: ['Rekrutmen', 'Tips'], isi: 'Halo rekan mitra, saya ingin berbagi pengalaman dalam menulis job description yang menarik bagi fresh graduate.', komentar: 8, tanggal: '2026-10-19' },
-    { id: 2, judul: 'Tips lolos interview backend di startup', penulis: 'Rizky Pratama', peran: 'Alumni', tags: ['Karir', 'Interview'], isi: 'Berikut tips yang berhasil saya gunakan ketika interview di beberapa startup tech.', komentar: 24, tanggal: '2026-10-19' },
-    { id: 3, judul: 'Sharing gaji fresh graduate Semarang 2026', penulis: 'Intan Maharani', peran: 'Alumni', tags: ['Gaji', 'Karir'], isi: 'Berdasarkan survei informal di grup alumni, berikut range gaji fresh graduate di Semarang.', komentar: 41, tanggal: '2026-10-16' },
-    { id: 4, judul: 'Rekomendasi kursus Data Science gratis', penulis: 'Salsa Ramadhani', peran: 'Alumni', tags: ['Belajar', 'Data Science'], isi: 'Kumpulan kursus Data Science gratis yang saya coba dan rekomendasikan.', komentar: 12, tanggal: '2026-10-12' },
+  // Lamaran alumni ke lowongan buatan koordinator: nim -> KOOR.alumni, lowongan_id -> KOOR.lowongan
+  // (5 Asisten Lab, 8 Backend Junior, 9 Backend Senior). Status = entri riwayat terakhir
+  // (applied | review | interview | diterima | ditolak); tanggal melamar = entri pertama.
+  pelamar: [
+    { id: 1, nim: 'A11.2021.13301', lowongan_id: 5, telepon: '0815-4444-5555',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-07T10:15:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-09T09:00:00', catatan: 'Berkas lengkap, lolos seleksi administrasi.' },
+        { status: 'interview', waktu: '2026-10-12T13:00:00', catatan: 'Micro-teaching 27 Okt 2026, 13.00 WIB di Lab Bengkel Koding.' },
+      ] },
+    { id: 2, nim: 'A11.2021.13120', lowongan_id: 5, telepon: '0817-6666-7777',
+      riwayat: [{ status: 'applied', waktu: '2026-10-24T20:12:00', catatan: 'Lamaran dikirim melalui portal alumni.' }] },
+    { id: 3, nim: 'A11.2020.12088', lowongan_id: 5, telepon: '0818-7777-8888',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-08T08:05:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-10T10:30:00', catatan: 'Pengalaman mentoring sedang ditinjau.' },
+      ] },
+    { id: 4, nim: 'A11.2020.12011', lowongan_id: 5, telepon: '0814-3333-4444',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-06T15:20:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-07T09:40:00', catatan: 'Berkas lengkap, lanjut review jadwal.' },
+        { status: 'ditolak', waktu: '2026-10-09T10:00:00', catatan: 'Jadwal kerja tidak memungkinkan untuk posisi paruh waktu di lab.' },
+      ] },
+    { id: 5, nim: 'A11.2021.13120', lowongan_id: 8, telepon: '0817-6666-7777',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-14T19:30:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-16T09:15:00', catatan: 'Pengalaman Spring Boot relevan, lanjut review teknis.' },
+      ] },
+    { id: 6, nim: 'A11.2020.12011', lowongan_id: 8, telepon: '0814-3333-4444',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-13T08:40:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-14T09:00:00', catatan: 'Berkas lengkap, lolos seleksi administrasi.' },
+        { status: 'interview', waktu: '2026-10-17T13:30:00', catatan: 'Interview teknis 28 Okt 2026, 10.00 WIB via Google Meet.' },
+      ] },
+    { id: 7, nim: 'A11.2021.13301', lowongan_id: 8, telepon: '0815-4444-5555',
+      riwayat: [{ status: 'applied', waktu: '2026-10-22T16:40:00', catatan: 'Lamaran dikirim melalui portal alumni.' }] },
+    { id: 8, nim: 'A11.2020.12088', lowongan_id: 8, telepon: '0818-7777-8888',
+      riwayat: [{ status: 'applied', waktu: '2026-10-25T08:05:00', catatan: 'Lamaran dikirim melalui portal alumni.' }] },
+    { id: 9, nim: 'A11.2019.11823', lowongan_id: 9, telepon: '0812-1111-2222',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-12T19:05:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-13T09:15:00', catatan: 'Berkas lengkap, lolos seleksi administrasi.' },
+        { status: 'interview', waktu: '2026-10-14T14:00:00', catatan: 'Interview teknis 16 Okt 2026, 10.00 WIB via Google Meet.' },
+        { status: 'diterima', waktu: '2026-10-21T11:20:00', catatan: 'Lolos interview teknis dan HR. Surat penawaran dikirim via email.' },
+      ] },
+    { id: 10, nim: 'A11.2018.10544', lowongan_id: 9, telepon: '0816-5555-6666',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-13T13:25:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-15T10:30:00', catatan: 'Berkas lengkap, lanjut review pengalaman.' },
+        { status: 'ditolak', waktu: '2026-10-17T16:00:00', catatan: 'Pengalaman backend belum memenuhi syarat minimal 3 tahun.' },
+      ] },
+    { id: 11, nim: 'A11.2018.10601', lowongan_id: 9, telepon: '0819-8888-9999',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-18T11:45:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-20T08:30:00', catatan: 'Pengalaman CI/CD relevan, lanjut review teknis.' },
+      ] },
+    { id: 12, nim: 'A11.2019.11902', lowongan_id: 9, telepon: '0813-2222-3333',
+      riwayat: [{ status: 'applied', waktu: '2026-10-23T09:00:00', catatan: 'Lamaran dikirim melalui portal alumni.' }] },
   ],
 };
 
+// Getter store mengembalikan salinan baru tiap akses: ubah satu salinan, lalu simpan lewat setter (KOOR.x = salinan).
 const KOOR = {
   get user() {
     if (window.BengkodStore) {
@@ -190,16 +243,6 @@ const KOOR = {
     KOOR_DEFAULT.pengumuman = val;
   },
   users: KOOR_DEFAULT.users,
-  laporanForum: KOOR_DEFAULT.laporanForum,
-  get threads() {
-    return window.BengkodStore ? window.BengkodStore.getForum() : KOOR_DEFAULT.threads;
-  },
-  set threads(val) {
-    if (window.BengkodStore) {
-      window.BengkodStore.saveForum(val);
-    }
-    KOOR_DEFAULT.threads = val;
-  }
 };
 
 // ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
@@ -224,6 +267,7 @@ const BADGE_COLOR = {
   'Melanjutkan Pendidikan': 'blue', 'Menikah / Mengurus Keluarga': 'blue', 'Magang': 'blue',
   'Jarak Jauh': 'blue', 'Remote': 'blue', 'Koordinator': 'blue', 'Laki-laki': 'blue', 'Perempuan': 'blue',
   'SuperAdmin': 'purple', 'Melihat CV': 'blue',
+  'Applied': 'blue', 'Review': 'yellow', 'Interview': 'purple', 'Diterima': 'green',
 };
 const BADGE_LABEL = { pending: 'Menunggu', approved: 'Ditindak', rejected: 'Diabaikan' };
 
@@ -262,6 +306,38 @@ function audit(aksi, target) {
   }
   const log = [{ aksi, target, pelaku: KOOR.user.name, waktu: new Date().toISOString() }, ...getAudit()].slice(0, 50);
   try { localStorage.setItem(AUDIT_KEY, JSON.stringify(log)); } catch { /* storage diblokir: abaikan */ }
+}
+
+// ===================== PELAMAR (manajemen-pelamar.html & detail-pelamar.html) =====================
+const STATUS_PELAMAR = { applied: 'Applied', review: 'Review', interview: 'Interview', diterima: 'Diterima', ditolak: 'Ditolak' };
+const PELAMAR_KEY = 'koor-pelamar-v2';
+function getPelamar() {
+  try { return JSON.parse(localStorage.getItem(PELAMAR_KEY)) || KOOR_DEFAULT.pelamar; } catch { return KOOR_DEFAULT.pelamar; }
+}
+function savePelamar(list) {
+  try { localStorage.setItem(PELAMAR_KEY, JSON.stringify(list)); } catch { /* storage diblokir: abaikan */ }
+}
+// Hanya lowongan buatan koordinator yang masih tayang
+function lowonganPelamar() {
+  return KOOR.lowongan.filter(l => l.oleh === 'koordinator' && l.status === 'Terverifikasi');
+}
+// Lamaran digabung dengan data alumni & lowongannya (dicocokkan lewat id, bukan nama posisi); terbaru di atas
+function gabungPelamar(list) {
+  const alumni = KOOR.alumni;
+  const lowongan = lowonganPelamar();
+  return list.map(p => ({
+    ...p,
+    alumni: alumni.find(a => a.nim === p.nim),
+    lowongan: lowongan.find(l => l.id === p.lowongan_id),
+    status: p.riwayat[p.riwayat.length - 1].status,
+    tanggal: p.riwayat[0].waktu,
+  })).filter(p => p.alumni && p.lowongan).sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+}
+function fmtWaktu(iso) {
+  return new Date(iso).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+}
+function inisial(nama) {
+  return nama.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
 }
 
 // Dialog konfirmasi generik untuk aksi sensitif
@@ -329,13 +405,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const main = document.querySelector('main[data-title]');
   if (!main) return;
   const current = location.pathname.split('/').pop() || 'dashboard.html';
+  // Halaman turunan (mis. detail-pelamar) menunjuk menu induknya lewat data-nav
+  const activeHref = main.dataset.nav || current;
 
   const navItems = KOOR.nav.map(n => {
+    if (n.divider) return '<div role="separator" class="py-1.5"><div class="h-0.5 bg-neutral4"></div></div>';
     // Menu bertingkat (pola sama dengan sidebar mitra)
     if (n.submenu) {
-      const open = n.submenu.some(s => s.href === current);
+      const open = n.submenu.some(s => s.href === activeHref);
       const subItems = n.submenu.map(s => {
-        const active = s.href === current;
+        const active = s.href === activeHref;
         return `<a href="${s.href}" ${active ? 'aria-current="page"' : ''}
           class="flex items-center gap-2.5 w-full pl-9 pr-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral2 hover:bg-primary5 hover:text-primary1'}">
           <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0"></i><span>${s.label}</span></a>`;
@@ -348,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="space-y-0.5 ${open ? '' : 'hidden'}">${subItems}</div>
       </div>`;
     }
-    const active = n.href === current;
+    const active = n.href === activeHref;
     return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
       class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
       <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span>${n.label}</span></a>`;
@@ -370,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
   const isDashboard = current === 'dashboard.html' || main.dataset.title === 'Dashboard';
   const pageTitle = esc(main.dataset.title);
+  const parent = KOOR.nav.find(n => n.href && n.href === main.dataset.nav);
 
   const breadcrumbHTML = isDashboard
     ? `<a href="dashboard.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
@@ -379,6 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors">Koordinator</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       ${parent ? `<span class="hidden sm:inline-flex items-center"><a href="${parent.href}" class="text-neutral2 hover:text-primary1 transition-colors">${parent.label}</a><span class="mx-2 text-neutral3 select-none font-normal">›</span></span>` : ''}
        <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
   const koorInitials = (KOOR.user.name || 'Ayu Lestari').replace(/^(Dr\.|Prof\.|Ir\.)\s*/i, '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'AL';

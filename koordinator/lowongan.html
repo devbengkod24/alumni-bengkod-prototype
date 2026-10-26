@@ -109,13 +109,13 @@
       <legend class="sr-only">Informasi Lowongan</legend>
       <div class="sm:col-span-2"><label for="f-posisi" class="label">Posisi <span class="text-red2">*</span></label><input id="f-posisi" name="posisi" class="input" required maxlength="255" placeholder="contoh: Backend Developer (Laravel)"></div>
       <div><label for="f-pengalaman" class="label">Pengalaman <span class="text-red2">*</span></label>
-        <select id="f-pengalaman" name="pengalaman" class="input" required><option value="">Pilih pengalaman</option><option>Fresh Graduate</option><option>Mahasiswa</option><option>1-2 Tahun</option><option>2-3 Tahun</option><option>3-5 Tahun</option><option>5+ Tahun</option></select></div>
+        <select id="f-pengalaman" name="pengalaman" class="input" required><option value="">Pilih pengalaman</option><option>Lulusan Baru</option><option>Mahasiswa</option><option>1-2 Tahun</option><option>2-3 Tahun</option><option>3-5 Tahun</option><option>5+ Tahun</option></select></div>
       <div><label for="f-tipe" class="label">Tipe Kerja <span class="text-red2">*</span></label>
-        <select id="f-tipe" name="tipe_kerja" class="input" required><option value="">Pilih tipe kerja</option><option>Full Time</option><option>Part Time</option><option>Magang</option><option>Remote</option><option>Freelance</option></select></div>
+        <select id="f-tipe" name="tipe_kerja" class="input" required><option value="">Pilih tipe kerja</option><option>Penuh Waktu</option><option>Paruh Waktu</option><option>Magang</option><option>Jarak Jauh</option><option>Freelance</option></select></div>
       <div><label for="f-gaji-min" class="label">Gaji Minimum (opsional)</label><input id="f-gaji-min" name="gaji_min" type="number" min="0" step="100000" class="input" placeholder="3000000"></div>
       <div><label for="f-gaji-max" class="label">Gaji Maksimum (opsional)</label><input id="f-gaji-max" name="gaji_max" type="number" min="0" step="100000" class="input" placeholder="5000000"></div>
       <div><label for="f-kategori" class="label">Kategori <span class="text-red2">*</span></label>
-        <select id="f-kategori" name="kategori_lowongan" class="input" required><option value="">Pilih kategori</option><option>Kerja</option><option>Magang</option><option>Volunteer</option></select></div>
+        <select id="f-kategori" name="kategori" class="input" required><option value="">Pilih kategori</option><option>Kerja</option><option>Magang</option><option>Volunteer</option></select></div>
       <div><label for="f-berlaku" class="label">Masa Berlaku <span class="text-red2">*</span></label><input id="f-berlaku" name="masa_berlaku" type="date" class="input" required></div>
       <div class="sm:col-span-2"><label for="f-tags" class="label">Tags <span class="text-red2">*</span></label><input id="f-tags" name="tags" class="input" required placeholder="Laravel, PHP, MySQL">
         <p class="text-xs text-neutral3 mt-1">Pisahkan dengan koma, maks. 5 tag</p></div>
@@ -165,7 +165,7 @@
         ${row('Website', l.website ? `<a href="${esc(l.website)}" target="_blank" rel="noopener" class="text-primary2 hover:underline">${esc(l.website)}</a>` : '')}
       </dl>`)}
       ${section('briefcase', 'Informasi Lowongan', `<dl class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        ${row('Posisi', esc(l.posisi))}${row('Kategori', esc(l.kategori_lowongan))}
+        ${row('Posisi', esc(l.posisi))}${row('Kategori', esc(l.kategori_lowongan || l.kategori))}
         ${row('Tipe Kerja', esc(l.tipe_kerja))}${row('Pengalaman', esc(l.pengalaman))}
         ${row('Gaji', fmtGaji(l.gaji_min, l.gaji_max))}${row('Masa Berlaku', fmtDate(l.masa_berlaku))}
         ${l.pengaju ? row('Diajukan oleh', `${esc(l.pengaju)} <span class="text-neutral3 font-normal">(${esc(l.oleh)})</span>`) + row('Tanggal Diajukan', fmtDate(l.diajukan)) : ''}
@@ -336,10 +336,12 @@
     if (!validStep()) return;
     if (step < steps.length - 1) return showStep(step + 1);
     const data = formData();
-    const l = find(+data.id);
+    const list = KOOR.lowongan;
+    const l = list.find(x => x.id === +data.id);
     delete data.id;
     if (l) Object.assign(l, data);
-    else KOOR.lowongan.unshift({ id: Date.now(), ...data, status: 'Terverifikasi', oleh: 'koordinator', pengaju: KOOR.user.name, diajukan: new Date().toISOString().slice(0, 10), keterangan: '' });
+    else list.unshift({ id: Date.now(), ...data, status: 'Terverifikasi', oleh: 'koordinator', pengaju: KOOR.user.name, diajukan: new Date().toISOString().slice(0, 10), keterangan: '' });
+    KOOR.lowongan = list;
     audit(l ? 'Edit lowongan' : 'Tambah lowongan', `${data.posisi} (${data.nama_perusahaan})`);
     closeModal('form-modal');
     render();
