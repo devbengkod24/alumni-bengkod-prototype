@@ -98,6 +98,13 @@
               <option>Lainnya</option>
             </select>
             <div class="error-msg hidden" id="err-bidang_usaha">Bidang usaha wajib dipilih</div>
+
+            <!-- Input tambahan saat opsi "Lainnya" dipilih -->
+            <div id="wrapper-bidang-lainnya" class="hidden mt-2.5">
+              <label for="bidang_usaha_lainnya" class="label text-xs">Sebutkan Bidang Usaha Lainnya <span class="text-red2">*</span></label>
+              <input type="text" id="bidang_usaha_lainnya" class="input text-xs sm:text-sm" placeholder="Contoh: Logistik & Rantai Pasok">
+              <div class="error-msg hidden" id="err-bidang_usaha_lainnya">Bidang usaha lainnya wajib diisi</div>
+            </div>
           </div>
 
           <div>
@@ -266,12 +273,55 @@
 
 <script>
 const REQUIRED_FIELDS = ['nama_perusahaan', 'email', 'telepon', 'bidang_usaha', 'alamat', 'kota', 'pic_nama', 'pic_email', 'deskripsi'];
+const STANDARD_BIDANG = [
+  'Software House', 'Startup Teknologi', 'Telekomunikasi', 'E-Commerce',
+  'Perbankan & Keuangan', 'Manufaktur', 'Pendidikan', 'Kesehatan', 'Konsultan IT'
+];
+
+function handleBidangUsahaChange() {
+  const bidangSelect = document.getElementById('bidang_usaha');
+  const wrapperLainnya = document.getElementById('wrapper-bidang-lainnya');
+  const inputLainnya = document.getElementById('bidang_usaha_lainnya');
+
+  if (bidangSelect.value === 'Lainnya') {
+    wrapperLainnya.classList.remove('hidden');
+    inputLainnya.focus();
+  } else {
+    wrapperLainnya.classList.add('hidden');
+    inputLainnya.value = '';
+    const errLainnya = document.getElementById('err-bidang_usaha_lainnya');
+    if (errLainnya) errLainnya.classList.add('hidden');
+    inputLainnya.classList.remove('border-red1');
+  }
+  updatePreview();
+  updateCompletion();
+}
 
 function fillForm(profil) {
   Object.keys(profil).forEach(k => {
     const el = document.getElementById(k);
     if (el) el.value = profil[k] || '';
   });
+
+  // Penanganan khusus bidang usaha & opsi "Lainnya"
+  const bidangVal = profil.bidang_usaha || '';
+  const bidangSelect = document.getElementById('bidang_usaha');
+  const wrapperLainnya = document.getElementById('wrapper-bidang-lainnya');
+  const inputLainnya = document.getElementById('bidang_usaha_lainnya');
+
+  if (STANDARD_BIDANG.includes(bidangVal)) {
+    bidangSelect.value = bidangVal;
+    wrapperLainnya.classList.add('hidden');
+    inputLainnya.value = '';
+  } else if (bidangVal) {
+    bidangSelect.value = 'Lainnya';
+    wrapperLainnya.classList.remove('hidden');
+    inputLainnya.value = profil.bidang_usaha_lainnya || (bidangVal !== 'Lainnya' ? bidangVal : '');
+  } else {
+    bidangSelect.value = '';
+    wrapperLainnya.classList.add('hidden');
+    inputLainnya.value = '';
+  }
 
   const preview = document.getElementById('logo-preview');
   if (profil.logo && preview) {
@@ -317,6 +367,18 @@ function validateForm() {
     }
   });
 
+  // Validasi khusus opsi "Lainnya" pada bidang usaha
+  const bidangSelect = document.getElementById('bidang_usaha');
+  if (bidangSelect && bidangSelect.value === 'Lainnya') {
+    const inputLainnya = document.getElementById('bidang_usaha_lainnya');
+    if (!inputLainnya || !inputLainnya.value.trim()) {
+      const err = document.getElementById('err-bidang_usaha_lainnya');
+      if (err) err.classList.remove('hidden');
+      inputLainnya?.classList.add('border-red1');
+      valid = false;
+    }
+  }
+
   // Email validation
   const email = document.getElementById('email');
   if (email.value && !validateEmail(email.value)) {
@@ -345,9 +407,21 @@ function validateForm() {
 
 function getFormData() {
   const data = {};
-  ['nama_perusahaan', 'email', 'telepon', 'website', 'bidang_usaha', 'alamat', 'kota', 'provinsi', 'negara', 'kode_pos', 'pic_nama', 'pic_jabatan', 'pic_email', 'pic_telepon', 'deskripsi'].forEach(k => {
+  ['nama_perusahaan', 'email', 'telepon', 'website', 'alamat', 'kota', 'provinsi', 'negara', 'kode_pos', 'pic_nama', 'pic_jabatan', 'pic_email', 'pic_telepon', 'deskripsi'].forEach(k => {
     data[k] = document.getElementById(k)?.value || '';
   });
+
+  const bidangSelect = document.getElementById('bidang_usaha')?.value || '';
+  const bidangLainnya = document.getElementById('bidang_usaha_lainnya')?.value.trim() || '';
+
+  if (bidangSelect === 'Lainnya') {
+    data.bidang_usaha = bidangLainnya || 'Lainnya';
+    data.bidang_usaha_lainnya = bidangLainnya;
+  } else {
+    data.bidang_usaha = bidangSelect;
+    data.bidang_usaha_lainnya = '';
+  }
+
   return data;
 }
 
@@ -368,8 +442,14 @@ function updateCompletion() {
   let filled = 0;
   const items = fields.map(f => {
     let val = '';
-    if (f.id === 'logo') { val = MITRA.profil.logo || ''; }
-    else { val = document.getElementById(f.id)?.value || ''; }
+    if (f.id === 'logo') {
+      val = MITRA.profil.logo || '';
+    } else if (f.id === 'bidang_usaha') {
+      const sel = document.getElementById('bidang_usaha')?.value || '';
+      val = (sel === 'Lainnya') ? (document.getElementById('bidang_usaha_lainnya')?.value.trim() || '') : sel;
+    } else {
+      val = document.getElementById(f.id)?.value || '';
+    }
     const done = val.trim().length > 0;
     if (done) filled++;
     return `<li class="flex items-center gap-2 ${done ? 'text-neutral1 font-medium' : 'text-neutral3'}">
@@ -391,7 +471,9 @@ function updateCompletion() {
 
 function updatePreview() {
   const nama = document.getElementById('nama_perusahaan')?.value || '';
-  const bidang = document.getElementById('bidang_usaha')?.value || '';
+  const bidangSelect = document.getElementById('bidang_usaha')?.value || '';
+  const bidangLainnya = document.getElementById('bidang_usaha_lainnya')?.value.trim() || '';
+  const bidang = (bidangSelect === 'Lainnya' ? (bidangLainnya || 'Lainnya') : bidangSelect);
   const kota = document.getElementById('kota')?.value || '';
   const picNama = document.getElementById('pic_nama')?.value || '';
   const picJabatan = document.getElementById('pic_jabatan')?.value || '';
@@ -421,6 +503,18 @@ document.addEventListener('DOMContentLoaded', () => {
   // Live preview update
   ['nama_perusahaan', 'bidang_usaha', 'kota', 'pic_nama', 'pic_jabatan'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updatePreview);
+  });
+
+  // Handler perubahan sektor usaha & input Lainnya
+  document.getElementById('bidang_usaha')?.addEventListener('change', handleBidangUsahaChange);
+  document.getElementById('bidang_usaha_lainnya')?.addEventListener('input', () => {
+    updatePreview();
+    updateCompletion();
+    const err = document.getElementById('err-bidang_usaha_lainnya');
+    if (err && document.getElementById('bidang_usaha_lainnya').value.trim()) {
+      err.classList.add('hidden');
+      document.getElementById('bidang_usaha_lainnya').classList.remove('border-red1');
+    }
   });
 
   // Character counter for deskripsi

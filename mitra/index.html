@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -246,7 +246,7 @@
               </div>
               <div class="min-w-0 flex-1">
                 <p class="text-[12px] font-semibold text-neutral1 truncate group-hover:text-primary1 transition-colors">${esc(l.posisi)}</p>
-                <p class="text-[10px] text-neutral3 truncate">${esc(l.lokasi || 'Semarang')} · ${esc(l.tipe_kerja || 'Full Time')} · Berlaku s/d ${fmtDate(l.masa_berlaku)}</p>
+                <p class="text-[10px] text-neutral3 truncate">${esc(l.kategori === 'Magang' ? 'Magang' : 'Kerja')} · ${esc(l.lokasi || 'Semarang')} · ${esc(l.tipe_kerja || 'Full Time')} · Berlaku s/d ${fmtDate(l.masa_berlaku)}</p>
               </div>
             </div>
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${badgeClass} shrink-0">
