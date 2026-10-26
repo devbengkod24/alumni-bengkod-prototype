@@ -46,24 +46,19 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 const KOOR_DEFAULT = {
   user: { name: 'Dr. Ayu Lestari, M.Kom', email: 'ayu.lestari@dinus.ac.id' },
 
-  // Dikelompokkan per alur kerja: rekrutmen, komunikasi, tracer study, administrasi.
-  // { divider: true } = garis pemisah antarkelompok (Divider sidebar di DESIGN.md)
+  // Urut per alur kerja: rekrutmen, komunikasi, tracer study, administrasi
   nav: [
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
-    { divider: true },
     { href: 'lowongan.html', icon: 'briefcase', label: 'Lowongan' },
     { href: 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar' },
-    { divider: true },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
-    { divider: true },
     { icon: 'database', label: 'Tracer Data', submenu: [
       { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
       { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
     ] },
     { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
     { href: 'rekap-tahunan.html', icon: 'file-spreadsheet', label: 'Rekap Tahunan' },
-    { divider: true },
     { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
   ],
 
@@ -409,7 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const activeHref = main.dataset.nav || current;
 
   const navItems = KOOR.nav.map(n => {
-    if (n.divider) return '<div role="separator" class="py-1.5"><div class="h-0.5 bg-neutral4"></div></div>';
     // Menu bertingkat (pola sama dengan sidebar mitra)
     if (n.submenu) {
       const open = n.submenu.some(s => s.href === activeHref);
