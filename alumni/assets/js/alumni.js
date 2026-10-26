@@ -99,6 +99,7 @@ const ALUMNI_ROUTES = {
   "/dashboard/alumni": "dashboard.html",
   "/dashboard/alumni/profil": "profil.html",
   "/dashboard/alumni/lowongan": "lowongan.html",
+  "/dashboard/alumni/pengumuman": "pengumuman.html",
 };
 
 function alumniHref(link) {
@@ -135,6 +136,14 @@ const ALUMNI_NAVIGATIONS = [
           <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           <line x1="12" y1="12" x2="12" y2="12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>`,
+  },
+  {
+    title: "Pengumuman",
+    link: "/dashboard/alumni/pengumuman",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>`,
   },
 ];
