@@ -461,7 +461,7 @@
     </template>
 
     <!-- ============================================================
-        MODAL: LAMAR PEKERJAAN (EASY APPLY MULTI-STEP) — _components/ApplyJobModal.tsx
+        MODAL: LAMAR PEKERJAAN — CLEAN DESIGN 100% PERSIS TAMBAH PROYEK
     ============================================================ -->
     <template x-if="applyModalOpen && applyingJob">
       <div
@@ -469,204 +469,220 @@
         @mousedown.self="applyModalOpen = false"
       >
         <div
-          style="width: 90vw; max-width: 1024px"
-          class="bg-white rounded-xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[92vh] overflow-hidden"
+          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
+          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+          role="dialog"
+          aria-modal="true"
         >
-          <!-- Header Modal -->
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-            <div class="flex items-center gap-3">
-              <img :src="applyingJob.companyLogo" :alt="applyingJob.company" class="w-11 h-11 rounded-xl object-cover border border-gray-200">
-              <div>
-                <h3 class="text-[20px] font-medium text-gray-900 tracking-tight leading-tight" x-text="'Lamar ke ' + applyingJob.company"></h3>
-                <p class="text-[14px] text-gray-500 truncate max-w-[340px] mt-0.5" x-text="applyingJob.title + ' • ' + applyingJob.location"></p>
-              </div>
-            </div>
+          <!-- Header Modal (Persis 100% Modal Tambah Proyek di Profil) -->
+          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+            <h2 class="text-[20px] font-bold text-gray-900 tracking-tight" x-text="'Lamar ke ' + applyingJob.company"></h2>
             <button
               type="button"
               @click="applyModalOpen = false"
-              class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+              aria-label="Tutup modal"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
           </div>
 
-          <!-- Progress Bar (Step Indicator) -->
-          <div class="px-6 pt-3 pb-2 bg-gray-50/60 border-b border-gray-100">
-            <div class="flex items-center justify-between text-[14px] font-medium text-gray-500 mb-1.5">
-              <span :class="ap.step >= 1 ? 'text-[#1E3A8A]' : ''">1. Kontak</span>
-              <span :class="ap.step >= 2 ? 'text-[#1E3A8A]' : ''">2. Resume / CV</span>
-              <span :class="ap.step >= 3 ? 'text-[#1E3A8A]' : ''">3. Portofolio</span>
-              <span :class="ap.step >= 4 ? 'text-[#1E3A8A]' : ''">4. Tinjau</span>
+          <!-- Step Indicator (Tipis & Bersih) -->
+          <div class="px-6 sm:px-8 py-3 bg-gray-50/50 border-b border-gray-200 flex-shrink-0">
+            <div class="flex items-center justify-between text-[13.5px] font-medium text-gray-500 mb-1.5">
+              <span :class="ap.step === 1 ? 'text-[#1E3A8A] font-semibold' : (ap.step > 1 ? 'text-gray-900' : 'text-gray-400')">1. Kontak</span>
+              <span :class="ap.step === 2 ? 'text-[#1E3A8A] font-semibold' : (ap.step > 2 ? 'text-gray-900' : 'text-gray-400')">2. Resume / CV</span>
+              <span :class="ap.step === 3 ? 'text-[#1E3A8A] font-semibold' : (ap.step > 3 ? 'text-gray-900' : 'text-gray-400')">3. Portofolio</span>
+              <span :class="ap.step === 4 ? 'text-[#1E3A8A] font-semibold' : 'text-gray-400'">4. Tinjau</span>
             </div>
             <div class="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden">
               <div class="bg-[#1E3A8A] h-full transition-all duration-300 rounded-full" :style="{ width: (ap.step / 4) * 100 + '%' }"></div>
             </div>
           </div>
 
-          <!-- Body Content by Step -->
-          <div class="p-6 overflow-y-auto space-y-4 flex-1 text-[15px]">
+          <!-- Body Modal (Bentuk Kotak Input, Ukuran Font, dan Ketebalan Persis 100% Tambah Proyek) -->
+          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
             <!-- STEP 1: INFO KONTAK -->
             <template x-if="ap.step === 1">
               <div class="space-y-4">
-                <div>
-                  <h4 class="text-[15px] font-medium text-gray-900">Informasi Kontak Anda</h4>
-                  <p class="text-[14px] text-gray-500 mt-0.5" x-text="'Recruiter dari ' + applyingJob.company + ' akan menghubungi Anda melalui kontak di bawah ini.'"></p>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Nama lengkap <span class="text-red-500 font-bold">*</span></label>
+                  <input type="text" autocomplete="off" x-model="ap.name" placeholder="Contoh: Aisha Dwi Rahmawati" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
                 </div>
 
-                <div>
-                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Nama Lengkap *</label>
-                  <input type="text" x-model="ap.name" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Alamat email <span class="text-red-500 font-bold">*</span></label>
+                  <input type="email" autocomplete="off" x-model="ap.email" placeholder="Contoh: aisha.rahma@alumni.dinus.ac.id" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                  <div>
-                    <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Alamat Email *</label>
-                    <input type="email" x-model="ap.email" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
-                  </div>
-                  <div>
-                    <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Nomor WhatsApp / HP *</label>
-                    <input type="text" x-model="ap.phone" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
-                  </div>
+                <!-- Nomor WhatsApp / HP DIBAWAH, bukan disamping -->
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Nomor WhatsApp / HP <span class="text-red-500 font-bold">*</span></label>
+                  <input type="text" autocomplete="off" x-model="ap.phone" placeholder="Contoh: +62 812-3456-7890" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
                 </div>
 
-                <div>
-                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Domisili / Kota Saat Ini *</label>
-                  <input type="text" x-model="ap.location" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs" required>
-                </div>
-
-                <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5 text-[14px] text-blue-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-0.5 text-[#1E3A8A]">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                    <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2" />
-                    <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                  <span>Data di atas disinkronkan otomatis dari profil resmi Alumni Bengkel Koding Anda.</span>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Domisili / Kota saat ini <span class="text-red-500 font-bold">*</span></label>
+                  <input type="text" autocomplete="off" x-model="ap.location" placeholder="Contoh: Kota Kudus, Jawa Tengah, Indonesia" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
                 </div>
               </div>
             </template>
 
-            <!-- STEP 2: RESUME / CV — Revisi UX: CV dibuat otomatis dari profil, tanpa unggah -->
+            <!-- STEP 2: RESUME / CV -->
             <template x-if="ap.step === 2">
               <div class="space-y-4">
-                <div>
-                  <h4 class="text-[15px] font-medium text-gray-900">Resume / CV Otomatis</h4>
-                  <p class="text-[14px] text-gray-500 mt-0.5" x-text="'CV untuk posisi ' + applyingJob.title + ' dibuat otomatis dari profil alumni Anda.'"></p>
-                </div>
-
-                <div class="p-4 rounded-xl border border-[#1E3A8A] bg-blue-50/50 ring-2 ring-[#1E3A8A]/10 flex items-center justify-between">
-                  <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-medium text-[12px] border border-blue-200">
-                      PDF
+                <div class="space-y-2">
+                  <label class="block text-[14px] font-medium text-gray-700">Pilihan berkas CV <span class="text-red-500 font-bold">*</span></label>
+                  
+                  <!-- 2 Pilihan Bersih Persis Style Pilihan Modal Profil -->
+                  <div class="space-y-2.5">
+                    <!-- Opsi 1: Gunakan CV dari Profil (Hasil Generate) -->
+                    <div
+                      @click="ap.cvOption = 'generate'"
+                      class="flex items-center justify-between p-3.5 rounded-lg border transition-colors cursor-pointer"
+                      :class="ap.cvOption === 'generate' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'"
+                    >
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div
+                          class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0"
+                          :class="ap.cvOption === 'generate' ? 'border-[#1E3A8A] bg-[#1E3A8A] text-white' : 'border-gray-300 bg-white'"
+                        >
+                          <template x-if="ap.cvOption === 'generate'">
+                            <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                          </template>
+                        </div>
+                        <div class="min-w-0">
+                          <p class="text-[14px] font-medium text-gray-900 truncate">Gunakan CV dari Profil (Hasil Generate)</p>
+                          <p class="text-[12px] text-gray-500 truncate" x-text="cvFileName + ' · Dibuat otomatis dari data profil Anda'"></p>
+                        </div>
+                      </div>
+                      <span class="text-[12px] font-semibold text-[#1E3A8A] flex-shrink-0 pl-2">Otomatis</span>
                     </div>
-                    <div>
-                      <p class="text-[15px] font-medium text-gray-900" x-text="cvFileName"></p>
-                      <p class="text-[13px] text-gray-500">Dibuat otomatis dari profil</p>
+
+                    <!-- Opsi 2: Upload CV Sendiri (PDF) -->
+                    <div
+                      @click="ap.cvOption = 'upload'"
+                      class="flex items-center justify-between p-3.5 rounded-lg border transition-colors cursor-pointer"
+                      :class="ap.cvOption === 'upload' ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'"
+                    >
+                      <div class="flex items-center gap-3 min-w-0">
+                        <div
+                          class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors flex-shrink-0"
+                          :class="ap.cvOption === 'upload' ? 'border-[#1E3A8A] bg-[#1E3A8A] text-white' : 'border-gray-300 bg-white'"
+                        >
+                          <template x-if="ap.cvOption === 'upload'">
+                            <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                          </template>
+                        </div>
+                        <div class="min-w-0">
+                          <p class="text-[14px] font-medium text-gray-900 truncate">Upload CV Sendiri (PDF)</p>
+                          <p class="text-[12px] text-gray-500 truncate" x-text="ap.customCvName ? ap.customCvName : 'Unggah berkas CV format PDF dari komputer (maks. 5 MB)'"></p>
+                        </div>
+                      </div>
+                      <span class="text-[12px] font-semibold text-gray-600 flex-shrink-0 pl-2">PDF</span>
                     </div>
                   </div>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A] flex-shrink-0">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                    <polyline points="8 12.5 11 15.5 16 9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
                 </div>
 
-                <div class="p-3 bg-blue-50/60 rounded-xl border border-blue-100 flex items-start gap-2.5 text-[14px] text-blue-900">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 mt-0.5 text-[#1E3A8A]">
-                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                    <line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2" />
-                    <line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2" />
-                  </svg>
-                  <span>CV berisi data profil, pendidikan, proyek, keahlian, dan sertifikasi Anda. Untuk mengubah isinya, perbarui halaman <a href="profil.html" class="font-semibold underline">Profil Saya</a>.</span>
-                </div>
+                <!-- Area Upload Jika Opsi Upload Dipilih -->
+                <template x-if="ap.cvOption === 'upload'">
+                  <div class="space-y-1.5 pt-1">
+                    <div class="border border-dashed border-gray-300 rounded-md p-4 text-center bg-white hover:border-[#1E3A8A] transition-colors">
+                      <input type="file" id="custom-cv-upload" accept=".pdf" class="hidden" @change="handleCvFileUpload($event)">
+                      <label for="custom-cv-upload" class="cursor-pointer block">
+                        <p class="text-[14px] text-gray-700">
+                          <span class="font-semibold text-[#1E3A8A] hover:underline">Pilih file PDF</span> atau tarik file ke sini
+                        </p>
+                        <p class="text-[12px] text-gray-500 mt-0.5">Maksimal 5 MB</p>
+                      </label>
+                    </div>
+                    <template x-if="ap.customCvName">
+                      <p class="text-[13px] text-gray-700">Berkas terpilih: <span class="font-medium text-[#1E3A8A]" x-text="ap.customCvName"></span></p>
+                    </template>
+                  </div>
+                </template>
               </div>
             </template>
 
             <!-- STEP 3: PORTOFOLIO & CATATAN PENGANTAR -->
             <template x-if="ap.step === 3">
               <div class="space-y-4">
-                <div>
-                  <h4 class="text-[15px] font-medium text-gray-900">Tautan Portofolio &amp; Pengantar</h4>
-                  <p class="text-[14px] text-gray-500 mt-0.5">
-                    Berikan bukti pencapaian riset, proyek capstone, atau link akun profesional Anda.
-                  </p>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Tautan GitHub / Portofolio Web</label>
+                  <input type="url" autocomplete="off" x-model="ap.portfolioUrl" placeholder="Contoh: https://github.com/username" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
                 </div>
 
-                <div>
-                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Tautan GitHub / Portofolio Web</label>
-                  <input type="url" x-model="ap.portfolioUrl" placeholder="https://github.com/username" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs">
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Tautan Profil LinkedIn</label>
+                  <input type="url" autocomplete="off" x-model="ap.linkedinUrl" placeholder="Contoh: https://linkedin.com/in/username" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
                 </div>
 
-                <div>
-                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">Tautan Profil LinkedIn</label>
-                  <input type="url" x-model="ap.linkedinUrl" placeholder="https://linkedin.com/in/username" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 shadow-xs">
-                </div>
-
-                <div>
-                  <label class="block text-[14px] font-medium text-gray-700 mb-1.5">
-                    Surat Pengantar Singkat / Cover Note (Opsional)
-                  </label>
-                  <textarea rows="3" x-model="ap.coverNote" placeholder="Ceritakan secara ringkas mengapa Anda antusias melamar posisi ini..." class="w-full p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 text-gray-900 resize-none leading-relaxed shadow-xs"></textarea>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Surat pengantar singkat (opsional)</label>
+                  <textarea rows="3" x-model="ap.coverNote" placeholder="Jelaskan tujuan dan mengapa Anda tertarik dengan posisi ini..." style="resize: none" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
                 </div>
               </div>
             </template>
 
-            <!-- STEP 4: TINJAU & KONFIRMASI -->
+            <!-- STEP 4: TINJAU & KONFIRMASI (KE BAWAH, KOTAK & FONT PERSIS 100% TAMBAH PROYEK) -->
             <template x-if="ap.step === 4">
               <div class="space-y-4">
-                <div>
-                  <h4 class="text-[15px] font-medium text-gray-900">Tinjau Lamaran Anda</h4>
-                  <p class="text-[15px] text-gray-500 mt-0.5" x-text="'Pastikan semua data sudah benar sebelum mengirimkan ke tim rekrutmen ' + applyingJob.company + '.'"></p>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Posisi lowongan</label>
+                  <input type="text" readonly :value="applyingJob.title" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none cursor-default">
                 </div>
 
-                <div class="bg-gray-50/70 rounded-xl p-4 border border-gray-200 space-y-3">
-                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <span class="text-gray-700">Posisi Lowongan:</span>
-                    <span class="text-gray-700" x-text="applyingJob.title"></span>
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Nama pelamar</label>
+                  <input type="text" readonly :value="ap.name" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none cursor-default">
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Email &amp; nomor telepon</label>
+                  <input type="text" readonly :value="ap.email + ' • ' + ap.phone" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none cursor-default">
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Berkas resume / CV terpilih</label>
+                  <input type="text" readonly :value="cvFileName" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-[15px] text-[#1E3A8A] outline-none cursor-default">
+                </div>
+
+                <template x-if="ap.portfolioUrl">
+                  <div class="space-y-1.5">
+                    <label class="block text-[14px] font-medium text-gray-700">Tautan portofolio</label>
+                    <input type="text" readonly :value="ap.portfolioUrl" class="w-full rounded-md border border-gray-300 bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none cursor-default">
                   </div>
-                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <span class="text-gray-700">Nama Pelamar:</span>
-                    <span class="text-gray-700" x-text="ap.name"></span>
-                  </div>
-                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <span class="text-gray-700">Email &amp; HP:</span>
-                    <span class="text-gray-700 text-right" x-text="ap.email + ' • ' + ap.phone"></span>
-                  </div>
-                  <div class="flex items-center justify-between border-b border-gray-100 pb-2.5">
-                    <span class="text-gray-700">File Resume Terpilih:</span>
-                    <span class="text-[#1E3A8A] flex items-center gap-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A] flex-shrink-0">
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                      <span x-text="cvFileName"></span>
-                    </span>
-                  </div>
-                  <template x-if="ap.portfolioUrl">
-                    <div class="flex items-center justify-between">
-                      <span class="text-gray-700">Tautan Portofolio:</span>
-                      <span class="text-gray-700 truncate max-w-[240px]" x-text="ap.portfolioUrl"></span>
+                </template>
+
+                <!-- Checkbox Konfirmasi (Persis currentCheckboxHTML di alumni-profile-modals.js) -->
+                <div class="pt-2">
+                  <label class="flex items-center gap-3 cursor-pointer group w-fit select-none">
+                    <div @click="ap.consentCheck = !ap.consentCheck"
+                      class="w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors cursor-pointer"
+                      :class="ap.consentCheck ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white' : 'border-gray-300 bg-white'">
+                      <template x-if="ap.consentCheck">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </template>
                     </div>
-                  </template>
+                    <span class="text-[14px] text-gray-800 leading-snug">
+                      Saya mengonfirmasi bahwa data yang diberikan adalah benar dan mengizinkan tim rekrutmen <span class="font-medium" x-text="applyingJob.company"></span> untuk melihat profil portofolio serta riwayat proyek saya.
+                    </span>
+                  </label>
                 </div>
-
-                <label class="flex items-start gap-2.5 p-3 rounded-xl border border-gray-200 bg-white cursor-pointer select-none">
-                  <input type="checkbox" x-model="ap.consentCheck" class="w-4 h-4 mt-0.5 text-[#1E3A8A] rounded">
-                  <span class="text-[14px] text-gray-700 leading-snug">
-                    Saya mengonfirmasi bahwa data yang diberikan adalah benar dan mengizinkan tim rekrutmen <strong x-text="applyingJob.company"></strong> untuk melihat profil portofolio serta riwayat proyek saya.
-                  </span>
-                </label>
               </div>
             </template>
           </div>
 
-          <!-- Footer Actions -->
-          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+          <!-- Footer Actions (Persis 100% Modal Tambah Proyek di Profil) -->
+          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
             <template x-if="ap.step > 1">
               <button
                 type="button"
                 @click="ap.step--"
-                class="px-5 py-2.5 border border-gray-300 text-gray-700 hover:bg-gray-100 font-semibold text-[14px] rounded-full transition-colors cursor-pointer"
+                class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Kembali
               </button>
@@ -675,7 +691,7 @@
               <button
                 type="button"
                 @click="applyModalOpen = false"
-                class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 font-semibold text-[14px] rounded-full transition-colors cursor-pointer"
+                class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
               >
                 Batal
               </button>
@@ -685,7 +701,7 @@
               <button
                 type="button"
                 @click="ap.step++"
-                class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[14px] rounded-full shadow-sm transition-colors cursor-pointer"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer"
               >
                 Lanjutkan
               </button>
@@ -696,13 +712,9 @@
                 id="btn-submit-job-application"
                 :disabled="!ap.consentCheck"
                 @click="handleApplySubmit()"
-                class="px-6 py-2.5 text-white font-semibold text-[14px] rounded-full shadow-sm transition-colors cursor-pointer flex items-center gap-2"
-                :class="ap.consentCheck ? 'bg-[#1E3A8A] hover:bg-[#1D4ED8]' : 'bg-gray-400 cursor-not-allowed'"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <span>Kirim Lamaran Sekarang</span>
+                Kirim lamaran
               </button>
             </template>
           </div>
@@ -751,6 +763,8 @@
           email: defaultProfile.email,
           phone: defaultProfile.phone,
           location: defaultProfile.location,
+          cvOption: "generate", // "generate" | "upload"
+          customCvName: "",
           portfolioUrl: defaultProfile.github || "https://github.com/aishaadr",
           linkedinUrl: defaultProfile.linkedin || "https://linkedin.com/in/aisharah",
           coverNote: "",
@@ -773,6 +787,13 @@
               };
             }
           } catch {}
+        },
+
+        handleCvFileUpload(e) {
+          const file = e.target.files && e.target.files[0];
+          if (file) {
+            this.ap.customCvName = file.name;
+          }
         },
 
         setToast(msg) {
@@ -804,8 +825,11 @@
           });
         },
 
-        // Revisi UX: nama berkas CV otomatis dari nama pelamar
+        // Berkas CV: otomatis dari hasil generate profil atau file kustom upload
         get cvFileName() {
+          if (this.ap.cvOption === "upload" && this.ap.customCvName) {
+            return this.ap.customCvName;
+          }
           return "CV_" + this.ap.name.trim().split(/\s+/).join("_") + "_2026.pdf";
         },
 
