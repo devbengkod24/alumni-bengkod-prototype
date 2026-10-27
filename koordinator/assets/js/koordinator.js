@@ -58,7 +58,6 @@ const KOOR_DEFAULT = {
       { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
     ] },
     { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
-    { href: 'rekap-tahunan.html', icon: 'file-spreadsheet', label: 'Rekap Tahunan' },
     { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
   ],
 
