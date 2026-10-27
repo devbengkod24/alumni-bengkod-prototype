@@ -349,89 +349,34 @@
       ====================================================== -->
       <div class="lg:col-span-4 space-y-6 self-stretch relative">
 
-        <!-- ── CARD 1: LOWONGAN TERBARU DARI MITRA ── -->
-        <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6">
-          <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-[16px] font-semibold text-gray-900 tracking-tight">Lowongan Terbaru</h3>
-              <p class="text-[13px] text-gray-500 font-normal mt-0.5">Dari mitra Bengkel Koding</p>
-            </div>
-            <a href="lowongan" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer flex-shrink-0">Lihat semua</a>
-          </div>
-          <div class="mt-4 space-y-0 divide-y divide-gray-100">
-            <!-- Job 1 -->
-            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
-              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
-                <img src="https://images.unsplash.com/photo-1541560052-77ec1bbc09f7?w=80&auto=format&fit=crop&q=80" alt="Mandiri" class="w-full h-full object-cover">
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Frontend Web Developer</p>
-                <p class="text-[13px] text-gray-500 mt-0.5 truncate">PT Bank Mandiri • Jakarta Pusat</p>
-                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Hybrid</span>
-                  <span class="text-[13px] text-gray-500 font-normal">• 1 hari lalu</span>
-                </div>
-              </div>
-            </a>
-            <!-- Job 2 -->
-            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
-              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
-                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=80&auto=format&fit=crop&q=80" alt="GoTo" class="w-full h-full object-cover">
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Junior AI & ML Engineer</p>
-                <p class="text-[13px] text-gray-500 mt-0.5 truncate">GoTo Group • Jakarta Selatan</p>
-                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Gabungan</span>
-                  <span class="text-[13px] text-gray-500 font-normal">• 3 hari lalu</span>
-                </div>
-              </div>
-            </a>
-            <!-- Job 3 -->
-            <a href="lowongan" class="flex items-start gap-3.5 py-3 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group block px-2">
-              <div class="w-11 h-11 rounded-xl overflow-hidden border border-gray-200 flex-shrink-0 bg-gray-50 shadow-xs">
-                <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=80&auto=format&fit=crop&q=80" alt="Traveloka" class="w-full h-full object-cover">
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Product Data Analyst</p>
-                <p class="text-[13px] text-gray-500 mt-0.5 truncate">Traveloka • Tangerang Selatan</p>
-                <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                  <span class="text-[12px] font-medium text-[#1E3A8A] bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">Di Kantor</span>
-                  <span class="text-[13px] text-gray-500 font-normal">• 1 minggu lalu</span>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-
-
-        <!-- ── CARD 3: ORANG YANG MUNGKIN ANDA KENAL (Gambar 2 - Sticky Pinned Saat Scroll) ── -->
-        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/90 shadow-sm p-6">
-          <div>
-            <h3 class="text-[16px] font-semibold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
-            <p class="text-[13px] text-gray-500 font-normal mt-0.5">Dari sekolah Anda</p>
+        <!-- ── CARD: REKOMENDASI TEMAN ALUMNI (1 Card Utuh Bergaya Bersih) ── -->
+        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
+          <!-- Header Card (Simpel, Tanpa Icon & Tanpa Badge '8 Teman') -->
+          <div class="pb-3">
+            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
+            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
           </div>
 
-          <div class="mt-4 space-y-4 divide-y divide-gray-100">
+          <!-- Daftar 8 Rekomendasi Teman (Menyatu dalam 1 card, tanpa garis-garis, tanpa box terpisah per item) -->
+          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
             <template x-for="person in recommendedPeople" :key="person.id">
-              <div class="pt-4 first:pt-0 flex items-start gap-3.5">
-                <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 flex-shrink-0 mt-0.5">
+              <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
+                <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1 flex-wrap">
-                    <h4 class="text-[15px] font-semibold text-gray-900 leading-snug hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="person.name"></h4>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <h4 class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] cursor-pointer transition-colors truncate" x-text="person.name"></h4>
                     <template x-if="person.verified">
-                      <svg class="w-4 h-4 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                      <svg class="w-3.5 h-3.5 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                         <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
                       </svg>
                     </template>
-                    <span class="text-[13px] text-gray-500 font-normal"> • Ke-2</span>
                   </div>
-                  <p class="text-[13px] text-gray-600 leading-snug line-clamp-2 mt-0.5" x-text="person.headline"></p>
+                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="person.headline"></p>
                   <button type="button" @click="toggleConnect(person.id)"
-                    class="mt-2.5 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border transition-all duration-150 text-[13px] font-semibold cursor-pointer"
+                    class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer shadow-2xs"
                     :class="connectedPeopleIds.includes(person.id)
-                      ? 'bg-blue-50 text-[#1E3A8A] border-[#1E3A8A]'
-                      : 'border-gray-400 hover:border-gray-800 text-gray-700 hover:text-gray-900 hover:bg-gray-50'">
+                      ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
+                      : 'border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-white active:scale-95'">
                     <template x-if="connectedPeopleIds.includes(person.id)">
                       <span class="inline-flex items-center gap-1">
                         <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -701,16 +646,91 @@
               <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50">
               <div>
                 <h4 class="font-bold text-gray-900 text-[15px]" x-text="profile.name"></h4>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <span class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                      <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
-                      <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                <div class="relative mt-0.5" @click.outside="showVisibilityDropdown = false">
+                  <button
+                    type="button"
+                    @click="showVisibilityDropdown = !showVisibilityDropdown"
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                  >
+                    <template x-if="shareVisibility === 'public'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                      </svg>
+                    </template>
+                    <template x-if="shareVisibility === 'private'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </template>
+                    <span x-text="shareVisibility === 'public' ? 'Posting ke Semua orang' : 'Posting ke Private'"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" class="transition-transform duration-150" :class="showVisibilityDropdown ? 'rotate-180' : ''">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    <span>Posting ke Semua orang</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  </span>
+                  </button>
+
+                  <div
+                    x-show="showVisibilityDropdown"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 py-1.5 z-50 overflow-hidden"
+                    style="display: none;"
+                  >
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'public'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Semua orang</p>
+                          <p class="text-[11px] text-gray-500">Dapat dilihat oleh publik</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'public'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
+                    </button>
+
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'private'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Private</p>
+                          <p class="text-[11px] text-gray-500">Hanya dapat dilihat oleh Anda</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'private'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -729,8 +749,6 @@
                     <p class="font-bold text-[14px] text-gray-900" x-text="shareOpinionPost.author"></p>
                     <p class="text-[12px] text-gray-500 truncate max-w-[320px]" x-text="shareOpinionPost.headline || 'Alumni Bengkel Koding'"></p>
                   </div>
-                </div>
-                <span class="text-[13px] font-semibold text-[#1E3A8A] flex items-center gap-1 cursor-pointer hover:underline">+ Ikuti</span>
               </div>
               <p class="text-[13px] text-gray-800 leading-relaxed line-clamp-3" x-text="shareOpinionPost.content"></p>
               <template x-if="shareOpinionPost.imageUrl || (shareOpinionPost.media && shareOpinionPost.media.length > 0)">
@@ -803,35 +821,56 @@
             id: 1,
             name: 'Muhammad Rizal Pratama',
             avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80',
-            headline: 'Mobile Developer | SwiftUI • Kotlin • Flutter |  Apple Developer Academy',
-            verified: false,
+            headline: 'iOS Engineer @ Tokopedia | SwiftUI • Kotlin • Flutter | Apple Dev Academy',
+            verified: true,
           },
           {
             id: 2,
             name: 'Azmi Khofipah',
             avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-            headline: 'Informatics Engineering Student at Universitas Dian Nuswantoro',
+            headline: 'Product Designer @ Blibli | Design Systems & UX Research Enthusiast',
             verified: false,
           },
           {
             id: 3,
             name: 'Chandra Lukita Buana',
             avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-            headline: 'PhD Researcher @ UTeM | Explainable AI (XAI)',
+            headline: 'PhD Researcher @ UTeM | Explainable AI & Machine Learning',
             verified: true,
           },
           {
             id: 4,
             name: 'Tri Yuliana',
             avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-            headline: 'Frontend Developer Intern @ Firstudio | Frontend Developer & UI Enthusiast',
+            headline: 'Frontend Engineer @ Firstudio | React.js • Next.js & TypeScript',
             verified: false,
           },
           {
             id: 5,
             name: 'Muhammad Rakha Keanura',
             avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-            headline: 'Informatics Engineering Student at Universitas Dian Nuswantoro',
+            headline: 'Cloud & DevOps Engineer @ Telkom Indonesia | AWS Certified Solutions',
+            verified: false,
+          },
+          {
+            id: 6,
+            name: 'Nadjwa Salsabila',
+            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+            headline: 'Associate Product Manager @ GoTo | Alumna Bengkel Koding 2023',
+            verified: true,
+          },
+          {
+            id: 7,
+            name: 'Sindu Aditya Putra',
+            avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80',
+            headline: 'Backend Engineer @ Shopee | Golang • Microservices & Distributed Systems',
+            verified: false,
+          },
+          {
+            id: 8,
+            name: 'Maulidya Ayu Pratiwi',
+            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
+            headline: 'Data Scientist @ Traveloka | Deep Learning & Big Data Analytics',
             verified: false,
           },
         ],
@@ -878,6 +917,8 @@
         shareDropdownId: null,
         shareOpinionPost: null,
         shareOpinionText: "",
+        shareVisibility: "public",
+        showVisibilityDropdown: false,
 
         init() {
           this.posts = loadPosts();
