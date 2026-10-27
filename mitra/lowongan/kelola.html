@@ -137,10 +137,10 @@
             <label for="f-kategori" class="label">Kategori <span class="text-red2">*</span></label>
             <select id="f-kategori" class="input" required>
               <option value="">Pilih kategori</option>
-              <option>Kerja</option>
-              <option>Magang</option>
-              <option>Volunteer</option>
+              <option value="Kerja">Kerja</option>
+              <option value="Magang">Magang</option>
             </select>
+            <div class="error-msg hidden" id="err-f-kategori">Kategori lowongan wajib dipilih</div>
           </div>
 
           <!-- Pengalaman -->
@@ -268,7 +268,7 @@ function renderTable() {
   const q = document.getElementById('search-kelola').value.toLowerCase();
   const statusF = document.getElementById('filter-status-kelola').value;
   const list = MITRA.lowongan.filter(l => {
-    const matchQ = !q || l.posisi.toLowerCase().includes(q);
+    const matchQ = !q || l.posisi.toLowerCase().includes(q) || (l.kategori || '').toLowerCase().includes(q) || (l.tipe_kerja || '').toLowerCase().includes(q) || (l.lokasi || '').toLowerCase().includes(q);
     const matchS = !statusF || l.status === statusF;
     return matchQ && matchS;
   });
@@ -277,15 +277,21 @@ function renderTable() {
   const tbody = document.getElementById('tbl-kelola');
   empty.classList.toggle('hidden', list.length > 0);
 
-  tbody.innerHTML = list.map(l => `
+  tbody.innerHTML = list.map(l => {
+    const isMagang = l.kategori === 'Magang';
+    const katLabel = isMagang ? 'Magang' : 'Kerja';
+    return `
     <tr class="tr">
       <td class="td">
         <div class="font-medium">${esc(l.posisi)}</div>
         <div class="text-xs text-neutral3">${esc(l.lokasi || '-')}</div>
       </td>
       <td class="td">
-        <div class="text-xs">${esc(l.tipe_kerja)}</div>
-        <div class="text-xs text-neutral3">${esc(l.kategori)}</div>
+        <div class="font-medium text-xs text-neutral1 flex items-center gap-1.5">
+          <i data-lucide="${isMagang ? 'sparkles' : 'briefcase'}" class="w-3.5 h-3.5 text-primary1"></i>
+          <span>${esc(katLabel)}</span>
+        </div>
+        <div class="text-xs text-neutral3 mt-0.5">${esc(l.tipe_kerja || '-')}</div>
       </td>
       <td class="td">${badge(l.status)}</td>
       <td class="td whitespace-nowrap text-sm">${fmtDate(l.masa_berlaku)}</td>
@@ -306,7 +312,8 @@ function renderTable() {
           </button>
         </div>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
   refreshIcons();
 }
 
@@ -329,7 +336,10 @@ function getFormData() {
 function fillForm(data) {
   document.getElementById('f-posisi').value = data.posisi || '';
   document.getElementById('f-tipe').value = data.tipe_kerja || '';
-  document.getElementById('f-kategori').value = data.kategori || '';
+  let kat = data.kategori || '';
+  if (kat === 'Lowongan Magang' || kat.toLowerCase() === 'magang') kat = 'Magang';
+  else if (kat === 'Lowongan Kerja' || kat.toLowerCase() === 'kerja') kat = 'Kerja';
+  document.getElementById('f-kategori').value = kat;
   document.getElementById('f-pengalaman').value = data.pengalaman || '';
   document.getElementById('f-lokasi').value = data.lokasi || '';
   document.getElementById('f-gaji-min').value = data.gaji_min || '';
@@ -342,9 +352,10 @@ function fillForm(data) {
 
 function validateForm() {
   let valid = true;
-  [['f-posisi','err-f-posisi'],['f-masa-berlaku','err-f-masa-berlaku'],['f-deskripsi','err-f-deskripsi']].forEach(([id, errId]) => {
+  [['f-posisi','err-f-posisi'],['f-kategori','err-f-kategori'],['f-masa-berlaku','err-f-masa-berlaku'],['f-deskripsi','err-f-deskripsi']].forEach(([id, errId]) => {
     const el = document.getElementById(id);
     const err = document.getElementById(errId);
+    if (!el || !err) return;
     if (!el.value.trim()) { err.classList.remove('hidden'); el.classList.add('border-red1'); valid = false; }
     else { err.classList.add('hidden'); el.classList.remove('border-red1'); }
   });
@@ -357,6 +368,14 @@ function openFormModal(id) {
   editingId = id;
   document.getElementById('form-modal-title').textContent = id ? 'Edit Lowongan' : 'Tambah Lowongan Baru';
   document.getElementById('form-company-name').textContent = MITRA.profil.nama_perusahaan;
+  ['err-f-posisi','err-f-kategori','err-f-masa-berlaku','err-f-deskripsi'].forEach(eid => {
+    const err = document.getElementById(eid);
+    if (err) err.classList.add('hidden');
+  });
+  ['f-posisi','f-kategori','f-masa-berlaku','f-deskripsi'].forEach(fid => {
+    const el = document.getElementById(fid);
+    if (el) el.classList.remove('border-red1');
+  });
   if (id) {
     const l = MITRA.lowongan.find(x => x.id === id);
     if (l) fillForm(l);
@@ -435,17 +454,18 @@ function showPreview(l) {
   const gaji = l.gaji_min && l.gaji_max
     ? `${fmtCurrency(l.gaji_min)} – ${fmtCurrency(l.gaji_max)}`
     : (l.gaji_min ? `>= ${fmtCurrency(l.gaji_min)}` : (l.gaji_max ? `<= ${fmtCurrency(l.gaji_max)}` : 'Tidak Ditentukan'));
+  const kat = l.kategori === 'Magang' ? 'Magang' : 'Kerja';
   document.getElementById('preview-content').innerHTML = `
     <div class="bg-gradient-to-r from-primary1 to-primary2 p-6 text-white">
       <div class="text-primary4 text-xs font-semibold mb-2">PREVIEW LOWONGAN</div>
       <h2 class="text-xl font-bold mb-1">${esc(l.posisi)}</h2>
-      <div class="text-primary4 text-sm">${esc(l.nama_perusahaan || MITRA.profil.nama_perusahaan)}</div>
+      <div class="text-primary4 text-sm">${esc(l.nama_perusahaan || MITRA.profil.nama_perusahaan)} · ${esc(l.lokasi || 'Semarang')}</div>
     </div>
     <div class="p-6 space-y-4">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
         ${[
-          ['briefcase', 'Tipe', l.tipe_kerja || '-'],
-          ['map-pin', 'Lokasi', l.lokasi || '-'],
+          ['tag', 'Kategori', kat],
+          ['briefcase', 'Tipe Kerja', l.tipe_kerja || '-'],
           ['award', 'Pengalaman', l.pengalaman || 'Tidak Ditentukan'],
           ['calendar', 'Berlaku s/d', fmtDate(l.masa_berlaku)],
         ].map(([icon,lbl,val])=>`<div class="p-3 bg-neutral5 rounded-xl">
