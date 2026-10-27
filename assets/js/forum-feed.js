@@ -1,7 +1,8 @@
 /**
  * Feed forum bersama Koordinator & Mitra. Tampilan dan interaksinya mengikuti feed dashboard alumni
- * (alumni/dashboard.html) tanpa kolom pengumuman; datanya forum bersama BengkodStore (store.js).
- * Dimuat setelah store.js, JS role (esc, fmtDate, confirmAction) dan main.js (showToast).
+ * (alumni/dashboard.html) tanpa kolom pengumuman; datanya gabungan forum bersama BengkodStore (store.js)
+ * dan postingan feed alumni (loadPosts/savePosts di alumni/assets/js/alumni-data.js).
+ * Dimuat setelah store.js, JS role (esc, fmtDate, confirmAction), main.js (showToast) dan alumni-data.js.
  * Pakai: ForumFeed.mount(elemen, { nama, peran, moderator }) — moderator boleh menghapus post/komentar.
  */
 (function () {
@@ -35,13 +36,31 @@
 
   // ===== Helper =====
   const inisial = nama => nama.replace(/^(Dr|Prof|Ir)\.\s*/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const avatar = (nama, ukuran) => `<div class="${ukuran} rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold">${esc(inisial(nama))}</div>`;
+  const avatar = (nama, ukuran, foto) => foto ? `<img src="${esc(foto)}" alt="${esc(nama)}" class="${ukuran} rounded-full object-cover border border-blue-200/80 flex-shrink-0 shadow-sm">` : `<div class="${ukuran} rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold">${esc(inisial(nama))}</div>`;
   const peranBadge = peran => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${PERAN_WARNA[peran] || 'bg-gray-100 text-gray-600 border-gray-200'}">${esc(peran)}</span>`;
   const linkify = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noreferrer" class="text-[#1E3A8A] font-semibold hover:underline">${u}</a>`);
   const toggle = (arr, nama) => { const i = arr.indexOf(nama); if (i >= 0) arr.splice(i, 1); else arr.push(nama); };
   const jumlahKomentar = p => (p.comments || []).reduce((n, c) => n + 1 + (c.balasan || []).length, 0);
   const ringkas = p => `"${(p.judul || p.isi || '').slice(0, 50)}"`;
-  const simpan = () => BengkodStore.saveForum(posts);
+  const simpan = () => {
+    BengkodStore.saveForum(posts.filter(p => !p.alumni));
+    savePosts(posts.filter(p => p.alumni).map(keAlumni));
+  };
+
+  // Postingan feed alumni punya skema sendiri (alumni-data.js). Di forum dipetakan ke skema forum dengan id negatif
+  // agar tidak bentrok dengan id forum, lalu ditulis balik ke penyimpanan alumni saat simpan.
+  const dariAlumni = a => ({
+    id: -a.id, alumni: a, penulis: a.authorName, peran: a.authorRole || 'Alumni', foto: a.authorAvatar, headline: a.authorHeadline,
+    waktu: new Date(a.id > 1e12 ? a.id : Date.parse(a.date) || 0).toISOString(), // post baru alumni ber-id Date.now(), date-nya "Baru saja"
+    isi: a.content, gambar: a.imageUrl, tabel: a.tablePreview, dibagikanOleh: a.isRepost ? a.repostedBy : undefined,
+    likes: a.likes || 0, disukai: a.disukaiForum || [], comments: a.komentarForum || [], dibagikan: a.repostsCount || 0,
+  });
+  const keAlumni = p => ({ ...p.alumni, likes: p.likes, disukaiForum: p.disukai, komentarForum: p.comments, repostsCount: p.dibagikan });
+
+  const tabelHTML = t => `<div class="px-5 pb-5 overflow-x-auto"><div class="rounded-xl border border-gray-200 overflow-hidden min-w-max">
+    ${t.title ? `<div class="bg-[#1E3A8A] text-white px-4 py-2.5 text-[14px] font-semibold">${esc(t.title)}</div>` : ''}
+    <table class="w-full text-[13px] text-gray-700">${(t.rows || []).map(r => `<tr class="border-t border-gray-100 first:border-t-0">${Object.values(r).map(v => `<td class="px-3 py-2">${esc(v)}</td>`).join('')}</tr>`).join('')}</table>
+  </div></div>`;
   const catat = (aksi, detail) => BengkodStore.logActivity(user.peran, aksi, detail);
 
   function headline(nama, peran) {
@@ -106,10 +125,10 @@
       <div class="p-5">
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-start gap-3.5 min-w-0">
-            ${avatar(p.penulis, 'w-16 h-16 text-base')}
+            ${avatar(p.penulis, 'w-16 h-16 text-base', p.foto)}
             <div class="flex flex-col min-w-0">
               <div class="flex flex-wrap items-center gap-2"><h4 class="text-[17px] font-semibold text-gray-900 leading-tight">${esc(p.penulis)}</h4>${peranBadge(p.peran)}</div>
-              <p class="text-[14px] text-gray-500 leading-snug mt-1">${esc(headline(p.penulis, p.peran))}</p>
+              <p class="text-[14px] text-gray-500 leading-snug mt-1">${esc(p.headline || headline(p.penulis, p.peran))}</p>
               <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
                 <span>${waktuLalu(p.waktu)}</span><span>•</span>
                 <span class="inline-flex items-center gap-1 text-[12px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">${ICON.publik}<span>Semua anggota forum</span></span>
@@ -128,11 +147,12 @@
         ${(p.tags || []).length ? `<div class="flex flex-wrap gap-1.5 mt-3">${p.tags.map(t => `<span class="px-2.5 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-[12px] font-medium">#${esc(t)}</span>`).join('')}</div>` : ''}
       </div>
       ${p.gambar ? `<div class="px-5 pb-5"><img src="${esc(p.gambar)}" alt="Gambar postingan" class="w-full max-h-[220px] object-cover rounded-xl border border-gray-200/80"></div>` : ''}
+      ${p.tabel ? tabelHTML(p.tabel) : ''}
 
       <div class="px-5 py-2.5 border-t border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
         <div class="flex items-center gap-2">
           <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white">${ICON.sukaBulat}</span>
-          <span class="font-medium text-gray-700">${suka.length} menyukai</span>
+          <span class="font-medium text-gray-700">${p.alumni ? p.likes : suka.length} menyukai</span>
         </div>
         <div class="flex items-center gap-4"><span>${jumlahKomentar(p)} komentar</span><span>${p.dibagikan || 0} dibagikan</span></div>
       </div>
@@ -291,10 +311,10 @@
           <textarea data-draft="opini" rows="3" placeholder="Tambahkan pemikiran Anda (opsional)" aria-label="Pemikiran Anda" class="w-full resize-none text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed">${esc(ui.opini)}</textarea>
           <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
             <div class="flex items-center gap-3">
-              ${avatar(s.penulis, 'w-10 h-10 text-[12px]')}
+              ${avatar(s.penulis, 'w-10 h-10 text-[12px]', s.foto)}
               <div class="min-w-0">
                 <p class="font-bold text-[14px] text-gray-900">${esc(s.penulis)}</p>
-                <p class="text-[12px] text-gray-500 truncate">${esc(headline(s.penulis, s.peran))}</p>
+                <p class="text-[12px] text-gray-500 truncate">${esc(s.headline || headline(s.penulis, s.peran))}</p>
               </div>
             </div>
             ${s.judul ? `<p class="text-[14px] font-semibold text-gray-900">${esc(s.judul)}</p>` : ''}
@@ -315,7 +335,7 @@
   function bagikan(s, opini) {
     tambahPost(opini
       ? { isi: `${opini}\n\n---\nRepost dari @${s.penulis}:\n${[s.judul, s.isi].filter(Boolean).join('\n')}`, gambar: s.gambar, dibagikanOleh: user.nama }
-      : { penulis: s.penulis, peran: s.peran, judul: s.judul, isi: s.isi, tags: s.tags || [], gambar: s.gambar, dibagikanOleh: user.nama });
+      : { penulis: s.penulis, peran: s.peran, foto: s.foto, headline: s.headline, judul: s.judul, isi: s.isi, tags: s.tags || [], gambar: s.gambar, tabel: s.tabel, dibagikanOleh: user.nama });
     s.dibagikan = (s.dibagikan || 0) + 1;
     simpan();
     catat('Bagikan Postingan Forum', `Membagikan postingan ${ringkas(s)}`);
@@ -362,7 +382,12 @@
     tutup() { Object.assign(ui, { modal: null, sumber: null }); renderModal(); },
     'pilih-gambar'() { modalEl.querySelector('[data-file]').click(); },
     'hapus-gambar'() { ui.gambar = ''; renderModal(); },
-    suka(p) { toggle(p.disukai = p.disukai || [], user.nama); simpan(); renderList(); },
+    suka(p) {
+      toggle(p.disukai = p.disukai || [], user.nama);
+      if (p.alumni) p.likes += p.disukai.includes(user.nama) ? 1 : -1; // alumni menghitung suka sebagai angka
+      simpan();
+      renderList();
+    },
     komentar(p) { ui.komentarId = ui.komentarId === p.id ? null : p.id; ui.balasId = null; renderList(); },
     'menu-post'(p) { ui.menuId = ui.menuId === p.id ? null : p.id; ui.bagikanId = null; renderList(); },
     'menu-bagikan'(p) { ui.bagikanId = ui.bagikanId === p.id ? null : p.id; ui.menuId = null; renderList(); },
@@ -418,7 +443,7 @@
     user = pengguna;
     mitra = BengkodStore.getMitra();
     alumni = BengkodStore.getAlumni();
-    posts = BengkodStore.getForum().sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
+    posts = [...BengkodStore.getForum(), ...loadPosts().map(dariAlumni)].sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
     root.innerHTML = shellHTML();
     listEl = root.querySelector('#feed-list');
     modalEl = root.querySelector('#feed-modal');
