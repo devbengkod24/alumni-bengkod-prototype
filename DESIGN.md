@@ -173,8 +173,7 @@ root/
 │       └── js/alumni.js
 ├── koordinator/                       # Role: Koordinator Alumni (8 menu sidebar)
 │   ├── dashboard.html                 # Ringkasan + log audit aksi sensitif
-│   ├── analitik.html                  # Tracer study & masa tunggu (Chart.js)
-│   ├── rekap-tahunan.html             # Rekap per tahun lulus + ekspor CSV
+│   ├── analitik.html                  # Tracer study, masa tunggu, rekap per tahun + ekspor CSV
 │   ├── pengumuman.html
 │   ├── manajemen-users.html           # Hanya role alumni & mitra yang bisa dikelola
 │   ├── forum.html                     # Moderasi laporan & thread
