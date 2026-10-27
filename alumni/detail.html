@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bengkel Koding</title>
-  <meta name="description" content="Bengkel Koding Universitas Dian Nuswantoro Semarang">
+  <title>Profil Alumni | Bengkel Koding</title>
+  <meta name="description" content="Profil publik alumni Bengkel Koding Universitas Dian Nuswantoro Semarang">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
@@ -13,294 +13,621 @@
   <script src="assets/js/alumni-profile-page.js"></script>
 </head>
 <body>
-<!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/[id]/page.tsx (dibuka lewat detail.html?id=<id-alumni>) -->
-<main data-route="">
-  <div x-data="detailPage" class="w-full space-y-6 pb-12 antialiased">
-    <div data-partial="profile-top" data-variant="detail"></div>
-
-    <!-- ======================================================
-        SECTION 3: ACTIVITY / POSTINGAN (CARD KETIGA)
-    ====================================================== -->
-    <div id="section-activity" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-gray-100">
-        <div class="flex items-center gap-3">
-          <div>
-            <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Aktivitas &amp; Berbagi</h3>
-            <p class="text-[14px] text-gray-500 font-medium" x-text="profile.followers + ' pengikut terhubung'"></p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="flex items-center bg-gray-100 p-1 rounded-full">
-            <button id="tab-posts" @click="activeTab = 'posts'" class="px-5 py-2.5 rounded-full text-[15px] font-semibold transition-colors duration-150 cursor-pointer"
-              :class="activeTab === 'posts' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">Postingan</button>
-            <button id="tab-comments" @click="activeTab = 'comments'" class="px-5 py-2.5 rounded-full text-[15px] font-semibold transition-colors duration-150 cursor-pointer"
-              :class="activeTab === 'comments' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">Komentar</button>
-          </div>
-          <button id="btn-create-post" @click="handleOpenAddPost()"
-            class="px-5 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2 shadow-sm cursor-pointer">
-            <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" /></svg>
-            </div>
-            <span>Buat Post</span>
-          </button>
-        </div>
+<!-- Tampilan Publik Profil Alumni Terdaftar (detail.html?id=<id-alumni>) -->
+<!-- Desain persis 100% seperti di profil.html, tanpa tombol edit, hapus, dan tambah (read-only) -->
+<main data-route="detail">
+  <div x-data="detailPage" class="w-full space-y-6 pb-12 antialiased" @click.window="shareDropdownId = null">
+    
+    <!-- Toast Notifikasi Interaktif -->
+    <template x-if="toast">
+      <div role="status" class="fixed bottom-6 right-6 z-[90] inline-flex items-center gap-2.5 h-12 px-6 rounded-full bg-gray-900 text-white text-[15px] font-semibold shadow-xl animate-fade-in">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span x-text="toast"></span>
       </div>
+    </template>
 
-      <template x-if="activeTab === 'comments'">
-        <div class="text-center py-12 text-gray-500 text-[15px]">Belum ada komentar publik dari akun ini.</div>
-      </template>
-      <template x-if="activeTab !== 'comments'">
-        <div class="space-y-5">
-          <template x-for="post in posts" :key="post.id">
-            <div :id="'activity-card-' + post.id" class="border border-gray-200/90 rounded-xl overflow-hidden shadow-xs hover:border-gray-300 transition-colors bg-white">
-              <template x-if="post.isRepost && post.repostedBy">
-                <div class="px-5 pt-3.5 pb-2 border-b border-gray-100 flex items-center gap-2 text-[14px] text-gray-600 bg-gray-50/50">
-                  <img :alt="post.repostedBy" class="w-7 h-7 rounded-full object-cover" :src="DEFAULT_AVATAR">
-                  <span><span class="font-semibold text-gray-900" x-text="post.repostedBy"></span> membagikan ulang ini</span>
-                </div>
-              </template>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- ======================================================
+          KOLOM UTAMA (KIRI/TENGAH) — 100% PERSIS PROFIL
+      ====================================================== -->
+      <div class="lg:col-span-8 space-y-6">
+        <!-- Section Header + Tentang Saya (data-variant="detail" menghilangkan tombol edit/cover/foto) -->
+        <div data-partial="profile-top" data-variant="detail"></div>
 
-              <div class="p-5">
-                <div class="flex items-start justify-between">
-                  <div class="flex items-start gap-3.5">
-                    <template x-if="post.authorAvatar">
-                      <img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0" :src="post.authorAvatar">
-                    </template>
-                    <template x-if="!post.authorAvatar">
-                      <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base"
-                        x-text="post.authorName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()"></div>
-                    </template>
-                    <div class="flex flex-col">
-                      <div class="flex items-center gap-2">
-                        <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="post.authorName"></h4>
+        <!-- ======================================================
+            SECTION 3: ACTIVITY / POSTINGAN (CARD KETIGA)
+            Desain sama persis dengan profil, tanpa tombol Edit & Buat Post, tanpa hapus postingan
+        ====================================================== -->
+        <div id="section-activity" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+              <div>
+                <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Aktivitas &amp; Berbagi</h3>
+                <p class="text-[14px] text-gray-500 font-medium" x-text="profile.followers + ' pengikut terhubung'"></p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-5">
+            <template x-if="posts.length === 0">
+              <div class="text-center py-10 text-gray-400 text-[15px]">Alumni ini belum mempublikasikan aktivitas publik.</div>
+            </template>
+            <template x-for="post in posts" :key="post.id">
+              <div :id="'activity-card-' + post.id" class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white">
+                <template x-if="post.isRepost && post.repostedBy">
+                  <div class="px-5 pt-3.5 pb-2 border-b border-gray-100 flex items-center gap-2 text-[14px] text-gray-600 bg-gray-50/50">
+                    <img :alt="post.repostedBy" class="w-7 h-7 rounded-full object-cover" :src="DEFAULT_AVATAR">
+                    <span><span class="font-semibold text-gray-900" x-text="post.repostedBy"></span> membagikan ulang ini</span>
+                  </div>
+                </template>
+
+                <div class="p-5">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-start gap-3.5">
+                      <template x-if="post.authorAvatar">
+                        <img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0" :src="post.authorAvatar">
+                      </template>
+                      <template x-if="!post.authorAvatar">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base"
+                          x-text="(post.authorName || '').split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()"></div>
+                      </template>
+                      <div class="flex flex-col">
+                        <div class="flex items-center gap-2">
+                          <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="post.authorName"></h4>
+                        </div>
+                        <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
+                        <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
+                          <span x-text="post.date"></span>
+                          <span>•</span>
+                          <span class="inline-flex items-center gap-1 text-[12px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                            <template x-if="post.visibility === 'Pengikut'">
+                              <span class="contents">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="2" />
+                                  <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2" />
+                                </svg>
+                                <span>Pengikut</span>
+                              </span>
+                            </template>
+                            <template x-if="post.visibility !== 'Pengikut'">
+                              <span class="contents">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                  <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="2" />
+                                </svg>
+                                <span>Semua orang</span>
+                              </span>
+                            </template>
+                          </span>
+                        </div>
                       </div>
-                      <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
-                      <div class="flex items-center gap-1.5 text-[14px] text-gray-500 mt-1"><span x-text="post.date"></span></div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-1">
-                    <button @click="deleteTargetId = post.id" class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" title="Hapus postingan">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+
+                  <template x-if="post.isRepost">
+                    <div class="mt-3.5">
+                      <h5 class="text-[17px] font-semibold text-gray-900" x-text="post.category || 'Pembahasan & Ringkasan Materi'"></h5>
+                    </div>
+                  </template>
+                  <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+                </div>
+
+                <template x-if="post.imageUrl">
+                  <div class="px-5 pb-5">
+                    <img :src="post.imageUrl" alt="Gambar postingan" class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80">
+                  </div>
+                </template>
+
+                <template x-if="post.tablePreview">
+                  <div class="border-y border-gray-200/80 bg-gray-50/50 p-4 sm:p-5 overflow-x-auto">
+                    <div class="w-full bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+                      <div class="bg-[#1E3A8A] text-white px-4 py-2.5 flex items-center justify-between text-[14px] font-semibold">
+                        <span>Cheatsheet Machine Learning Algorithms</span>
+                        <span class="text-[13px] font-normal bg-white/20 px-2 py-0.5 rounded">Ringkasan Materi</span>
+                      </div>
+                      <table class="w-full border-collapse text-[14px]">
+                        <thead class="bg-gray-50 border-b border-gray-200 text-gray-700 font-semibold">
+                          <tr>
+                            <th class="p-2.5 text-left">Algoritma</th>
+                            <th class="p-2.5 text-left">Tipe</th>
+                            <th class="p-2.5 text-left">Formula Utama</th>
+                            <th class="p-2.5 text-left">Kelebihan</th>
+                            <th class="p-2.5 text-left">Contoh Nyata</th>
+                          </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                          <template x-for="(r, idx) in post.tablePreview.rows" :key="idx">
+                            <tr class="hover:bg-blue-50/20 transition-colors">
+                              <td class="p-2.5 font-semibold text-[#1E3A8A]" x-text="r.col1"></td>
+                              <td class="p-2.5" x-text="r.col2"></td>
+                              <td class="p-2.5 text-[14px] text-gray-600" x-text="r.col3"></td>
+                              <td class="p-2.5" x-text="r.col4"></td>
+                              <td class="p-2.5 text-gray-600" x-text="r.col5"></td>
+                            </tr>
+                          </template>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Baris Ringkasan Reaksi -->
+                <div class="px-5 py-2.5 border-b border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
+                  <div class="flex items-center gap-1.5">
+                    <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-[13px]">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" />
                       </svg>
+                    </span>
+                    <span class="font-semibold text-gray-700 ml-1" x-text="post.likes + ' menyukai'"></span>
+                  </div>
+                  <div class="flex items-center gap-4">
+                    <button class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="post.commentsCount + ' komentar'"></button>
+                    <button class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="post.repostsCount + ' dibagikan'"></button>
+                  </div>
+                </div>
+
+                <!-- Tombol Interaksi: Suka, Komentar, Bagikan -->
+                <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold text-gray-600">
+                  <button :id="'btn-like-' + post.id" @click="handleToggleLike(post.id)"
+                    class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" :class="post.isLiked ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="post.isLiked ? '#1E3A8A' : 'none'">
+                      <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Suka</span>
+                  </button>
+
+                  <button :id="'btn-comment-' + post.id" @click="activeCommentId = activeCommentId === post.id ? null : post.id"
+                    class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" :class="activeCommentId === post.id ? 'text-[#1E3A8A]' : ''">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Komentar</span>
+                  </button>
+
+                  <div class="relative">
+                    <button :id="'btn-share-' + post.id" @click.stop="shareDropdownId = shareDropdownId === post.id ? null : post.id"
+                      class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" :class="post.repostsCount > 0 && post.isRepost ? 'text-emerald-600' : ''">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span>Bagikan</span>
+                    </button>
+                    <template x-if="shareDropdownId === post.id">
+                      <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[260px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150" @click.stop>
+                        <button @click="shareOpinionPost = post; shareOpinionText = ''; shareDropdownId = null" class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span class="text-[15px] font-semibold text-gray-900">Bagikan disertai pendapat</span>
+                        </button>
+                        <div class="border-t border-gray-100"></div>
+                        <button @click="handleInstantRepost(post)" class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span class="text-[15px] font-semibold text-gray-900">Bagikan secara instan</span>
+                        </button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+
+                <!-- Footer Impresi & Analitik -->
+                <div class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
+                  <div class="flex items-center gap-2 font-medium text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    <span x-text="post.impressions + ' impresi dilihat'"></span>
+                  </div>
+                  <a :href="'analitik-postingan.html?id=' + post.id" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer" title="Lihat analitik postingan ini">
+                    <span>Lihat analitik</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  </a>
+                </div>
+
+                <!-- ── DROPDOWN KOMENTAR ── -->
+                <template x-if="activeCommentId === post.id">
+                  <div class="border-t border-gray-100 bg-white px-5 py-4">
+                    <div class="flex items-start gap-3 mb-4">
+                      <img src="assets/img/user.png" alt="Avatar" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                      <div class="flex-1 relative">
+                        <input type="text" placeholder="Tulis komentar..." x-model="commentInputs[post.id]"
+                          @keydown.enter="if ((commentInputs[post.id] || '').trim()) addComment(post.id)"
+                          class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+                        <button type="button" :id="'btn-send-comment-' + post.id" @click="if ((commentInputs[post.id] || '').trim()) addComment(post.id)"
+                          class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold transition-colors cursor-pointer"
+                          :class="(commentInputs[post.id] || '').trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'">Send</button>
+                      </div>
+                    </div>
+                    <template x-if="(comments[post.id] || []).length > 0">
+                      <div>
+                        <div class="flex items-center gap-1 mb-3 text-[14px] font-semibold text-gray-700">
+                          <span>Paling relevan</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div class="space-y-4">
+                          <template x-for="c in (comments[post.id] || [])" :key="c.id">
+                            <div class="flex items-start gap-3">
+                              <img :src="c.avatar" :alt="c.author" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                              <div class="flex-1 min-w-0">
+                                <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                                  <p class="text-[14px] font-semibold text-gray-900" x-text="c.author"></p>
+                                  <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed" x-text="c.text"></p>
+                                </div>
+                                <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
+                                  <button type="button" @click="likeComment(post.id, c.id)" class="flex items-center gap-1.5 text-[14px] font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer" title="Suka komentar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                    </svg>
+                                    <span x-text="c.likes > 0 ? c.likes : ''"></span>
+                                  </button>
+                                  <button type="button" @click="activeReplyCommentId = activeReplyCommentId === c.id ? null : c.id"
+                                    class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer" :class="activeReplyCommentId === c.id ? 'text-[#1E3A8A]' : ''" title="Balas komentar ini">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                      <line x1="8" y1="10" x2="16" y2="10" />
+                                    </svg>
+                                  </button>
+                                  <span class="text-[13px] text-gray-400 font-normal" x-text="c.time"></span>
+                                </div>
+
+                                <template x-if="c.replies && c.replies.length > 0">
+                                  <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
+                                    <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+                                    <template x-for="reply in c.replies" :key="reply.id">
+                                      <div class="flex items-start gap-2.5 relative">
+                                        <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
+                                        <img :src="reply.avatar" :alt="reply.author" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                                        <div class="flex-1 min-w-0">
+                                          <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
+                                            <p class="text-[13px] font-bold text-gray-900" x-text="reply.author"></p>
+                                            <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed"><span class="font-semibold text-[#1E3A8A] mr-1" x-text="'@' + c.author"></span><span x-text="reply.text"></span></p>
+                                          </div>
+                                          <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
+                                            <button type="button" @click="likeReply(post.id, c.id, reply.id)" class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                              </svg>
+                                              <span x-text="reply.likes > 0 ? reply.likes : ''"></span>
+                                            </button>
+                                            <span class="text-[12px] text-gray-400" x-text="reply.time"></span>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </template>
+                                  </div>
+                                </template>
+
+                                <template x-if="activeReplyCommentId === c.id">
+                                  <div class="flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative animate-in fade-in slide-in-from-top-1 duration-150">
+                                    <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
+                                    <img src="assets/img/user.png" alt="User" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
+                                    <div class="flex-1 min-w-0">
+                                      <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all shadow-2xs">
+                                        <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none" x-text="c.author"></span>
+                                        <input type="text" x-init="$nextTick(() => $el.focus())" placeholder="Tulis balasan..." x-model="replyInputs[c.id]"
+                                          @keydown.enter="if ((replyInputs[c.id] || '').trim()) addReply(post.id, c.id)"
+                                          class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0">
+                                        <button type="button" @click="if ((replyInputs[c.id] || '').trim()) addReply(post.id, c.id)" :disabled="!(replyInputs[c.id] || '').trim()"
+                                          class="ml-2 text-[13px] font-semibold transition-colors cursor-pointer flex-shrink-0"
+                                          :class="(replyInputs[c.id] || '').trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'">Send</button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </template>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+                </template>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Section Proyek, Keahlian, Sertifikasi, Pendidikan, Organisasi, Penghargaan (data-variant="detail" menghilangkan tombol + dan Edit) -->
+        <div data-partial="profile-bottom" data-variant="detail"></div>
+      </div>
+
+      <!-- ======================================================
+          KOLOM SAMPING (KANAN) — IDENTIK 100% PERSIS PROFIL
+      ====================================================== -->
+      <div class="lg:col-span-4 space-y-6 self-stretch relative">
+        <!-- CARD: REKOMENDASI TEMAN ALUMNI -->
+        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
+          <div class="pb-3">
+            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
+            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
+          </div>
+
+          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
+            <template x-for="person in recommendedPeople" :key="person.id">
+              <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
+                <a :href="'detail.html?id=' + (person.alumniId || person.id)" class="flex-shrink-0">
+                  <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
+                </a>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <a :href="'detail.html?id=' + (person.alumniId || person.id)" class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] cursor-pointer transition-colors truncate" x-text="person.name"></a>
+                    <template x-if="person.verified">
+                      <svg class="w-3.5 h-3.5 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+                      </svg>
+                    </template>
+                  </div>
+                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="person.headline"></p>
+                  <button type="button" @click="toggleConnect(person.id)"
+                    class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer shadow-2xs"
+                    :class="connectedPeopleIds.includes(person.id)
+                      ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
+                      : 'border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-white active:scale-95'">
+                    <template x-if="connectedPeopleIds.includes(person.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Terkirim</span>
+                      </span>
+                    </template>
+                    <template x-if="!connectedPeopleIds.includes(person.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                        <span>Hubungkan</span>
+                      </span>
+                    </template>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================
+        MODAL: BAGIKAN DISERTAI PENDAPAT (REPOST POP UP)
+    ====================================================== -->
+    <template x-if="shareOpinionPost">
+      <div id="modal-share-opinion" class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150" @mousedown.self="shareOpinionPost = null">
+        <div style="width: 95vw; max-width: 620px" class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img src="assets/img/user.png" alt="User" class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50">
+              <div>
+                <h4 class="font-bold text-gray-900 text-[15px]">Anda</h4>
+                <div class="relative mt-0.5" @click.outside="showVisibilityDropdown = false">
+                  <button
+                    type="button"
+                    @click="showVisibilityDropdown = !showVisibilityDropdown"
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                  >
+                    <template x-if="shareVisibility === 'public'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                      </svg>
+                    </template>
+                    <template x-if="shareVisibility === 'private'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </template>
+                    <span x-text="shareVisibility === 'public' ? 'Posting ke Semua orang' : 'Posting ke Private'"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" class="transition-transform duration-150" :class="showVisibilityDropdown ? 'rotate-180' : ''">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+
+                  <div
+                    x-show="showVisibilityDropdown"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 py-1.5 z-50 overflow-hidden"
+                    style="display: none;"
+                  >
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'public'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Semua orang</p>
+                          <p class="text-[11px] text-gray-500">Dapat dilihat oleh publik</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'public'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
+                    </button>
+
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'private'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Private</p>
+                          <p class="text-[11px] text-gray-500">Hanya dapat dilihat oleh Anda</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'private'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
                     </button>
                   </div>
                 </div>
-
-                <template x-if="post.isRepost">
-                  <div class="mt-3.5">
-                    <h5 class="text-[17px] font-semibold text-gray-900">Machine Learning Algorithms Cheatsheet</h5>
-                  </div>
-                </template>
-                <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
-              </div>
-
-              <template x-if="post.imageUrl">
-                <div class="px-5 pb-5">
-                  <img :src="post.imageUrl" alt="Gambar postingan" class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80">
-                </div>
-              </template>
-
-              <template x-if="post.tablePreview">
-                <div class="border-y border-gray-200/80 bg-gray-50/50 p-4 sm:p-5 overflow-x-auto">
-                  <div class="w-full bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
-                    <div class="bg-[#1E3A8A] text-white px-4 py-2.5 flex items-center justify-between text-[14px] font-semibold">
-                      <span>Cheatsheet Machine Learning Algorithms</span>
-                      <span class="text-[13px] font-normal bg-white/20 px-2 py-0.5 rounded">Ringkasan Materi</span>
-                    </div>
-                    <table class="w-full border-collapse text-[14px]">
-                      <thead class="bg-gray-50 border-b border-gray-200 text-gray-700 font-semibold">
-                        <tr>
-                          <th class="p-2.5 text-left">Algoritma</th>
-                          <th class="p-2.5 text-left">Tipe</th>
-                          <th class="p-2.5 text-left">Formula Utama</th>
-                          <th class="p-2.5 text-left">Kelebihan</th>
-                          <th class="p-2.5 text-left">Contoh Nyata</th>
-                        </tr>
-                      </thead>
-                      <tbody class="divide-y divide-gray-100 text-gray-700">
-                        <template x-for="(r, idx) in post.tablePreview.rows" :key="idx">
-                          <tr class="hover:bg-blue-50/20 transition-colors">
-                            <td class="p-2.5 font-semibold text-[#1E3A8A]" x-text="r.col1"></td>
-                            <td class="p-2.5" x-text="r.col2"></td>
-                            <td class="p-2.5 text-[14px] text-gray-600" x-text="r.col3"></td>
-                            <td class="p-2.5" x-text="r.col4"></td>
-                            <td class="p-2.5 text-gray-600" x-text="r.col5"></td>
-                          </tr>
-                        </template>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </template>
-
-              <div class="px-5 py-2.5 border-b border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
-                <div class="flex items-center gap-1.5">
-                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-[13px]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" />
-                    </svg>
-                  </span>
-                  <span class="font-semibold text-gray-700 ml-1" x-text="post.likes + ' menyukai'"></span>
-                </div>
-                <div class="flex items-center gap-4">
-                  <button class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="post.commentsCount + ' komentar'"></button>
-                  <button class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="post.repostsCount + ' dibagikan'"></button>
-                </div>
-              </div>
-
-              <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold text-gray-600">
-                <button :id="'btn-like-' + post.id" @click="handleToggleLike(post.id)"
-                  class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" :class="post.isLiked ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="post.isLiked ? '#1E3A8A' : 'none'">
-                    <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Suka</span>
-                </button>
-                <button class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Komentar</span>
-                </button>
-                <button class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                    <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Bagikan</span>
-                </button>
-              </div>
-
-              <div class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
-                <div class="flex items-center gap-2 font-medium text-gray-700">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                  <span x-text="post.impressions + ' impresi dilihat'"></span>
-                </div>
-                <a :href="'analitik-postingan.html?id=' + post.id" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer">
-                  <span>Lihat analitik</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                </a>
               </div>
             </div>
-          </template>
+            <button type="button" @click="shareOpinionPost = null" class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer" aria-label="Tutup">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+          <div class="p-6 overflow-y-auto space-y-4 flex-1">
+            <textarea x-init="$nextTick(() => $el.focus())" rows="3" x-model="shareOpinionText" placeholder="Tambahkan pemikiran Anda (Opsional)"
+              class="w-full resize-none text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
+            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <img :src="shareOpinionPost.authorAvatar || shareOpinionPost.avatarUrl || 'assets/img/user.png'" :alt="shareOpinionPost.authorName || shareOpinionPost.author" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                  <div>
+                    <p class="font-bold text-[14px] text-gray-900" x-text="shareOpinionPost.authorName || shareOpinionPost.author"></p>
+                    <p class="text-[12px] text-gray-500 truncate max-w-[320px]" x-text="shareOpinionPost.authorHeadline || shareOpinionPost.headline || 'Alumni Bengkel Koding'"></p>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[13px] text-gray-800 leading-relaxed line-clamp-3" x-text="shareOpinionPost.content"></p>
+              <template x-if="shareOpinionPost.imageUrl">
+                <div class="rounded-lg overflow-hidden border border-gray-200 max-h-48 bg-gray-100 flex items-center justify-center">
+                  <img :src="shareOpinionPost.imageUrl" alt="Pratinjau Media" class="w-full h-full object-cover">
+                </div>
+              </template>
+            </div>
+          </div>
+          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+            <div class="flex items-center gap-3 text-gray-500">
+              <button type="button" title="Tambahkan emoji" class="p-2 hover:bg-gray-100 hover:text-gray-700 rounded-full transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button type="button" @click="shareOpinionPost = null" class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+              <button type="button" id="btn-submit-share-opinion" @click="handleShareWithOpinion()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors">Bagikan</button>
+            </div>
+          </div>
         </div>
-      </template>
-    </div>
+      </div>
+    </template>
 
-    <div data-partial="profile-modals"></div>
-    <div data-partial="detail-activity-modal"></div>
+    <!-- Lightbox Pratinjau Proyek (tetap berfungsi saat klik kartu proyek) -->
     <div data-partial="profile-preview"></div>
-    <div data-partial="profile-bottom" data-variant="detail"></div>
   </div>
 </main>
+
 <script>
   // Rute Next.js /dashboard/alumni/[id] → breadcrumb mengikuti ?id=
-  document.querySelector("main").dataset.route = new URLSearchParams(location.search).get("id") || "";
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetAlumniId = urlParams.get("id") || "sindu-aditya-putra";
+  const mainEl = document.querySelector("main");
+  if (mainEl) mainEl.dataset.route = targetAlumniId;
 
-  // MODAL: TAMBAH POSTINGAN BARU — memakai Modal bantu di [id]/page.tsx
-  ALUMNI_PARTIALS["detail-activity-modal"] = () =>
-    pageModalHTML({
-      id: "modalPostingan",
-      open: "activityModalOpen",
-      close: "activityModalOpen = false",
-      title: "editingPostId ? 'Edit Aktivitas' : 'Tambah Aktivitas & Portofolio Baru'",
-      subtitle: "'Dokumentasikan pencapaian baru atas nama alumni.'",
-      body: `<div class="space-y-4 text-[15px]">
-          <div>
-            <label class="block text-[15px] font-semibold text-gray-700 mb-1">Kategori Aktivitas</label>
-            <select x-model="activityCategory" class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 bg-white text-[15px]">
-              <option value="Pencapaian Proyek / Capstone">Pencapaian Proyek / Capstone</option>
-              <option value="Prestasi / Kejuaraan">Prestasi / Kejuaraan</option>
-              <option value="Sertifikasi Industri">Sertifikasi Industri</option>
-              <option value="Karir & Promosi Jabatan">Karir &amp; Promosi Jabatan</option>
-              <option value="Knowledge Sharing">Knowledge Sharing / Berbagi Wawasan</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-[15px] font-semibold text-gray-700 mb-1">Isi Cerita / Pengumuman</label>
-            <textarea class="w-full px-3.5 py-2.5 border border-gray-300 rounded-lg text-gray-900 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 text-[15px] leading-relaxed"
-              placeholder="Ceritakan detail proyek, kontribusi, atau apresiasi lomba..." rows="4" x-model="activityContent"></textarea>
-          </div>
-          <div>
-            <label class="block text-[15px] font-semibold text-gray-700 mb-1">Gambar (Opsional)</label>
-            <template x-if="activityImage">
-              <div class="relative rounded-lg overflow-hidden border border-gray-200">
-                <img :src="activityImage" alt="Pratinjau gambar postingan" class="w-full max-h-56 object-cover">
-                <button type="button" @click="activityImage = ''" class="absolute top-2 right-2 bg-red-600 hover:bg-red-700 text-white text-[13px] px-2.5 py-1 rounded shadow cursor-pointer">Hapus Gambar</button>
-              </div>
-            </template>
-            <template x-if="!activityImage">
-              <button type="button" @click="$refs.postImageInput.click()" class="w-full p-4 border-2 border-dashed border-blue-200 rounded-xl bg-blue-50/40 hover:bg-blue-50/70 text-center transition-colors cursor-pointer">
-                <span class="flex flex-col items-center gap-1.5 text-[#1E3A8A]">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span class="text-[15px] font-semibold">Pilih gambar dari komputer</span>
-                  <span class="text-[13px] text-gray-500 font-normal">PNG, JPG, atau WEBP</span>
-                </span>
-              </button>
-            </template>
-            <input type="file" x-ref="postImageInput" accept="image/*" class="hidden" @change="readImage($event, (src) => (activityImage = src))">
-          </div>
-        </div>
-        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex items-center justify-end gap-2.5 -mx-6 -mb-6 mt-6">
-          <button class="px-5 py-2.5 border border-gray-300 rounded-lg text-[15px] font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer" @click="activityModalOpen = false">Batal</button>
-          <button :disabled="!activityContent.trim()" class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 text-white rounded-lg text-[15px] font-semibold transition-colors shadow-sm cursor-pointer" @click="handleSavePost()">Terbitkan Aktivitas</button>
-        </div>`,
-    });
-
-  // State tambahan khusus [id]/page.tsx: tab aktivitas & modal postingan sederhana
+  // Inisialisasi state halaman detail (read-only view alumni)
   document.addEventListener("alpine:init", () => {
-    Alpine.data("detailPage", () =>
-      profilePageData("detail", {
-        activeTab: "posts",
-        activityModalOpen: false,
-        editingPostId: null,
-        activityCategory: "Pencapaian Proyek / Capstone",
-        activityContent: "",
-        activityImage: "",
+    const fullData = getAlumniFullProfile(targetAlumniId);
 
-        handleOpenAddPost() {
-          this.editingPostId = null;
-          this.activityCategory = "Pencapaian Proyek / Capstone";
-          this.activityContent = "";
-          this.activityImage = "";
-          this.activityModalOpen = true;
+    Alpine.data("detailPage", () => {
+      return profilePageData("detail", {
+        isDetailConnected: false,
+        connectedPeopleIds: [],
+        activeCommentId: null,
+        commentInputs: {},
+        activeReplyCommentId: null,
+        replyInputs: {},
+        shareDropdownId: null,
+        shareOpinionPost: null,
+        shareOpinionText: "",
+        shareVisibility: "public",
+        showVisibilityDropdown: false,
+        comments: {
+          1: [
+            {
+              id: 101,
+              author: "Hatta Radjasa",
+              headline: "Senior Engineering Manager @ Traveloka",
+              avatar: "https://i.pravatar.cc/150?img=11",
+              text: "Selamat atas rilis proyeknya! Analisis sentimennya sangat aplikatif dan menarik pembahasannya.",
+              time: "1w",
+              likes: 5,
+              replies: [
+                {
+                  id: 201,
+                  author: "Aisha Dwi Rahmawati",
+                  avatar: "assets/img/user.png",
+                  text: "Terima kasih banyak atas feedback dan apresiasinya Mas Hatta!",
+                  time: "5d",
+                  likes: 2,
+                },
+              ],
+            },
+            {
+              id: 102,
+              author: "Kuswanto, S.E",
+              headline: "Founder & CEO at APMGN Holding Nusantara | Building Indonesia'...",
+              avatar: "https://i.pravatar.cc/150?img=12",
+              text: "Perspective Valuable",
+              time: "2w",
+              likes: 3,
+              replies: [],
+            },
+          ],
         },
-        handleSavePost() {
-          if (!this.activityContent.trim()) return;
-          if (this.editingPostId !== null) {
-            this.posts = this.posts.map((p) =>
-              p.id === this.editingPostId ? { ...p, content: this.activityContent, category: this.activityCategory, imageUrl: this.activityImage || undefined } : p
-            );
-          } else {
-            const newPost = {
-              id: Date.now(),
-              authorName: this.profile.name,
-              authorAvatar: this.profile.avatarUrl,
-              authorHeadline: this.profile.headline,
-              date: "Baru saja",
-              content: this.activityContent,
-              category: this.activityCategory,
-              imageUrl: this.activityImage || undefined,
-              likes: 0,
-              isLiked: false,
-              commentsCount: 0,
-              repostsCount: 0,
-              impressions: 1,
-            };
-            this.posts = [newPost, ...this.posts];
+
+        init() {
+          document.title = `${this.profile.name} | Profil Alumni Bengkel Koding`;
+          window.addEventListener("click", () => {
+            this.shareDropdownId = null;
+          });
+        },
+
+        toggleConnectDetail() {
+          this.isDetailConnected = !this.isDetailConnected;
+          this.toast = this.isDetailConnected
+            ? `Permintaan koneksi ke ${this.profile.name} terkirim!`
+            : `Koneksi dengan ${this.profile.name} dibatalkan.`;
+        },
+
+        handleCopyProfileLink() {
+          this.toast = "Tautan profil alumni berhasil disalin ke clipboard!";
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(window.location.href);
           }
-          this.activityModalOpen = false;
         },
-        // Revisi UX: tombol "Kirim" (chat belum tersedia) diganti "Simpan" postingan
-        handleToggleSave(id) {
-          const post = this.posts.find((p) => p.id === id);
-          this.posts = this.posts.map((p) => (p.id === id ? { ...p, isSaved: !p.isSaved } : p));
-          this.toast = post && !post.isSaved ? "Postingan disimpan" : "Postingan dihapus dari tersimpan";
+
+        toggleConnect(personId) {
+          if (this.connectedPeopleIds.includes(personId)) {
+            this.connectedPeopleIds = this.connectedPeopleIds.filter((id) => id !== personId);
+            this.toast = "Permintaan koneksi dibatalkan.";
+          } else {
+            this.connectedPeopleIds.push(personId);
+            this.toast = "Permintaan koneksi berhasil dikirim!";
+          }
         },
+
         handleToggleLike(id) {
           this.posts = this.posts.map((p) => {
             if (p.id !== id) return p;
@@ -308,14 +635,96 @@
             return { ...p, isLiked, likes: isLiked ? p.likes + 1 : Math.max(0, p.likes - 1) };
           });
         },
-        handleConfirmDelete() {
-          if (this.deleteTargetId !== null) {
-            this.posts = this.posts.filter((p) => p.id !== this.deleteTargetId);
-            this.deleteTargetId = null;
-          }
+
+        handleInstantRepost(post) {
+          this.posts = this.posts.map((p) => {
+            if (p.id !== post.id) return p;
+            return {
+              ...p,
+              repostsCount: (p.repostsCount || 0) + 1,
+              isRepost: true,
+            };
+          });
+          this.toast = "Postingan berhasil dibagikan ulang secara instan!";
+          this.shareDropdownId = null;
         },
-      })
-    );
+
+        handleShareWithOpinion() {
+          const src = this.shareOpinionPost;
+          if (src) {
+            this.posts = this.posts.map((p) => {
+              if (p.id !== src.id) return p;
+              return {
+                ...p,
+                repostsCount: (p.repostsCount || 0) + 1,
+                isRepost: true,
+              };
+            });
+            this.toast = "Postingan berhasil dibagikan dengan pemikiran Anda!";
+          }
+          this.shareOpinionPost = null;
+          this.shareOpinionText = "";
+        },
+
+        addComment(postId) {
+          const text = (this.commentInputs[postId] || "").trim();
+          if (!text) return;
+          const newComment = {
+            id: Date.now(),
+            author: "Anda",
+            avatar: "assets/img/user.png",
+            text: text,
+            time: "Baru saja",
+            likes: 0,
+            replies: [],
+          };
+          this.comments = {
+            ...this.comments,
+            [postId]: [...(this.comments[postId] || []), newComment],
+          };
+          this.commentInputs = { ...this.commentInputs, [postId]: "" };
+          this.posts = this.posts.map((p) => (p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p));
+          this.toast = "Komentar berhasil ditambahkan!";
+        },
+
+        likeComment(postId, commentId) {
+          this.comments = {
+            ...this.comments,
+            [postId]: (this.comments[postId] || []).map((item) => (item.id === commentId ? { ...item, likes: (item.likes || 0) + 1 } : item)),
+          };
+        },
+
+        likeReply(postId, commentId, replyId) {
+          this.comments = {
+            ...this.comments,
+            [postId]: (this.comments[postId] || []).map((item) =>
+              item.id === commentId ? { ...item, replies: (item.replies || []).map((r) => (r.id === replyId ? { ...r, likes: (r.likes || 0) + 1 } : r)) } : item
+            ),
+          };
+        },
+
+        addReply(postId, commentId) {
+          const text = (this.replyInputs[commentId] || "").trim();
+          if (!text) return;
+          const newReply = {
+            id: Date.now(),
+            author: "Anda",
+            avatar: "assets/img/user.png",
+            text: text,
+            time: "Baru saja",
+            likes: 0,
+          };
+          this.comments = {
+            ...this.comments,
+            [postId]: (this.comments[postId] || []).map((item) => (item.id === commentId ? { ...item, replies: [...(item.replies || []), newReply] } : item)),
+          };
+          this.replyInputs = { ...this.replyInputs, [commentId]: "" };
+          this.activeReplyCommentId = null;
+          this.posts = this.posts.map((p) => (p.id === postId ? { ...p, commentsCount: (p.commentsCount || 0) + 1 } : p));
+          this.toast = "Balasan berhasil dikirim!";
+        },
+      }, fullData);
+    });
   });
 </script>
 </body>

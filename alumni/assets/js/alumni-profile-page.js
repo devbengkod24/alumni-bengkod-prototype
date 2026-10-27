@@ -81,17 +81,17 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
           </template>
           <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none"></div>
           <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
-          <div class="flex items-center justify-end z-10">
+          ${detail ? "" : `<div class="flex items-center justify-end z-10">
             <button id="btn-ubah-cover" @click="coverUrlDraft = profile.coverImageUrl; editCoverOpen = true"
-              class="bg-white/90 hover:bg-white text-[#1E3A8A] text-[13px] font-semibold px-3.5 py-1.5 rounded-full shadow-sm backdrop-blur-xs flex items-center gap-1.5 transition-all cursor-pointer border border-white/60 hover:shadow-md"
+              class="bg-white/90 hover:bg-white text-[#1E3A8A] text-[15px] font-semibold px-5 py-2.5 rounded-full shadow-sm backdrop-blur-xs flex items-center gap-2 transition-all cursor-pointer border border-white/60 hover:shadow-md"
               title="Ganti foto atau tema cover">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <span>Ubah Cover</span>
             </button>
-          </div>
+          </div>`}
         </div>
 
         <div class="px-6 sm:px-8 pb-7">
@@ -102,40 +102,60 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                   <img :alt="profile.name" class="w-full h-full object-cover" :src="profile.avatarUrl" @error="avatarBroken = true">
                 </template>
                 <template x-if="!(profile.avatarUrl && !avatarBroken)">
-                  <div class="w-full h-full bg-[#1E3A8A] flex items-center justify-center text-white text-3xl sm:text-4xl font-bold" x-text="profile.name.slice(0, 2).toUpperCase()"></div>
+                  <div class="w-full h-full bg-[#1E3A8A] flex items-center justify-center text-white text-3xl sm:text-4xl font-bold" x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></div>
                 </template>
               </div>
-              <button id="btn-ganti-foto-profil" aria-label="Ganti Foto Profil" @click="avatarUrlDraft = profile.avatarUrl; avatarModalOpen = true"
+              ${detail ? "" : `<button id="btn-ganti-foto-profil" aria-label="Ganti Foto Profil" @click="avatarUrlDraft = profile.avatarUrl; avatarModalOpen = true"
                 class="absolute bottom-1 right-1 z-20 w-8 h-8 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center shadow-md border-2 border-white hover:bg-[#1D4ED8] transition-all cursor-pointer hover:scale-110"
                 title="Ganti Foto Profil">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
                   ${CAMERA_PATH}
                   <circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" />
                 </svg>
-              </button>
+              </button>`}
             </div>
           </div>
 
           <div class="mt-4 space-y-3.5">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-                <h2 class="text-[28px] sm:text-[32px] font-bold text-gray-900 tracking-tight leading-tight" x-text="profile.name"></h2>
-                <span class="inline-flex items-center px-6 py-1.5 rounded-full text-[14px] font-semibold tracking-wide bg-[#1E3A8A] text-white shadow-sm" x-text="'Alumni Batch ' + profile.batch"></span>
+            <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+              <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap min-w-0">
+                <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-900 tracking-tight leading-tight shrink-0" x-text="profile.name"></h2>
+                <span class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold bg-[#1E3A8A] text-white shadow-sm shrink-0 self-center leading-normal">
+                  <span x-text="'Alumni ' + (profile.batch || '2024')"></span>
+                </span>
               </div>
-              <div class="flex flex-wrap items-center gap-2.5 sm:gap-3 flex-shrink-0">
+              ${detail ? `<button type="button" @click="toggleConnectDetail()"
+                  class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-all shadow-sm cursor-pointer shrink-0 leading-normal"
+                  :class="isDetailConnected ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200' : 'bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white'">
+                  <template x-if="isDetailConnected">
+                    <span class="inline-flex items-center gap-2">
+                      <svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      <span>Terhubung</span>
+                    </span>
+                  </template>
+                  <template x-if="!isDetailConnected">
+                    <span class="inline-flex items-center gap-2">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                      <span>Hubungkan</span>
+                    </span>
+                  </template>
+                </button>` : `<div class="shrink-0">
                 <button id="btn-edit-profil" @click="editProfileOpen = true"
-                  class="bg-[#1E3A8A] hover:bg-[#152A66] text-white px-6 py-2.5 rounded-full text-[15px] font-semibold flex items-center gap-2 transition-colors shadow-sm cursor-pointer" title="Edit Profil">
-                  ${EDIT_ICON_16}
+                  class="inline-flex items-center justify-center bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-colors shadow-sm cursor-pointer shrink-0 leading-normal" title="Edit Profil">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
                   <span>Edit Profil</span>
                 </button>
-              </div>
+              </div>`}
             </div>
 
-            <p class="text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
+            <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
 
-            <div class="${detail ? "flex flex-col gap-1 text-[15px] text-gray-600 pt-0.5" : "flex flex-col gap-3 text-[15px] text-gray-600"}">
+            <div class="flex flex-col gap-1 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
               <div class="flex items-center gap-1.5"><span x-text="profile.location"></span></div>
-              <div><span class="text-[#1E3A8A] font-semibold text-[15px] hover:underline cursor-pointer" x-text="profile.connections + ' koneksi'"></span></div>
+              <div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>
             </div>
 
             <template x-if="profile.linkedin || profile.github || profile.website || profile.email">
@@ -156,13 +176,13 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
           <div class="flex items-center gap-3">
             <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Tentang Saya</h3>
           </div>
-          <button id="btn-edit-about" aria-label="Edit Tentang Saya" @click="editAboutOpen = true"
+          ${detail ? "" : `<button id="btn-edit-about" aria-label="Edit Tentang Saya" @click="editAboutOpen = true"
             class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
               <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
-          </button>
+          </button>`}
         </div>
         <p class="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line"><span x-text="aboutExpanded ? profile.about : profile.about.length > 280 ? profile.about.slice(0, 280) + '... ' : profile.about"></span><template x-if="profile.about.length > 280"><button id="btn-toggle-about" @click="aboutExpanded = !aboutExpanded" class="text-[#1E3A8A] hover:underline font-semibold text-[15px] cursor-pointer ml-1 inline-block" x-text="aboutExpanded ? 'Tutup ringkasan' : 'Baca selengkapnya'"></button></template></p>
       </div>`;
@@ -406,7 +426,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
             </div>` : `<h3 class="text-[20px] font-bold text-gray-900 tracking-tight">${title}</h3>`}
           </div>
           <div class="flex items-center gap-1">
-            ${buttons}
+            ${detail ? "" : buttons}
           </div>
         </div>`;
   const toggleAll = (id, flag, showLabel) => `<div class="mt-4 pt-2">
@@ -423,7 +443,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         ${sectionHead("Proyek &amp; Portofolio", "projects.length", SECTION_ADD_BTN("btn-add-project", "addProjectOpen", "Tambah proyek") + SECTION_EDIT_BTN("btn-edit-project", "editProjectOpen", "Edit proyek"))}
         <div class="space-y-4 pt-4">
           <template x-if="projects.length === 0">
-            <p class="text-center text-[15px] text-gray-500 py-8">Belum ada proyek. Klik tanda + untuk menambahkan.</p>
+            <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada proyek yang dipublikasikan.' : 'Belum ada proyek. Klik tanda + untuk menambahkan.'}</p>
           </template>
           <template x-for="proj in visibleProjects" :key="proj.id">
             <article class="p-5 rounded-xl bg-gray-50/70 border border-gray-100 hover:border-blue-200/80 hover:bg-blue-50/20 transition-colors duration-200">
@@ -457,11 +477,11 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M7 17L17 7M9 7h8v8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
                     </a>
                   </template>
-                  <button type="button" @click="handleOpenLogoModal('project', proj.id, proj.title, proj.imageUrl)"
+                  ${detail ? "" : `<button type="button" @click="handleOpenLogoModal('project', proj.id, proj.title, proj.imageUrl)"
                     class="absolute top-2 left-2 w-7 h-7 rounded-full bg-white/95 text-[#1E3A8A] flex items-center justify-center shadow-sm border border-blue-100 sm:opacity-0 sm:group-hover:opacity-100 hover:bg-white transition-opacity cursor-pointer"
                     title="Ubah foto proyek" aria-label="Ubah foto proyek">
                     <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">${CAMERA_PATH}<circle cx="12" cy="13" r="4" stroke="currentColor" stroke-width="2" /></svg>
-                  </button>
+                  </button>`}
                 </div>
 
                 <div class="flex-1 min-w-0 text-left">
@@ -512,7 +532,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         ${sectionHead("Keahlian &amp; Kompetensi", "skills.length", SECTION_ADD_BTN("btn-add-skill", "addSkillsOpen", "Tambah keahlian") + SECTION_EDIT_BTN("btn-edit-skill", "editSkillOpen", "Edit keahlian"))}
         <div class="space-y-3.5 pt-4">
           <template x-if="skills.length === 0">
-            <p class="text-center text-[15px] text-gray-500 py-8">Belum ada keahlian. Klik tanda + untuk menambahkan.</p>
+            <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada keahlian terdaftar.' : 'Belum ada keahlian. Klik tanda + untuk menambahkan.'}</p>
           </template>
           <template x-for="skill in visibleSkills" :key="skill.id">
             <div class="p-4 sm:p-5 rounded-xl bg-gray-50/70 border border-gray-100 hover:border-blue-200/80 hover:bg-blue-50/20 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
@@ -547,7 +567,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         ${sectionHead("Penghargaan &amp; Prestasi", "honors.length", SECTION_ADD_BTN("btn-add-honor", "addHonorOpen", "Tambah penghargaan") + SECTION_EDIT_BTN("btn-edit-honor", "editHonorsOpen", "Edit penghargaan"))}
         <div class="pt-4">
           <template x-if="honors.length === 0">
-            <p class="text-center text-[15px] text-gray-500 py-8">Belum ada penghargaan. Klik tanda + untuk menambahkan.</p>
+            <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada penghargaan yang dicantumkan.' : 'Belum ada penghargaan. Klik tanda + untuk menambahkan.'}</p>
           </template>
           <template x-if="honors.length > 0">
             <div class="space-y-4">
@@ -559,7 +579,6 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                         <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="honor.title"></h4>
                         <template x-if="honor.date"><span class="${CHIP} flex-shrink-0" x-text="honor.date"></span></template>
                       </div>
-                      <!-- Revisi UX: gambar media tampil utuh langsung di bawah judul -->
                       <template x-if="honor.media && (honor.media.imageUrl || honor.media.linkUrl || (honor.media.items || []).length > 0)">
                         ${honorMediaThumbHTML("honor.media")}
                       </template>
@@ -584,7 +603,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         ${sectionHead("Organisasi &amp; Kepemimpinan", "organizations.length", SECTION_ADD_BTN("btn-add-organization", "addOrgOpen", "Tambah organisasi") + SECTION_EDIT_BTN("btn-edit-organization", "editOrgOpen", "Edit organisasi"))}
         <div class="divide-y divide-gray-100 pt-2">
           <template x-if="organizations.length === 0">
-            <p class="text-center text-[15px] text-gray-500 py-8">Belum ada organisasi. Klik tanda + untuk menambahkan.</p>
+            <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada organisasi yang dicantumkan.' : 'Belum ada organisasi. Klik tanda + untuk menambahkan.'}</p>
           </template>
           <template x-for="(org, idx) in organizations" :key="org.id">
             <div class="py-5" :class="idx === 0 ? 'pt-2' : ''">
@@ -615,10 +634,12 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         <div class="divide-y divide-gray-100 pt-2">
           <template x-for="(edu, idx) in educations" :key="edu.id">
             <div class="py-5 flex items-start gap-4" :class="[idx === 0 ? 'pt-2' : '', idx === educations.length - 1 ? 'pb-0' : '']">
-              <div @click="handleOpenLogoModal('school', edu.id, edu.name, edu.logoUrl)" class="${LOGO_BUTTON}" title="Klik untuk mengubah logo sekolah / universitas">
+              ${detail ? `<div class="${LOGO_BUTTON} cursor-default" x-bind:title="edu.name">
+                ${educationLogoHTML("edu.name", "edu.logoUrl", "text-[22px]")}
+              </div>` : `<div @click="handleOpenLogoModal('school', edu.id, edu.name, edu.logoUrl)" class="${LOGO_BUTTON}" title="Klik untuk mengubah logo sekolah / universitas">
                 ${educationLogoHTML("edu.name", "edu.logoUrl", "text-[22px]")}
                 ${LOGO_OVERLAY}
-              </div>
+              </div>`}
               <div class="flex-1 min-w-0">
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="edu.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="edu.degree ? edu.degree + ' ' + edu.major : edu.major"></p>
@@ -633,11 +654,16 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
         </div>
       </div>`;
 
-  const certLogo = `<div @click="handleOpenLogoModal('cert', cert.id, cert.name, cert.logoUrl)" class="${LOGO_BUTTON} font-bold text-[13px]" title="Klik untuk mengubah logo sertifikat">
-                <template x-if="cert.logoUrl"><img :src="cert.logoUrl" :alt="cert.name" class="w-full h-full object-cover"></template>
-                <template x-if="!cert.logoUrl"><span x-text="cert.logoLabel"></span></template>
-                ${LOGO_OVERLAY}
-              </div>`;
+  const certLogo = detail
+    ? `<div class="${LOGO_BUTTON} font-bold text-[13px] cursor-default">
+         <template x-if="cert.logoUrl"><img :src="cert.logoUrl" :alt="cert.name" class="w-full h-full object-cover"></template>
+         <template x-if="!cert.logoUrl"><span x-text="cert.logoLabel"></span></template>
+       </div>`
+    : `<div @click="handleOpenLogoModal('cert', cert.id, cert.name, cert.logoUrl)" class="${LOGO_BUTTON} font-bold text-[13px]" title="Klik untuk mengubah logo sertifikat">
+         <template x-if="cert.logoUrl"><img :src="cert.logoUrl" :alt="cert.name" class="w-full h-full object-cover"></template>
+         <template x-if="!cert.logoUrl"><span x-text="cert.logoLabel"></span></template>
+         ${LOGO_OVERLAY}
+       </div>`;
   const certInfo = `<div class="flex-1 min-w-0">
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="cert.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="cert.issuer"></p>
@@ -678,9 +704,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
           "Lisensi &amp; Sertifikasi",
           "certifications.length",
           detail
-            ? `<button id="btn-add-certification" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer" aria-label="Tambah sertifikasi">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>` + SECTION_EDIT_BTN("btn-edit-certification", "", "Edit sertifikasi")
+            ? ""
             : SECTION_ADD_BTN("btn-add-certification", "addCertificationOpen", "Tambah sertifikasi") + SECTION_EDIT_BTN("btn-edit-certification", "editCertificationOpen", "Edit sertifikasi")
         )}
         ${certList}
@@ -706,20 +730,30 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
 
 // ===================== STATE HALAMAN (profil/page.tsx & [id]/page.tsx) =====================
 // extra: state & method tambahan khusus halaman (init-nya dijalankan setelah init dasar)
-function profilePageData(variant = "profil", extra = {}) {
+function profilePageData(variant = "profil", extra = {}, initialData = null) {
+  const profileSrc = (initialData && initialData.profile) ? initialData.profile : INITIAL_PROFILE;
+  const postsSrc = (initialData && initialData.posts) ? initialData.posts : (variant === "detail" ? DETAIL_INITIAL_POSTS : INITIAL_POSTS);
+  const projectsSrc = (initialData && initialData.projects) ? initialData.projects : INITIAL_PROJECTS;
+  const orgsSrc = (initialData && initialData.organizations) ? initialData.organizations : INITIAL_ORGANIZATIONS;
+  const edusSrc = (initialData && initialData.educations) ? initialData.educations : INITIAL_EDUCATIONS;
+  const certsSrc = (initialData && initialData.certifications) ? initialData.certifications : INITIAL_CERTIFICATIONS;
+  const skillsSrc = (initialData && initialData.skills) ? initialData.skills : INITIAL_SKILLS;
+  const honorsSrc = (initialData && initialData.honors) ? initialData.honors : [];
+
   const base = {
     COVER_THEMES,
     DEFAULT_AVATAR,
     SKILLS_PREVIEW,
     PROJECTS_PREVIEW,
-    profile: JSON.parse(JSON.stringify(INITIAL_PROFILE)),
-    posts: JSON.parse(JSON.stringify(variant === "detail" ? DETAIL_INITIAL_POSTS : INITIAL_POSTS)),
-    projects: JSON.parse(JSON.stringify(INITIAL_PROJECTS)),
-    organizations: JSON.parse(JSON.stringify(INITIAL_ORGANIZATIONS)),
-    educations: JSON.parse(JSON.stringify(INITIAL_EDUCATIONS)),
-    certifications: JSON.parse(JSON.stringify(INITIAL_CERTIFICATIONS)),
-    skills: JSON.parse(JSON.stringify(INITIAL_SKILLS)),
-    honors: [],
+    profile: JSON.parse(JSON.stringify(profileSrc)),
+    posts: JSON.parse(JSON.stringify(postsSrc)),
+    projects: JSON.parse(JSON.stringify(projectsSrc)),
+    organizations: JSON.parse(JSON.stringify(orgsSrc)),
+    educations: JSON.parse(JSON.stringify(edusSrc)),
+    certifications: JSON.parse(JSON.stringify(certsSrc)),
+    skills: JSON.parse(JSON.stringify(skillsSrc)),
+    honors: JSON.parse(JSON.stringify(honorsSrc)),
+    recommendedPeople: (initialData && initialData.recommendedPeople) ? initialData.recommendedPeople : [],
 
     addOrgOpen: false,
     editOrgOpen: false,
@@ -728,10 +762,10 @@ function profilePageData(variant = "profil", extra = {}) {
     addCertificationOpen: false,
     editCertificationOpen: false,
     editCoverOpen: false,
-    coverUrlDraft: INITIAL_PROFILE.coverImageUrl,
-    selectedGradient: INITIAL_PROFILE.coverGradient,
+    coverUrlDraft: profileSrc.coverImageUrl || "",
+    selectedGradient: profileSrc.coverGradient || "from-[#1E3A8A] via-[#2563EB] to-[#3B82F6]",
     avatarModalOpen: false,
-    avatarUrlDraft: INITIAL_PROFILE.avatarUrl,
+    avatarUrlDraft: profileSrc.avatarUrl || DEFAULT_AVATAR,
     avatarBroken: false,
     editProfileOpen: false,
     editAboutOpen: false,
@@ -755,12 +789,16 @@ function profilePageData(variant = "profil", extra = {}) {
     deleteTargetId: null,
 
     init() {
-      bindProfileModalEvents(this.$el, this);
-      this.$watch("profile.avatarUrl", () => (this.avatarBroken = false));
-      this.$watch("toast", (v) => {
-        clearTimeout(this.toastTimer);
-        if (v) this.toastTimer = setTimeout(() => (this.toast = ""), 2600);
-      });
+      if (variant !== "detail" && this.$el && typeof this.$el.addEventListener === "function") {
+        bindProfileModalEvents(this.$el, this);
+      }
+      if (typeof this.$watch === "function") {
+        this.$watch("profile.avatarUrl", () => (this.avatarBroken = false));
+        this.$watch("toast", (v) => {
+          clearTimeout(this.toastTimer);
+          if (v) this.toastTimer = setTimeout(() => (this.toast = ""), 2600);
+        });
+      }
       window.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && this.projectLightbox) this.projectLightbox = null;
       });
@@ -970,6 +1008,8 @@ document.addEventListener("alpine:init", () => {
 const PROFILE_MODAL_EVENTS = ["about-save", "skills-save", "skill-delete", "honors-save", "honor-add", "org-add", "orgs-save", "edu-add", "edus-save", "project-add", "projects-save", "cert-add", "certs-save"];
 
 function bindProfileModalEvents(el, data) {
-  el.addEventListener("profile-save", (e) => data.handleSaveProfile(e.detail));
-  PROFILE_MODAL_EVENTS.forEach((name) => el.addEventListener(name, (e) => data.handleModalEvent(name, e.detail)));
+  if (!el || typeof el.addEventListener !== "function") return;
+  el.addEventListener("profile-save", (e) => data.handleSaveProfile && data.handleSaveProfile(e.detail));
+  PROFILE_MODAL_EVENTS.forEach((name) => el.addEventListener(name, (e) => data.handleModalEvent && data.handleModalEvent(name, e.detail)));
 }
+

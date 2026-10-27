@@ -13,7 +13,7 @@
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
 <main data-route="">
-  <div x-data="feedPage" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2" @click.window="shareDropdownId = null">
+  <div x-data="feedPage" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased" @click.window="shareDropdownId = null">
     <!-- Toast Notifikasi -->
     <template x-if="toast">
       <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
@@ -54,36 +54,44 @@
       x-data="{
         searchQuery: '',
         searchOpen: false,
-        recentSearches: ['Andi Pratama', 'Siti Nuraini', 'Budi Santoso'],
-        allAlumni: [
-          { name: 'Nadjwa Salsabila', role: 'UI/UX Designer · Tokopedia', avatar: 'NS' },
-          { name: 'Maulidya Ayu Pratiwi', role: 'Frontend Developer · Gojek', avatar: 'MA' },
-          { name: 'Alvyan Anantama', role: 'Data Analyst · Traveloka', avatar: 'AA' },
-          { name: 'Sindu Aditya Putra', role: 'Backend Engineer · Shopee', avatar: 'SA' },
-          { name: 'Taliya Maharani', role: 'Product Manager · GoTo', avatar: 'TM' },
-          { name: 'Andi Pratama', role: 'Mobile Developer · Bukalapak', avatar: 'AP' },
-          { name: 'Siti Nuraini', role: 'Data Scientist · Grab', avatar: 'SN' },
-          { name: 'Budi Santoso', role: 'DevOps Engineer · Tiket.com', avatar: 'BS' },
-          { name: 'Rizky Firmansyah', role: 'Fullstack Developer · Koinworks', avatar: 'RF' },
-          { name: 'Dewi Rahmawati', role: 'QA Engineer · Kredivo', avatar: 'DR' },
+        recentSearches: [
+          { name: 'Andi Pratama', id: 'andi-pratama' },
+          { name: 'Siti Nuraini', id: 'siti-nuraini' },
+          { name: 'Budi Santoso', id: 'budi-santoso' }
         ],
-        get filteredAlumni() {
-          if (!this.searchQuery.trim()) return [];
-          return this.allAlumni.filter(a =>
-            a.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-          ).slice(0, 5);
+        suggestAlumni: [
+          { id: 'nadjwa-salsabila', name: 'Nadjwa Salsabila' },
+          { id: 'maulidya-ayu-pratiwi', name: 'Maulidya Ayu Pratiwi' },
+          { id: 'alvyan-anantama', name: 'Alvyan Anantama' },
+          { id: 'sindu-aditya-putra', name: 'Sindu Aditya Putra' },
+          { id: 'taliya-maharani', name: 'Taliya Maharani' }
+        ],
+        get filteredResults() {
+          const q = this.searchQuery.trim().toLowerCase();
+          if (!q) return [];
+          return (typeof searchAlumni === 'function' ? searchAlumni(q) : []).map(a => ({
+            id: a.id,
+            name: a.name,
+            link: 'detail.html?id=' + encodeURIComponent(a.id)
+          })).slice(0, 8);
         },
-        get avatarColors() {
-          return ['bg-blue-500','bg-purple-500','bg-emerald-500','bg-orange-500','bg-rose-500','bg-teal-500','bg-indigo-500','bg-amber-500'];
+        goToResult(name, id, link) {
+          this.addRecent(name, id);
+          window.location.href = link;
         },
-        avatarColor(i) { return this.avatarColors[i % this.avatarColors.length]; },
-        clearRecent(name) { this.recentSearches = this.recentSearches.filter(r => r !== name); },
-        selectRecent(name) { this.searchQuery = name; },
+        addRecent(name, id) {
+          this.recentSearches = this.recentSearches.filter(r => r.name !== name);
+          this.recentSearches.unshift({ name, id: id || name.toLowerCase().replace(/\s+/g, '-') });
+          if (this.recentSearches.length > 5) this.recentSearches.pop();
+        },
+        clearRecent(name) {
+          this.recentSearches = this.recentSearches.filter(r => r.name !== name);
+        }
       }"
       class="relative"
       @click.outside="searchOpen = false"
     >
-      <!-- Input -->
+      <!-- Input Search Bar -->
       <div class="relative">
         <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -98,13 +106,12 @@
           @focus="searchOpen = true"
           @input="searchOpen = true"
           placeholder="Cari alumni berdasarkan nama..."
-          class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm"
+          class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm"
         >
-        <!-- Clear button -->
         <button
           x-show="searchQuery.length > 0"
-          @click="searchQuery = ''; searchOpen = false"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+          @click="searchQuery = \'\'; searchOpen = false"
+          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
             <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -123,55 +130,62 @@
         x-transition:leave-end="opacity-0 translate-y-1"
         class="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden"
       >
-        <!-- Hasil pencarian -->
+
+        <!-- Saat ada query: tampilkan hasil pencarian -->
         <template x-if="searchQuery.trim().length > 0">
           <div>
-            <template x-if="filteredAlumni.length > 0">
+            <template x-if="filteredResults.length > 0">
               <div>
-                <div class="px-4 pt-3 pb-1 text-[12px] font-semibold text-gray-400 uppercase tracking-wider">Hasil Pencarian</div>
-                <template x-for="(alumni, i) in filteredAlumni" :key="alumni.name">
-                  <div class="flex items-center gap-3 px-4 py-3 hover:bg-blue-50/60 cursor-pointer transition-colors group">
-                    <div :class="avatarColor(i)" class="w-10 h-10 rounded-full flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0" x-text="alumni.avatar"></div>
-                    <div class="flex-1 min-w-0">
-                      <p class="text-[15px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="alumni.name"></p>
-                      <p class="text-[13px] text-gray-500 truncate" x-text="alumni.role"></p>
+                <template x-for="item in filteredResults" :key="item.id">
+                  <div
+                    @click="goToResult(item.name, item.id, item.link)"
+                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                  >
+                    <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-gray-300 group-hover:text-[#1E3A8A] flex-shrink-0 transition-colors">
-                      <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    <span class="text-[14px] text-gray-800" x-text="item.name"></span>
                   </div>
                 </template>
               </div>
             </template>
-            <template x-if="filteredAlumni.length === 0">
-              <div class="px-4 py-5 text-center text-[14px] text-gray-400">
+            <template x-if="filteredResults.length === 0">
+              <div class="px-4 py-8 text-center text-[14px] text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
                 Tidak ada alumni ditemukan untuk "<span class="font-semibold text-gray-600" x-text="searchQuery"></span>"
               </div>
             </template>
           </div>
         </template>
 
-        <!-- Pencarian terbaru (saat kosong) -->
+        <!-- Saat input kosong: tampilkan riwayat & saran -->
         <template x-if="searchQuery.trim().length === 0">
           <div>
-            <!-- Terbaru -->
+
+            <!-- Riwayat Pencarian Terbaru -->
             <template x-if="recentSearches.length > 0">
               <div>
-                <div class="flex items-center justify-between px-4 pt-3 pb-1">
-                  <span class="text-[12px] font-semibold text-gray-400 uppercase tracking-wider">Terbaru</span>
+                <div class="flex items-center justify-between px-4 pt-3 pb-1.5">
+                  <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Terbaru</span>
                   <button @click="recentSearches = []" class="text-[12px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Hapus semua</button>
                 </div>
-                <template x-for="name in recentSearches" :key="name">
-                  <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50/60 cursor-pointer transition-colors group" @click="selectRecent(name)">
-                    <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" class="text-gray-400">
-                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"/>
-                        <path d="M12 7v5l3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                <template x-for="item in recentSearches" :key="item.name">
+                  <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
+                       @click="window.location.href = 'detail.html?id=' + item.id">
+                    <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                       </svg>
                     </div>
-                    <span class="flex-1 text-[15px] text-gray-800 group-hover:text-[#1E3A8A] transition-colors" x-text="name"></span>
-                    <button @click.stop="clearRecent(name)" class="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <span class="flex-1 text-[14px] text-gray-800 group-hover:text-gray-900" x-text="item.name"></span>
+                    <button @click.stop="clearRecent(item.name)" class="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer p-1 rounded">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
                         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                       </svg>
                     </button>
@@ -180,23 +194,28 @@
               </div>
             </template>
 
-            <!-- Saran pencarian -->
-            <div class="border-t border-gray-100 mt-1">
-              <div class="px-4 pt-3 pb-1 text-[12px] font-semibold text-gray-400 uppercase tracking-wider">Coba cari</div>
-              <template x-for="alumni in allAlumni.slice(0,5)" :key="alumni.name">
-                <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-blue-50/60 cursor-pointer transition-colors group" @click="searchQuery = alumni.name">
-                  <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" class="text-gray-400">
-                      <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/>
-                      <path d="M18 18l-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <!-- Saran Pencarian -->
+            <div :class="recentSearches.length > 0 ? \'border-t border-gray-100\' : \'\' ">
+              <div class="px-4 pt-3 pb-1.5">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Coba Cari</span>
+              </div>
+              <template x-for="a in suggestAlumni" :key="a.id">
+                <a :href="\'detail.html?id=\' + a.id"
+                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group">
+                  <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                   </div>
-                  <span class="flex-1 text-[15px] text-gray-800 group-hover:text-[#1E3A8A] transition-colors" x-text="alumni.name"></span>
-                </div>
+                  <span class="text-[14px] text-gray-800 group-hover:text-gray-900" x-text="a.name"></span>
+                </a>
               </template>
             </div>
+
           </div>
         </template>
+
       </div>
     </div>
 
@@ -229,20 +248,20 @@
           <div class="p-5">
             <div class="flex items-start justify-between">
               <div class="flex items-start gap-3.5">
-                <template x-if="post.authorAvatar">
-                  <img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0" :src="post.authorAvatar">
-                </template>
-                <template x-if="!post.authorAvatar">
-                  <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base"
-                    x-text="post.authorName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()"></div>
-                </template>
+                <a :href="getAuthorLink(post.authorName)" class="shrink-0 group">
+                  <template x-if="post.authorAvatar">
+                    <img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0 group-hover:ring-2 group-hover:ring-[#1E3A8A] transition-all" :src="post.authorAvatar">
+                  </template>
+                  <template x-if="!post.authorAvatar">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base group-hover:ring-2 group-hover:ring-[#1E3A8A] transition-all"
+                      x-text="post.authorName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()"></div>
+                  </template>
+                </a>
                 <div class="flex flex-col">
-                  <div class="flex items-center gap-2">
-                    <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="post.authorName"></h4>
+                    <a :href="getAuthorLink(post.authorName)" class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] transition-colors" x-text="post.authorName"></a>
                     <template x-if="post.authorRole && post.authorRole !== 'Alumni'">
                       <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border" :class="post.authorRole === 'Mitra' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-[#1E3A8A] border-blue-200'" x-text="post.authorRole"></span>
                     </template>
-                  </div>
                   <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
                   <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
                     <span x-text="post.date"></span>
@@ -581,73 +600,92 @@
     </div><!-- end kolom utama -->
 
     <!-- ======================================================
-        KOLOM SAMPING (KANAN) — PENGUMUMAN
+        KOLOM SAMPING (KANAN) — PENGUMUMAN (LinkedIn News Style)
     ====================================================== -->
     <div class="lg:col-span-4 space-y-6">
 
-      <!-- ── CARD: PENGUMUMAN DARI KOORDINATOR ── -->
-      <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/90 shadow-sm p-6">
-        <div class="flex items-center justify-between mb-4">
+      <!-- ── CARD: PENGUMUMAN DARI KOORDINATOR (1 Card Utuh) ── -->
+      <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
+        <!-- Header Pengumuman (Simpel & Rapi, Tanpa Icon Lonceng & Tanpa Badge 8 Terbaru) -->
+        <div class="flex items-start justify-between pb-3">
           <div>
-            <h3 class="text-[16px] font-semibold text-gray-900 tracking-tight">Pengumuman</h3>
-            <p class="text-[13px] text-gray-500 font-normal mt-0.5">Dari koordinator Bengkel Koding</p>
+            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Pengumuman</h3>
+            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Informasi utama Bengkel Koding</p>
           </div>
-          <a href="pengumuman.html" class="inline-flex items-center gap-1 text-[13px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors">
-            Lihat Semua
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <a href="pengumuman.html" title="Informasi pengumuman" class="text-gray-400 hover:text-gray-600 transition-colors p-1 rounded-md hover:bg-gray-100 cursor-pointer">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.464-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
             </svg>
           </a>
         </div>
 
-        <div class="space-y-0.5 divide-y divide-gray-100">
+        <!-- Daftar Maksimal 5 Pengumuman Terbaru (Menyatu dalam 1 card, tanpa garis-garis) -->
+        <div class="space-y-1 mt-1">
 
           <!-- Pengumuman 1 -->
-          <a href="pengumuman.html?id=1" class="block py-3 px-2 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group">
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Jadwal Pelepasan Alumni Angkatan 2024</p>
-              <p class="text-[13px] text-gray-500 mt-1 leading-relaxed line-clamp-2">Acara pelepasan alumni akan dilaksanakan pada Sabtu, 15 November 2025 pukul 09.00 WIB di Gedung Serbaguna UDINUS.</p>
-              <p class="text-[12px] text-gray-400 mt-1">24 Okt 2025</p>
-            </div>
+          <a href="pengumuman.html?id=1" class="block p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors cursor-pointer group">
+            <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate">
+              Jadwal Pelepasan Alumni Angkatan 2024
+            </h4>
+            <p class="text-[12px] text-gray-500 font-normal leading-snug line-clamp-2 mt-0.5">
+              Rangkaian agenda wisuda dan pelepasan resmi alumni Bengkel Koding angkatan 2024.
+            </p>
+            <p class="text-[11px] text-gray-400 font-normal mt-1 leading-none">
+              24 Okt 2025
+            </p>
           </a>
 
           <!-- Pengumuman 2 -->
-          <a href="pengumuman.html?id=2" class="block py-3 px-2 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group">
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Pengisian Data Alumni Terbaru</p>
-              <p class="text-[13px] text-gray-500 mt-1 leading-relaxed line-clamp-2">Harap melengkapi data diri terbaru termasuk pekerjaan saat ini melalui portal alumni paling lambat 30 November 2025.</p>
-              <p class="text-[12px] text-gray-400 mt-1">21 Okt 2025</p>
-            </div>
+          <a href="pengumuman.html?id=2" class="block p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors cursor-pointer group">
+            <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate">
+              Pengisian Data Alumni Terbaru
+            </h4>
+            <p class="text-[12px] text-gray-500 font-normal leading-snug line-clamp-2 mt-0.5">
+              Pemutakhiran profil, keahlian, dan tracer study untuk pendataan karier lulusan.
+            </p>
+            <p class="text-[11px] text-gray-400 font-normal mt-1 leading-none">
+              21 Okt 2025
+            </p>
           </a>
 
           <!-- Pengumuman 3 -->
-          <a href="pengumuman.html?id=3" class="block py-3 px-2 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group">
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Workshop UI/UX Bersama Tokopedia</p>
-              <p class="text-[13px] text-gray-500 mt-1 leading-relaxed line-clamp-2">Pendaftaran workshop UI/UX gratis bersama tim desainer Tokopedia telah dibuka. Kuota terbatas hanya 50 peserta.</p>
-              <p class="text-[12px] text-gray-400 mt-1">17 Okt 2025</p>
-            </div>
+          <a href="pengumuman.html?id=3" class="block p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors cursor-pointer group">
+            <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate">
+              Workshop UI/UX Bersama Tokopedia
+            </h4>
+            <p class="text-[12px] text-gray-500 font-normal leading-snug line-clamp-2 mt-0.5">
+              Sesi berbagi wawasan seputar product design dan best practice industri teknologi.
+            </p>
+            <p class="text-[11px] text-gray-400 font-normal mt-1 leading-none">
+              17 Okt 2025
+            </p>
           </a>
 
           <!-- Pengumuman 4 -->
-          <a href="pengumuman.html?id=4" class="block py-3 px-2 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group">
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Rekrutmen Asisten Koordinator 2025</p>
-              <p class="text-[13px] text-gray-500 mt-1 leading-relaxed line-clamp-2">Bengkel Koding membuka rekrutmen asisten koordinator untuk periode 2025–2026. Alumni aktif dipersilakan mendaftar.</p>
-              <p class="text-[12px] text-gray-400 mt-1">10 Okt 2025</p>
-            </div>
+          <a href="pengumuman.html?id=4" class="block p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors cursor-pointer group">
+            <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate">
+              Rekrutmen Asisten Koordinator 2025
+            </h4>
+            <p class="text-[12px] text-gray-500 font-normal leading-snug line-clamp-2 mt-0.5">
+              Peluang berkarier sebagai mentor pendamping dan fasilitator laboratorium Bengkod.
+            </p>
+            <p class="text-[11px] text-gray-400 font-normal mt-1 leading-none">
+              10 Okt 2025
+            </p>
           </a>
 
           <!-- Pengumuman 5 -->
-          <a href="pengumuman.html?id=5" class="block py-3 px-2 rounded-xl hover:bg-blue-50/60 transition-colors cursor-pointer group">
-            <div class="flex-1 min-w-0">
-              <p class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">Pembaruan Kurikulum Program 2025</p>
-              <p class="text-[13px] text-gray-500 mt-1 leading-relaxed line-clamp-2">Koordinator telah merilis kurikulum baru untuk program coding 2025 yang mencakup modul Artificial Intelligence.</p>
-              <p class="text-[12px] text-gray-400 mt-1">3 Okt 2025</p>
-            </div>
+          <a href="pengumuman.html?id=5" class="block p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors cursor-pointer group">
+            <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate">
+              Pembaruan Kurikulum Program 2025
+            </h4>
+            <p class="text-[12px] text-gray-500 font-normal leading-snug line-clamp-2 mt-0.5">
+              Integrasi materi modern web development, AI engineering, dan studi kasus industri.
+            </p>
+            <p class="text-[11px] text-gray-400 font-normal mt-1 leading-none">
+              3 Okt 2025
+            </p>
           </a>
-
-
 
         </div>
       </div>
@@ -823,18 +861,91 @@
               <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50">
               <div>
                 <h4 class="font-bold text-gray-900 text-[15px]" x-text="profile.name"></h4>
-                <div class="flex items-center gap-2 mt-0.5">
-                  <span class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                      <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
-                      <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
-                    </svg>
-                    <span>Posting ke Semua orang</span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <div class="relative mt-0.5" @click.outside="showVisibilityDropdown = false">
+                  <button
+                    type="button"
+                    @click="showVisibilityDropdown = !showVisibilityDropdown"
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                  >
+                    <template x-if="shareVisibility === 'public'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                      </svg>
+                    </template>
+                    <template x-if="shareVisibility === 'private'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </template>
+                    <span x-text="shareVisibility === 'public' ? 'Posting ke Semua orang' : 'Posting ke Private'"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" class="transition-transform duration-150" :class="showVisibilityDropdown ? 'rotate-180' : ''">
                       <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                  </span>
+                  </button>
+
+                  <div
+                    x-show="showVisibilityDropdown"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 py-1.5 z-50 overflow-hidden"
+                    style="display: none;"
+                  >
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'public'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Semua orang</p>
+                          <p class="text-[11px] text-gray-500">Dapat dilihat oleh publik</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'public'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
+                    </button>
+
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'private'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Private</p>
+                          <p class="text-[11px] text-gray-500">Hanya dapat dilihat oleh Anda</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'private'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
+                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </template>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -869,10 +980,6 @@
                     <p class="font-bold text-[14px] text-gray-900" x-text="shareOpinionPost.authorName"></p>
                     <p class="text-[12px] text-gray-500 truncate max-w-[320px]" x-text="shareOpinionPost.authorHeadline || 'Alumni Bengkel Koding'"></p>
                   </div>
-                </div>
-                <span class="text-[13px] font-semibold text-[#1E3A8A] flex items-center gap-1 cursor-pointer hover:underline">
-                  + Ikuti
-                </span>
               </div>
               <p class="text-[13px] text-gray-800 leading-relaxed line-clamp-3" x-text="shareOpinionPost.content"></p>
               <template x-if="shareOpinionPost.imageUrl">
@@ -972,6 +1079,8 @@
         shareDropdownId: null,
         shareOpinionPost: null,
         shareOpinionText: "",
+        shareVisibility: "public",
+        showVisibilityDropdown: false,
 
         // PostModal state
         pmContent: "",
@@ -1238,6 +1347,16 @@
             post.commentsCount++;
             this.simpan();
           }
+        },
+
+        getAuthorLink(name) {
+          if (!name) return '#';
+          if (name.toLowerCase() === this.profile.name.toLowerCase()) return 'profil.html';
+          const found = (typeof ALUMNI_DIRECTORY !== 'undefined' ? ALUMNI_DIRECTORY : []).find(
+            a => a.name.toLowerCase() === name.toLowerCase()
+          );
+          if (found) return 'detail.html?id=' + encodeURIComponent(found.id);
+          return 'detail.html?id=' + encodeURIComponent(name.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
         },
       };
     });

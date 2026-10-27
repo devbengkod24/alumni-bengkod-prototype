@@ -14,6 +14,10 @@
 tailwind.config = {
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Poppins', 'sans-serif'],
+        poppins: ['Poppins', 'sans-serif'],
+      },
       colors: {
         primary1: "#1E3A8A",
         primary2: "#1D4ED8",
@@ -100,10 +104,16 @@ const ALUMNI_ROUTES = {
   "/dashboard/alumni/profil": "profil.html",
   "/dashboard/alumni/lowongan": "lowongan.html",
   "/dashboard/alumni/pengumuman": "pengumuman.html",
+  "/dashboard/alumni/perusahaan": "perusahaan.html",
+  "/dashboard/alumni/mitra": "mitra.html",
+  "/dashboard/alumni/detail": "detail.html",
+  "/dashboard/alumni/generate-cv": "generate-cv.html",
 };
 
 function alumniHref(link) {
   if (ALUMNI_ROUTES[link]) return ALUMNI_ROUTES[link];
+  const mPerusahaan = /^\/dashboard\/alumni\/perusahaan\/([^/]+)$/.exec(link || "");
+  if (mPerusahaan) return `perusahaan.html?id=${encodeURIComponent(mPerusahaan[1])}`;
   const m = /^\/dashboard\/alumni\/([^/]+)$/.exec(link || "");
   if (m) return `detail.html?id=${encodeURIComponent(m[1])}`;
   return "#";
@@ -130,12 +140,30 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
+    title: "Generate CV",
+    link: "/dashboard/alumni/generate-cv",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <polyline points="14 2 14 8 20 8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="10" y1="9" x2="8" y2="9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+  },
+  {
     title: "Lowongan Kerja",
     link: "/dashboard/alumni/lowongan",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none">
           <rect x="2" y="7" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
           <line x1="12" y1="12" x2="12" y2="12.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
+        </svg>`,
+  },
+  {
+    title: "Mitra Perusahaan",
+    link: "/dashboard/alumni/mitra",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none">
+          <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>`,
   },
   {

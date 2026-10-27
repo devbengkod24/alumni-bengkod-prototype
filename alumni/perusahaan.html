@@ -1,0 +1,1098 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Perusahaan Mitra | Bengkel Koding</title>
+  <meta name="description" content="Profil resmi perusahaan mitra industri Bengkel Koding Universitas Dian Nuswantoro">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
+</head>
+<body>
+<!-- Tampilan Profil Perusahaan Mitra (perusahaan.html?id=<id-perusahaan>) -->
+<!-- Desain 100% Persis Tata Letak dan Tipografi Sistem LMS Bengkel Koding -->
+<main data-route="perusahaan">
+  <div x-data="companyProfilePage" class="w-full space-y-6 pb-12 antialiased">
+    
+    <!-- Toast Notifikasi Interaktif -->
+    <template x-if="toast">
+      <div role="status" class="fixed bottom-6 right-6 z-[90] inline-flex items-center gap-2.5 h-12 px-6 rounded-full bg-gray-900 text-white text-[15px] font-semibold shadow-xl animate-fade-in">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span x-text="toast"></span>
+      </div>
+    </template>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- ======================================================
+          KOLOM UTAMA (KIRI/TENGAH) — 8 KOLOM
+      ====================================================== -->
+      <div class="lg:col-span-8 space-y-6">
+
+        <!-- ======================================================
+            CARD 1: HEADER PROFIL PERUSAHAAN (PERSIS profile-top)
+        ====================================================== -->
+        <div id="section-header-profil" class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden">
+          
+          <!-- Cover Banner -->
+          <div class="h-36 sm:h-44 relative p-4 sm:p-5 flex flex-col justify-between overflow-hidden bg-gradient-to-r from-[#1E3A8A] via-[#1D4ED8] to-[#3B82F6]">
+            <template x-if="company.coverImageUrl">
+              <img :src="company.coverImageUrl" alt="Cover Banner Perusahaan" class="absolute inset-0 w-full h-full object-cover object-center">
+            </template>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20 pointer-events-none"></div>
+            <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
+          </div>
+
+          <!-- Informasi Profil & Logo Bulat -->
+          <div class="px-6 sm:px-8 pb-7">
+            <div class="flex items-start">
+              <div class="relative z-10 -mt-[56px] sm:-mt-[68px] w-[112px] h-[112px] sm:w-[136px] sm:h-[136px] flex-shrink-0">
+                <div class="w-full h-full rounded-full border-4 border-white shadow-xl bg-white overflow-hidden ring-2 ring-blue-100 flex items-center justify-center">
+                  <template x-if="company.logoUrl">
+                    <img :alt="company.name" class="w-full h-full object-contain p-2" :src="company.logoUrl">
+                  </template>
+                  <template x-if="!company.logoUrl">
+                    <div class="w-full h-full bg-[#1E3A8A] flex items-center justify-center text-white text-3xl sm:text-4xl font-bold tracking-wider"
+                      x-text="(company.avatarText || company.name.substring(0, 2)).toUpperCase()"></div>
+                  </template>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 space-y-3.5">
+              <!-- Baris Nama, Badge Mitra (Pill), dan Tombol Website -->
+              <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
+                <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap min-w-0">
+                  <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-900 tracking-tight leading-tight shrink-0" x-text="company.nama_perusahaan || company.name"></h2>
+                  <span class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold bg-[#1E3A8A] text-white shadow-sm shrink-0 self-center leading-normal">
+                    <span x-text="company.bidang_usaha || company.industry || 'Startup Teknologi'"></span>
+                  </span>
+                </div>
+
+                <!-- Tombol Kunjungi Website -->
+                <div class="flex items-center gap-2 shrink-0">
+                  <template x-if="company.website">
+                    <a :href="company.website" target="_blank" rel="noopener noreferrer"
+                      class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-all shadow-sm cursor-pointer shrink-0 leading-normal bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                      <span>Kunjungi Website</span>
+                    </a>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Teks DIBAWAH NAMA PERUSAHAAN (Dinamis Sesuai Masing-Masing Perusahaan) -->
+              <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="getCompanyHeadline(company)"></p>
+
+              <!-- Lokasi & Pengikut -->
+              <div class="flex flex-col gap-1 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
+                <div class="flex items-center gap-1.5">
+                  <span x-text="company.alamat ? (company.alamat + ', ' + (company.kota || '') + ', ' + (company.provinsi || '')) : company.location"></span>
+                </div>
+                <div>
+                  <span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px]" x-text="(company.followersCount || 1420) + ' pengikut • ' + (company.alumniCount || (company.alumniList ? company.alumniList.length : 14)) + ' alumni bekerja'"></span>
+                </div>
+              </div>
+
+              <!-- Baris Tautan Kontak Resmi -->
+              <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2.5 text-[15px]">
+                <span class="text-gray-500 font-medium text-[15px] mr-1">Kontak Resmi:</span>
+                
+                <template x-if="company.website">
+                  <a class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-50 hover:bg-blue-50/80 text-gray-700 hover:text-[#1E3A8A] border border-gray-200/80 hover:border-blue-200 text-[15px] font-medium transition-colors shadow-2xs"
+                    :href="company.website" target="_blank" rel="noreferrer">
+                    <div class="w-5 h-5 rounded-full bg-gray-700 text-white flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="2" y1="12" x2="22" y2="12" />
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                      </svg>
+                    </div>
+                    <span x-text="company.website.replace(/^https?:\/\/(www\.)?/, '')"></span>
+                  </a>
+                </template>
+
+                <template x-if="company.email">
+                  <a class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-50 hover:bg-blue-50/80 text-gray-700 hover:text-[#1E3A8A] border border-gray-200/80 hover:border-blue-200 text-[15px] font-medium transition-colors shadow-2xs"
+                    :href="'mailto:' + company.email">
+                    <div class="w-5 h-5 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                      </svg>
+                    </div>
+                    <span x-text="company.email"></span>
+                  </a>
+                </template>
+
+                <template x-if="company.telepon || company.phone">
+                  <a class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-50 hover:bg-blue-50/80 text-gray-700 hover:text-[#1E3A8A] border border-gray-200/80 hover:border-blue-200 text-[15px] font-medium transition-colors shadow-2xs"
+                    :href="'tel:' + (company.telepon || company.phone)">
+                    <div class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                      <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                      </svg>
+                    </div>
+                    <span x-text="company.telepon || company.phone"></span>
+                  </a>
+                </template>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================
+            CARD 2: GAMBARAN UMUM (PERSIS GAMBAR 1)
+            Judul: Gambaran Umum, Tanpa tombol Edit/Hapus
+        ====================================================== -->
+        <div id="section-gambaran-umum" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-100">
+            <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Gambaran Umum</h3>
+          </div>
+          <div class="text-[15px] text-gray-700 leading-relaxed space-y-4">
+            <p>
+              <span x-text="aboutExpanded ? (company.about || company.deskripsi) : (company.about || company.deskripsi || '').length > 280 ? (company.about || company.deskripsi).slice(0, 280) + '... ' : (company.about || company.deskripsi)"></span>
+            </p>
+            <p x-show="aboutExpanded" class="animate-fade-in text-gray-700">
+              Sebagai mitra strategis Bengkel Koding Universitas Dian Nuswantoro, kami aktif membuka peluang program magang bersertifikat, rekrutmen alumni, serta kolaborasi riset terapan di bidang pengembangan sistem cerdas dan transformasi digital terdepan di Indonesia.
+            </p>
+            <div>
+              <button @click="aboutExpanded = !aboutExpanded"
+                class="text-[#1E3A8A] hover:underline font-semibold text-[15px] cursor-pointer inline-block"
+                x-text="aboutExpanded ? 'Tutup ringkasan' : 'Baca selengkapnya'"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================
+            CARD 3: AKTIVITAS & BERBAGI (PERSIS GAMBAR 2 / GAMBAR 3 USER)
+            Tanpa tombol Tambah/Edit, bisa Suka, Komentar, dan Bagikan (persis search user)
+        ====================================================== -->
+        <div id="section-activity" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-gray-100">
+            <div>
+              <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Aktivitas &amp; Berbagi</h3>
+              <p class="text-[14px] text-gray-500 font-medium" x-text="(company.followersCount || 77) + ' pengikut terhubung'"></p>
+            </div>
+          </div>
+
+          <div class="space-y-5">
+            <!-- Satu Postingan Resmi Perusahaan Mitra -->
+            <div class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white overflow-hidden">
+              <div class="p-5">
+                <div class="flex items-start justify-between">
+                  <div class="flex items-start gap-3.5">
+                    <template x-if="company.logoUrl">
+                      <img :alt="company.name" class="w-14 h-14 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0 bg-white p-0.5" :src="company.logoUrl">
+                    </template>
+                    <template x-if="!company.logoUrl">
+                      <div class="w-14 h-14 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base"
+                        x-text="(company.avatarText || company.name.substring(0, 2)).toUpperCase()"></div>
+                    </template>
+                    <div class="flex flex-col">
+                      <div class="flex items-center gap-2">
+                        <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="company.nama_perusahaan || company.name"></h4>
+                      </div>
+                      <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="(company.industry || company.bidang_usaha || 'Mitra Industri') + ' · Kemitraan Kampus'"></p>
+                      <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
+                        <span>Feb 12, 2026</span>
+                        <span>•</span>
+                        <span class="inline-flex items-center gap-1 text-[12px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                          <span>Semua orang</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Konten Postingan -->
+                <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line">
+                  Dengan gembira, kami membagikan update program inovasi teknologi dan kolaborasi riset bersama talenta digital Bengkel Koding UDINUS. Lihat detail lowongan dan peluang karir selengkapnya di: <a class="text-[#1E3A8A] font-semibold hover:underline" :href="company.website || 'https://www.gojek.com'" target="_blank" rel="noreferrer" x-text="company.website || 'https://www.gojek.com'"></a>
+                </p>
+              </div>
+
+              <!-- Gambar Postingan -->
+              <div class="px-5 pb-5">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1000&auto=format&fit=crop&q=80" alt="Kolaborasi Bengkel Koding" class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80">
+              </div>
+
+              <!-- Baris Ringkasan Reaksi -->
+              <div class="px-5 py-2.5 border-b border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
+                <div class="flex items-center gap-1.5">
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-[13px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" />
+                    </svg>
+                  </span>
+                  <span class="font-semibold text-gray-700 ml-1" x-text="postLikes + ' menyukai'"></span>
+                </div>
+                <div class="flex items-center gap-4">
+                  <button @click="showComments = !showComments" class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="comments.length + ' komentar'"></button>
+                  <button class="hover:underline hover:text-[#1E3A8A] cursor-pointer" x-text="postShares + ' dibagikan'"></button>
+                </div>
+              </div>
+
+              <!-- Tombol Interaksi: Suka, Komentar, Bagikan -->
+              <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold text-gray-600">
+                <!-- Tombol Suka -->
+                <button @click="toggleLike()"
+                  class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  :class="isLiked ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="isLiked ? '#1E3A8A' : 'none'">
+                    <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 01-2-2v-7a2 2 0 012-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>Suka</span>
+                </button>
+
+                <!-- Tombol Komentar -->
+                <button @click="showComments = !showComments"
+                  class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                  :class="showComments ? 'text-[#1E3A8A]' : ''">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>Komentar</span>
+                </button>
+
+                <!-- Tombol Bagikan dengan Dropdown -->
+                <div class="relative">
+                  <button @click.stop="showShareDropdown = !showShareDropdown"
+                    class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    :class="postShares > 541 ? 'text-emerald-600' : ''">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                      <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Bagikan</span>
+                  </button>
+
+                  <!-- Dropdown Menu Bagikan -->
+                  <template x-if="showShareDropdown">
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[260px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150" @click.stop>
+                      <button @click="openShareOpinionModal()" class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="text-[15px] font-semibold text-gray-900">Bagikan disertai pendapat</span>
+                      </button>
+                      <div class="border-t border-gray-100"></div>
+                      <button @click="instantShare()" class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                          <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span class="text-[15px] font-semibold text-gray-900">Bagikan secara instan</span>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Footer Impresi & Analitik (Persis Menu Profil & Detail) -->
+              <div class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
+                <div class="flex items-center gap-2 font-medium text-gray-700">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  <span>502 impresi dilihat</span>
+                </div>
+                <a :href="'analitik-postingan.html?id=' + (company.id || 'gojek')" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer" title="Lihat analitik postingan ini">
+                  <span>Lihat analitik</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                </a>
+              </div>
+
+              <!-- DROPDOWN KOMENTAR INTERAKTIF (LENGKAP DENGAN BALASAN PERSIS PROFIL) -->
+              <template x-if="showComments">
+                <div class="border-t border-gray-100 bg-white px-5 py-4">
+                  <div class="flex items-start gap-3 mb-4">
+                    <img src="assets/img/user.png" alt="Avatar" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                    <div class="flex-1 relative">
+                      <input type="text" placeholder="Tulis komentar..." x-model="commentInput"
+                        @keydown.enter="if ((commentInput || '').trim()) addComment()"
+                        class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+                      <button type="button" @click="if ((commentInput || '').trim()) addComment()"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold transition-colors cursor-pointer"
+                        :class="(commentInput || '').trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'">Send</button>
+                    </div>
+                  </div>
+
+                  <template x-if="comments.length > 0">
+                    <div>
+                      <div class="flex items-center gap-1 mb-3 text-[14px] font-semibold text-gray-700">
+                        <span>Paling relevan</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      </div>
+
+                      <div class="space-y-4">
+                        <template x-for="c in comments" :key="c.id">
+                          <div class="flex items-start gap-3">
+                            <img :src="c.avatar" :alt="c.author" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                            <div class="flex-1 min-w-0">
+                              <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                                <p class="text-[14px] font-semibold text-gray-900" x-text="c.author"></p>
+                                <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed" x-text="c.text"></p>
+                              </div>
+
+                              <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
+                                <button type="button" @click="likeComment(c.id)" class="flex items-center gap-1.5 text-[14px] font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer" title="Suka komentar">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                  </svg>
+                                  <span x-text="c.likes > 0 ? c.likes : ''"></span>
+                                </button>
+                                <button type="button" @click="activeReplyCommentId = activeReplyCommentId === c.id ? null : c.id"
+                                  class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer" :class="activeReplyCommentId === c.id ? 'text-[#1E3A8A]' : ''" title="Balas komentar ini">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                                    <line x1="8" y1="10" x2="16" y2="10" />
+                                  </svg>
+                                </button>
+                                <span class="text-[13px] text-gray-400 font-normal" x-text="c.time"></span>
+                              </div>
+
+                              <!-- Balasan Komentar Bercabang (Branching) -->
+                              <template x-if="c.replies && c.replies.length > 0">
+                                <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
+                                  <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+                                  <template x-for="reply in c.replies" :key="reply.id">
+                                    <div class="flex items-start gap-2.5 relative">
+                                      <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
+                                      <img :src="reply.avatar" :alt="reply.author" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                                      <div class="flex-1 min-w-0">
+                                        <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
+                                          <p class="text-[13px] font-bold text-gray-900" x-text="reply.author"></p>
+                                          <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed"><span class="font-semibold text-[#1E3A8A] mr-1" x-text="'@' + c.author"></span><span x-text="reply.text"></span></p>
+                                        </div>
+                                        <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
+                                          <button type="button" @click="likeReply(c.id, reply.id)" class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                            </svg>
+                                            <span x-text="reply.likes > 0 ? reply.likes : ''"></span>
+                                          </button>
+                                          <span class="text-[12px] text-gray-400" x-text="reply.time"></span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </template>
+                                </div>
+                              </template>
+
+                              <!-- Form Balas Komentar Inline -->
+                              <template x-if="activeReplyCommentId === c.id">
+                                <div class="flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative animate-in fade-in slide-in-from-top-1 duration-150">
+                                  <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
+                                  <img src="assets/img/user.png" alt="User" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
+                                  <div class="flex-1 min-w-0">
+                                    <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all shadow-2xs">
+                                      <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none" x-text="c.author"></span>
+                                      <input type="text" x-init="$nextTick(() => $el.focus())" placeholder="Tulis balasan..." x-model="replyInputs[c.id]"
+                                        @keydown.enter="if ((replyInputs[c.id] || '').trim()) addReply(c.id)"
+                                        class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0">
+                                      <button type="button" @click="if ((replyInputs[c.id] || '').trim()) addReply(c.id)" :disabled="!(replyInputs[c.id] || '').trim()"
+                                        class="ml-2 text-[13px] font-semibold transition-colors cursor-pointer flex-shrink-0"
+                                        :class="(replyInputs[c.id] || '').trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'">Send</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </template>
+                            </div>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================
+            CARD 4: NARAHUBUNG (KONSISTEN DENGAN MENU PROFIL)
+            - Judul: Narahubung (pb-4 border-b border-gray-100)
+            - Nama PIC bold 17px konsisten dengan nama institusi di profil
+            - Jabatan & Kontak rapi dengan spasi vertikal harmonis
+        ====================================================== -->
+        <div id="section-narahubung" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Narahubung</h3>
+          </div>
+
+          <div class="pt-4 space-y-1.5 text-[14px] sm:text-[15px] text-gray-600 font-normal">
+            <h4 class="text-[17px] font-bold text-gray-900 leading-snug" x-text="(company.pic && company.pic.nama) ? company.pic.nama : 'Maya Safitri'"></h4>
+            <p class="text-gray-600 font-medium" x-text="(company.pic && company.pic.jabatan) ? company.pic.jabatan : 'Talent Acquisition Lead'"></p>
+            <p>Email: <span class="text-gray-900 font-medium" x-text="((company.pic && company.pic.email) ? company.pic.email : 'maya.safitri@gojek.com')"></span></p>
+            <p>Telp: <span class="text-gray-900 font-medium" x-text="((company.pic && company.pic.telepon) ? company.pic.telepon : '0812-9876-5432')"></span></p>
+          </div>
+        </div>
+
+        <!-- ======================================================
+            CARD 5: LOWONGAN KERJA TERBARU (KONSISTEN DENGAN PROYEK DI PROFIL)
+            - Judul: Lowongan kerja terbaru (pb-4 border-b border-gray-100)
+            - Card lowongan dibungkus rapi dalam kartu abu-abu lembut
+            - Tombol expand kebawah dengan indikator jumlah lowongan
+        ====================================================== -->
+        <div id="section-lowongan-terbaru" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Lowongan kerja terbaru</h3>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-5">
+            <template x-for="job in (showAllJobs ? allCompanyJobs : allCompanyJobs.slice(0, 2))" :key="job.id">
+              <div class="flex items-start gap-3.5 group">
+                <!-- Logo Lingkaran -->
+                <div class="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center p-1 shrink-0 shadow-2xs">
+                  <template x-if="company.logoUrl">
+                    <img :src="company.logoUrl" :alt="company.name" class="w-full h-full object-contain rounded-full">
+                  </template>
+                  <template x-if="!company.logoUrl">
+                    <span class="text-[12px] font-extrabold text-[#1E3A8A]" x-text="company.avatarText || 'GT'"></span>
+                  </template>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <a href="lowongan.html" class="text-[15px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug block">
+                    <span x-text="job.title"></span>
+                  </a>
+                  <p class="text-[13px] text-gray-500 font-normal mt-1" x-text="job.location"></p>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Tombol Tampilkan Semua Lowongan (Menampilkan Jumlah Lowongan) -->
+          <div class="mt-5 pt-2">
+            <button type="button" @click="showAllJobs = !showAllJobs"
+              class="w-full py-2.5 px-5 rounded-full border border-gray-200/90 hover:border-blue-300 hover:bg-blue-50/40 text-[14px] sm:text-[15px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer">
+              <span x-text="showAllJobs ? 'Tampilkan lebih sedikit' : 'Tampilkan semua (' + allCompanyJobs.length + ') lowongan'"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" :class="showAllJobs ? '-rotate-90 transition-transform' : 'transition-transform'">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================
+            CARD 6: ALUMNI BENGKEL KODING (100% PERSIS DESIGN USER)
+            - 14 alumni hapus (tanpa badge 14 alumni)
+            - Alumni 2024 hapus (tanpa badge angkatan)
+            - Tombol Hubungkan taruh DIBAWAH jabatan/role (Frontend Developer)
+            - Tampilkan semua expand kebawah dengan indikator jumlah alumni
+        ====================================================== -->
+        <div id="section-alumni-karyawan" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div>
+              <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Alumni Bengkel Koding</h3>
+              <p class="text-[13px] text-gray-500 font-medium mt-0.5">Bekerja di perusahaan ini</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            <template x-for="alum in (showAllAlumni ? allAlumniList : allAlumniList.slice(0, 4))" :key="alum.id">
+              <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 hover:border-blue-200 hover:bg-blue-50/20 transition-all flex items-start gap-3.5">
+                <a :href="'detail.html?id=' + alum.id" class="flex-shrink-0 mt-0.5">
+                  <img :src="alum.avatarUrl" :alt="alum.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 shadow-2xs flex-shrink-0">
+                </a>
+                <div class="flex-1 min-w-0">
+                  <a :href="'detail.html?id=' + alum.id" class="text-[14px] sm:text-[15px] font-bold text-gray-900 hover:text-[#1E3A8A] transition-colors leading-snug block" x-text="alum.name"></a>
+                  <p class="text-[12px] sm:text-[13px] text-gray-500 font-normal leading-snug mt-1" x-text="alum.role || alum.headline"></p>
+                  
+                  <!-- Tombol Hubungkan Tepat DIBAWAH Deskripsi Persis Gambar 1 -->
+                  <div class="mt-2.5">
+                    <button type="button" @click="toggleConnectAlumni(alum.id)"
+                      class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-[12px] font-semibold border transition-all duration-150 cursor-pointer shadow-2xs"
+                      :class="connectedAlumniIds.includes(alum.id)
+                        ? 'bg-blue-50 text-[#1E3A8A] border-blue-200'
+                        : 'border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] bg-white hover:bg-gray-50 active:scale-95'">
+                      <template x-if="connectedAlumniIds.includes(alum.id)">
+                        <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <svg class="w-3.5 h-3.5 text-[#1E3A8A] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span>Terkirim</span>
+                        </span>
+                      </template>
+                      <template x-if="!connectedAlumniIds.includes(alum.id)">
+                        <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <svg class="w-3.5 h-3.5 text-gray-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                          <span>Hubungkan</span>
+                        </span>
+                      </template>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Tombol Tampilkan Semua (Dengan Jumlah Alumni) -->
+          <div class="mt-5 pt-2">
+            <button type="button" @click="showAllAlumni = !showAllAlumni"
+              class="w-full px-5 py-2.5 rounded-full border border-gray-200/90 hover:border-blue-300 hover:bg-blue-50/40 text-[14px] sm:text-[15px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer">
+              <span x-text="showAllAlumni ? 'Tampilkan lebih sedikit' : 'Tampilkan semua (' + allAlumniList.length + ') alumni'"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" :class="showAllAlumni ? '-rotate-90 transition-transform' : 'transition-transform'">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================================================
+          KOLOM SAMPING (KANAN) — 4 KOLOM
+          100% PERSIS GAMBAR 2 DENGAN DESKRIPSI SINGKAT FORMAT |
+          - Judul: Perusahaan yang mungkin Anda kenal
+          - Subtitle: Dari Bengkel Koding
+          - Foto/Logo Lingkaran (w-12 h-12 rounded-full)
+          - Centang Biru Semua Dihilangkan Sesuai Permintaan
+          - Deskripsi Singkat berformat pipa | di bawah nama
+          - Tombol + Hubungkan tepat di bawah deskripsi singkat
+      ====================================================== -->
+      <div class="lg:col-span-4 space-y-6 self-stretch relative">
+        
+        <!-- CARD: PERUSAHAAN YANG MUNGKIN ANDA KENAL (100% PERSIS GAMBAR 1) -->
+        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
+          <div class="pb-3">
+            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Perusahaan yang mungkin Anda kenal</h3>
+            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
+          </div>
+
+          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
+            <template x-for="comp in otherCompanies" :key="comp.id">
+              <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
+                <!-- Foto/Logo Lingkaran (Rounded-Full Persis Gambar 1) -->
+                <a :href="'perusahaan.html?id=' + encodeURIComponent(comp.id)" class="flex-shrink-0">
+                  <template x-if="comp.logoUrl">
+                    <img :src="comp.logoUrl" :alt="comp.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
+                  </template>
+                  <template x-if="!comp.logoUrl">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 text-[#1E3A8A] font-bold text-[14px] flex items-center justify-center border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5"
+                      x-text="comp.avatarText || comp.name.substring(0, 2).toUpperCase()"></div>
+                  </template>
+                </a>
+
+                <!-- Kolom Detail: Nama, Deskripsi Berformat |, Tombol Hubungkan -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <a :href="'perusahaan.html?id=' + encodeURIComponent(comp.id)" class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] cursor-pointer transition-colors truncate block" x-text="comp.nama_perusahaan || comp.name"></a>
+                  </div>
+
+                  <!-- Deskripsi Singkat Berformat Pipa | (Persis Gambar 1) -->
+                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="getCompanyHeadline(comp)"></p>
+                  
+                  <!-- Tombol Hubungkan di Bawah Deskripsi Singkat (Persis Gambar 1) -->
+                  <button type="button" @click="toggleConnectCompany(comp.id)"
+                    class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer shadow-2xs"
+                    :class="connectedCompanyIds.includes(comp.id)
+                      ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
+                      : 'border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-white active:scale-95'">
+                    <template x-if="connectedCompanyIds.includes(comp.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Terkirim</span>
+                      </span>
+                    </template>
+                    <template x-if="!connectedCompanyIds.includes(comp.id)">
+                      <span class="inline-flex items-center gap-1">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                          <circle cx="8.5" cy="7" r="4"/>
+                          <line x1="20" y1="8" x2="20" y2="14"/>
+                          <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                        <span>Hubungkan</span>
+                      </span>
+                    </template>
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ======================================================
+        MODAL: BAGIKAN DISERTAI PENDAPAT (100% PERSIS PROFIL & DETAIL)
+    ====================================================== -->
+    <template x-if="showOpinionModal">
+      <div id="modal-share-opinion" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150" @mousedown.self="showOpinionModal = false">
+        <div style="width: 95vw; max-width: 620px" class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <img src="assets/img/user.png" alt="User" class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50">
+              <div>
+                <h4 class="font-bold text-gray-900 text-[15px]">Anda</h4>
+                <div class="relative mt-0.5" @click.outside="showVisibilityDropdown = false">
+                  <button
+                    type="button"
+                    @click="showVisibilityDropdown = !showVisibilityDropdown"
+                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors cursor-pointer"
+                  >
+                    <template x-if="shareVisibility === 'public'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                      </svg>
+                    </template>
+                    <template x-if="shareVisibility === 'private'">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                      </svg>
+                    </template>
+                    <span x-text="shareVisibility === 'public' ? 'Posting ke Semua orang' : 'Posting ke Private'"></span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" class="transition-transform duration-150" :class="showVisibilityDropdown ? 'rotate-180' : ''">
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+
+                  <div
+                    x-show="showVisibilityDropdown"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 py-1.5 z-50 overflow-hidden"
+                    style="display: none;"
+                  >
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'public'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                            <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900">Semua orang</p>
+                          <p class="text-[11px] text-gray-500">Siapa pun di Bengkod</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'public'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </template>
+                    </button>
+                    <button
+                      type="button"
+                      @click="shareVisibility = 'private'; showVisibilityDropdown = false"
+                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                    >
+                      <div class="flex items-center gap-2.5">
+                        <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="text-[13px] font-semibold text-gray-900">Hanya Saya</p>
+                          <p class="text-[11px] text-gray-500">Postingan privat</p>
+                        </div>
+                      </div>
+                      <template x-if="shareVisibility === 'private'">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                      </template>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button type="button" @click="showOpinionModal = false" class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer" aria-label="Tutup">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            </button>
+          </div>
+          <div class="p-6 overflow-y-auto space-y-4 flex-1">
+            <textarea x-init="$nextTick(() => $el.focus())" rows="3" x-model="shareOpinionText" placeholder="Tambahkan pemikiran Anda (Opsional)"
+              class="w-full resize-none text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
+            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <template x-if="company.logoUrl">
+                    <img :src="company.logoUrl" :alt="company.name" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                  </template>
+                  <template x-if="!company.logoUrl">
+                    <div class="w-10 h-10 rounded-full bg-[#1E3A8A] text-white flex items-center justify-center font-bold text-xs" x-text="(company.avatarText || 'BK').toUpperCase()"></div>
+                  </template>
+                  <div>
+                    <p class="font-bold text-[14px] text-gray-900" x-text="company.nama_perusahaan || company.name"></p>
+                    <p class="text-[12px] text-gray-500 truncate max-w-[320px]" x-text="(company.bidang_usaha || company.industry || 'Mitra Industri') + ' • Kemitraan Kampus'"></p>
+                  </div>
+                </div>
+              </div>
+              <p class="text-[13px] text-gray-800 leading-relaxed line-clamp-3">Dengan gembira, kami membagikan update program inovasi teknologi dan kolaborasi riset bersama talenta digital Bengkel Koding UDINUS. Lihat detail lowongan dan peluang karir selengkapnya di sistem alumni.</p>
+              <div class="rounded-lg overflow-hidden border border-gray-200 max-h-48 bg-gray-100 flex items-center justify-center">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80" alt="Pratinjau Media" class="w-full h-full object-cover">
+              </div>
+            </div>
+          </div>
+          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
+            <div class="flex items-center gap-3 text-gray-500">
+              <button type="button" title="Tambahkan emoji" class="p-2 hover:bg-gray-100 hover:text-gray-700 rounded-full transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                  <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+              <button type="button" title="Jadwalkan postingan" class="p-2 hover:bg-gray-100 hover:text-gray-700 rounded-full transition-colors cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                  <polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex items-center gap-2.5">
+              <button type="button" @click="showOpinionModal = false" class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+              <button type="button" id="btn-submit-share-opinion" @click="submitOpinionShare()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors">Bagikan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+
+  </div>
+</main>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const targetCompanyId = urlParams.get("id") || "gojek";
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("companyProfilePage", () => {
+      const rawList = typeof COMPANY_DIRECTORY !== "undefined" ? COMPANY_DIRECTORY : [];
+      let found = rawList.find(c => c.id === targetCompanyId || c.id === targetCompanyId.toLowerCase());
+      if (!found) found = rawList.find(c => c.id === "gojek") || rawList[0] || {};
+
+      const others = rawList.filter(c => c.id !== found.id);
+
+      // Daftar lowongan resmi perusahaan
+      const defaultJobs = [
+        {
+          id: "job-1",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " Financial - Senior Data Scientist - LLM Platform (Artificial Intelligence/AI)",
+          location: "Singapura (Gabungan)",
+          description: "Mengembangkan arsitektur Large Language Model (LLM) dan automasi AI mutakhir untuk jutaan pengguna di ekosistem platform digital."
+        },
+        {
+          id: "job-2",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " Financial - Data Scientist - Computer Vision & AI",
+          location: "Singapura (Gabungan)",
+          description: "Membangun model deteksi visual dan automasi berbasis computer vision untuk sistem keamanan transaksi dan verifikasi mitra."
+        },
+        {
+          id: "job-3",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " - Senior Backend Engineer (Go/Microservices)",
+          location: "Jakarta Selatan (Hybrid)",
+          description: "Merancang arsitektur backend berskala tinggi dengan throughput jutaan request per detik menggunakan Golang dan Kubernetes."
+        },
+        {
+          id: "job-4",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " - Mobile Software Engineer (Flutter/Android)",
+          location: "Semarang (Hybrid)",
+          description: "Mengembangkan modul fitur interaktif pada superapp driver dan merchant dengan performa tinggi dan UX yang intuitif."
+        },
+        {
+          id: "job-5",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " - Product Designer (UI/UX & Design System)",
+          location: "Jakarta Selatan (Hybrid)",
+          description: "Mendesain user journey dan flow fitur interaktif dengan komponen design system modern untuk platform enterprise."
+        },
+        {
+          id: "job-6",
+          title: (found.nama_perusahaan ? found.nama_perusahaan.split(" ")[0] : "GoTo") + " - Cloud Infrastructure & Security Engineer",
+          location: "Jakarta Pusat / Jarak Jauh (Remote)",
+          description: "Mengelola automasi pipeline CI/CD serta reliabilitas sistem container Kubernetes berskala enterprise."
+        }
+      ];
+
+      // Daftar alumni nyata dari sistem Bengkod (Persis Gambar 1)
+      const alumniDummy = [
+        {
+          id: "muhammad-rizal",
+          name: "Muhammad Rizal Pratama",
+          role: "iOS Engineer @ Tokopedia | SwiftUI • Kotlin • Flutter | Apple Dev Academy",
+          avatarUrl: "https://i.pravatar.cc/150?img=11"
+        },
+        {
+          id: "azmi-khofipah",
+          name: "Azmi Khofipah",
+          role: "Product Designer @ Blibli | Design Systems & UX Research Enthusiast",
+          avatarUrl: "https://i.pravatar.cc/150?img=47"
+        },
+        {
+          id: "maulidya-ayu",
+          name: "Maulidya Ayu Pratiwi",
+          role: "Frontend Engineer @ Gojek | React • Next.js • TypeScript | Bengkel Koding 2024",
+          avatarUrl: "https://i.pravatar.cc/150?img=45"
+        },
+        {
+          id: "nadia-putri",
+          name: "Nadia Putri",
+          role: "Product Data Analyst @ GoTo | SQL • Python • Tableau | Bengkel Koding 2023",
+          avatarUrl: "https://i.pravatar.cc/150?img=32"
+        },
+        {
+          id: "dimas-suryo",
+          name: "Dimas Suryo Nugroho",
+          role: "Backend Engineer @ Mandiri | Go • Microservices • PostgreSQL | Bengkel Koding",
+          avatarUrl: "https://i.pravatar.cc/150?img=12"
+        },
+        {
+          id: "muhamad-faiz",
+          name: "Muhamad Faiz",
+          role: "Mobile Engineer @ Traveloka | Flutter • Android • Kotlin | Bengkel Koding",
+          avatarUrl: "https://i.pravatar.cc/150?img=13"
+        },
+        {
+          id: "okky-bagus",
+          name: "Okky Bagus Pamungkas",
+          role: "Cloud & DevOps Specialist @ Telkom | Kubernetes • AWS • CI/CD",
+          avatarUrl: "https://i.pravatar.cc/150?img=15"
+        },
+        {
+          id: "syahrul-ramadhan",
+          name: "Syahrul Ramadhan",
+          role: "Machine Learning Engineer @ DANA | PyTorch • Computer Vision • NLP",
+          avatarUrl: "https://i.pravatar.cc/150?img=68"
+        }
+      ];
+
+      return {
+        toast: "",
+        company: found,
+        otherCompanies: others,
+        aboutExpanded: false,
+        showAllAlumni: false,
+        showAllJobs: false,
+        allCompanyJobs: defaultJobs,
+        allAlumniList: alumniDummy,
+        connectedAlumniIds: [],
+        connectedCompanyIds: [],
+
+        // Aktivitas Post State (Persis Profil)
+        isLiked: false,
+        postLikes: 3,
+        postShares: 541,
+        showComments: false,
+        showShareDropdown: false,
+        showOpinionModal: false,
+        shareVisibility: 'public',
+        showVisibilityDropdown: false,
+        shareOpinionText: '',
+        commentInput: '',
+        activeReplyCommentId: null,
+        replyInputs: {},
+        comments: [
+          {
+            id: 1,
+            author: "Dimas Suryo Nugroho",
+            avatar: "https://i.pravatar.cc/150?img=12",
+            time: "2 jam lalu",
+            text: "Luar biasa program kemitraan bersama Bengkel Koding! Sangat membuka jalan akselerasi karir.",
+            likes: 2,
+            isLiked: false,
+            replies: [
+              {
+                id: 101,
+                author: "Aisha Dwi Rahmawati",
+                avatar: "assets/img/user.png",
+                time: "1 jam lalu",
+                text: "Setuju kak Dimas, sangat aplikatif!",
+                likes: 1,
+                isLiked: false
+              }
+            ]
+          },
+          {
+            id: 2,
+            author: "Ayu Maulidya",
+            avatar: "https://i.pravatar.cc/150?img=45",
+            time: "1 jam lalu",
+            text: "Sangat bangga bisa berkontribusi di ekosistem digital bersama Bengkel Koding.",
+            likes: 0,
+            isLiked: false,
+            replies: []
+          }
+        ],
+
+        setToast(msg) {
+          this.toast = msg;
+          setTimeout(() => (this.toast = ""), 2500);
+        },
+
+        toggleConnectAlumni(id) {
+          if (this.connectedAlumniIds.includes(id)) {
+            this.connectedAlumniIds = this.connectedAlumniIds.filter(x => x !== id);
+            this.setToast("Koneksi alumni dibatalkan");
+          } else {
+            this.connectedAlumniIds.push(id);
+            this.setToast("Permintaan terhubung alumni terkirim!");
+          }
+        },
+
+        toggleConnectCompany(id) {
+          if (this.connectedCompanyIds.includes(id)) {
+            this.connectedCompanyIds = this.connectedCompanyIds.filter(x => x !== id);
+            this.setToast("Koneksi kemitraan dibatalkan");
+          } else {
+            this.connectedCompanyIds.push(id);
+            this.setToast("Permintaan terhubung mitra terkirim!");
+          }
+        },
+
+        toggleLike() {
+          this.isLiked = !this.isLiked;
+          this.postLikes += this.isLiked ? 1 : -1;
+          this.setToast(this.isLiked ? "Anda menyukai postingan ini" : "Batal menyukai");
+        },
+
+        addComment() {
+          if (!this.commentInput.trim()) return;
+          this.comments.unshift({
+            id: Date.now(),
+            author: "Aisha Dwi Rahmawati",
+            avatar: "assets/img/user.png",
+            time: "Baru saja",
+            text: this.commentInput.trim(),
+            likes: 0,
+            isLiked: false,
+            replies: []
+          });
+          this.commentInput = "";
+          this.setToast("Komentar berhasil dikirim!");
+        },
+
+        likeComment(commentId) {
+          const c = this.comments.find(x => x.id === commentId);
+          if (c) {
+            c.isLiked = !c.isLiked;
+            c.likes = (c.likes || 0) + (c.isLiked ? 1 : -1);
+          }
+        },
+
+        likeReply(commentId, replyId) {
+          const c = this.comments.find(x => x.id === commentId);
+          if (c && c.replies) {
+            const r = c.replies.find(x => x.id === replyId);
+            if (r) {
+              r.isLiked = !r.isLiked;
+              r.likes = (r.likes || 0) + (r.isLiked ? 1 : -1);
+            }
+          }
+        },
+
+        addReply(commentId) {
+          const text = (this.replyInputs[commentId] || "").trim();
+          if (!text) return;
+          const c = this.comments.find(x => x.id === commentId);
+          if (c) {
+            if (!c.replies) c.replies = [];
+            c.replies.push({
+              id: Date.now(),
+              author: "Aisha Dwi Rahmawati",
+              avatar: "assets/img/user.png",
+              time: "Baru saja",
+              text: text,
+              likes: 0,
+              isLiked: false
+            });
+            this.replyInputs[commentId] = "";
+            this.activeReplyCommentId = null;
+            this.setToast("Balasan terkirim!");
+          }
+        },
+
+        openShareOpinionModal() {
+          this.showShareDropdown = false;
+          this.shareOpinionText = "";
+          this.shareVisibility = "public";
+          this.showVisibilityDropdown = false;
+          this.showOpinionModal = true;
+        },
+
+        instantShare() {
+          this.showShareDropdown = false;
+          this.postShares += 1;
+          this.setToast("Postingan berhasil dibagikan secara instan ke beranda Anda!");
+        },
+
+        submitOpinionShare() {
+          this.showOpinionModal = false;
+          this.postShares += 1;
+          this.shareOpinionText = "";
+          this.setToast("Postingan disertai pendapat berhasil dibagikan!");
+        },
+
+        getCompanyHeadline(comp) {
+          if (!comp) return "";
+          if (comp.pipedHeadline) return comp.pipedHeadline;
+          const id = (comp.id || "").toLowerCase();
+          const name = (comp.nama_perusahaan || comp.name || "").toLowerCase();
+          
+          if (id.includes("gojek") || name.includes("gojek")) {
+            return "Superapp & On-Demand Platform | GoTo Ecosystem • Digital Payment | Jakarta Selatan";
+          }
+          if (id.includes("solusi-digital") || name.includes("solusi digital")) {
+            return "Software House | Web & Mobile App Development | Semarang";
+          }
+          if (id.includes("telkom") || name.includes("telkom")) {
+            return "Telekomunikasi & Layanan Digital | Telkom Group • Cloud & IoT | Bandung";
+          }
+          if (id.includes("mandiri") || name.includes("mandiri")) {
+            return "Perbankan & Financial Technology | Livin' Ecosystem • Enterprise IT | Jakarta Selatan";
+          }
+          if (id.includes("djarum") || name.includes("djarum")) {
+            return "Enterprise & FMCG | IT Digital Transformation • Supply Chain | Kudus";
+          }
+          if (id.includes("blibli") || name.includes("blibli")) {
+            return "E-Commerce & Omnichannel Ecosystem | Djarum Group • Tech Hub | Jakarta Pusat";
+          }
+          if (id.includes("data-nusantara") || name.includes("data nusantara")) {
+            return "Big Data & AI Analytics | Machine Learning • BI Dashboard | Yogyakarta";
+          }
+          if (id.includes("firstudio") || name.includes("firstudio")) {
+            return "Digital Agency & Software Studio | UI/UX Design • Fullstack Web | Yogyakarta";
+          }
+          if (id.includes("tokopedia") || name.includes("tokopedia")) {
+            return "E-Commerce Super Ecosystem | GoTo Group • Cloud Architecture | Jakarta Selatan";
+          }
+          
+          const bidang = comp.bidang_usaha || comp.industry || "Mitra Industri";
+          const kota = comp.kota || comp.city || "Indonesia";
+          return `${bidang} | Mitra Resmi Bengkel Koding | ${kota}`;
+        }
+      };
+    });
+  });
+
+  // Menutup dropdown bagikan jika klik di luar
+  document.addEventListener("click", () => {
+    const el = document.querySelector("[x-data='companyProfilePage']");
+    if (el && el.__x && el.__x.$data) {
+      el.__x.$data.showShareDropdown = false;
+    }
+  });
+</script>
+</body>
+</html>
