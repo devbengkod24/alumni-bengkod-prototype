@@ -8,6 +8,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
+  <script src="../assets/js/store.js"></script>
 </head>
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
@@ -238,6 +239,9 @@
                 <div class="flex flex-col">
                   <div class="flex items-center gap-2">
                     <h4 class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] cursor-pointer transition-colors" x-text="post.authorName"></h4>
+                    <template x-if="post.authorRole && post.authorRole !== 'Alumni'">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border" :class="post.authorRole === 'Mitra' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-blue-50 text-[#1E3A8A] border-blue-200'" x-text="post.authorRole"></span>
+                    </template>
                   </div>
                   <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
                   <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
@@ -269,7 +273,7 @@
             </div>
 
             <!-- Isi Postingan -->
-            <template x-if="post.isRepost">
+            <template x-if="post.isRepost && post.tablePreview">
               <div class="mt-3.5">
                 <h5 class="text-[17px] font-semibold text-gray-900">Machine Learning Algorithms Cheatsheet</h5>
                 <p class="text-[15px] text-gray-700 mt-1 leading-relaxed">
@@ -415,7 +419,7 @@
           </div>
 
           <!-- Footer Analytics -->
-          <div class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
+          <div x-show="post.id > 0" class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
             <div class="flex items-center gap-2 font-medium text-gray-700">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -975,10 +979,8 @@
         pmVisibility: "Semua orang",
 
         init() {
-          this.posts = loadPosts();
-          window.addEventListener("bengkod_posts_updated", () => {
-            this.posts = loadPosts();
-          });
+          this.muat();
+          window.addEventListener("bengkod_posts_updated", () => this.muat());
           try {
             const saved = localStorage.getItem("bengkod_alumni_profile");
             if (saved) {
@@ -992,6 +994,71 @@
           } catch {}
         },
 
+        // Feed gabungan: postingan alumni (alumni-data.js) + forum bersama Koordinator & Mitra (BengkodStore).
+        // Post forum dipetakan ke skema alumni dengan id negatif agar tidak bentrok dengan id alumni.
+        muat() {
+          const mitra = BengkodStore.getMitra();
+          const tgl = (iso) => new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+          const headline = (f) =>
+            f.headline ||
+            (f.peran === "Koordinator" ? "Koordinator Alumni · Bengkel Koding UDINUS"
+              : f.peran === "Mitra" ? `Mitra · ${(mitra.find((m) => m.pic === f.penulis) || {}).nama_perusahaan || "Perusahaan Mitra"}`
+              : "Alumni Bengkel Koding");
+          const dariForum = (f) => ({
+            id: -f.id,
+            authorName: f.penulis,
+            authorRole: f.peran,
+            authorAvatar: f.foto || "",
+            authorHeadline: headline(f),
+            date: tgl(f.waktu),
+            waktu: f.waktu,
+            content: [f.judul, f.isi].filter(Boolean).join("\n\n"),
+            visibility: "Semua orang",
+            imageUrl: f.gambar,
+            tablePreview: f.tabel,
+            isRepost: !!f.dibagikanOleh,
+            repostedBy: f.dibagikanOleh,
+            likes: (f.disukai || []).length,
+            isLiked: (f.disukai || []).includes(this.profile.name),
+            isSaved: !!f.disimpanAlumni,
+            commentsCount: f.comments.reduce((n, c) => n + 1 + (c.balasan || []).length, 0),
+            repostsCount: f.dibagikan || 0,
+            komentarForum: f.comments,
+          });
+          const waktu = (p) => (p.waktu ? Date.parse(p.waktu) : p.id > 1e12 ? p.id : Date.parse(p.date) || 0);
+          this.posts = [...loadPosts(), ...BengkodStore.getForum().map(dariForum)].sort((a, b) => waktu(b) - waktu(a));
+
+          // Komentar dari forum (koor/mitra/alumni) ikut tampil di daftar komentar; dedupe by id karena muat() dipanggil ulang
+          const keKomentar = (c) => ({
+            id: c.id,
+            author: c.penulis,
+            avatar: "assets/img/user.png",
+            text: c.isi,
+            time: tgl(c.waktu),
+            likes: (c.disukai || []).length,
+            replies: (c.balasan || []).map((b) => ({ id: b.id, author: b.penulis, avatar: "assets/img/user.png", text: b.isi, time: tgl(b.waktu), likes: (b.disukai || []).length })),
+          });
+          const comments = { ...this.comments };
+          this.posts.forEach((p) => {
+            const ada = comments[p.id] || [];
+            const baru = (p.komentarForum || []).filter((c) => !ada.some((x) => x.id === c.id)).map(keKomentar);
+            if (baru.length) comments[p.id] = [...ada, ...baru];
+          });
+          this.comments = comments;
+        },
+        // Tulis balik: post forum (id < 0) ke BengkodStore, sisanya ke penyimpanan alumni
+        simpan() {
+          const forum = BengkodStore.getForum().map((f) => {
+            const p = this.posts.find((x) => x.id === -f.id);
+            if (!p) return f;
+            const disukai = (f.disukai || []).filter((n) => n !== this.profile.name);
+            if (p.isLiked) disukai.push(this.profile.name);
+            return { ...f, disukai, dibagikan: p.repostsCount, disimpanAlumni: !!p.isSaved, comments: p.komentarForum };
+          });
+          BengkodStore.saveForum(forum);
+          savePosts(this.posts.filter((p) => p.id > 0).map(({ waktu, ...p }) => p));
+        },
+
         setToast(msg) {
           this.toast = msg;
           clearTimeout(this.toastTimer);
@@ -1002,7 +1069,7 @@
         handleToggleSave(id) {
           const post = this.posts.find((p) => p.id === id);
           this.posts = this.posts.map((p) => (p.id === id ? { ...p, isSaved: !p.isSaved } : p));
-          savePosts(this.posts);
+          this.simpan();
           this.setToast(post && !post.isSaved ? "Postingan disimpan" : "Postingan dihapus dari tersimpan");
         },
         handleToggleLike(id) {
@@ -1013,7 +1080,7 @@
             }
             return p;
           });
-          savePosts(this.posts);
+          this.simpan();
         },
 
         openPostModal() {
@@ -1060,7 +1127,7 @@
           };
           const updated = [newPost, ...this.posts];
           this.posts = updated;
-          savePosts(updated);
+          this.simpan();
           this.setToast("Postingan berhasil diterbitkan");
           this.postModalOpen = false;
         },
@@ -1069,6 +1136,7 @@
           const reposted = {
             ...post,
             id: Date.now(),
+            komentarForum: undefined, // repost punya komentar sendiri, jangan berbagi array dengan post asli
             isRepost: true,
             repostedBy: this.profile.name,
             date: "Baru saja",
@@ -1080,7 +1148,7 @@
           };
           const updated = [reposted, ...this.posts];
           this.posts = updated;
-          savePosts(updated);
+          this.simpan();
           this.setToast("Postingan berhasil dibagikan ulang");
           this.shareDropdownId = null;
         },
@@ -1107,7 +1175,7 @@
           };
           const updated = [newRepost, ...this.posts];
           this.posts = updated;
-          savePosts(updated);
+          this.simpan();
           this.shareOpinionPost = null;
           this.shareOpinionText = "";
           this.setToast("Postingan berhasil dibagikan dengan pemikiran Anda");
@@ -1125,6 +1193,10 @@
           };
           this.comments = { ...this.comments, [postId]: [...(this.comments[postId] || []), newComment] };
           this.commentInputs = { ...this.commentInputs, [postId]: "" };
+          const post = this.posts.find((p) => p.id === postId);
+          (post.komentarForum = post.komentarForum || []).push({ id: newComment.id, penulis: this.profile.name, peran: "Alumni", waktu: new Date().toISOString(), isi: newComment.text, disukai: [], balasan: [] });
+          post.commentsCount++;
+          this.simpan();
         },
         likeComment(postId, commentId) {
           this.comments = {
@@ -1159,6 +1231,13 @@
           };
           this.replyInputs = { ...this.replyInputs, [commentId]: "" };
           this.activeReplyCommentId = null;
+          const post = this.posts.find((p) => p.id === postId);
+          const induk = (post.komentarForum || []).find((c) => c.id === commentId);
+          if (induk) {
+            (induk.balasan = induk.balasan || []).push({ id: newReply.id, penulis: this.profile.name, peran: "Alumni", waktu: new Date().toISOString(), isi: newReply.text, disukai: [] });
+            post.commentsCount++;
+            this.simpan();
+          }
         },
       };
     });
