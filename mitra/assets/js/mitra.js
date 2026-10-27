@@ -209,13 +209,6 @@ const MITRA_DEFAULT = {
     { id: 3, judul: 'Job Fair Bengkel Koding 2026', isi: 'Bengkel Koding UDINUS akan menyelenggarakan Job Fair pada Desember 2026. Mitra yang ingin berpartisipasi dapat menghubungi koordinator melalui portal atau email resmi.', target: 'Alumni & Mitra', published_at: '2026-10-05', oleh: 'Koordinator Alumni' },
     { id: 4, judul: 'Pembaruan Kebijakan Posting Lowongan', isi: 'Mulai 1 November 2026, setiap lowongan yang diajukan mitra wajib mencantumkan rentang gaji. Lowongan tanpa informasi gaji tidak akan diverifikasi oleh koordinator.', target: 'Mitra', published_at: '2026-09-28', oleh: 'Koordinator Alumni' },
   ],
-  forum: [
-    { id: 1, judul: 'Tips Menulis JD yang Menarik untuk Fresh Graduate', penulis: 'Andi Kurniawan', peran: 'Mitra', waktu: '2026-10-19T09:30:00', komentar: 8, tags: ['Rekrutmen', 'Tips'], isi: 'Halo rekan mitra, saya ingin berbagi pengalaman dalam menulis job description yang menarik bagi fresh graduate.' },
-    { id: 2, judul: 'Sharing: Pengalaman Onboarding Alumni Bengkel Koding', penulis: 'Maya Sari', peran: 'Mitra', waktu: '2026-10-16T14:00:00', komentar: 15, tags: ['Onboarding', 'Pengalaman'], isi: 'Tahun ini kami menerima 3 alumni Bengkel Koding dan pengalaman onboarding mereka sangat positif.' },
-    { id: 3, judul: 'Tips lolos interview backend di startup', penulis: 'Rizky Pratama', peran: 'Alumni', waktu: '2026-10-19T10:00:00', komentar: 24, tags: ['Karir', 'Interview'], isi: 'Berikut tips yang berhasil saya gunakan ketika interview di beberapa startup tech.' },
-    { id: 4, judul: 'Sharing gaji fresh graduate Semarang 2026', penulis: 'Intan Maharani', peran: 'Alumni', waktu: '2026-10-16T11:00:00', komentar: 41, tags: ['Gaji', 'Karir'], isi: 'Berdasarkan survei informal di grup alumni, berikut range gaji fresh graduate di Semarang.' },
-    { id: 5, judul: 'Rekomendasi kursus Data Science gratis', penulis: 'Salsa Ramadhani', peran: 'Alumni', waktu: '2026-10-12T08:00:00', komentar: 12, tags: ['Belajar', 'Data Science'], isi: 'Kumpulan kursus Data Science gratis yang saya coba dan rekomendasikan.' },
-  ],
 };
 
 function getMitraLowongan() {
@@ -249,13 +242,6 @@ const MITRA = {
   get pengumuman() {
     return window.BengkodStore ? window.BengkodStore.getPengumuman('Mitra') : MITRA_DEFAULT.pengumuman;
   },
-  get forum() {
-    return window.BengkodStore ? window.BengkodStore.getForum() : lsGet('mitra-forum', MITRA_DEFAULT.forum);
-  },
-  set forum(val) {
-    if (window.BengkodStore) window.BengkodStore.saveForum(val);
-    lsSet('mitra-forum', val);
-  }
 };
 
 function saveProfil() { lsSet('mitra-profil', MITRA.profil); }
@@ -271,13 +257,6 @@ function saveLowongan() {
     window.BengkodStore.saveLowongan(all);
   }
   lsSet('mitra-lowongan', getMitraLowongan());
-}
-function saveForum(val) {
-  if (window.BengkodStore) {
-    window.BengkodStore.saveForum(val || MITRA.forum);
-  } else {
-    lsSet('mitra-forum', val || MITRA.forum);
-  }
 }
 
 // ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
@@ -388,7 +367,6 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
 }
 
 function nextLowonganId() { return MITRA.lowongan.reduce((m, l) => Math.max(m, l.id), 0) + 1; }
-function nextForumId() { return MITRA.forum.reduce((m, f) => Math.max(m, f.id), 0) + 1; }
 
 // ===================== DYNAMIC PATH DETECTION =====================
 // Detect depth: mitra/*.html = depth 1, mitra/lowongan/*.html = depth 2

@@ -5,12 +5,12 @@
  */
 (function() {
   const KEYS = {
-    LOWONGAN: 'bengkod_shared_lowongan_v1',
+    LOWONGAN: 'bengkod_shared_lowongan_v2', // v2: tambah seed lowongan koordinator (Manajemen Pelamar)
     PENGUMUMAN: 'bengkod_shared_pengumuman_v1',
     KOORDINATOR: 'bengkod_shared_koordinator_v1',
     MITRA: 'bengkod_shared_mitra_v1',
     ALUMNI: 'bengkod_shared_alumni_v1',
-    FORUM: 'bengkod_shared_forum_v1',
+    FORUM: 'bengkod_shared_forum_v2', // v2: tambah suka & dibagikan untuk feed forum
     LOGS: 'bengkod_shared_activity_logs_v1',
     CV_AUDIT: 'bengkod_shared_cv_audit_v1',
   };
@@ -206,6 +206,56 @@
       diajukan: '2026-09-15',
       alasan_penolakan: 'Deskripsi pekerjaan dan persyaratan kurang jelas. Mohon lengkapi informasi gaji dan benefit.',
       keterangan: 'Ditolak oleh koordinator'
+    },
+    {
+      id: 8,
+      posisi: 'Backend Developer (Junior)',
+      nama_perusahaan: 'Bengkel Koding UDINUS',
+      alamat: 'Jl. Imam Bonjol No. 207, Semarang',
+      kota: 'Semarang',
+      email: 'bengkelkoding@dinus.ac.id',
+      telepon: '024-3517261',
+      website: 'https://bengkelkoding.dinus.ac.id',
+      tipe_kerja: 'Penuh Waktu',
+      kategori_lowongan: 'Lowongan Kerja',
+      pengalaman: 'Lulusan Baru',
+      gaji_min: 4000000,
+      gaji_max: 5500000,
+      tampilkan_gaji: true,
+      tags: ['Laravel', 'PHP', 'MySQL'],
+      deskripsi: 'Mengembangkan dan memelihara API LMS Bengkel Koding bersama tim pengembang.\n\nKualifikasi:\n- Lulusan baru atau pengalaman di bawah 1 tahun\n- Memahami Laravel dan RESTful API',
+      masa_berlaku: '2026-12-10',
+      status: 'Terverifikasi',
+      oleh: 'koordinator',
+      pengaju: 'Dr. Ayu Lestari',
+      diajukan: '2026-10-10',
+      alasan_penolakan: '',
+      keterangan: ''
+    },
+    {
+      id: 9,
+      posisi: 'Backend Developer (Senior)',
+      nama_perusahaan: 'Bengkel Koding UDINUS',
+      alamat: 'Jl. Imam Bonjol No. 207, Semarang',
+      kota: 'Semarang',
+      email: 'bengkelkoding@dinus.ac.id',
+      telepon: '024-3517261',
+      website: 'https://bengkelkoding.dinus.ac.id',
+      tipe_kerja: 'Penuh Waktu',
+      kategori_lowongan: 'Lowongan Kerja',
+      pengalaman: '3-5 Tahun',
+      gaji_min: 9000000,
+      gaji_max: 13000000,
+      tampilkan_gaji: true,
+      tags: ['Laravel', 'Go', 'Docker', 'PostgreSQL'],
+      deskripsi: 'Memimpin pengembangan arsitektur backend LMS Bengkel Koding dan membimbing developer junior.\n\nKualifikasi:\n- Pengalaman backend 3-5 tahun\n- Menguasai Laravel atau Go, Docker, dan desain database',
+      masa_berlaku: '2026-12-10',
+      status: 'Terverifikasi',
+      oleh: 'koordinator',
+      pengaju: 'Dr. Ayu Lestari',
+      diajukan: '2026-10-10',
+      alasan_penolakan: '',
+      keterangan: ''
     }
   ];
 
@@ -281,6 +331,8 @@
       peran: 'Mitra',
       waktu: '2026-10-19T09:30:00',
       tags: ['Rekrutmen', 'Tips'],
+      disukai: ['Rizky Pratama', 'Hendra Wijaya', 'Maya Safitri', 'Dr. Ayu Lestari, M.Kom'],
+      dibagikan: 3,
       isi: 'Halo rekan mitra dan adik-adik alumni, saya ingin berbagi pengalaman dalam menulis job description yang menarik serta jelas bagi fresh graduate. Kuncinya adalah transparansi ekspektasi tech stack dan jenjang bimbingan mentor di awal kerja.',
       comments: [
         {
@@ -313,6 +365,8 @@
       peran: 'Mitra',
       waktu: '2026-10-16T14:00:00',
       tags: ['Onboarding', 'Pengalaman'],
+      disukai: ['Nadia Putri', 'Dr. Ayu Lestari, M.Kom', 'Dimas Arya', 'Andi Kurniawan', 'Hendra Wijaya'],
+      dibagikan: 5,
       isi: 'Tahun ini kami menerima 3 alumni asisten lab Bengkel Koding di Gojek. Pengalaman onboarding mereka sangat positif karena sudah terbiasa dengan standard Git workflow dan code review.',
       comments: [
         {
@@ -345,6 +399,8 @@
       peran: 'Alumni',
       waktu: '2026-10-19T10:00:00',
       tags: ['Karir', 'Interview'],
+      disukai: ['Fajar Nugroho', 'Andi Kurniawan', 'Bagas Saputra'],
+      dibagikan: 2,
       isi: 'Berikut tips yang berhasil saya gunakan saat wawancara teknis: kuasai indexing database, transaction isolation, serta pemahaman arsitektur RESTful API yang bersih.',
       comments: [
         {
@@ -370,6 +426,8 @@
       peran: 'Alumni',
       waktu: '2026-10-16T11:00:00',
       tags: ['Gaji', 'Karir'],
+      disukai: ['Bagas Saputra', 'Andi Kurniawan'],
+      dibagikan: 1,
       isi: 'Berdasarkan survei kecil rekan-rekan angkatan 2022-2024, range gaji fresh graduate IT di area Semarang berada di kisaran Rp 3.5jt - Rp 5.5jt tergantung spesialisasi dan portofolio.',
       comments: [
         {
@@ -395,6 +453,8 @@
       peran: 'Alumni',
       waktu: '2026-10-12T08:00:00',
       tags: ['Belajar', 'Data Science'],
+      disukai: ['Nadia Putri', 'Dr. Ayu Lestari, M.Kom', 'Ananda Wulan'],
+      dibagikan: 4,
       isi: 'Bagi rekan-rekan Divisi Data Science yang ingin memperdalam Machine Learning, saya merekomendasikan Kaggle Learn, Google Career Certificates, dan DeepLearning.AI.',
       comments: [
         {
@@ -430,6 +490,10 @@
     return val;
   }
 
+  function normalisasiKategori(val) {
+    return val === 'Magang' || val === 'Lowongan Magang' ? 'Lowongan Magang' : 'Lowongan Kerja';
+  }
+
   window.BengkodStore = {
     // --- LOWONGAN ---
     getLowongan() {
@@ -439,7 +503,8 @@
         let st = l.status || 'Belum Verifikasi';
         if (st === 'Aktif') st = 'Terverifikasi';
         if (st === 'Menunggu Persetujuan') st = 'Belum Verifikasi';
-        const kat = (l.kategori_lowongan || l.kategori || 'Kerja') === 'Magang' ? 'Lowongan Magang' : 'Lowongan Kerja';
+        // kategori didahulukan: form mitra & koordinator menulis kategori, kategori_lowongan bisa basi setelah edit
+        const kat = normalisasiKategori(l.kategori || l.kategori_lowongan);
         return {
           ...l,
           tipe_kerja: tipe,
@@ -466,7 +531,7 @@
         telepon: item.telepon || '024-7612345',
         website: item.website || 'https://solusidigital.id',
         tipe_kerja: normalisasiTipeKerja(item.tipe_kerja),
-        kategori_lowongan: (item.kategori_lowongan || item.kategori || 'Kerja') === 'Magang' ? 'Lowongan Magang' : 'Lowongan Kerja',
+        kategori_lowongan: normalisasiKategori(item.kategori || item.kategori_lowongan),
         pengalaman: item.pengalaman || 'Lulusan Baru',
         gaji_min: Number(item.gaji_min) || 0,
         gaji_max: Number(item.gaji_max) || 0,

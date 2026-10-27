@@ -19,15 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const password = document.getElementById('password');
   const passwordConfirm = document.getElementById('password_confirmation');
   const agreement = document.getElementById('agreement_tracer');
-  const cvFile = document.getElementById('cv_file');
-  const fotoFile = document.getElementById('foto_profil');
+  const agreementError = document.getElementById('agreement-error');
 
   const nimError = document.getElementById('nim-error');
   const emailError = document.getElementById('email-error');
   const phoneError = document.getElementById('phone-error');
   const passwordError = document.getElementById('password-error');
-  const cvError = document.getElementById('cv-error');
-  const fotoError = document.getElementById('foto-error');
 
   function setError(input, errorEl, message) {
     if (message) {
@@ -92,51 +89,64 @@ document.addEventListener('DOMContentLoaded', () => {
     setError(phone, phoneError, '');
   });
 
-  // Nama berkas tampil di baris yang sama dengan tombol pilih
-  const cvFileName = document.getElementById('cv-file-name');
-  const fotoFileName = document.getElementById('foto-file-name');
+  if (agreement && agreementError) {
+    agreement.addEventListener('change', () => {
+      if (agreement.checked) {
+        agreementError.textContent = '';
+        agreementError.classList.add('hidden');
+      }
+    });
+  }
 
-  // Berkas CV
-  cvFile.addEventListener('change', () => {
-    const file = cvFile.files[0];
-    if (!file) {
-      cvFileName.textContent = 'Belum ada berkas';
-      return setError(cvFile, cvError, '');
-    }
-    if (file.type !== 'application/pdf') {
-      cvFile.value = '';
-      cvFileName.textContent = 'Belum ada berkas';
-      return setError(cvFile, cvError, 'Berkas CV harus PDF.');
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      cvFile.value = '';
-      cvFileName.textContent = 'Belum ada berkas';
-      return setError(cvFile, cvError, 'Ukuran CV melebihi 5 MB.');
-    }
-    cvFileName.textContent = file.name;
-    setError(cvFile, cvError, '');
-  });
+  // Flatpickr Year Picker
+  if (typeof flatpickr !== 'undefined' && tahun) {
+    function renderYearPicker(instance) {
+      const cal = instance.calendarContainer;
+      if (!cal) return;
+      cal.innerHTML = '';
+      cal.className = 'flatpickr-calendar animate open p-3 !w-64 bg-white shadow-xl rounded-xl border border-neutral4';
 
-  // Berkas foto
-  fotoFile.addEventListener('change', () => {
-    const file = fotoFile.files[0];
-    if (!file) {
-      fotoFileName.textContent = 'Belum ada berkas';
-      return setError(fotoFile, fotoError, '');
+      const head = document.createElement('div');
+      head.className = 'flex items-center justify-between pb-2 mb-2 border-b border-neutral4';
+      head.innerHTML = '<span class="text-xs font-semibold text-neutral1">Pilih Tahun Lulus</span>';
+      cal.appendChild(head);
+
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-3 gap-1.5';
+
+      const currentYearVal = tahun.value;
+      const years = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018];
+      years.forEach((yr) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = yr;
+        const isSelected = String(yr) === currentYearVal;
+        btn.className = isSelected
+          ? 'py-2 text-xs font-semibold rounded-lg bg-primary1 text-white border border-primary1 shadow-sm'
+          : 'py-2 text-xs font-medium rounded-lg text-neutral1 hover:bg-primary5 hover:text-primary1 border border-neutral4 transition-colors focus:outline-none focus:ring-2 focus:ring-primary1';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          tahun.value = String(yr);
+          tahun.removeAttribute('aria-invalid');
+          instance.close();
+        });
+        grid.appendChild(btn);
+      });
+      cal.appendChild(grid);
     }
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      fotoFile.value = '';
-      fotoFileName.textContent = 'Belum ada berkas';
-      return setError(fotoFile, fotoError, 'Foto harus JPG atau PNG.');
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      fotoFile.value = '';
-      fotoFileName.textContent = 'Belum ada berkas';
-      return setError(fotoFile, fotoError, 'Ukuran foto melebihi 2 MB.');
-    }
-    fotoFileName.textContent = file.name;
-    setError(fotoFile, fotoError, '');
-  });
+
+    flatpickr(tahun, {
+      dateFormat: 'Y',
+      disableMobile: true,
+      onReady: function (selectedDates, dateStr, instance) {
+        renderYearPicker(instance);
+      },
+      onOpen: function (selectedDates, dateStr, instance) {
+        renderYearPicker(instance);
+      },
+    });
+  }
 
   // Validasi saat submit
   form.addEventListener('submit', (event) => {
@@ -184,7 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!agreement.checked) {
+      if (agreementError) {
+        agreementError.textContent = 'Centang persetujuan ini untuk melanjutkan pendaftaran.';
+        agreementError.classList.remove('hidden');
+      }
       problems.push(agreement);
+    } else if (agreementError) {
+      agreementError.textContent = '';
+      agreementError.classList.add('hidden');
     }
 
     if (problems.length > 0) {

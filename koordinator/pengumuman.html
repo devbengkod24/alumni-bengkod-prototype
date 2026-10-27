@@ -88,6 +88,8 @@
     form.reset();
     document.getElementById('form-title').textContent = p ? 'Edit Pengumuman' : 'Buat Pengumuman';
     if (p) ['id', 'judul', 'target', 'isi'].forEach(k => form.elements[k].value = p[k]);
+    // Target 'Semua' (data SuperAdmin) tidak ada di pilihan; di store setara 'Alumni & Mitra'
+    if (p?.target === 'Semua') form.elements.target.value = 'Alumni & Mitra';
     openModal('form-modal');
   }
 
@@ -95,13 +97,14 @@
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     const publishNow = e.submitter.value === 'publish';
-    let p = KOOR.pengumuman.find(x => x.id === +data.id);
+    const list = KOOR.pengumuman;
+    let p = list.find(x => x.id === +data.id);
     if (!p) {
       p = { id: Date.now(), published: false, published_at: '' };
-      KOOR.pengumuman.unshift(p);
+      list.unshift(p);
     }
     Object.assign(p, { judul: data.judul, target: data.target, isi: data.isi });
-    KOOR.pengumuman = KOOR.pengumuman;
+    KOOR.pengumuman = list;
     closeModal('form-modal');
     if (publishNow && !p.published) return publish(p.id);
     render();
@@ -109,9 +112,10 @@
   });
 
   function publish(id) {
-    const p = KOOR.pengumuman.find(x => x.id === id);
+    const list = KOOR.pengumuman;
+    const p = list.find(x => x.id === id);
     Object.assign(p, { published: true, published_at: new Date().toISOString() });
-    KOOR.pengumuman = KOOR.pengumuman;
+    KOOR.pengumuman = list;
     audit('Publikasi pengumuman', p.judul);
     render();
     showToast(`Pengumuman dipublikasikan ke ${p.target}.`);
