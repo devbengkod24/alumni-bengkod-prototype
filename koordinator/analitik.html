@@ -8,105 +8,227 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
-<main data-title="Analitik Tracer Study & Masa Tunggu">
+<main data-title="Analitik Tracer">
 
-  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+  <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
     <div>
       <h2 class="text-2xl font-semibold text-neutral1">Analitik Tracer Study</h2>
-      <p class="text-sm text-neutral2 mt-1">Status karir per tahun lulus dan rata-rata masa tunggu sampai mendapat pekerjaan pertama.</p>
+      <p class="text-sm text-neutral2 mt-1">Status karir dan masa tunggu alumni per tahun lulus, dari data tracer study yang diisi alumni.</p>
     </div>
-    <div class="w-full sm:w-56">
-      <label for="rentang" class="label">Rentang tahun lulus</label>
-      <select id="rentang" class="input">
-        <option value="0">Semua tahun</option>
-        <option value="5">5 tahun terakhir</option>
-        <option value="3">3 tahun terakhir</option>
-      </select>
+    <div class="flex flex-col sm:flex-row sm:items-end gap-2.5">
+      <div class="sm:w-48">
+        <label for="rentang" class="label">Tahun lulus</label>
+        <select id="rentang" class="input">
+          <option value="0">Semua tahun</option>
+          <option value="5">5 tahun terakhir</option>
+          <option value="3">3 tahun terakhir</option>
+        </select>
+      </div>
+      <button id="btn-export" type="button" class="btn-primary whitespace-nowrap"><i data-lucide="download" class="w-4 h-4"></i> Ekspor CSV / Excel</button>
     </div>
   </div>
 
   <section id="kpi" class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Indikator utama"></section>
 
-  <section class="card">
-    <h3 class="font-semibold text-neutral1">Grafik Tracer Study per Tahun Lulus</h3>
-    <p class="text-xs text-neutral3 mt-0.5 mb-4">Jumlah alumni terdaftar berdasarkan status karir</p>
-    <div class="h-80"><canvas id="chart-tracer" aria-label="Grafik batang tracer study per tahun lulus" role="img"></canvas></div>
-  </section>
-
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
     <section class="card xl:col-span-2">
-      <h3 class="font-semibold text-neutral1">Rata-rata Masa Tunggu (bulan)</h3>
-      <p class="text-xs text-neutral3 mt-0.5 mb-4">Dari tanggal lulus sampai mendapat pekerjaan pertama</p>
-      <div class="h-72"><canvas id="chart-masa" aria-label="Grafik garis rata-rata masa tunggu per tahun lulus" role="img"></canvas></div>
+      <h3 class="font-semibold text-neutral1">Status Karir per Tahun Lulus</h3>
+      <p class="text-xs text-neutral3 mt-0.5">Proporsi alumni terdaftar menurut status karir</p>
+      <ul id="legend" class="flex flex-wrap gap-x-4 gap-y-1.5 mt-4 text-xs text-neutral2" aria-label="Legenda status karir"></ul>
+      <div class="h-72 mt-3"><canvas id="chart-status" role="img" aria-label="Grafik batang bertumpuk proporsi status karir per tahun lulus. Angka lengkap ada di tabel rekap di bawah."></canvas></div>
     </section>
     <section class="card">
-      <h3 class="font-semibold text-neutral1">Kelompok Masa Tunggu</h3>
-      <p class="text-xs text-neutral3 mt-0.5 mb-4">Alumni yang sudah bekerja / wirausaha</p>
-      <div class="h-56"><canvas id="chart-bucket" aria-label="Grafik donat kelompok masa tunggu" role="img"></canvas></div>
+      <h3 class="font-semibold text-neutral1">Rata-rata Masa Tunggu</h3>
+      <p class="text-xs text-neutral3 mt-0.5">Bulan dari lulus sampai pekerjaan pertama</p>
+      <div class="h-72 mt-4"><canvas id="chart-masa" role="img" aria-label="Grafik garis rata-rata masa tunggu per tahun lulus. Angka lengkap ada di tabel rekap di bawah."></canvas></div>
     </section>
   </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 sm:p-5 border-b border-neutral4">
+      <h3 class="font-semibold text-neutral1">Rekap per Tahun Lulus</h3>
+      <p class="text-xs text-neutral3 mt-0.5">Cakupan = alumni terdaftar ÷ total alumni. Status karir dihitung dari alumni terdaftar yang mengisi tracer study.</p>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th class="th">Tahun Lulus</th>
+          <th class="th text-right">Total Alumni</th>
+          <th class="th text-right">Terdaftar</th>
+          <th class="th">Cakupan</th>
+          <th class="th text-right">Full Time</th>
+          <th class="th text-right">Part Time</th>
+          <th class="th text-right">Wirausaha</th>
+          <th class="th text-right">Studi Lanjut</th>
+          <th class="th text-right">Mencari Kerja</th>
+          <th class="th text-right">Masa Tunggu</th>
+        </tr></thead>
+        <tbody id="rows"></tbody>
+        <tfoot id="total" class="bg-neutral5 font-semibold text-sm"></tfoot>
+      </table>
+    </div>
+  </section>
 
 </main>
 
 <script>
-  Chart.defaults.font.family = 'Poppins, sans-serif';
-  Chart.defaults.color = '#55585E';
-
+  // Urutan & warna tetap (palet kategorikal tervalidasi ramah buta warna); warna mengikuti status, bukan peringkat
   const STATUS = [
-    ['fulltime', 'Bekerja Full Time', '#1E3A8A'],
-    ['parttime', 'Bekerja Part Time', '#3B82F6'],
-    ['wirausaha', 'Wirausaha', '#FFC150'],
-    ['studi', 'Melanjutkan Pendidikan', '#068913'],
-    ['mencari', 'Mencari Pekerjaan', '#D73D3D'],
+    { key: 'fulltime', label: 'Bekerja Full Time', warna: '#2a78d6' },
+    { key: 'parttime', label: 'Bekerja Part Time', warna: '#eb6834' },
+    { key: 'wirausaha', label: 'Wirausaha', warna: '#1baf7a' },
+    { key: 'studi', label: 'Melanjutkan Pendidikan', warna: '#eda100' },
+    { key: 'mencari', label: 'Mencari Pekerjaan', warna: '#e87ba4' },
   ];
+  const TEKS = '#55585E';
+  const GRID = '#EDEEF0';
+  const angka = (n, digit = 1) => n.toLocaleString('id-ID', { maximumFractionDigits: digit });
+  const persen = (a, b) => (b ? (a / b) * 100 : 0);
+  const sum = (rows, k) => rows.reduce((s, r) => s + r[k], 0);
+  const terserap = r => r.fulltime + r.parttime + r.wirausaha;
+  const masaTunggu = rows => rows.reduce((s, r) => s + r.masaTunggu * r.terdaftar, 0) / sum(rows, 'terdaftar');
+
+  Chart.defaults.font.family = 'Poppins, sans-serif';
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = TEKS;
+  const tooltip = {
+    backgroundColor: '#FFFFFF', titleColor: '#46494E', bodyColor: '#55585E', borderColor: '#DEDFE1', borderWidth: 1,
+    padding: 10, boxPadding: 4, usePointStyle: true, titleFont: { weight: '600' },
+  };
+
+  document.getElementById('legend').innerHTML = STATUS.map(s =>
+    `<li class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-sm" style="background:${s.warna}"></span>${s.label}</li>`).join('');
+
   let charts = [];
+  let data = [];
 
   function render() {
     const n = +document.getElementById('rentang').value;
-    const data = n ? KOOR.rekap.slice(-n) : KOOR.rekap;
-    const labels = data.map(r => r.tahun);
-    charts.forEach(c => c.destroy());
-
-    const terdaftar = data.reduce((s, r) => s + r.terdaftar, 0);
-    const bekerja = data.reduce((s, r) => s + r.fulltime + r.parttime + r.wirausaha, 0);
-    const avgMasa = data.reduce((s, r) => s + r.masaTunggu * r.terdaftar, 0) / terdaftar;
-    // ponytail: pembagian kelompok masa tunggu memakai rasio tetap (data dummy); di API dari endpoint /stats-masa-tunggu
-    const bucket = [Math.round(bekerja * 0.72), Math.round(bekerja * 0.21)];
-    bucket.push(bekerja - bucket[0] - bucket[1]);
+    data = n ? KOOR.rekap.slice(-n) : KOOR.rekap;
+    const tahun = data.map(r => String(r.tahun));
+    const terdaftar = sum(data, 'terdaftar');
+    const bekerja = data.reduce((s, r) => s + terserap(r), 0);
+    const total = sum(data, 'total');
 
     document.getElementById('kpi').innerHTML = [
-      ['Tingkat Keterserapan', Math.round(bekerja / terdaftar * 100) + '%', 'Bekerja + wirausaha dari alumni terdaftar'],
-      ['Rata-rata Masa Tunggu', avgMasa.toFixed(1) + ' bulan', 'Tertimbang jumlah alumni per tahun'],
-      ['Dapat Kerja < 6 Bulan', Math.round(bucket[0] / bekerja * 100) + '%', `${bucket[0]} dari ${bekerja} alumni`],
-    ].map(([label, value, sub]) => `
-      <div class="bg-white rounded-xl border border-neutral4 p-5 elevation1">
-        <div class="text-sm text-neutral2">${label}</div>
-        <div class="text-2xl font-semibold text-primary1 mt-1">${value}</div>
-        <div class="text-xs text-neutral3 mt-0.5">${sub}</div>
+      ['Tingkat Keterserapan', `${angka(persen(bekerja, terdaftar), 0)}%`, `${bekerja} dari ${terdaftar} alumni bekerja / wirausaha`, 'briefcase', 'bg-primary5 text-primary1'],
+      ['Rata-rata Masa Tunggu', `${angka(masaTunggu(data))} bulan`, 'Dari lulus sampai pekerjaan pertama', 'clock', 'bg-yellow3 text-yellow1'],
+      ['Cakupan Tracer', `${angka(persen(terdaftar, total), 0)}%`, `${terdaftar} dari ${total} alumni sudah mengisi`, 'clipboard-check', 'bg-green3 text-green1'],
+    ].map(([label, nilai, sub, icon, tone]) => `
+      <div class="card p-4 flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl ${tone} flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+        <div class="min-w-0">
+          <div class="text-sm text-neutral2">${label}</div>
+          <div class="text-2xl font-semibold text-primary1 mt-0.5">${nilai}</div>
+          <div class="text-xs text-neutral3 mt-0.5">${sub}</div>
+        </div>
       </div>`).join('');
 
+    renderTabel();
+    charts.forEach(c => c.destroy());
     charts = [
-      new Chart(document.getElementById('chart-tracer'), {
+      new Chart(document.getElementById('chart-status'), {
         type: 'bar',
-        data: { labels, datasets: STATUS.map(([k, label, color]) => ({ label, data: data.map(r => r[k]), backgroundColor: color, borderRadius: 4 })) },
-        options: { maintainAspectRatio: false, scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } },
+        data: {
+          labels: tahun,
+          datasets: STATUS.map((s, i) => ({
+            label: s.label,
+            data: data.map(r => persen(r[s.key], r.terdaftar)),
+            jumlah: data.map(r => r[s.key]),
+            backgroundColor: s.warna,
+            borderColor: '#FFFFFF',
+            borderWidth: { top: 2 }, // celah 2px antarsegmen
+            borderSkipped: false,
+            borderRadius: i === STATUS.length - 1 ? { topLeft: 4, topRight: 4 } : 0,
+            maxBarThickness: 40,
+            categoryPercentage: 0.6,
+          })),
+        },
+        options: {
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { stacked: true, grid: { display: false }, border: { display: false } },
+            y: { stacked: true, max: 100, ticks: { stepSize: 25, callback: v => `${v}%` }, grid: { color: GRID }, border: { display: false } },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltip, callbacks: {
+              title: items => `Lulusan ${items[0].label}`,
+              label: c => ` ${c.dataset.label}: ${c.dataset.jumlah[c.dataIndex]} alumni (${angka(c.parsed.y, 0)}%)`,
+            } },
+          },
+        },
       }),
       new Chart(document.getElementById('chart-masa'), {
         type: 'line',
-        data: { labels, datasets: [{ label: 'Masa tunggu (bulan)', data: data.map(r => r.masaTunggu), borderColor: '#1E3A8A', backgroundColor: '#DBEAFE', fill: true, tension: 0.3, pointRadius: 4 }] },
-        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true } }, plugins: { legend: { display: false } } },
-      }),
-      new Chart(document.getElementById('chart-bucket'), {
-        type: 'doughnut',
-        data: { labels: ['< 6 bulan', '6–12 bulan', '> 12 bulan'], datasets: [{ data: bucket, backgroundColor: ['#068913', '#FFC150', '#D73D3D'] }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+        data: {
+          labels: tahun,
+          datasets: [{
+            label: 'Masa tunggu',
+            data: data.map(r => r.masaTunggu),
+            borderColor: '#1E3A8A',
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#1E3A8A',
+            pointBorderColor: '#FFFFFF',
+            pointBorderWidth: 2,
+            tension: 0,
+          }],
+        },
+        options: {
+          maintainAspectRatio: false,
+          interaction: { mode: 'index', intersect: false },
+          scales: {
+            x: { grid: { display: false }, border: { display: false } },
+            y: { beginAtZero: true, ticks: { callback: v => `${v} bln` }, grid: { color: GRID }, border: { display: false } },
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { ...tooltip, displayColors: false, callbacks: {
+              title: items => `Lulusan ${items[0].label}`,
+              label: c => `Rata-rata ${angka(c.parsed.y)} bulan`,
+            } },
+          },
+        },
       }),
     ];
+    refreshIcons();
   }
+
+  function renderTabel() {
+    const cols = ['total', 'terdaftar', 'fulltime', 'parttime', 'wirausaha', 'studi', 'mencari'];
+    const cell = v => `<td class="td text-right tabular-nums">${v}</td>`;
+    const cakupan = p => `<td class="td"><div class="flex items-center gap-2 min-w-28">
+        <div class="flex-1 h-2 bg-neutral5 rounded-full overflow-hidden"><div class="h-full bg-primary3 rounded-full" style="width:${p}%"></div></div>
+        <span class="text-xs text-neutral2 w-9 text-right">${angka(p, 0)}%</span></div></td>`;
+    document.getElementById('rows').innerHTML = data.map(r => `
+      <tr class="tr">
+        <td class="td font-medium">${r.tahun}</td>
+        ${cell(r.total)}${cell(r.terdaftar)}${cakupan(persen(r.terdaftar, r.total))}
+        ${cols.slice(2).map(k => cell(r[k])).join('')}
+        ${cell(`${angka(r.masaTunggu)} bln`)}
+      </tr>`).join('');
+    const tot = Object.fromEntries(cols.map(k => [k, sum(data, k)]));
+    document.getElementById('total').innerHTML = `<tr>
+      <td class="td">Total</td>${cell(tot.total)}${cell(tot.terdaftar)}${cakupan(persen(tot.terdaftar, tot.total))}
+      ${cols.slice(2).map(k => cell(tot[k])).join('')}${cell(`${angka(masaTunggu(data))} bln`)}</tr>`;
+  }
+
+  // Ekspor mengikuti rentang tahun yang sedang dipilih
+  document.getElementById('btn-export').addEventListener('click', () => {
+    downloadCSV('rekap-tracer-alumni.csv', [
+      ['Tahun Lulus', 'Total Alumni', 'Terdaftar', 'Cakupan (%)', 'Bekerja Full Time', 'Bekerja Part Time', 'Wirausaha', 'Melanjutkan Pendidikan', 'Mencari Pekerjaan', 'Rata-rata Masa Tunggu (bulan)'],
+      ...data.map(r => [r.tahun, r.total, r.terdaftar, Math.round(persen(r.terdaftar, r.total)), r.fulltime, r.parttime, r.wirausaha, r.studi, r.mencari, r.masaTunggu]),
+    ]);
+    showToast('Rekap tracer berhasil diekspor.');
+  });
 
   document.getElementById('rentang').addEventListener('change', render);
   render();
