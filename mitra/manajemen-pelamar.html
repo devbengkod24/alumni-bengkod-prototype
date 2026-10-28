@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -20,7 +20,7 @@
     <p class="text-sm text-neutral2 mt-1">Tinjau lamaran alumni untuk lowongan perusahaan Anda, evaluasi kandidat, dan kelola proses seleksinya.</p>
   </div>
 
-  <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" aria-label="Ringkasan pelamar"></section>
+  <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" aria-label="Ringkasan statistik pelamar"></section>
 
   <section class="card p-4 sm:p-5">
     <div class="flex flex-col lg:flex-row gap-3">
@@ -72,17 +72,22 @@
 
   const jumlah = s => semua.filter(p => p.status === s).length;
   document.getElementById('stats').innerHTML = [
-    ['Total Pelamar', semua.length, 'users', 'bg-primary5 text-primary1', 'col-span-2 sm:col-span-1'],
-    ['Pelamar Baru', jumlah('applied'), 'user-plus', 'bg-blue-50 text-blue-700', ''],
-    ['Tahap Review', jumlah('review'), 'file-search', 'bg-yellow3 text-yellow1', ''],
-    ['Tahap Interview', jumlah('interview'), 'calendar-clock', 'bg-purple-50 text-purple-700', ''],
-    ['Diterima', jumlah('diterima'), 'circle-check', 'bg-green3 text-green1', ''],
-  ].map(([label, value, icon, tone, span]) => `
-    <div class="card p-4 flex items-center gap-3 ${span}">
-      <div class="w-11 h-11 rounded-xl ${tone} flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
-      <div class="min-w-0">
-        <div class="text-sm text-neutral2 truncate">${label}</div>
-        <div class="text-2xl font-semibold text-primary1 mt-0.5">${value}</div>
+    { label: 'Total Pelamar', value: semua.length, icon: 'users', bg: 'linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%)', accent: '#BFDBFE', subtext: 'Total kandidat', statusKey: '', span: 'col-span-2 sm:col-span-1' },
+    { label: 'Pelamar Baru', value: jumlah('applied'), icon: 'user-plus', bg: 'linear-gradient(135deg,#9a3412 0%,#ea580c 100%)', accent: '#FED7AA', subtext: 'Lamaran baru', statusKey: 'applied', span: '' },
+    { label: 'Menunggu Review', value: jumlah('review'), icon: 'clock', bg: 'linear-gradient(135deg,#9f1239 0%,#e11d48 100%)', accent: '#FECDD3', subtext: 'Sedang ditinjau', statusKey: 'review', span: '' },
+    { label: 'Tahap Interview', value: jumlah('interview'), icon: 'calendar-clock', bg: 'linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%)', accent: '#C4B5FD', subtext: 'Wawancara', statusKey: 'interview', span: '' },
+    { label: 'Diterima', value: jumlah('diterima'), icon: 'circle-check', bg: 'linear-gradient(135deg,#0f766e 0%,#0d9488 100%)', accent: '#99F6E4', subtext: 'Lolos seleksi', statusKey: 'diterima', span: '' },
+  ].map(s => `
+    <div role="button" tabindex="0" onclick="filterByStatus('${s.statusKey}')" onkeydown="if(event.key==='Enter'||event.key===' ')filterByStatus('${s.statusKey}')" class="relative rounded-2xl overflow-hidden p-3 sm:p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-2.5 sm:gap-3.5 group cursor-pointer ${s.span}" style="background: ${s.bg};" title="Klik untuk memfilter: ${s.label}">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
+        <i data-lucide="${s.icon}" class="w-4 h-4 sm:w-5 sm:h-5"></i>
+      </div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[9.5px] sm:text-[10px] font-semibold uppercase tracking-wider mb-0.5 truncate" style="color: ${s.accent};">${s.label}</p>
+        <p class="text-[20px] sm:text-[22px] font-bold text-white leading-none">${s.value}</p>
+        <p class="text-[9.5px] sm:text-[10px] mt-1 truncate" style="color: ${s.accent};">${s.subtext}</p>
       </div>
     </div>`).join('');
 
@@ -106,7 +111,7 @@
     document.getElementById('rows').innerHTML = shown.map(rowHTML).join('')
       || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada pelamar yang cocok.</td></tr>';
     document.getElementById('page-info').innerHTML = list.length
-      ? `Menampilkan <strong class="text-neutral1">${start + 1}â€“${start + shown.length}</strong> dari <strong class="text-neutral1">${list.length}</strong> pelamar`
+      ? `Menampilkan <strong class="text-neutral1">${start + 1}&ndash;${start + shown.length}</strong> dari <strong class="text-neutral1">${list.length}</strong> pelamar`
       : 'Menampilkan 0 pelamar';
     document.getElementById('pagination').innerHTML = paginationHTML(pages);
     refreshIcons();
@@ -121,13 +126,13 @@
           <div class="w-9 h-9 rounded-full bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs shrink-0">${esc(inisial(a.nama))}</div>
           <div class="min-w-0">
             <div class="font-medium flex items-center gap-1">${esc(a.nama)}${isVerifiedAlumni ? '<i data-lucide="badge-check" class="w-4 h-4 text-primary3 shrink-0" aria-label="Alumni Bengkel Koding terverifikasi"></i>' : ''}</div>
-            <div class="text-xs text-neutral3">Alumni ${esc(a.tahun_lulus)} â€¢ ${esc(a.divisi || 'Informatika')}</div>
+            <div class="text-xs text-neutral3">Alumni ${esc(a.tahun_lulus)} &bull; ${esc(a.divisi || 'Informatika')}</div>
           </div>
         </div>
       </td>
       <td class="td">
         <div class="font-medium">${esc(p.lowongan.posisi)}</div>
-        <div class="text-xs text-neutral3">${esc(p.lowongan.kategori || 'Kerja')} Â· ${esc(p.lowongan.tipe_kerja || 'Full Time')}</div>
+        <div class="text-xs text-neutral3">${esc(p.lowongan.kategori || 'Kerja')} &bull; ${esc(p.lowongan.tipe_kerja || 'Full Time')}</div>
       </td>
       <td class="td whitespace-nowrap">${fmtWaktu(p.tanggal)}</td>
       <td class="td">${badge(STATUS_PELAMAR[p.status])}</td>
@@ -166,6 +171,12 @@
   Object.entries(STATUS_PELAMAR).forEach(([value, label]) => selStatus.add(new Option(label, value)));
 
   const filterBerubah = () => { page = 1; render(); };
+  function filterByStatus(st) {
+    if (selStatus) {
+      selStatus.value = st;
+      filterBerubah();
+    }
+  }
   document.getElementById('q').addEventListener('input', filterBerubah);
   selLowongan.addEventListener('change', filterBerubah);
   selStatus.addEventListener('change', filterBerubah);

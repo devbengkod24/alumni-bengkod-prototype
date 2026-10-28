@@ -517,7 +517,6 @@ const MITRA_NAV = [
   { href: _base + 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   { href: _base + 'data-alumni.html', icon: 'users', label: 'Data Alumni', match: 'data-alumni.html' },
   { href: _base + 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar', match: 'manajemen-pelamar.html' },
-  { href: _base + 'profil-perusahaan.html', icon: 'building-2', label: 'Profil Perusahaan', match: 'profil-perusahaan.html' },
   { href: _base + 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman', match: 'pengumuman.html' },
   { href: _base + 'forum.html', icon: 'messages-square', label: 'Forum', match: 'forum.html' },
   {
