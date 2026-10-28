@@ -19,7 +19,7 @@
       <h2 class="text-2xl font-semibold text-neutral1">Management Users</h2>
       <p class="text-sm text-neutral2 mt-1">Tambah dan kelola akun alumni dan mitra.</p>
     </div>
-    <button onclick="openForm()" class="btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Akun</button>
+    <a href="tambah-akun.html" class="btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Akun</a>
   </div>
 
   <div class="flex items-start gap-3 p-4 rounded-xl bg-primary5/60 border border-primary4/50 text-sm text-primary1">
@@ -53,7 +53,7 @@
 
 <div id="form-modal" data-modal-backdrop class="modal-backdrop">
   <form id="form" class="modal max-w-md" role="dialog" aria-modal="true" aria-labelledby="form-title">
-    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4">Edit Akun</h3>
     <input type="hidden" name="id">
     <div class="space-y-4">
       <div><label for="f-name" class="label">Nama</label><input id="f-name" name="name" class="input" required></div>
@@ -66,14 +66,6 @@
         </select>
         <p class="text-xs text-neutral3 mt-1">Role koordinator dan SuperAdmin tidak tersedia untuk koordinator.</p>
       </div>
-      <div id="password-field">
-        <label for="f-password" class="label">Password Default</label>
-        <div class="flex gap-2">
-          <input id="f-password" name="password" class="input font-mono" required minlength="8">
-          <button type="button" onclick="copyPassword()" class="btn-outline shrink-0" aria-label="Salin password" title="Salin password"><i data-lucide="copy" class="w-4 h-4"></i></button>
-        </div>
-        <p class="text-xs text-neutral3 mt-1">Bagikan ke pemilik akun. User wajib mengganti password saat login pertama.</p>
-      </div>
     </div>
     <div class="mt-6 flex justify-end gap-2">
       <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
@@ -85,7 +77,6 @@
 <script>
   const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
   const EDITABLE = ['alumnus', 'mitra'];
-  const DEFAULT_PASSWORD = 'bengkod2026';
   const form = document.getElementById('form');
   const find = id => KOOR.users.find(u => u.id === id);
 
@@ -113,15 +104,10 @@
     refreshIcons();
   }
 
+  // Akun baru dibuat di tambah-akun.html; modal ini hanya untuk edit
   function openForm(id) {
     const u = find(id);
-    form.reset();
-    document.getElementById('form-title').textContent = u ? 'Edit Akun' : 'Tambah Akun';
-    if (u) ['id', 'name', 'email', 'role'].forEach(k => form.elements[k].value = u[k]);
-    // Password default hanya untuk akun baru; edit akun pakai tombol reset password
-    document.getElementById('password-field').hidden = !!u;
-    form.elements.password.disabled = !!u;
-    form.elements.password.value = DEFAULT_PASSWORD;
+    ['id', 'name', 'email', 'role'].forEach(k => form.elements[k].value = u[k]);
     openModal('form-modal');
   }
 
@@ -129,23 +115,14 @@
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form));
     if (!EDITABLE.includes(data.role)) return showToast('Role tidak diizinkan.', 'error');
-    const u = find(+data.id);
-    if (u) {
-      Object.assign(u, { name: data.name, email: data.email, role: data.role });
-      audit('Edit akun', `${data.name} (${ROLE_LABEL[data.role]})`);
-    } else {
-      KOOR.users.unshift({ id: Date.now(), name: data.name, email: data.email, role: data.role, aktif: true });
-      audit('Tambah akun', `${data.name} (${ROLE_LABEL[data.role]})`);
-    }
+    const list = KOOR.users;
+    Object.assign(list.find(u => u.id === +data.id), { name: data.name, email: data.email, role: data.role });
+    KOOR.users = list;
+    audit('Edit akun', `${data.name} (${ROLE_LABEL[data.role]})`);
     closeModal('form-modal');
     render();
-    showToast(u ? 'Akun diperbarui.' : 'Akun dibuat dengan password default.');
+    showToast('Akun diperbarui.');
   });
-
-  function copyPassword() {
-    navigator.clipboard.writeText(form.elements.password.value)
-      .then(() => showToast('Password disalin.'), () => showToast('Gagal menyalin password.', 'error'));
-  }
 
   function resetPassword(id) {
     const u = find(id);
@@ -163,7 +140,7 @@
       message: off ? `${u.name} tidak akan bisa login sampai diaktifkan kembali.` : `${u.name} akan bisa login kembali.`,
       okLabel: off ? 'Nonaktifkan' : 'Aktifkan', danger: off,
     }, () => {
-      u.aktif = !off;
+      KOOR.users = KOOR.users.map(x => x.id === id ? { ...x, aktif: !off } : x);
       audit(off ? 'Nonaktifkan akun' : 'Aktifkan akun', u.name);
       render();
       showToast(off ? 'Akun dinonaktifkan.' : 'Akun diaktifkan.');

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tambah Akun | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
+  <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="../assets/js/main.js"></script>
+  <style>.input[aria-invalid="true"] { border-color: #B00B0B; }</style>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Tambah Akun" data-nav="manajemen-users.html">
+
+  <a href="manajemen-users.html" class="inline-flex items-center gap-1.5 text-sm font-medium text-neutral2 hover:text-primary1 transition-colors">
+    <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Management Users
+  </a>
+
+  <div>
+    <h2 class="text-2xl font-semibold text-neutral1">Tambah Akun</h2>
+    <p class="text-sm text-neutral2 mt-1">Pilih jenis akun, isi datanya, lalu bagikan email dan password awal ke pemilik akun.</p>
+  </div>
+
+  <form id="form" novalidate class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- Jenis akun -->
+      <div role="radiogroup" aria-label="Jenis akun" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="flex items-start gap-3 p-4 rounded-xl border-2 border-neutral4 cursor-pointer transition-colors hover:border-primary4 has-[:checked]:border-primary1 has-[:checked]:bg-primary5/40 has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary5">
+          <input type="radio" name="role" value="alumnus" class="sr-only" checked>
+          <span class="w-10 h-10 rounded-lg bg-yellow3 text-yellow1 flex items-center justify-center shrink-0"><i data-lucide="graduation-cap" class="w-5 h-5"></i></span>
+          <span>
+            <span class="block font-semibold text-neutral1">Alumni</span>
+            <span class="block text-xs text-neutral3 mt-0.5 leading-relaxed">Lulusan Bengkel Koding. Datanya sama dengan form registrasi alumni.</span>
+          </span>
+        </label>
+        <label class="flex items-start gap-3 p-4 rounded-xl border-2 border-neutral4 cursor-pointer transition-colors hover:border-primary4 has-[:checked]:border-primary1 has-[:checked]:bg-primary5/40 has-[:focus-visible]:ring-4 has-[:focus-visible]:ring-primary5">
+          <input type="radio" name="role" value="mitra" class="sr-only">
+          <span class="w-10 h-10 rounded-lg bg-green3 text-green1 flex items-center justify-center shrink-0"><i data-lucide="building-2" class="w-5 h-5"></i></span>
+          <span>
+            <span class="block font-semibold text-neutral1">Mitra</span>
+            <span class="block text-xs text-neutral3 mt-0.5 leading-relaxed">Perusahaan rekanan yang memasang lowongan. Satu akun dipegang satu PIC.</span>
+          </span>
+        </label>
+      </div>
+
+      <section class="bg-white rounded-xl border border-neutral4 elevation2">
+
+        <!-- Alumni: field mengikuti alumni/register.html -->
+        <fieldset data-role="alumnus" class="p-5 sm:p-6 space-y-4">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="w-9 h-9 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0"><i data-lucide="user-round" class="w-[18px] h-[18px]"></i></span>
+            <div>
+              <h3 class="text-base font-semibold text-neutral1">Data Alumni</h3>
+              <p class="text-xs text-neutral3">Isi sesuai ijazah dan NIM. Kolom bertanda <span class="text-red1">*</span> wajib diisi.</p>
+            </div>
+          </div>
+          <div data-field>
+            <label for="a-nama" class="label">Nama lengkap <span class="text-red1">*</span></label>
+            <input id="a-nama" name="nama" class="input" required maxlength="120" placeholder="Nama sesuai ijazah" data-error="Nama lengkap wajib diisi.">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div data-field>
+              <label for="a-nim" class="label">NIM <span class="text-red1">*</span></label>
+              <input id="a-nim" name="nim" class="input" required pattern="[A-Za-z]\d{2}\.\d{4}\.\d{5}" placeholder="A11.2021.13456" autocomplete="off" data-error="Format NIM belum sesuai, contoh A11.2021.13456.">
+            </div>
+            <div data-field>
+              <label for="a-tahun" class="label">Tahun lulus <span class="text-red1">*</span></label>
+              <select id="a-tahun" name="tahun_lulus" class="input" required data-error="Pilih tahun lulus.">
+                <option value="">Pilih tahun</option>
+              </select>
+            </div>
+          </div>
+          <div data-field>
+            <label for="a-email" class="label">Email aktif <span class="text-red1">*</span></label>
+            <input id="a-email" name="email" type="email" class="input" required placeholder="nama@email.com" data-error="Alamat email belum valid.">
+          </div>
+          <div data-field>
+            <label for="a-telp" class="label">Nomor WhatsApp <span class="text-red1">*</span></label>
+            <input id="a-telp" name="telp" type="tel" inputmode="tel" class="input" required pattern="(\+62|62|08)\d{8,13}" placeholder="08xxxxxxxxxx" data-error="Nomor harus diawali 08 atau +62, minimal 10 digit.">
+          </div>
+          <div>
+            <p class="label">Jenis kelamin <span class="text-red1">*</span></p>
+            <div class="flex gap-6">
+              <label class="inline-flex items-center gap-2 text-sm text-neutral1 cursor-pointer"><input type="radio" name="gender" value="Laki-laki" checked class="h-4 w-4 accent-primary1"> Laki-laki</label>
+              <label class="inline-flex items-center gap-2 text-sm text-neutral1 cursor-pointer"><input type="radio" name="gender" value="Perempuan" class="h-4 w-4 accent-primary1"> Perempuan</label>
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Mitra: data minimum untuk membuka akun, sisanya dilengkapi PIC di Profil Perusahaan -->
+        <fieldset data-role="mitra" hidden disabled class="divide-y divide-neutral4">
+          <div class="p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-3 mb-1">
+              <span class="w-9 h-9 rounded-lg bg-green3 text-green1 flex items-center justify-center shrink-0"><i data-lucide="building-2" class="w-[18px] h-[18px]"></i></span>
+              <div>
+                <h3 class="text-base font-semibold text-neutral1">Data Perusahaan</h3>
+                <p class="text-xs text-neutral3">Cukup data dasar. Alamat, logo, dan deskripsi dilengkapi mitra sendiri.</p>
+              </div>
+            </div>
+            <div data-field>
+              <label for="m-perusahaan" class="label">Nama resmi perusahaan <span class="text-red1">*</span></label>
+              <input id="m-perusahaan" name="nama_perusahaan" class="input" required maxlength="120" placeholder="Contoh: PT Solusi Digital Jateng" data-error="Nama perusahaan wajib diisi.">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div data-field>
+                <label for="m-bidang" class="label">Bidang usaha <span class="text-red1">*</span></label>
+                <select id="m-bidang" name="bidang_usaha" class="input" required data-error="Pilih bidang usaha.">
+                  <option value="">Pilih bidang usaha</option>
+                  <option>Software House</option>
+                  <option>Startup Teknologi</option>
+                  <option>Telekomunikasi</option>
+                  <option>E-Commerce</option>
+                  <option>Perbankan &amp; Keuangan</option>
+                  <option>Manufaktur</option>
+                  <option>Pendidikan</option>
+                  <option>Kesehatan</option>
+                  <option>Konsultan IT</option>
+                </select>
+              </div>
+              <div data-field>
+                <label for="m-kota" class="label">Kota <span class="text-red1">*</span></label>
+                <input id="m-kota" name="kota" class="input" required placeholder="Contoh: Semarang" data-error="Kota wajib diisi.">
+              </div>
+            </div>
+            <div data-field>
+              <label for="m-website" class="label">Website</label>
+              <input id="m-website" name="website" type="url" class="input" placeholder="https://perusahaan.com" data-error="Alamat website harus diawali https://.">
+            </div>
+          </div>
+
+          <div class="p-5 sm:p-6 space-y-4">
+            <div class="flex items-center gap-3 mb-1">
+              <span class="w-9 h-9 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0"><i data-lucide="contact-round" class="w-[18px] h-[18px]"></i></span>
+              <div>
+                <h3 class="text-base font-semibold text-neutral1">Penanggung Jawab (PIC)</h3>
+                <p class="text-xs text-neutral3">Orang dari perusahaan yang login dan mengelola lowongan.</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div data-field>
+                <label for="m-pic" class="label">Nama PIC <span class="text-red1">*</span></label>
+                <input id="m-pic" name="pic" class="input" required maxlength="120" placeholder="Nama lengkap" data-error="Nama PIC wajib diisi.">
+              </div>
+              <div data-field>
+                <label for="m-jabatan" class="label">Jabatan</label>
+                <input id="m-jabatan" name="pic_jabatan" class="input" placeholder="Contoh: HR Manager">
+              </div>
+            </div>
+            <div data-field>
+              <label for="m-email" class="label">Email login PIC <span class="text-red1">*</span></label>
+              <input id="m-email" name="email" type="email" class="input" required placeholder="hr@perusahaan.com" data-error="Alamat email belum valid.">
+            </div>
+            <div data-field>
+              <label for="m-telp" class="label">Nomor WhatsApp PIC <span class="text-red1">*</span></label>
+              <input id="m-telp" name="telp" type="tel" inputmode="tel" class="input" required pattern="(\+62|62|08)\d{8,13}" placeholder="08xxxxxxxxxx" data-error="Nomor harus diawali 08 atau +62, minimal 10 digit.">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Password awal, berlaku untuk kedua jenis akun -->
+        <div class="p-5 sm:p-6 border-t border-neutral4 space-y-4">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="w-9 h-9 rounded-lg bg-yellow3 text-yellow1 flex items-center justify-center shrink-0"><i data-lucide="key-round" class="w-[18px] h-[18px]"></i></span>
+            <div>
+              <h3 class="text-base font-semibold text-neutral1">Password Default</h3>
+              <p class="text-xs text-neutral3">Sudah terisi otomatis. Pemilik akun wajib menggantinya saat login pertama.</p>
+            </div>
+          </div>
+          <div data-field>
+            <label for="f-password" class="label">Password <span class="text-red1">*</span></label>
+            <div class="flex gap-2">
+              <input id="f-password" name="password" class="input font-mono" required minlength="8" autocomplete="off" data-error="Password minimal 8 karakter.">
+              <button type="button" id="btn-acak" class="btn-outline shrink-0" title="Buat password acak"><i data-lucide="refresh-cw" class="w-4 h-4"></i><span class="hidden sm:inline">Acak</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 px-5 sm:px-6 py-4 border-t border-neutral4 bg-neutral5/60 rounded-b-xl">
+          <a href="manajemen-users.html" class="btn-outline">Batal</a>
+          <button type="submit" class="btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i> Buat Akun</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- Alur setelah akun dibuat, berganti sesuai jenis akun -->
+    <aside class="bg-white rounded-xl border border-neutral4 elevation2 p-5 lg:sticky lg:top-24">
+      <h3 class="text-sm font-semibold text-neutral1">Setelah akun dibuat</h3>
+      <ol id="langkah" class="mt-4 space-y-4"></ol>
+    </aside>
+  </form>
+
+</main>
+
+<div id="sukses-modal" data-modal-backdrop class="modal-backdrop">
+  <div class="modal max-w-sm" role="dialog" aria-modal="true" aria-labelledby="sukses-title">
+    <span class="w-11 h-11 rounded-full bg-green3 text-green1 flex items-center justify-center"><i data-lucide="check" class="w-5 h-5"></i></span>
+    <h3 id="sukses-title" class="mt-4 font-semibold text-base text-neutral1">Akun berhasil dibuat</h3>
+    <p class="text-sm text-neutral2 mt-1">Bagikan data login berikut ke pemilik akun.</p>
+    <dl id="sukses-data" class="mt-4 text-sm border-t border-neutral4 divide-y divide-neutral4"></dl>
+    <div class="mt-5 flex flex-col gap-2">
+      <button type="button" id="btn-salin" class="btn-primary w-full"><i data-lucide="copy" class="w-4 h-4"></i> Salin email &amp; password</button>
+      <div class="grid grid-cols-2 gap-2">
+        <button type="button" id="btn-lagi" class="btn-outline">Tambah lagi</button>
+        <a href="manajemen-users.html" class="btn-outline">Lihat daftar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra' };
+  const LANGKAH = {
+    alumnus: [
+      ['send', 'Bagikan login', 'Kirim email dan password awal ke alumni.'],
+      ['key-round', 'Ganti password', 'Alumni wajib mengganti password saat login pertama.'],
+      ['clipboard-check', 'Lengkapi profil', 'Alumni menyetujui tracer study dan mengisi riwayat karier.'],
+    ],
+    mitra: [
+      ['send', 'Bagikan login ke PIC', 'Kirim email dan password awal ke PIC perusahaan.'],
+      ['key-round', 'Ganti password', 'PIC wajib mengganti password saat login pertama.'],
+      ['building-2', 'Lengkapi profil perusahaan', 'Alamat, logo, dan deskripsi diisi PIC di menu Profil Perusahaan.'],
+      ['briefcase', 'Ajukan lowongan', 'Lowongan dari mitra masuk ke Verifikasi Lowongan untuk Anda tinjau.'],
+    ],
+  };
+  const form = document.getElementById('form');
+  const roleNow = () => form.elements.role.value;
+  const DEFAULT_PASSWORD = 'bengkod2026';
+  let akunBaru = null;
+
+  const tahunSel = document.getElementById('a-tahun');
+  for (let t = new Date().getFullYear(); t >= 2018; t--) tahunSel.add(new Option(t, t));
+
+  const acak = () => 'bk-' + Math.random().toString(36).slice(2, 10);
+  document.getElementById('btn-acak').addEventListener('click', () => { form.elements.password.value = acak(); });
+
+  function setRole(role) {
+    // Fieldset nonaktif tidak ikut divalidasi maupun masuk FormData
+    form.querySelectorAll('fieldset[data-role]').forEach(fs => {
+      const on = fs.dataset.role === role;
+      fs.hidden = !on;
+      fs.disabled = !on;
+    });
+    document.getElementById('langkah').innerHTML = LANGKAH[role].map(([icon, judul, isi], i) => `
+      <li class="flex gap-3">
+        <span class="relative w-8 h-8 rounded-full bg-primary5 text-primary1 flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-4 h-4"></i>
+          <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-primary1 text-white text-[10px] font-bold flex items-center justify-center">${i + 1}</span></span>
+        <div><p class="text-sm font-medium text-neutral1">${judul}</p><p class="text-xs text-neutral3 mt-0.5 leading-relaxed">${isi}</p></div>
+      </li>`).join('');
+    refreshIcons();
+  }
+  form.querySelectorAll('input[name="role"]').forEach(r => r.addEventListener('change', () => setRole(r.value)));
+
+  // Nomor WhatsApp: hanya digit dan plus di awal (sama seperti register alumni)
+  form.querySelectorAll('input[type="tel"]').forEach(el => el.addEventListener('input', () => {
+    el.value = el.value.replace(/[^0-9+]/g, '').replace(/(?!^)\+/g, '');
+  }));
+
+  function cek(el) {
+    if (el.name === 'email') {
+      const dipakai = KOOR.users.some(u => u.email.toLowerCase() === el.value.trim().toLowerCase());
+      el.setCustomValidity(dipakai ? 'Email ini sudah dipakai akun lain.' : '');
+    }
+    if (el.name === 'nim') {
+      const dipakai = BengkodStore.getAlumni().some(a => (a.nim || '').toLowerCase() === el.value.trim().toLowerCase());
+      el.setCustomValidity(dipakai ? 'NIM ini sudah terdaftar.' : '');
+    }
+    const ok = el.validity.valid;
+    const box = el.closest('[data-field]');
+    if (!box.querySelector('.field-err')) box.insertAdjacentHTML('beforeend', '<p class="field-err text-xs text-red1 mt-1" role="alert"></p>');
+    const err = box.querySelector('.field-err');
+    err.textContent = ok ? '' : (el.validity.customError ? el.validationMessage : el.dataset.error);
+    err.hidden = ok;
+    el.setAttribute('aria-invalid', String(!ok));
+    return ok;
+  }
+  // Setelah ditandai salah, field divalidasi ulang sambil diketik
+  form.addEventListener('input', e => e.target.getAttribute('aria-invalid') === 'true' && cek(e.target));
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const fields = [...form.querySelectorAll('[data-field] :is(input, select)')].filter(el => !el.disabled);
+    const salah = fields.filter(el => !cek(el));
+    if (salah.length) return salah[0].focus();
+
+    const d = Object.fromEntries(new FormData(form));
+    const id = Date.now();
+    const hariIni = new Date().toISOString().slice(0, 10);
+    const email = d.email.trim();
+    let nama;
+    if (d.role === 'alumnus') {
+      nama = d.nama.trim();
+      BengkodStore.saveAlumni([...BengkodStore.getAlumni(), {
+        id, nama, nim: d.nim.trim().toUpperCase(), email, telp: d.telp, tahun_lulus: +d.tahun_lulus, gender: d.gender,
+        divisi: KOOR.user.divisi, status_akun: 'Aktif', terdaftar: hariIni, izin_bagikan: false, skill: [],
+      }]);
+    } else {
+      nama = `${d.nama_perusahaan.trim()} (${d.pic.trim()})`;
+      BengkodStore.saveMitra([...BengkodStore.getMitra(), {
+        id, nama_perusahaan: d.nama_perusahaan.trim(), bidang_usaha: d.bidang_usaha, kota: d.kota.trim(), website: d.website,
+        email, pic: d.pic.trim(), pic_jabatan: d.pic_jabatan.trim(), telp: d.telp,
+        status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', alumni: 0, alumni_count: 0, loker_count: 0, terdaftar: hariIni,
+      }]);
+    }
+    KOOR.users = [{ id, name: nama, email, role: d.role, aktif: true }, ...KOOR.users];
+    audit('Tambah akun', `${nama} (${ROLE_LABEL[d.role]})`);
+
+    akunBaru = { email, password: d.password };
+    document.getElementById('sukses-data').innerHTML = [['Nama', nama], ['Role', ROLE_LABEL[d.role]], ['Email login', email], ['Password default', d.password]]
+      .map(([k, v]) => `<div class="flex justify-between gap-4 py-2"><dt class="text-neutral3">${k}</dt><dd class="font-medium text-neutral1 text-right break-all ${k === 'Password default' ? 'font-mono' : ''}">${esc(v)}</dd></div>`).join('');
+    openModal('sukses-modal');
+  });
+
+  document.getElementById('btn-salin').addEventListener('click', () =>
+    navigator.clipboard.writeText(`Email: ${akunBaru.email}\nPassword: ${akunBaru.password}`)
+      .then(() => showToast('Data login disalin.'), () => showToast('Gagal menyalin.', 'error')));
+
+  document.getElementById('btn-lagi').addEventListener('click', () => {
+    const role = roleNow();
+    form.reset();
+    form.querySelector(`input[name="role"][value="${role}"]`).checked = true;
+    form.elements.password.value = DEFAULT_PASSWORD;
+    form.querySelectorAll('[aria-invalid]').forEach(el => el.removeAttribute('aria-invalid'));
+    form.querySelectorAll('.field-err').forEach(p => p.hidden = true);
+    closeModal('sukses-modal');
+  });
+
+  // ?role=mitra membuka form mitra langsung
+  if (new URLSearchParams(location.search).get('role') === 'mitra') form.querySelector('input[value="mitra"]').checked = true;
+  form.elements.password.value = DEFAULT_PASSWORD;
+  setRole(roleNow());
+</script>
+</body>
+</html>
