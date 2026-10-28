@@ -236,7 +236,14 @@ const KOOR = {
     }
     KOOR_DEFAULT.pengumuman = val;
   },
-  users: KOOR_DEFAULT.users,
+  // Disimpan di localStorage agar akun dari tambah-akun.html muncul di Management Users
+  get users() {
+    try { return JSON.parse(localStorage.getItem('bengkod_koor_users_v1')) || KOOR_DEFAULT.users; } catch { return KOOR_DEFAULT.users; }
+  },
+  set users(val) {
+    try { localStorage.setItem('bengkod_koor_users_v1', JSON.stringify(val)); } catch {}
+    KOOR_DEFAULT.users = val;
+  },
 };
 
 // ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
