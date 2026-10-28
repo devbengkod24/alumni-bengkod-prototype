@@ -1356,9 +1356,11 @@ function searchAlumni(query) {
   );
 }
 
-/** Rute halaman profil perusahaan mitra. */
-function companyProfileHref(id) {
-  return `perusahaan.html?id=${encodeURIComponent(id)}`;
+/** Rute halaman profil perusahaan mitra berbasis slug. */
+function companyProfileHref(slugOrId) {
+  const slug = encodeURIComponent(slugOrId || "");
+  const isSubdir = typeof window !== "undefined" && (window.location.pathname || "").replace(/\\/g, "/").includes("/alumni/mitra");
+  return isSubdir ? `detail.html?slug=${slug}` : `mitra/detail.html?slug=${slug}`;
 }
 
 /** Cari perusahaan mitra berdasarkan id. */

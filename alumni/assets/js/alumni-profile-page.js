@@ -43,21 +43,23 @@ const PROFILE_LINK_CHIP = "inline-flex items-center gap-2 px-3.5 py-1.5 rounded-
 
 // Modal bantu di page.tsx (judul + tombol tutup bulat)
 function pageModalHTML({ id, open, close, title, subtitle, body }) {
-  return `<template x-if="${open}">
-    <div id="${id}" class="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4" @click.self="${close}">
-      <div class="bg-white rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <div>
-            <h3 class="text-[18px] font-bold text-gray-900" x-text="${title}"></h3>
-            ${subtitle ? `<p class="text-[14px] text-gray-500 mt-0.5" x-text="${subtitle}"></p>` : ""}
+  return `<template x-teleport="body">
+    <template x-if="${open}">
+      <div id="${id}" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="${close}">
+        <div class="bg-white rounded-2xl shadow-2xl max-h-[92vh] flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <div>
+              <h3 class="text-[18px] font-bold text-gray-900" x-text="${title}"></h3>
+              ${subtitle ? `<p class="text-[14px] text-gray-500 mt-0.5" x-text="${subtitle}"></p>` : ""}
+            </div>
+            <button id="btn-close-${id}" @click="${close}" class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" aria-label="Tutup modal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+            </button>
           </div>
-          <button id="btn-close-${id}" @click="${close}" class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors" aria-label="Tutup modal">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
-          </button>
+          <div class="p-6 overflow-y-auto flex-1">${body}</div>
         </div>
-        <div class="p-6 overflow-y-auto flex-1">${body}</div>
       </div>
-    </div>
+    </template>
   </template>`;
 }
 window.pageModalHTML = pageModalHTML;
@@ -384,24 +386,26 @@ ALUMNI_PARTIALS["profile-preview"] = () => {
     body: previewBody,
   })}
 
-      <template x-if="deleteTargetId !== null">
-        <div class="fixed inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4">
-          <div class="bg-white rounded-xl border border-gray-200 shadow-xl max-w-sm w-full p-6">
-            <div class="flex flex-col items-center text-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
+      <template x-teleport="body">
+        <template x-if="deleteTargetId !== null">
+          <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-xl max-w-sm w-full p-6">
+              <div class="flex flex-col items-center text-center gap-3">
+                <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M3 6h18M8 6V4h8v2M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+                <h3 class="text-[17px] font-bold text-gray-900">Hapus Postingan Ini?</h3>
+                <p class="text-[15px] text-gray-500 leading-relaxed">Postingan aktivitas ini akan dihapus secara permanen dari linimasa portofolio Anda.</p>
               </div>
-              <h3 class="text-[17px] font-bold text-gray-900">Hapus Postingan Ini?</h3>
-              <p class="text-[15px] text-gray-500 leading-relaxed">Postingan aktivitas ini akan dihapus secara permanen dari linimasa portofolio Anda.</p>
-            </div>
-            <div class="flex items-center gap-3 mt-6">
-              <button @click="deleteTargetId = null" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-full text-[15px] font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">Batal</button>
-              <button @click="handleConfirmDelete()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full text-[15px] font-semibold transition-colors shadow-sm cursor-pointer">Hapus</button>
+              <div class="flex items-center gap-3 mt-6">
+                <button @click="deleteTargetId = null" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-full text-[15px] font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">Batal</button>
+                <button @click="handleConfirmDelete()" class="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-full text-[15px] font-semibold transition-colors shadow-sm cursor-pointer">Hapus</button>
+              </div>
             </div>
           </div>
-        </div>
+        </template>
       </template>
 
       ${lightboxHTML({

@@ -56,12 +56,23 @@ const modalLifecycle = (lockScroll = true) => ({
 
 // Modal wrapper standar
 function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, submit = "submit()", title, titleId, headerExtra = "", headerShrink = true, body, footer, footerShrink = true, footerCls }) {
-  return `<template x-if="${open}"><div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="${close}"><form ${formId ? `id="${formId}"` : ""} role="dialog" aria-modal="true" ${labelledby ? `aria-labelledby="${labelledby}"` : ""} ${ariaLabel ? `aria-label="${ariaLabel}"` : ""}
-      novalidate autocomplete="off" x-data="${xdata}" @submit.prevent="${submit}" @keydown.window.escape="${close}"
-      class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
-      style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"><div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between${headerShrink ? " flex-shrink-0" : ""}">
-        ${headerExtra || `<h2 ${titleId ? `id="${titleId}"` : ""} class="text-[20px] font-bold text-gray-900 tracking-tight">${title}</h2>`}
-        <button type="button" @click="${close}" class="${PC.closeBtn}" aria-label="Tutup modal">${PI.close()}</button></div><div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">${body}</div><div class="${footerCls || `border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3${footerShrink ? " flex-shrink-0" : ""}`}">${footer}</div></form></div></template>`;
+  return `<template x-teleport="body">
+    <template x-if="${open}">
+      <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="${close}">
+        <form ${formId ? `id="${formId}"` : ""} role="dialog" aria-modal="true" ${labelledby ? `aria-labelledby="${labelledby}"` : ""} ${ariaLabel ? `aria-label="${ariaLabel}"` : ""}
+          novalidate autocomplete="off" x-data="${xdata}" @submit.prevent="${submit}" @keydown.window.escape="${close}"
+          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between${headerShrink ? " flex-shrink-0" : ""}">
+            ${headerExtra || `<h2 ${titleId ? `id="${titleId}"` : ""} class="text-[20px] font-bold text-gray-900 tracking-tight">${title}</h2>`}
+            <button type="button" @click="${close}" class="${PC.closeBtn}" aria-label="Tutup modal">${PI.close()}</button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">${body}</div>
+          <div class="${footerCls || `border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3${footerShrink ? " flex-shrink-0" : ""}`}">${footer}</div>
+        </form>
+      </div>
+    </template>
+  </template>`;
 }
 
 function defaultFooter(close, submitDisabled = "") {
@@ -1334,7 +1345,7 @@ function honorMediaThumbHTML(mediaExpr) {
 
 // Lightbox
 function lightboxHTML({ state, close, linkLabel, emptyLabel, fallbackDesc, buttonLabel, badgeTitle }) {
-  return `<template x-if="${state}"><div class="fixed inset-0 z-[70] bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4" @click.self="${close}"><div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col items-center"><button type="button" @click="${close}"
+  return `<template x-if="${state}"><div class="fixed inset-0 z-[80] bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4" @click.self="${close}"><div class="relative w-full max-w-4xl max-h-[92vh] flex flex-col items-center"><button type="button" @click="${close}"
           class="absolute -top-1 right-0 sm:-top-2 sm:-right-2 z-10 w-10 h-10 rounded-full bg-white/95 text-gray-700 hover:bg-white hover:text-gray-900 flex items-center justify-center shadow-lg transition-colors cursor-pointer"
           aria-label="Tutup pratinjau"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg></button><div class="relative w-full flex items-center justify-center rounded-2xl overflow-hidden bg-black/20 shadow-2xl"><template x-if="${state}.imageUrl"><img :src="${state}.imageUrl" :alt="${state}.title" class="max-w-full max-h-[74vh] object-contain"></template><template x-if="!${state}.imageUrl && ${state}.linkUrl"><div class="w-full h-64 sm:h-96 flex flex-col items-center justify-center gap-4"><img :src="faviconFor(${state}.linkUrl)" alt="${linkLabel === "Pratinjau tautan" ? "Ikon tautan" : "Ikon tautan proyek"}" class="w-20 h-20 object-contain rounded-2xl bg-white p-3 shadow-lg" @error="$el.src = 'assets/img/gambar-kosong.png'"><p class="text-[15px] font-medium text-white/80">${linkLabel}</p></div></template><template x-if="!${state}.imageUrl && !${state}.linkUrl"><div class="w-full h-64 sm:h-96 flex flex-col items-center justify-center text-white/70 gap-3"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"> <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.5" /> <circle cx="9" cy="9" r="1.6" stroke="currentColor" stroke-width="1.5" /> <path d="M3.5 16l5-5 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /> </svg><p class="text-[15px] font-medium">${emptyLabel}</p></div></template><template x-if="${state}.linkUrl"><a :href="normalizeUrl(${state}.linkUrl)" target="_blank" rel="noopener noreferrer"
               class="absolute bottom-3 right-3 w-11 h-11 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white flex items-center justify-center shadow-lg ring-2 ring-white/90 transition-colors cursor-pointer"
@@ -1429,7 +1440,7 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
 };
 
 // Modal: Edit Tentang
-ALUMNI_PARTIALS["modal-edit-about"] = () => `<template x-if="editAboutOpen"><div id="modal-edit-about" class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editAboutOpen = false"><div class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
+ALUMNI_PARTIALS["modal-edit-about"] = () => `<template x-teleport="body"><template x-if="editAboutOpen"><div id="modal-edit-about" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editAboutOpen = false"><div class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
       x-data="editAboutModal" @keydown.window.escape="editAboutOpen = false"><div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between"><h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Tentang Saya</h3><button id="btn-close-modal-edit-about" @click="editAboutOpen = false" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors flex-shrink-0 cursor-pointer" aria-label="Tutup modal"><svg viewBox="0 0 24 24" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg></button></div><div class="px-6 sm:px-8 py-6 overflow-y-auto flex-1 space-y-4"><p class="text-[14.5px] text-gray-500 leading-relaxed">
           Tuliskan pengalaman, keahlian, atau pencapaian yang ingin kamu tonjolkan. Bagian ini biasanya berisi ringkasan latar belakang dan tujuan profesionalmu.
         </p><div><textarea id="input-about-text" x-ref="aboutTextarea" x-model="aboutText"
@@ -1438,13 +1449,13 @@ ALUMNI_PARTIALS["modal-edit-about"] = () => `<template x-if="editAboutOpen"><div
             rows="10" style="resize: none; overflow: hidden; min-height: 220px"
             class="w-full px-4 py-3.5 border border-gray-300 rounded-xl text-gray-900 text-[15px] leading-relaxed placeholder:text-gray-400 focus:outline-none focus:border-[#3B82F6] focus:ring-2 focus:ring-[#3B82F6]/20 transition"></textarea><div class="flex justify-end mt-1.5"><span class="text-[13px] font-mono tabular-nums" :class="aboutText.length > 2600 ? 'text-rose-500 font-semibold' : 'text-gray-400'"
               x-text="aboutText.length.toLocaleString('id-ID') + '/' + (2600).toLocaleString('id-ID')"></span></div></div></div><div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3"><button id="btn-cancel-edit-about" type="button" class="${PC.btnOutline}" @click="editAboutOpen = false">Batal</button><button id="btn-save-edit-about" type="button" :disabled="aboutText.length > 2600"
-          class="${PC.btnPrimaryDis}" @click="$dispatch('about-save', aboutText.trim() ? aboutText : profile.about)">Simpan</button></div></div></div></template>`;
+          class="${PC.btnPrimaryDis}" @click="$dispatch('about-save', aboutText.trim() ? aboutText : profile.about)">Simpan</button></div></div></div></template></template>`;
 
 // Shell & Widget Keahlian
 function skillShellHTML({ open, close, formId, title, description, xdata, body, footer }) {
-  return `<template x-if="${open}"><div class="fixed inset-0 z-[80] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6" @mousedown.self="${close}"><form id="${formId}" role="dialog" aria-modal="true" aria-label="${title}" novalidate autocomplete="off" x-data="${xdata}"
+  return `<template x-teleport="body"><template x-if="${open}"><div class="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6" @mousedown.self="${close}"><form id="${formId}" role="dialog" aria-modal="true" aria-label="${title}" novalidate autocomplete="off" x-data="${xdata}"
       @submit.prevent="submit()" @keydown.window.escape="${close}"
-      class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"><div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0"><h2 class="text-[20px] font-bold text-gray-900 tracking-tight truncate">${title}</h2><button type="button" @click="${close}" class="${PC.closeBtn} flex-shrink-0" aria-label="Tutup modal">${PI.close()}</button></div><div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5"><p class="text-[14.5px] text-gray-500 leading-relaxed">${description}</p>${body}</div><div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center gap-3 flex-shrink-0"><div class="flex-1"></div>${footer}</div></form></div></template>`;
+      class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"><div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0"><h2 class="text-[20px] font-bold text-gray-900 tracking-tight truncate">${title}</h2><button type="button" @click="${close}" class="${PC.closeBtn} flex-shrink-0" aria-label="Tutup modal">${PI.close()}</button></div><div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5"><p class="text-[14.5px] text-gray-500 leading-relaxed">${description}</p>${body}</div><div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center gap-3 flex-shrink-0"><div class="flex-1"></div>${footer}</div></form></div></template></template>`;
 }
 
 function skillFieldHTML({ label, forId, required, error, hint, body }) {

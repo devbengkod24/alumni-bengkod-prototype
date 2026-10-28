@@ -11,33 +11,59 @@
   <script src="assets/js/alumni-profile-data.js"></script>
   <style>
     @media print {
-      body {
+      @page {
+        size: A4 portrait;
+        margin: 10mm 12mm;
+      }
+      html, body {
         background: #ffffff !important;
         color: #000000 !important;
         font-family: Arial, Helvetica, sans-serif !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: auto !important;
+        height: auto !important;
+        overflow: visible !important;
       }
-      header, aside, #cv-controls-panel, #cv-page-header, .no-print {
+      /* Sembunyikan elemen shell navigasi luar, header aksi, dan kontrol filter */
+      #logo-sidebar,
+      aside,
+      nav,
+      footer,
+      header,
+      #cv-page-header,
+      #cv-controls-panel,
+      [role="status"],
+      .no-print {
         display: none !important;
       }
-      main, .cv-sheet-container {
+      /* Hilangkan offset sidebar (pl-64) dan padding kontainer layout */
+      .pl-64,
+      [data-main-slot],
+      main,
+      .cv-sheet-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         box-shadow: none !important;
         border: none !important;
+        display: block !important;
       }
+      /* Lembar CV tampil penuh, bersih, tanpa bayangan kartu */
       #cv-document {
         box-shadow: none !important;
         border: none !important;
         border-radius: 0 !important;
         padding: 0 !important;
+        margin: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
+        background: #ffffff !important;
       }
-      @page {
-        margin: 1.2cm;
-        size: A4 portrait;
+      #cv-document * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
     }
   </style>

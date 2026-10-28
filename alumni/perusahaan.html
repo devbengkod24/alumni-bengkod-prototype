@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profil Perusahaan Mitra | Bengkel Koding</title>
   <meta name="description" content="Profil resmi perusahaan mitra industri Bengkel Koding Universitas Dian Nuswantoro">
+  <script>
+    const p = new URLSearchParams(window.location.search);
+    const s = p.get("slug") || p.get("id") || "";
+    const dest = s ? `mitra/detail.html?slug=${encodeURIComponent(s)}` : "mitra/index.html";
+    window.location.replace(dest + window.location.hash);
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
