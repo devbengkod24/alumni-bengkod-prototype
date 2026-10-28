@@ -128,3 +128,13 @@ caption {
 button, a {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Sembunyikan ikon mata bawaan browser (Edge / IE) agar tidak muncul dobel */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none !important;
+}
+

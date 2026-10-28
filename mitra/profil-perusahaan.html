@@ -8,6 +8,15 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    input[type="password"]::-ms-reveal,
+    input[type="password"]::-ms-clear {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+    }
+  </style>
   <script src="assets/js/mitra.js"></script>
   <script src="../assets/js/page-skeleton.js"></script>
   <script src="../assets/js/main.js"></script>
@@ -29,232 +38,236 @@
     </div>
   </div>
 
-  <!-- Container Dua Card Terpisah (Responsive Grid) -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <!-- Container Dua Card Terpisah (Responsive Grid - Tinggi Sejajar) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
     <!-- ==================== CARD 1: INFORMASI UTAMA PERUSAHAAN ==================== -->
-    <section class="card lg:col-span-7 space-y-6">
-      
-      <!-- Card 1 Header -->
-      <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/70">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center shrink-0">
-            <i data-lucide="building-2" class="w-5 h-5"></i>
-          </div>
-          <div>
-            <h3 class="font-bold text-base text-neutral1">Informasi Utama Perusahaan</h3>
-            <p class="text-xs text-neutral3 mt-0.5">Identitas visual, bidang usaha, kontak, lokasi, dan profil bisnis</p>
-          </div>
-        </div>
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Terverifikasi
-        </span>
-      </div>
-
-      <!-- Section: Upload & Pratinjau Logo Perusahaan -->
-      <div class="p-4 bg-neutral5/70 rounded-2xl border border-neutral4/80 flex flex-col sm:flex-row items-center sm:items-start gap-4">
-        <div id="logo-preview" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary5 to-primary4/40 text-primary1 font-extrabold text-2xl flex items-center justify-center shrink-0 border-2 border-dashed border-primary4 shadow-xs overflow-hidden select-none">
-          PT
-        </div>
-        <div class="flex-1 text-center sm:text-left min-w-0">
-          <div class="font-bold text-sm text-neutral1 truncate" id="preview-name">PT Solusi Digital Jateng</div>
-          <div class="text-xs text-neutral3 mt-0.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
-            <span id="preview-bidang" class="font-medium text-neutral2">Software House</span>
-            <span>•</span>
-            <span id="preview-kota" class="text-neutral3">Semarang, Jawa Tengah</span>
-          </div>
-          <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
-            <label class="btn-outline text-xs px-3.5 py-1.5 cursor-pointer inline-flex items-center gap-1.5 shadow-xs hover:border-primary3">
-              <i data-lucide="upload" class="w-3.5 h-3.5 text-primary1"></i>
-              <span>Pilih File Logo</span>
-              <input type="file" id="logo-input" accept="image/*" class="hidden">
-            </label>
-            <span class="text-[11px] text-neutral3">Format PNG, JPG, SVG (Maks. 2MB)</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Form: Identitas Pokok & Bidang Usaha -->
-      <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="sm:col-span-2">
-            <label for="nama_perusahaan" class="label">Nama Resmi Perusahaan <span class="text-red2">*</span></label>
-            <input type="text" id="nama_perusahaan" class="input" placeholder="Contoh: PT Solusi Digital Jateng" required>
-            <div class="error-msg hidden" id="err-nama_perusahaan">Nama perusahaan wajib diisi</div>
-          </div>
-
-          <div>
-            <label for="bidang_usaha" class="label">Sektor / Bidang Usaha <span class="text-red2">*</span></label>
-            <select id="bidang_usaha" class="input">
-              <option value="">Pilih bidang usaha</option>
-              <option>Software House</option>
-              <option>Startup Teknologi</option>
-              <option>Telekomunikasi</option>
-              <option>E-Commerce</option>
-              <option>Perbankan & Keuangan</option>
-              <option>Manufaktur</option>
-              <option>Pendidikan</option>
-              <option>Kesehatan</option>
-              <option>Konsultan IT</option>
-              <option>Lainnya</option>
-            </select>
-            <div class="error-msg hidden" id="err-bidang_usaha">Bidang usaha wajib dipilih</div>
-
-            <!-- Input tambahan saat opsi "Lainnya" dipilih -->
-            <div id="wrapper-bidang-lainnya" class="hidden mt-2.5">
-              <label for="bidang_usaha_lainnya" class="label text-xs">Sebutkan Bidang Usaha Lainnya <span class="text-red2">*</span></label>
-              <input type="text" id="bidang_usaha_lainnya" class="input text-xs sm:text-sm" placeholder="Contoh: Logistik & Rantai Pasok">
-              <div class="error-msg hidden" id="err-bidang_usaha_lainnya">Bidang usaha lainnya wajib diisi</div>
+    <section class="card lg:col-span-7 flex flex-col justify-between space-y-6 h-full">
+      <div class="space-y-6">
+        
+        <!-- Card 1 Header -->
+        <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/70">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-primary5 text-primary1 flex items-center justify-center shrink-0">
+              <i data-lucide="building-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-neutral1">Informasi Utama Perusahaan</h3>
+              <p class="text-xs text-neutral3 mt-0.5">Identitas visual, bidang usaha, kontak, lokasi, dan profil bisnis</p>
             </div>
           </div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i> Terverifikasi
+          </span>
+        </div>
 
-          <div>
-            <label for="website" class="label">Website Resmi</label>
-            <input type="url" id="website" class="input" placeholder="https://perusahaan.com">
+        <!-- Section: Upload & Pratinjau Logo Perusahaan -->
+        <div class="p-4 bg-neutral5/70 rounded-2xl border border-neutral4/80 flex flex-col sm:flex-row items-center sm:items-start gap-4">
+          <div id="logo-preview" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-primary5 to-primary4/40 text-primary1 font-extrabold text-2xl flex items-center justify-center shrink-0 border-2 border-dashed border-primary4 shadow-xs overflow-hidden select-none">
+            PT
+          </div>
+          <div class="flex-1 text-center sm:text-left min-w-0">
+            <div class="font-bold text-sm text-neutral1 truncate" id="preview-name">PT Solusi Digital Jateng</div>
+            <div class="text-xs text-neutral3 mt-0.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
+              <span id="preview-bidang" class="font-medium text-neutral2">Software House</span>
+              <span>•</span>
+              <span id="preview-kota" class="text-neutral3">Semarang, Jawa Tengah</span>
+            </div>
+            <div class="mt-3 flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+              <label class="btn-outline text-xs px-3.5 py-1.5 cursor-pointer inline-flex items-center gap-1.5 shadow-xs hover:border-primary3">
+                <i data-lucide="upload" class="w-3.5 h-3.5 text-primary1"></i>
+                <span>Pilih File Logo</span>
+                <input type="file" id="logo-input" accept="image/*" class="hidden">
+              </label>
+              <span class="text-[11px] text-neutral3">Format PNG, JPG, SVG (Maks. 2MB)</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Form: Kontak Kantor Perusahaan -->
-      <div class="pt-4 border-t border-neutral4/60 space-y-4">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
-          <i data-lucide="phone-call" class="w-3.5 h-3.5 text-primary1"></i>
-          <span>Kontak Kantor Perusahaan</span>
-        </h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="email" class="label">Email Resmi Perusahaan <span class="text-red2">*</span></label>
-            <input type="email" id="email" class="input" placeholder="hr@perusahaan.com" required>
-            <div class="error-msg hidden" id="err-email">Format email tidak valid</div>
-          </div>
-          <div>
-            <label for="telepon" class="label">Nomor Telepon Kantor <span class="text-red2">*</span></label>
-            <input type="tel" id="telepon" class="input" placeholder="024-xxxx-xxxx" required>
-            <div class="error-msg hidden" id="err-telepon">Nomor telepon tidak valid</div>
+        <!-- Form: Identitas Pokok & Bidang Usaha -->
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label for="nama_perusahaan" class="label">Nama Resmi Perusahaan <span class="text-red2">*</span></label>
+              <input type="text" id="nama_perusahaan" class="input" placeholder="Contoh: PT Solusi Digital Jateng" required>
+              <div class="error-msg hidden" id="err-nama_perusahaan">Nama perusahaan wajib diisi</div>
+            </div>
+
+            <div>
+              <label for="bidang_usaha" class="label">Sektor / Bidang Usaha <span class="text-red2">*</span></label>
+              <select id="bidang_usaha" class="input">
+                <option value="">Pilih bidang usaha</option>
+                <option>Software House</option>
+                <option>Startup Teknologi</option>
+                <option>Telekomunikasi</option>
+                <option>E-Commerce</option>
+                <option>Perbankan & Keuangan</option>
+                <option>Manufaktur</option>
+                <option>Pendidikan</option>
+                <option>Kesehatan</option>
+                <option>Konsultan IT</option>
+                <option>Lainnya</option>
+              </select>
+              <div class="error-msg hidden" id="err-bidang_usaha">Bidang usaha wajib dipilih</div>
+
+              <!-- Input tambahan saat opsi "Lainnya" dipilih -->
+              <div id="wrapper-bidang-lainnya" class="hidden mt-2.5">
+                <label for="bidang_usaha_lainnya" class="label text-xs">Sebutkan Bidang Usaha Lainnya <span class="text-red2">*</span></label>
+                <input type="text" id="bidang_usaha_lainnya" class="input text-xs sm:text-sm" placeholder="Contoh: Logistik & Rantai Pasok">
+                <div class="error-msg hidden" id="err-bidang_usaha_lainnya">Bidang usaha lainnya wajib diisi</div>
+              </div>
+            </div>
+
+            <div>
+              <label for="website" class="label">Website Resmi</label>
+              <input type="url" id="website" class="input" placeholder="https://perusahaan.com">
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Form: Alamat & Lokasi Kantor -->
-      <div class="pt-4 border-t border-neutral4/60 space-y-4">
-        <h4 class="text-xs font-bold uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
-          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-primary1"></i>
-          <span>Alamat &amp; Lokasi Operasional</span>
-        </h4>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="sm:col-span-2">
-            <label for="alamat" class="label">Alamat Kantor Lengkap <span class="text-red2">*</span></label>
-            <input type="text" id="alamat" class="input" placeholder="Jl. Pemuda No. 120, Gedung Solusi Lt. 3" required>
-            <div class="error-msg hidden" id="err-alamat">Alamat wajib diisi</div>
-          </div>
-          <div>
-            <label for="kota" class="label">Kota / Kabupaten <span class="text-red2">*</span></label>
-            <input type="text" id="kota" class="input" placeholder="Semarang" required>
-            <div class="error-msg hidden" id="err-kota">Kota wajib diisi</div>
-          </div>
-          <div>
-            <label for="provinsi" class="label">Provinsi</label>
-            <input type="text" id="provinsi" class="input" placeholder="Jawa Tengah">
-          </div>
-          <div>
-            <label for="negara" class="label">Negara</label>
-            <input type="text" id="negara" class="input" placeholder="Indonesia">
-          </div>
-          <div>
-            <label for="kode_pos" class="label">Kode Pos</label>
-            <input type="text" id="kode_pos" class="input" placeholder="50132" maxlength="5">
+        <!-- Form: Kontak Kantor Perusahaan -->
+        <div class="pt-4 border-t border-neutral4/60 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
+            <i data-lucide="phone-call" class="w-3.5 h-3.5 text-primary1"></i>
+            <span>Kontak Kantor Perusahaan</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="email" class="label">Email Resmi Perusahaan <span class="text-red2">*</span></label>
+              <input type="email" id="email" class="input" placeholder="hr@perusahaan.com" required>
+              <div class="error-msg hidden" id="err-email">Format email tidak valid</div>
+            </div>
+            <div>
+              <label for="telepon" class="label">Nomor Telepon Kantor <span class="text-red2">*</span></label>
+              <input type="tel" id="telepon" class="input" placeholder="024-xxxx-xxxx" required>
+              <div class="error-msg hidden" id="err-telepon">Nomor telepon tidak valid</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- Form: Deskripsi Perusahaan -->
-      <div class="pt-4 border-t border-neutral4/60 space-y-2">
-        <div class="flex items-center justify-between">
-          <label for="deskripsi" class="label mb-0">Tentang / Deskripsi Perusahaan <span class="text-red2">*</span></label>
-          <span class="text-xs text-neutral3 font-mono"><span id="deskripsi-count">0</span>/500 karakter</span>
+        <!-- Form: Alamat & Lokasi Kantor -->
+        <div class="pt-4 border-t border-neutral4/60 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-primary1"></i>
+            <span>Alamat &amp; Lokasi Operasional</span>
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label for="alamat" class="label">Alamat Kantor Lengkap <span class="text-red2">*</span></label>
+              <input type="text" id="alamat" class="input" placeholder="Jl. Pemuda No. 120, Gedung Solusi Lt. 3" required>
+              <div class="error-msg hidden" id="err-alamat">Alamat wajib diisi</div>
+            </div>
+            <div>
+              <label for="kota" class="label">Kota / Kabupaten <span class="text-red2">*</span></label>
+              <input type="text" id="kota" class="input" placeholder="Semarang" required>
+              <div class="error-msg hidden" id="err-kota">Kota wajib diisi</div>
+            </div>
+            <div>
+              <label for="provinsi" class="label">Provinsi</label>
+              <input type="text" id="provinsi" class="input" placeholder="Jawa Tengah">
+            </div>
+            <div>
+              <label for="negara" class="label">Negara</label>
+              <input type="text" id="negara" class="input" placeholder="Indonesia">
+            </div>
+            <div>
+              <label for="kode_pos" class="label">Kode Pos</label>
+              <input type="text" id="kode_pos" class="input" placeholder="50132" maxlength="5">
+            </div>
+          </div>
         </div>
-        <textarea id="deskripsi" class="input min-h-[110px] resize-none leading-relaxed" placeholder="Deskripsikan profil singkat perusahaan: spesialisasi bidang, visi, produk/layanan unggulan, dan budaya kerja." rows="4"></textarea>
-        <div class="error-msg hidden" id="err-deskripsi">Deskripsi wajib diisi</div>
-      </div>
 
+        <!-- Form: Deskripsi Perusahaan -->
+        <div class="pt-4 border-t border-neutral4/60 space-y-2">
+          <div class="flex items-center justify-between">
+            <label for="deskripsi" class="label mb-0">Tentang / Deskripsi Perusahaan <span class="text-red2">*</span></label>
+            <span class="text-xs text-neutral3 font-mono"><span id="deskripsi-count">0</span>/500 karakter</span>
+          </div>
+          <textarea id="deskripsi" class="input min-h-[110px] resize-none leading-relaxed" placeholder="Deskripsikan profil singkat perusahaan: spesialisasi bidang, visi, produk/layanan unggulan, dan budaya kerja." rows="4"></textarea>
+          <div class="error-msg hidden" id="err-deskripsi">Deskripsi wajib diisi</div>
+        </div>
+
+      </div>
     </section>
 
     <!-- ==================== CARD 2: INFORMASI PERSON IN CHARGE (PIC) ==================== -->
-    <section class="card lg:col-span-5 space-y-6">
+    <section class="card lg:col-span-5 flex flex-col justify-between space-y-6 h-full">
 
-      <!-- Card 2 Header -->
-      <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/70">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
-            <i data-lucide="user-check" class="w-5 h-5"></i>
+      <div class="space-y-6 flex-1 flex flex-col">
+        <!-- Card 2 Header -->
+        <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/70">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center shrink-0">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-neutral1">Informasi Person in Charge (PIC)</h3>
+              <p class="text-xs text-neutral3 mt-0.5">Penanggung jawab koordinasi rekrutmen alumni</p>
+            </div>
           </div>
+        </div>
+
+        <!-- PIC Highlight Preview Box -->
+        <div class="p-4 bg-gradient-to-r from-primary1/5 via-primary2/5 to-transparent rounded-2xl border border-primary4/60 flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-primary1 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
+            <i data-lucide="user" class="w-6 h-6"></i>
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] uppercase tracking-wider font-bold text-primary1 block">Narahubung Resmi</span>
+            <h4 id="pic-preview-name" class="font-bold text-neutral1 text-sm truncate">Andi Kurniawan</h4>
+            <p id="pic-preview-jabatan" class="text-xs text-neutral3 truncate mt-0.5">HR Manager</p>
+          </div>
+        </div>
+
+        <!-- PIC Form Inputs -->
+        <div class="space-y-4">
           <div>
-            <h3 class="font-bold text-base text-neutral1">Informasi Person in Charge (PIC)</h3>
-            <p class="text-xs text-neutral3 mt-0.5">Penanggung jawab koordinasi rekrutmen alumni</p>
+            <label for="pic_nama" class="label">Nama Lengkap PIC <span class="text-red2">*</span></label>
+            <input type="text" id="pic_nama" class="input" placeholder="Nama lengkap PIC" required>
+            <div class="error-msg hidden" id="err-pic_nama">Nama PIC wajib diisi</div>
+          </div>
+
+          <div>
+            <label for="pic_jabatan" class="label">Jabatan / Posisi</label>
+            <input type="text" id="pic_jabatan" class="input" placeholder="Contoh: HR Manager / Talent Acquisition">
+          </div>
+
+          <div>
+            <label for="pic_email" class="label">Email PIC <span class="text-red2">*</span></label>
+            <input type="email" id="pic_email" class="input" placeholder="andi.k@perusahaan.com" required>
+            <div class="error-msg hidden" id="err-pic_email">Format email PIC tidak valid</div>
+          </div>
+
+          <div>
+            <label for="pic_telepon" class="label">Nomor Telepon / WhatsApp PIC</label>
+            <input type="tel" id="pic_telepon" class="input" placeholder="0812-xxxx-xxxx">
           </div>
         </div>
-      </div>
 
-      <!-- PIC Highlight Preview Box -->
-      <div class="p-4 bg-gradient-to-r from-primary1/5 via-primary2/5 to-transparent rounded-2xl border border-primary4/60 flex items-center gap-3.5">
-        <div class="w-12 h-12 rounded-xl bg-primary1 text-white flex items-center justify-center font-bold text-base shadow-sm shrink-0">
-          <i data-lucide="user" class="w-6 h-6"></i>
-        </div>
-        <div class="min-w-0 flex-1">
-          <span class="text-[10px] uppercase tracking-wider font-bold text-primary1 block">Narahubung Resmi</span>
-          <h4 id="pic-preview-name" class="font-bold text-neutral1 text-sm truncate">Andi Kurniawan</h4>
-          <p id="pic-preview-jabatan" class="text-xs text-neutral3 truncate mt-0.5">HR Manager</p>
-        </div>
-      </div>
+        <!-- Kelengkapan Profil Widget -->
+        <div class="pt-4 border-t border-neutral4/60 space-y-3 flex-1 flex flex-col">
+          <div class="flex items-center justify-between">
+            <h4 class="font-bold text-xs uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
+              <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary1"></i>
+              <span>Kelengkapan Data Profil</span>
+            </h4>
+            <span id="pct-label" class="font-bold text-xs px-2 py-0.5 rounded-full bg-primary5 text-primary1">0%</span>
+          </div>
+          
+          <div class="h-2 bg-neutral4/50 rounded-full overflow-hidden">
+            <div id="pct-bar" class="h-full bg-gradient-to-r from-primary1 to-primary3 rounded-full transition-all duration-500" style="width:0%"></div>
+          </div>
 
-      <!-- PIC Form Inputs -->
-      <div class="space-y-4">
-        <div>
-          <label for="pic_nama" class="label">Nama Lengkap PIC <span class="text-red2">*</span></label>
-          <input type="text" id="pic_nama" class="input" placeholder="Nama lengkap PIC" required>
-          <div class="error-msg hidden" id="err-pic_nama">Nama PIC wajib diisi</div>
-        </div>
-
-        <div>
-          <label for="pic_jabatan" class="label">Jabatan / Posisi</label>
-          <input type="text" id="pic_jabatan" class="input" placeholder="Contoh: HR Manager / Talent Acquisition">
-        </div>
-
-        <div>
-          <label for="pic_email" class="label">Email PIC <span class="text-red2">*</span></label>
-          <input type="email" id="pic_email" class="input" placeholder="andi.k@perusahaan.com" required>
-          <div class="error-msg hidden" id="err-pic_email">Format email PIC tidak valid</div>
-        </div>
-
-        <div>
-          <label for="pic_telepon" class="label">Nomor Telepon / WhatsApp PIC</label>
-          <input type="tel" id="pic_telepon" class="input" placeholder="0812-xxxx-xxxx">
-        </div>
-      </div>
-
-      <!-- Kelengkapan Profil Widget -->
-      <div class="pt-4 border-t border-neutral4/60 space-y-3">
-        <div class="flex items-center justify-between">
-          <h4 class="font-bold text-xs uppercase tracking-wider text-neutral3 flex items-center gap-1.5">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-primary1"></i>
-            <span>Kelengkapan Data Profil</span>
-          </h4>
-          <span id="pct-label" class="font-bold text-xs px-2 py-0.5 rounded-full bg-primary5 text-primary1">0%</span>
-        </div>
-        
-        <div class="h-2 bg-neutral4/50 rounded-full overflow-hidden">
-          <div id="pct-bar" class="h-full bg-gradient-to-r from-primary1 to-primary3 rounded-full transition-all duration-500" style="width:0%"></div>
-        </div>
-
-        <div class="bg-neutral5/80 p-3 rounded-xl border border-neutral4/70">
-          <ul id="completion-items" class="space-y-1.5 text-xs">
-            <!-- Injected by JavaScript -->
-          </ul>
+          <div class="bg-neutral5/80 p-3.5 rounded-xl border border-neutral4/70 flex-1 flex flex-col justify-center">
+            <ul id="completion-items" class="space-y-2 text-xs">
+              <!-- Injected by JavaScript -->
+            </ul>
+          </div>
         </div>
       </div>
 
       <!-- Action Buttons (Simpan & Reset) -->
-      <div class="pt-4 border-t border-neutral4/60 space-y-2.5">
+      <div class="pt-4 border-t border-neutral4/60 space-y-2.5 mt-auto">
         <button id="btn-save" class="btn-primary w-full py-2.5 flex items-center justify-center gap-2 text-sm font-semibold shadow-sm focus:ring-4 focus:ring-primary5">
           <i data-lucide="save" class="w-4 h-4"></i>
           <span>Simpan Perubahan Profil</span>
@@ -269,6 +282,71 @@
     </section>
 
   </div>
+
+  <!-- ==================== CARD: UBAH PASSWORD ==================== -->
+  <section class="card space-y-5" aria-labelledby="pw-card-title">
+
+    <!-- Card Header -->
+    <div class="flex items-start justify-between gap-3 pb-4 border-b border-neutral4/70">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-yellow3 text-yellow1 flex items-center justify-center shrink-0">
+          <i data-lucide="key-round" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h3 id="pw-card-title" class="font-bold text-base text-neutral1">Ubah Password Akun</h3>
+          <p class="text-xs text-neutral3 mt-0.5">Perbarui password akun Mitra Anda untuk keamanan portal.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Ubah Password -->
+    <div class="space-y-4 max-w-lg">
+      <!-- Password Saat Ini -->
+      <div>
+        <label for="pw-current" class="label">Password Saat Ini <span class="text-red2">*</span></label>
+        <div class="relative">
+          <input type="password" id="pw-current" class="input pr-10" placeholder="Masukkan password saat ini" autocomplete="current-password">
+          <button type="button" onclick="togglePwVisibility('pw-current', 'eye-current')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1 transition-colors" aria-label="Toggle visibility password saat ini">
+            <i data-lucide="eye" id="eye-current" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p id="err-pw-current" class="error-msg hidden">Password saat ini wajib diisi.</p>
+      </div>
+
+      <!-- Password Baru -->
+      <div>
+        <label for="pw-new" class="label">Password Baru <span class="text-red2">*</span></label>
+        <div class="relative">
+          <input type="password" id="pw-new" class="input pr-10" placeholder="Minimal 8 karakter" autocomplete="new-password">
+          <button type="button" onclick="togglePwVisibility('pw-new', 'eye-new')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1 transition-colors" aria-label="Toggle visibility password baru">
+            <i data-lucide="eye" id="eye-new" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p id="err-pw-new" class="error-msg hidden">Password baru minimal 8 karakter.</p>
+      </div>
+
+      <!-- Konfirmasi Password Baru -->
+      <div>
+        <label for="pw-confirm" class="label">Konfirmasi Password Baru <span class="text-red2">*</span></label>
+        <div class="relative">
+          <input type="password" id="pw-confirm" class="input pr-10" placeholder="Ulangi password baru" autocomplete="new-password">
+          <button type="button" onclick="togglePwVisibility('pw-confirm', 'eye-confirm')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1 transition-colors" aria-label="Toggle visibility konfirmasi password">
+            <i data-lucide="eye" id="eye-confirm" class="w-4 h-4"></i>
+          </button>
+        </div>
+        <p id="err-pw-confirm" class="error-msg hidden">Konfirmasi password tidak cocok.</p>
+      </div>
+    </div>
+
+    <!-- Tombol Simpan -->
+    <div class="pt-2 border-t border-neutral4/60">
+      <button id="btn-save-pw" type="button" class="btn-primary flex items-center gap-2 py-2.5 px-6 text-sm font-semibold shadow-sm">
+        <i data-lucide="shield-check" class="w-4 h-4"></i>
+        <span>Simpan Perubahan Password</span>
+      </button>
+    </div>
+
+  </section>
 
 </main>
 
@@ -577,6 +655,129 @@ document.addEventListener('DOMContentLoaded', () => {
       fillForm(MITRA.profil);
       showToast('Form berhasil direset ke data tersimpan.', 'info');
     });
+  });
+});
+
+// ===================== UBAH PASSWORD (localStorage prototype) =====================
+// Tidak ada backend auth — password disimpan lokal hanya untuk demo validasi UI.
+const PW_KEY = 'mitra-password-hash';
+const PW_DEFAULT = 'mitra123'; // password default prototype
+
+/** Stub hash sederhana — bukan kriptografi, hanya untuk demo prototype */
+function simpleHash(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+  }
+  return 'pw_' + Math.abs(h).toString(36);
+}
+
+function getSavedPwHash() {
+  return lsGet(PW_KEY, simpleHash(PW_DEFAULT));
+}
+
+function togglePwVisibility(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if (!input || !icon) return;
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  icon.setAttribute('data-lucide', showing ? 'eye' : 'eye-off');
+  if (window.lucide) window.lucide.createIcons({ nodes: [icon] });
+}
+
+function setInputError(inputId, errId, msg) {
+  const input = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if (input) input.classList.add('border-red1');
+  if (err) { err.textContent = msg || err.textContent; err.classList.remove('hidden'); }
+}
+
+function clearInputError(inputId, errId) {
+  const input = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if (input) input.classList.remove('border-red1');
+  if (err) err.classList.add('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const btnSavePw = document.getElementById('btn-save-pw');
+  if (!btnSavePw) return;
+
+  // Real-time: bersihkan error saat user mulai mengetik
+  ['pw-current', 'pw-new', 'pw-confirm'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', () => {
+      clearInputError(id, 'err-' + id);
+    });
+  });
+
+  // Validasi kecocokan konfirmasi saat blur
+  document.getElementById('pw-confirm')?.addEventListener('blur', () => {
+    const pw = document.getElementById('pw-new')?.value || '';
+    const conf = document.getElementById('pw-confirm')?.value || '';
+    if (conf && pw !== conf) {
+      setInputError('pw-confirm', 'err-pw-confirm', 'Konfirmasi password tidak cocok.');
+    } else if (conf) {
+      clearInputError('pw-confirm', 'err-pw-confirm');
+    }
+  });
+
+  btnSavePw.addEventListener('click', () => {
+    let valid = true;
+
+    const current = document.getElementById('pw-current')?.value || '';
+    const newPw = document.getElementById('pw-new')?.value || '';
+    const confirmPw = document.getElementById('pw-confirm')?.value || '';
+
+    // Bersihkan semua error lebih dulu
+    ['pw-current', 'pw-new', 'pw-confirm'].forEach(id => clearInputError(id, 'err-' + id));
+
+    // Validasi: password saat ini tidak boleh kosong
+    if (!current.trim()) {
+      setInputError('pw-current', 'err-pw-current', 'Password saat ini wajib diisi.');
+      valid = false;
+    } else if (simpleHash(current) !== getSavedPwHash()) {
+      // Verifikasi password lama
+      setInputError('pw-current', 'err-pw-current', 'Password saat ini tidak sesuai.');
+      valid = false;
+    }
+
+    // Validasi: password baru minimal 8 karakter
+    if (!newPw.trim()) {
+      setInputError('pw-new', 'err-pw-new', 'Password baru wajib diisi.');
+      valid = false;
+    } else if (newPw.length < 8) {
+      setInputError('pw-new', 'err-pw-new', 'Password baru minimal 8 karakter.');
+      valid = false;
+    }
+
+    // Validasi: konfirmasi harus cocok
+    if (!confirmPw.trim()) {
+      setInputError('pw-confirm', 'err-pw-confirm', 'Konfirmasi password wajib diisi.');
+      valid = false;
+    } else if (newPw && newPw !== confirmPw) {
+      setInputError('pw-confirm', 'err-pw-confirm', 'Konfirmasi password tidak cocok dengan password baru.');
+      valid = false;
+    }
+
+    if (!valid) return;
+
+    // Simpan hash password baru ke localStorage
+    lsSet(PW_KEY, simpleHash(newPw));
+
+    // Reset form
+    ['pw-current', 'pw-new', 'pw-confirm'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.value = ''; el.type = 'password'; }
+    });
+    // Reset ikon eye ke default
+    ['eye-current', 'eye-new', 'eye-confirm'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.setAttribute('data-lucide', 'eye'); }
+    });
+    if (window.lucide) window.lucide.createIcons();
+
+    showToast('Password berhasil diperbarui.', 'success');
   });
 });
 </script>
