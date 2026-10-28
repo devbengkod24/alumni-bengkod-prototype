@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
@@ -109,7 +109,7 @@ function getSorted(list) {
 function renderCards() {
   const list = getSorted(MITRA.lowongan.filter(l => {
     const matchF = !activeFilter || l.status === activeFilter;
-    const matchQ = !searchQuery || l.posisi.toLowerCase().includes(searchQuery) || (l.lokasi || '').toLowerCase().includes(searchQuery);
+    const matchQ = !searchQuery || l.posisi.toLowerCase().includes(searchQuery) || (l.lokasi || '').toLowerCase().includes(searchQuery) || (l.kategori || '').toLowerCase().includes(searchQuery) || (l.tipe_kerja || '').toLowerCase().includes(searchQuery);
     return matchF && matchQ;
   }));
 
@@ -122,6 +122,8 @@ function renderCards() {
       ? `${fmtCurrency(l.gaji_min)} – ${fmtCurrency(l.gaji_max)}`
       : 'Gaji tidak ditampilkan';
     const isExpiring = l.masa_berlaku && new Date(l.masa_berlaku) <= new Date(Date.now() + 7 * 86400000) && l.status === 'Aktif';
+    const isMagang = l.kategori === 'Magang';
+    const katLabel = isMagang ? 'Magang' : 'Kerja';
     return `<article class="bg-white rounded-xl border ${l.status === 'Ditolak' ? 'border-red2/30' : 'border-neutral4'} elevation1 hover:elevation3 hover:border-primary3 transition-all cursor-pointer" onclick="openDetail(${l.id})">
       <div class="p-5">
         <div class="flex items-start justify-between gap-3 mb-3">
@@ -135,8 +137,12 @@ function renderCards() {
         <h3 class="font-semibold text-neutral1 mb-1 line-clamp-1">${esc(l.posisi)}</h3>
         <div class="text-xs text-neutral3 mb-3">${esc(MITRA.profil.nama_perusahaan)} · ${esc(l.lokasi || 'Semarang')}</div>
 
-        <div class="flex flex-wrap gap-1 mb-3">
-          ${[l.tipe_kerja, l.kategori, l.pengalaman].filter(Boolean).map(t => `<span class="px-2 py-0.5 bg-neutral5 text-neutral2 text-xs rounded-md">${esc(t)}</span>`).join('')}
+        <div class="flex flex-wrap items-center gap-1.5 mb-3">
+          <span class="px-2 py-0.5 bg-primary5 text-primary1 text-xs font-semibold rounded-md inline-flex items-center gap-1">
+            <i data-lucide="${isMagang ? 'sparkles' : 'briefcase'}" class="w-3 h-3"></i>
+            ${esc(katLabel)}
+          </span>
+          ${[l.tipe_kerja, l.pengalaman].filter(Boolean).map(t => `<span class="px-2 py-0.5 bg-neutral5 text-neutral2 text-xs rounded-md">${esc(t)}</span>`).join('')}
         </div>
 
         <div class="flex flex-wrap gap-1 mb-3">
@@ -193,7 +199,7 @@ function openDetail(id) {
     </div>
     <div class="p-6 space-y-4">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        ${[['briefcase','Tipe Kerja',l.tipe_kerja||'-'],['tag','Kategori',l.kategori||'-'],['award','Pengalaman',l.pengalaman||'Tidak ditentukan'],['calendar','Masa Berlaku',fmtDate(l.masa_berlaku)]].map(([icon,label,val])=>`
+        ${[['tag','Kategori',l.kategori === 'Magang' ? 'Magang' : 'Kerja'],['briefcase','Tipe Kerja',l.tipe_kerja||'-'],['award','Pengalaman',l.pengalaman||'Tidak ditentukan'],['calendar','Masa Berlaku',fmtDate(l.masa_berlaku)]].map(([icon,label,val])=>`
         <div class="p-3 bg-neutral5 rounded-xl">
           <div class="flex items-center gap-1.5 text-xs text-neutral3 mb-1"><i data-lucide="${icon}" class="w-3.5 h-3.5"></i>${label}</div>
           <div class="text-sm font-semibold text-neutral1">${esc(val)}</div>
