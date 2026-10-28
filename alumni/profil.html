@@ -23,9 +23,10 @@
       ====================================================== -->
       <div class="lg:col-span-8 space-y-6">
         <div data-partial="profile-top" data-variant="profil"></div>
+        <div data-partial="profile-bottom" data-variant="profil"></div>
 
     <!-- ======================================================
-        SECTION 3: ACTIVITY / POSTINGAN (CARD KETIGA)
+        SECTION: ACTIVITY / POSTINGAN (DITARUH DI PALING AKHIR)
     ====================================================== -->
     <div id="section-activity" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 mb-5 border-b border-gray-100">
@@ -57,7 +58,7 @@
       </div>
 
       <div class="space-y-5">
-        <template x-for="post in posts" :key="post.id">
+        <template x-for="post in visiblePosts" :key="post.id">
           <div :id="'activity-card-' + post.id" class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white">
             <template x-if="post.isRepost && post.repostedBy">
               <div class="px-5 pt-3.5 pb-2 border-b border-gray-100 flex items-center gap-2 text-[14px] text-gray-600 bg-gray-50/50">
@@ -340,10 +341,20 @@
           </div>
         </template>
       </div>
-    </div>
 
-        <div data-partial="profile-bottom" data-variant="profil"></div>
-      </div>
+      <template x-if="posts.length > 1">
+        <div class="mt-5 pt-2">
+          <button id="btn-toggle-posts" @click="showAllPosts = !showAllPosts" :aria-expanded="showAllPosts"
+            class="w-full px-5 py-2.5 rounded-full border border-gray-200/90 hover:border-blue-300 hover:bg-blue-50/40 text-[15px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer">
+            <span x-text="showAllPosts ? 'Tampilkan lebih sedikit' : 'Lihat lebih lengkap'"></span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" :class="showAllPosts ? '-rotate-90 transition-transform' : 'transition-transform'">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </template>
+    </div>
+  </div>
 
       <!-- ======================================================
           KOLOM SAMPING (KANAN) - GAMBAR 1 & GAMBAR 2
