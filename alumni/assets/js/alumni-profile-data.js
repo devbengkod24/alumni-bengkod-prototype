@@ -191,6 +191,7 @@ const INITIAL_SKILLS = [
   { id: "2", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
 ];
 
+const POSTS_PREVIEW = 1;
 const SKILLS_PREVIEW = 3;
 const PROJECTS_PREVIEW = 3;
 

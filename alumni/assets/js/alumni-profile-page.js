@@ -747,6 +747,7 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
   const base = {
     COVER_THEMES,
     DEFAULT_AVATAR,
+    POSTS_PREVIEW,
     SKILLS_PREVIEW,
     PROJECTS_PREVIEW,
     profile: JSON.parse(JSON.stringify(profileSrc)),
@@ -781,6 +782,7 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     addProjectOpen: false,
     editProjectOpen: false,
     showAllProjects: false,
+    showAllPosts: false,
     expandedProjIds: {},
     publicPreviewOpen: false,
     projectLightbox: null,
@@ -822,6 +824,9 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     },
     get visibleProjects() {
       return this.showAllProjects ? this.projects : this.projects.slice(0, PROJECTS_PREVIEW);
+    },
+    get visiblePosts() {
+      return this.showAllPosts ? this.posts : this.posts.slice(0, this.POSTS_PREVIEW || 1);
     },
     get logoModalTitle() {
       const t = this.logoModalTarget && this.logoModalTarget.type;
