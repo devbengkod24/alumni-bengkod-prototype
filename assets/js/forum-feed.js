@@ -88,7 +88,7 @@
 
   // ===== Tampilan =====
   const shellHTML = () => `
-    <div class="max-w-3xl mx-auto flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
       <div class="flex items-center justify-between gap-4 pb-3 border-b border-gray-200">
         <div>
           <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Forum Diskusi</h1>
@@ -127,7 +127,7 @@
           <div class="flex items-start gap-3.5 min-w-0">
             ${avatar(p.penulis, 'w-16 h-16 text-base', p.foto)}
             <div class="flex flex-col min-w-0">
-              <div class="flex flex-wrap items-center gap-2"><h4 class="text-[17px] font-semibold text-gray-900 leading-tight">${esc(p.penulis)}</h4>${peranBadge(p.peran)}</div>
+              <div class="flex flex-wrap items-center gap-2"><h4 class="text-[17px] font-semibold text-gray-900 leading-tight">${esc(p.penulis)}</h4>${p.peran === 'Mitra' ? '' : peranBadge(p.peran)}</div>
               <p class="text-[14px] text-gray-500 leading-snug mt-1">${esc(p.headline || headline(p.penulis, p.peran))}</p>
               <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
                 <span>${waktuLalu(p.waktu)}</span><span>•</span>

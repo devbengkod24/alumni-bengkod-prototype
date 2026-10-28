@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
@@ -19,7 +20,7 @@
     <p class="text-sm text-neutral2 mt-1">Tinjau lamaran alumni untuk lowongan yang dibuat koordinator, evaluasi kandidat, dan kelola proses seleksinya.</p>
   </div>
 
-  <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4" aria-label="Ringkasan pelamar"></section>
+  <section id="stats" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3" aria-label="Ringkasan pelamar"></section>
 
   <section class="card p-4 sm:p-5">
     <div class="flex flex-col lg:flex-row gap-3">
@@ -66,18 +67,22 @@
   let page = 1;
 
   const jumlah = s => semua.filter(p => p.status === s).length;
+  // Gaya kartu sama dengan stat card dashboard koordinator
   document.getElementById('stats').innerHTML = [
-    ['Total Pelamar', semua.length, 'users', 'bg-primary5 text-primary1', 'col-span-2 sm:col-span-1'],
-    ['Pelamar Baru', jumlah('applied'), 'user-plus', 'bg-blue-50 text-blue-700', ''],
-    ['Tahap Review', jumlah('review'), 'file-search', 'bg-yellow3 text-yellow1', ''],
-    ['Tahap Interview', jumlah('interview'), 'calendar-clock', 'bg-purple-50 text-purple-700', ''],
-    ['Diterima', jumlah('diterima'), 'circle-check', 'bg-green3 text-green1', ''],
-  ].map(([label, value, icon, tone, span]) => `
-    <div class="card p-4 flex items-center gap-3 ${span}">
-      <div class="w-11 h-11 rounded-xl ${tone} flex items-center justify-center shrink-0"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
-      <div class="min-w-0">
-        <div class="text-sm text-neutral2 truncate">${label}</div>
-        <div class="text-2xl font-semibold text-primary1 mt-0.5">${value}</div>
+    ['Total Pelamar', semua.length, 'users', 'Semua lowongan', '#1E3A8A,#2563EB', '#BFDBFE', 'col-span-2 sm:col-span-1'],
+    ['Pelamar Baru', jumlah('applied'), 'user-plus', 'Belum ditinjau', '#5b21b6,#7c3aed', '#C4B5FD', ''],
+    ['Tahap Review', jumlah('review'), 'file-search', 'Sedang dievaluasi', '#9a3412,#ea580c', '#FED7AA', ''],
+    ['Tahap Interview', jumlah('interview'), 'calendar-clock', 'Terjadwal wawancara', '#0e7490,#0891b2', '#A5F3FC', ''],
+    ['Diterima', jumlah('diterima'), 'circle-check', 'Lolos seleksi', '#0f766e,#0d9488', '#99F6E4', ''],
+  ].map(([label, value, icon, sub, grad, muted, span]) => `
+    <div class="relative rounded-2xl overflow-hidden p-3.5 flex items-center gap-3.5 ${span}" style="background: linear-gradient(135deg,${grad});">
+      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
+      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
+      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);"><i data-lucide="${icon}" class="w-5 h-5"></i></div>
+      <div class="relative z-10 flex-1 min-w-0">
+        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5 truncate" style="color: ${muted};">${label}</p>
+        <p class="text-[22px] font-bold text-white leading-none">${value}</p>
+        <p class="text-[10px] mt-1 truncate" style="color: ${muted};">${sub}</p>
       </div>
     </div>`).join('');
 
