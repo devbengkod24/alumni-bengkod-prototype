@@ -24,7 +24,7 @@
 
   <div class="flex items-start gap-3 p-4 rounded-xl bg-primary5/60 border border-primary4/50 text-sm text-primary1">
     <i data-lucide="lock" class="w-4 h-4 mt-0.5 shrink-0"></i>
-    <p class="text-sm">Koordinator hanya dapat mengelola akun <strong>alumni</strong> dan <strong>mitra</strong>. Akun SuperAdmin dan koordinator lain hanya bisa dilihat.</p>
+    <p class="text-sm">Koordinator hanya dapat melihat dan mengelola akun <strong>alumni</strong> dan <strong>mitra</strong>. Akun koordinator dan SuperAdmin dikelola oleh SuperAdmin.</p>
   </div>
 
   <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
@@ -37,8 +37,6 @@
         <option value="">Semua role</option>
         <option value="alumnus">Alumni</option>
         <option value="mitra">Mitra</option>
-        <option value="koordinator">Koordinator</option>
-        <option value="superadmin">SuperAdmin</option>
       </select>
     </div>
     <div class="overflow-x-auto">
@@ -64,7 +62,6 @@
           <option value="alumnus">Alumni</option>
           <option value="mitra">Mitra</option>
         </select>
-        <p class="text-xs text-neutral3 mt-1">Role koordinator dan SuperAdmin tidak tersedia untuk koordinator.</p>
       </div>
     </div>
     <div class="mt-6 flex justify-end gap-2">
@@ -75,32 +72,28 @@
 </div>
 
 <script>
-  const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
-  const EDITABLE = ['alumnus', 'mitra'];
+  const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra' };
+  const EDITABLE = Object.keys(ROLE_LABEL);
   const form = document.getElementById('form');
-  const find = id => KOOR.users.find(u => u.id === id);
+  // Akun koordinator & SuperAdmin tidak pernah ditampilkan atau diubah dari halaman ini
+  const find = id => KOOR.users.find(u => u.id === id && EDITABLE.includes(u.role));
 
   function render() {
     const q = document.getElementById('q').value.toLowerCase();
     const role = document.getElementById('filter-role').value;
-    const list = KOOR.users.filter(u => (!role || u.role === role) && (u.name + u.email).toLowerCase().includes(q));
-    document.getElementById('rows').innerHTML = list.map(u => {
-      const can = EDITABLE.includes(u.role);
-      const lock = can ? '' : 'disabled title="Di luar wewenang koordinator"';
-      return `<tr class="tr">
+    const list = KOOR.users.filter(u => EDITABLE.includes(u.role) && (!role || u.role === role) && (u.name + u.email).toLowerCase().includes(q));
+    document.getElementById('rows').innerHTML = list.map(u => `<tr class="tr">
         <td class="td"><div class="font-medium">${esc(u.name)}</div><div class="text-xs text-neutral3">${esc(u.email)}</div></td>
         <td class="td">${badge(ROLE_LABEL[u.role])}</td>
         <td class="td">${badge(u.aktif ? 'Aktif' : 'Nonaktif')}</td>
         <td class="td"><div class="flex justify-end gap-1">
-          ${can ? '' : '<i data-lucide="lock" class="w-4 h-4 text-neutral3 m-2" aria-label="Terkunci"></i>'}
-          <button class="btn-icon" onclick="openForm(${u.id})" aria-label="Edit" ${lock || 'title="Edit"'}><i data-lucide="pencil" class="w-4 h-4"></i></button>
-          <button class="btn-icon" onclick="resetPassword(${u.id})" aria-label="Reset password" ${lock || 'title="Reset password"'}><i data-lucide="key-round" class="w-4 h-4"></i></button>
+          <button class="btn-icon" onclick="openForm(${u.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button class="btn-icon" onclick="resetPassword(${u.id})" aria-label="Reset password" title="Reset password"><i data-lucide="key-round" class="w-4 h-4"></i></button>
           <button class="btn-icon ${u.aktif ? 'hover:!bg-red3 hover:!text-red1' : 'hover:!bg-green3 hover:!text-green1'}" onclick="toggleAktif(${u.id})"
-            aria-label="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}" ${lock || `title="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}"`}>
+            aria-label="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}" title="${u.aktif ? 'Nonaktifkan' : 'Aktifkan'}">
             <i data-lucide="${u.aktif ? 'user-x' : 'user-check'}" class="w-4 h-4"></i></button>
         </div></td>
-      </tr>`;
-    }).join('') || '<tr><td colspan="4" class="td text-center text-neutral3 py-8">Tidak ada user yang cocok.</td></tr>';
+      </tr>`).join('') || '<tr><td colspan="4" class="td text-center text-neutral3 py-8">Tidak ada user yang cocok.</td></tr>';
     refreshIcons();
   }
 
@@ -116,7 +109,9 @@
     const data = Object.fromEntries(new FormData(form));
     if (!EDITABLE.includes(data.role)) return showToast('Role tidak diizinkan.', 'error');
     const list = KOOR.users;
-    Object.assign(list.find(u => u.id === +data.id), { name: data.name, email: data.email, role: data.role });
+    const u = list.find(x => x.id === +data.id && EDITABLE.includes(x.role));
+    if (!u) return showToast('Akun di luar wewenang koordinator.', 'error');
+    Object.assign(u, { name: data.name, email: data.email, role: data.role });
     KOOR.users = list;
     audit('Edit akun', `${data.name} (${ROLE_LABEL[data.role]})`);
     closeModal('form-modal');
