@@ -400,57 +400,61 @@
     </div>
 
     <!-- Modals Edit Bahasa & URL Publik -->
-    <template x-if="editLanguageModalOpen">
-      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editLanguageModalOpen = false">
-        <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-[17px] font-bold text-gray-900">Ubah Bahasa Profil</h3>
-            <button type="button" @click="editLanguageModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-          <div class="p-6 space-y-4">
-            <div>
-              <label class="block text-[14px] font-semibold text-gray-700 mb-2">Pilih Bahasa</label>
-              <select x-model="tempLanguage" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 bg-white">
-                <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                <option value="English (US)">English (US)</option>
-              </select>
+    <template x-teleport="body">
+      <template x-if="editLanguageModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editLanguageModalOpen = false">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="text-[17px] font-bold text-gray-900">Ubah Bahasa Profil</h3>
+              <button type="button" @click="editLanguageModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
-              <button type="button" @click="editLanguageModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
-              <button type="button" @click="saveLanguage()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+            <div class="p-6 space-y-4">
+              <div>
+                <label class="block text-[14px] font-semibold text-gray-700 mb-2">Pilih Bahasa</label>
+                <select x-model="tempLanguage" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 bg-white">
+                  <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                  <option value="English (US)">English (US)</option>
+                </select>
+              </div>
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                <button type="button" @click="editLanguageModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+                <button type="button" @click="saveLanguage()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </template>
 
-    <template x-if="editPublicUrlModalOpen">
-      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editPublicUrlModalOpen = false">
-        <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-[17px] font-bold text-gray-900">Ubah Profil Publik dan URL</h3>
-            <button type="button" @click="editPublicUrlModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-          <div class="p-6 space-y-4">
-            <div>
-              <label class="block text-[14px] font-semibold text-gray-700 mb-1.5">Kustomisasi URL Profil Anda</label>
-              <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 bg-white">
-                <span class="px-3 py-2.5 text-sm text-gray-400 bg-gray-50 border-r border-gray-200 select-none">https://</span>
-                <input type="text" x-model="tempPublicUrl" class="w-full px-3 py-2.5 text-[14px] text-gray-900 focus:outline-none">
-              </div>
-              <p class="text-[12px] text-gray-500 mt-1.5">Bagikan URL unik ini di CV, portofolio, atau media sosial Anda.</p>
+    <template x-teleport="body">
+      <template x-if="editPublicUrlModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editPublicUrlModalOpen = false">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="text-[17px] font-bold text-gray-900">Ubah Profil Publik dan URL</h3>
+              <button type="button" @click="editPublicUrlModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
             </div>
-            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
-              <button type="button" @click="editPublicUrlModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
-              <button type="button" @click="savePublicUrl()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+            <div class="p-6 space-y-4">
+              <div>
+                <label class="block text-[14px] font-semibold text-gray-700 mb-1.5">Kustomisasi URL Profil Anda</label>
+                <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 bg-white">
+                  <span class="px-3 py-2.5 text-sm text-gray-400 bg-gray-50 border-r border-gray-200 select-none">https://</span>
+                  <input type="text" x-model="tempPublicUrl" class="w-full px-3 py-2.5 text-[14px] text-gray-900 focus:outline-none">
+                </div>
+                <p class="text-[12px] text-gray-500 mt-1.5">Bagikan URL unik ini di CV, portofolio, atau media sosial Anda.</p>
+              </div>
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                <button type="button" @click="editPublicUrlModalOpen = false" class="px-4 py-2 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
+                <button type="button" @click="savePublicUrl()" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm transition-colors cursor-pointer">Simpan</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </template>
     </template>
 
     <div data-partial="profile-modals"></div>
@@ -460,81 +464,84 @@
     <!-- ======================================================
         MODAL: BUAT / EDIT POSTINGAN (_components/PostModals.tsx)
     ====================================================== -->
-    <template x-if="postModalOpen">
-      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="closePostModal()">
-        <form role="dialog" aria-modal="true" aria-labelledby="add-post-title" novalidate autocomplete="off" @submit.prevent="handlePostModalSubmit()"
-          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
-          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-            <h2 id="add-post-title" class="text-[20px] font-bold text-gray-900 tracking-tight" x-text="editingPost ? 'Edit postingan' : 'Tambah postingan'"></h2>
-            <button type="button" @click="closePostModal()" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer" aria-label="Tutup modal">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-          </div>
-          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label for="post-visibility" class="block text-[14px] font-medium text-gray-700">Visibilitas <span class="text-red-500 font-bold">*</span></label>
-              </div>
-              <div class="relative">
-                <select id="post-visibility" x-model="pmVisibility" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer appearance-none pr-10">
-                  <option value="Semua orang">Semua orang (Bisa dilihat siapa saja)</option>
-                  <option value="Pengikut">Pengikut (Hanya pengikut Anda)</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
-                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+    <template x-teleport="body">
+      <template x-if="postModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="closePostModal()">
+          <form role="dialog" aria-modal="true" aria-labelledby="add-post-title" novalidate autocomplete="off" @submit.prevent="handlePostModalSubmit()"
+            class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+              <h2 id="add-post-title" class="text-[20px] font-bold text-gray-900 tracking-tight" x-text="editingPost ? 'Edit postingan' : 'Tambah postingan'"></h2>
+              <button type="button" @click="closePostModal()" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer" aria-label="Tutup modal">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label for="post-visibility" class="block text-[14px] font-medium text-gray-700">Visibilitas <span class="text-red-500 font-bold">*</span></label>
                 </div>
-              </div>
-            </div>
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label for="post-content" class="block text-[14px] font-medium text-gray-700">Keterangan <span class="text-red-500 font-bold">*</span></label>
-              </div>
-              <textarea id="post-content" rows="4" x-model="pmContent" placeholder="Jelaskan detail postingan, cerita, atau pencapaian Anda..." style="resize: none"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"></textarea>
-            </div>
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label class="block text-[14px] font-medium text-gray-700">Media</label>
-                <span class="text-[12px] text-gray-400 tabular-nums" x-text="pmImageUrl ? '1/10' : '0/10'"></span>
-              </div>
-              <template x-if="pmImageUrl">
-                <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
-                  <div class="relative max-w-md mx-auto rounded-lg overflow-hidden border border-gray-200 bg-white shadow-2xs">
-                    <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[260px] object-contain">
-                  </div>
-                  <div class="mt-3 flex items-center justify-end gap-2">
-                    <button type="button" @click="$refs.pmFileInput.click()" class="px-4 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 transition-colors cursor-pointer">Ganti media</button>
-                    <button type="button" @click="pmImageUrl = ''" class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-[13px] font-semibold transition-colors cursor-pointer">Hapus media</button>
+                <div class="relative">
+                  <select id="post-visibility" x-model="pmVisibility" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer appearance-none pr-10">
+                    <option value="Semua orang">Semua orang (Bisa dilihat siapa saja)</option>
+                    <option value="Pengikut">Pengikut (Hanya pengikut Anda)</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
+                    <svg class="w-4 h-4" viewBox="0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
                   </div>
                 </div>
-              </template>
-              <template x-if="!pmImageUrl">
-                <div>
-                  <button type="button" id="btn-add-post-media" @click="$refs.pmFileInput.click()"
-                    class="px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-[14px] font-semibold text-gray-700 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs">
-                    <span class="text-lg leading-none">+</span>
-                    <span>Tambahkan media</span>
-                  </button>
-                  <p class="text-[12px] text-gray-400 mt-2">Belum ada media. Tambahkan tautan atau gambar untuk postingan Anda.</p>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label for="post-content" class="block text-[14px] font-medium text-gray-700">Keterangan <span class="text-red-500 font-bold">*</span></label>
                 </div>
-              </template>
-              <input type="file" x-ref="pmFileInput" accept="image/*" class="hidden" @change="readPostImage($event, 'pmImageUrl', 'Ukuran berkas gambar maksimal 8MB.')">
+                <textarea id="post-content" rows="4" x-model="pmContent" placeholder="Jelaskan detail postingan, cerita, atau pencapaian Anda..." style="resize: none"
+                  class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"></textarea>
+              </div>
+              <div class="space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <label class="block text-[14px] font-medium text-gray-700">Media</label>
+                  <span class="text-[12px] text-gray-400 tabular-nums" x-text="pmImageUrl ? '1/10' : '0/10'"></span>
+                </div>
+                <template x-if="pmImageUrl">
+                  <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
+                    <div class="relative max-w-md mx-auto rounded-lg overflow-hidden border border-gray-200 bg-white shadow-2xs">
+                      <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[260px] object-contain">
+                    </div>
+                    <div class="mt-3 flex items-center justify-end gap-2">
+                      <button type="button" @click="$refs.pmFileInput.click()" class="px-4 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 transition-colors cursor-pointer">Ganti media</button>
+                      <button type="button" @click="pmImageUrl = ''" class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-[13px] font-semibold transition-colors cursor-pointer">Hapus media</button>
+                    </div>
+                  </div>
+                </template>
+                <template x-if="!pmImageUrl">
+                  <div>
+                    <button type="button" id="btn-add-post-media" @click="$refs.pmFileInput.click()"
+                      class="px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-[14px] font-semibold text-gray-700 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs">
+                      <span class="text-lg leading-none">+</span>
+                      <span>Tambahkan media</span>
+                    </button>
+                    <p class="text-[12px] text-gray-400 mt-2">Belum ada media. Tambahkan tautan atau gambar untuk postingan Anda.</p>
+                  </div>
+                </template>
+                <input type="file" x-ref="pmFileInput" accept="image/*" class="hidden" @change="readPostImage($event, 'pmImageUrl', 'Ukuran berkas gambar maksimal 8MB.')">
+              </div>
             </div>
-          </div>
-          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
-            <button type="button" @click="closePostModal()" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">Batal</button>
-            <button type="submit" id="btn-save-post" :disabled="!pmContent.trim() && !pmImageUrl"
-              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
-          </div>
-        </form>
-      </div>
+            <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
+              <button type="button" @click="closePostModal()" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" id="btn-save-post" :disabled="!pmContent.trim() && !pmImageUrl"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </template>
     </template>
 
     <!-- ======================================================
         MODAL: EDIT / HAPUS POSTINGAN (EditPostModal di PostModals.tsx)
     ====================================================== -->
-    <template x-if="editPostModalOpen">
-      <div class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editPostModalOpen = false">
+    <template x-teleport="body">
+      <template x-if="editPostModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editPostModalOpen = false">
         <form role="dialog" aria-modal="true" aria-labelledby="edit-post-title" novalidate autocomplete="off" @submit.prevent="handleEditPostSubmit()"
           class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden" style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
           <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
@@ -634,12 +641,14 @@
         </form>
       </div>
     </template>
+    </template>
 
     <!-- ======================================================
         MODAL: BAGIKAN DISERTAI PENDAPAT (GAMBAR 4)
     ====================================================== -->
-    <template x-if="shareOpinionPost">
-      <div id="modal-share-opinion" class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150" @mousedown.self="shareOpinionPost = null">
+    <template x-teleport="body">
+      <template x-if="shareOpinionPost">
+        <div id="modal-share-opinion" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150" @mousedown.self="shareOpinionPost = null">
         <div style="width: 95vw; max-width: 620px" class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-3">
@@ -782,6 +791,7 @@
           </div>
         </div>
       </div>
+    </template>
     </template>
 
     <div data-partial="profile-preview"></div>

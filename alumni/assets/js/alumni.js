@@ -98,24 +98,46 @@ document.head.insertAdjacentHTML('beforeend', `
 </style>`);
 
 // Rute Next.js → file HTML prototype
-const ALUMNI_ROUTES = {
-  "/": "../index.html",
-  "/dashboard/alumni": "dashboard.html",
-  "/dashboard/alumni/profil": "profil.html",
-  "/dashboard/alumni/lowongan": "lowongan.html",
-  "/dashboard/alumni/pengumuman": "pengumuman.html",
-  "/dashboard/alumni/perusahaan": "perusahaan.html",
-  "/dashboard/alumni/mitra": "mitra.html",
-  "/dashboard/alumni/detail": "detail.html",
-  "/dashboard/alumni/generate-cv": "generate-cv.html",
-};
+function isAlumniSubdir() {
+  const p = (typeof window !== "undefined" ? window.location.pathname || "" : "").replace(/\\/g, "/");
+  return p.includes("/alumni/mitra");
+}
+
+function alumniBasePrefix() {
+  return isAlumniSubdir() ? "../" : "";
+}
+
+function alumniRootPrefix() {
+  return isAlumniSubdir() ? "../../" : "../";
+}
 
 function alumniHref(link) {
-  if (ALUMNI_ROUTES[link]) return ALUMNI_ROUTES[link];
-  const mPerusahaan = /^\/dashboard\/alumni\/perusahaan\/([^/]+)$/.exec(link || "");
-  if (mPerusahaan) return `perusahaan.html?id=${encodeURIComponent(mPerusahaan[1])}`;
+  const base = alumniBasePrefix();
+  const root = alumniRootPrefix();
+
+  if (link === "/") return `${root}index.html`;
+  if (link === "/dashboard/alumni") return `${base}dashboard.html`;
+  if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
+  if (link === "/dashboard/alumni/lowongan") return `${base}lowongan.html`;
+  if (link === "/dashboard/alumni/pengumuman") return `${base}pengumuman.html`;
+  if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
+  if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
+
+  // Rute Mitra Perusahaan
+  if (link === "/dashboard/alumni/mitra" || link === "/dashboard/alumni/perusahaan") {
+    return isAlumniSubdir() ? "index.html" : "mitra/index.html";
+  }
+
+  // Profil Detail Mitra Perusahaan (:slug)
+  const mPerusahaan = /^\/dashboard\/alumni\/(?:perusahaan|mitra)\/([^/]+)$/.exec(link || "");
+  if (mPerusahaan) {
+    const slug = encodeURIComponent(mPerusahaan[1]);
+    return isAlumniSubdir() ? `detail.html?slug=${slug}` : `mitra/detail.html?slug=${slug}`;
+  }
+
   const m = /^\/dashboard\/alumni\/([^/]+)$/.exec(link || "");
-  if (m) return `detail.html?id=${encodeURIComponent(m[1])}`;
+  if (m) return `${base}detail.html?id=${encodeURIComponent(m[1])}`;
+
   return "#";
 }
 
@@ -234,7 +256,7 @@ document.addEventListener("alpine:init", () => {
       this.profileIsOpen = !this.profileIsOpen;
     },
     handleLogout() {
-      window.location.href = "../index.html";
+      window.location.href = alumniRootPrefix() + "index.html";
     },
   }));
 });
@@ -293,28 +315,27 @@ function alumniLayoutHTML(route, breadcrumbItems) {
 
   return `
     <aside id="logo-sidebar"
-      class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 transition-transform duration-300 ease-in-out overflow-hidden"
+      class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 transition-transform duration-300 ease-in-out flex flex-col"
       :class="[isMobile ? 'z-[70] shadow-2xl' : 'z-30', sidebarIsOpen ? 'translate-x-0' : '-translate-x-full']"
       aria-label="Sidebar">
-      <div class="h-full px-3 pb-4 overflow-y-auto bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
-        <div class="flex items-center justify-center py-6 pr-3">
-          <a href="${alumniHref("/")}">
-            <img src="assets/img/bengkelkoding-text.png" alt="Bengkel Koding" width="120" height="120" style="color: transparent">
-          </a>
-        </div>
-        <ul class="space-y-2 font-medium">${navItems}
+      <div class="flex items-center justify-center py-5 px-4 border-b border-neutral4 shrink-0">
+        <a href="${alumniHref("/")}" class="focus:outline-none focus:ring-2 focus:ring-primary1">
+          <img src="${alumniBasePrefix()}assets/img/bengkelkoding-text.png" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
+        </a>
+      </div>
+      <nav class="flex-1 overflow-y-auto px-3 py-4 space-y-1.5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]">
+        <ul class="space-y-1.5 font-medium">${navItems}
         </ul>
-        <div class="w-full h-0.5 my-4 bg-neutral4"></div>
-        <ul class="space-y-2 font-medium">
-          <li>
-            <button @click="handleLogout()" class="flex items-center w-full p-2 text-neutral2 fill-neutral2 rounded-lg hover:bg-red-100 hover:text-red1 hover:fill-red1 transition-all ease-in-out duration-200">
-              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <path d="M12.0337 16.9999L6.20039 10.9999M6.20039 10.9999L12.0337 4.9999M6.20039 10.9999H20.6004M1.40039 1.3999V20.5999" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <span class="ms-3 text-neutral1 text-sm">Keluar</span>
-            </button>
-          </li>
-        </ul>
+      </nav>
+      <div class="p-3 border-t border-neutral4 shrink-0">
+        <a href="${alumniRootPrefix()}index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 shrink-0">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>Keluar</span>
+        </a>
       </div>
     </aside>
 
@@ -323,7 +344,7 @@ function alumniLayoutHTML(route, breadcrumbItems) {
     </template>
 
     <div class="flex-1 flex flex-col min-h-screen min-w-0 duration-300 ease-in-out" :class="!isMobile && sidebarIsOpen ? 'pl-64' : 'pl-0'" style="transition: padding-left 300ms ease-in-out">
-      <nav class="sticky top-0 z-[60] bg-white border-b border-neutral4 shadow-sm">
+      <nav class="sticky top-0 z-30 bg-white border-b border-neutral4 shadow-sm">
         <div class="w-full px-3 py-3 lg:px-5 lg:pl-3">
           <div class="flex items-center justify-between">
             <div class="flex min-w-0 flex-1 items-center justify-start gap-3">
@@ -434,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (main) {
     // data-route: halaman hasil konversi (rute Next.js); data-title: halaman lama prototype (status-karir)
     const r = main.hasAttribute("data-route") ? main.dataset.route : location.pathname.split("/").pop().replace(/\.html$/, "");
-    const route = "/dashboard/alumni" + (r ? "/" + r : "");
+    const route = r.startsWith("/dashboard/alumni") ? r : "/dashboard/alumni" + (r ? "/" + r.replace(/^\/+/, "") : "");
     const shell = document.createElement("div");
     shell.setAttribute("x-data", "alumniLayout");
     shell.className = "flex min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]";
