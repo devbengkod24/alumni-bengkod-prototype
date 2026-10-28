@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../assets/css/style.css">
   <script src="../assets/js/store.js"></script>
   <script src="assets/js/koordinator.js"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
   <script src="../assets/js/main.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
@@ -22,16 +23,8 @@
     <button onclick="openForm()" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pengumuman</button>
   </div>
 
-  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead><tr>
-          <th class="th">Judul</th><th class="th">Untuk</th><th class="th">Status</th><th class="th">Dipublikasikan</th><th class="th text-right">Aksi</th>
-        </tr></thead>
-        <tbody id="rows"></tbody>
-      </table>
-    </div>
-  </section>
+  <!-- Daftar pengumuman, gaya kartu sama dengan halaman pengumuman alumni -->
+  <section id="rows" class="space-y-4" aria-label="Daftar pengumuman"></section>
 
 </main>
 
@@ -69,17 +62,31 @@
 
   function render() {
     document.getElementById('rows').innerHTML = KOOR.pengumuman.map(p => `
-      <tr class="tr">
-        <td class="td max-w-md"><div class="font-medium">${esc(p.judul)}</div><div class="text-xs text-neutral3 line-clamp-1">${esc(p.isi)}</div></td>
-        <td class="td">${badge(p.target)}</td>
-        <td class="td">${badge(p.published ? 'Terbit' : 'Draft')}</td>
-        <td class="td whitespace-nowrap">${fmtDate(p.published_at)}</td>
-        <td class="td"><div class="flex justify-end gap-1">
-          ${p.published ? '' : `<button class="btn-icon" onclick="publish(${p.id})" aria-label="Publikasikan" title="Publikasikan"><i data-lucide="send" class="w-4 h-4"></i></button>`}
-          <button class="btn-icon" onclick="openForm(${p.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-          <button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${p.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-        </div></td>
-      </tr>`).join('');
+      <article class="bg-white rounded-xl border border-neutral4 shadow-sm hover:border-primary4 transition-colors">
+        <div class="flex items-start gap-4 p-5">
+          <div class="w-11 h-11 rounded-xl ${p.published ? 'bg-primary1 text-white' : 'bg-neutral5 text-neutral3'} flex items-center justify-center shrink-0"><i data-lucide="bell" class="w-5 h-5"></i></div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-3">
+              <h3 class="text-base sm:text-[17px] font-semibold text-neutral1 leading-snug">${esc(p.judul)}</h3>
+              <div class="flex items-center gap-1 shrink-0 -mt-1 -mr-1">
+                ${p.published ? '' : `<button class="btn-icon" onclick="publish(${p.id})" aria-label="Publikasikan" title="Publikasikan"><i data-lucide="send" class="w-4 h-4"></i></button>`}
+                <button class="btn-icon" onclick="openForm(${p.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                <button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${p.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 mt-1 text-[13px] text-neutral3">
+              <span>${p.published ? fmtDate(p.published_at) : 'Belum dipublikasikan'}</span><span>·</span>
+              <span>Oleh ${esc(p.author || KOOR.user.name)}</span>
+              ${badge(p.target)}${p.published ? '' : badge('Draft')}
+            </div>
+            <p class="text-sm sm:text-[15px] text-neutral1 mt-2.5 leading-relaxed whitespace-pre-line">${esc(p.isi)}</p>
+          </div>
+        </div>
+      </article>`).join('')
+      || `<div class="bg-white rounded-xl border border-neutral4 p-12 text-center text-neutral3">
+            <i data-lucide="bell" class="w-10 h-10 mx-auto mb-3 text-neutral4"></i>
+            <p class="text-[15px] font-medium">Belum ada pengumuman</p>
+          </div>`;
     refreshIcons();
   }
 
@@ -100,7 +107,7 @@
     const list = KOOR.pengumuman;
     let p = list.find(x => x.id === +data.id);
     if (!p) {
-      p = { id: Date.now(), published: false, published_at: '' };
+      p = { id: Date.now(), published: false, published_at: '', author: KOOR.user.name };
       list.unshift(p);
     }
     Object.assign(p, { judul: data.judul, target: data.target, isi: data.isi });
