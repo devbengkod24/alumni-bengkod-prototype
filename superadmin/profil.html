@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan Profil | SuperAdmin Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
+  <script src="assets/js/superadmin.js"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Pengaturan Profil" class="space-y-6">
+
+  <!-- Banner identitas, gradien sama dengan koordinator dan dashboard -->
+  <section class="relative rounded-2xl overflow-hidden shadow-md text-white" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%);">
+    <span class="absolute -right-12 -top-12 w-48 h-48 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.06);"></span>
+    <span class="absolute right-24 -bottom-16 w-36 h-36 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.04);"></span>
+    <div class="relative z-10 px-5 sm:px-8 py-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div class="flex items-center gap-4 min-w-0">
+        <div class="relative shrink-0">
+          <div id="p-avatar" data-sa-avatar class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white/15 border-2 border-white/40 flex items-center justify-center text-xl sm:text-2xl font-bold"></div>
+          <label for="f-foto" title="Ganti foto profil" class="absolute -bottom-0.5 -right-0.5 w-8 h-8 rounded-full bg-white text-primary1 border-2 border-primary2 flex items-center justify-center cursor-pointer hover:bg-primary5 transition-colors focus-within:ring-4 focus-within:ring-white/40">
+            <i data-lucide="camera" class="w-4 h-4"></i>
+            <input id="f-foto" type="file" accept="image/png,image/jpeg,image/webp" class="sr-only" aria-label="Ganti foto profil">
+          </label>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-white/70">Super Administrator</p>
+          <h2 id="p-nama" class="text-xl sm:text-2xl font-bold leading-tight truncate"></h2>
+          <p id="p-email" class="text-sm text-white/80 truncate"></p>
+          <div class="mt-1.5 flex flex-wrap items-center gap-x-3 text-xs">
+            <span class="text-white/60">JPG, PNG, atau WEBP, maks. 1 MB</span>
+            <button id="btn-hapus-foto" type="button" class="hidden font-semibold text-white/90 underline underline-offset-2 hover:text-white">Hapus foto</button>
+          </div>
+          <p id="foto-error" class="hidden mt-1 text-xs font-medium text-red3" role="alert"></p>
+        </div>
+      </div>
+      <dl class="grid grid-cols-3 lg:flex lg:divide-x divide-white/20 gap-4 lg:gap-0 text-sm">
+        <div class="lg:px-6"><dt class="text-[10px] font-semibold uppercase tracking-wider text-white/60">Role Hak Akses</dt><dd id="p-role" class="mt-1 font-semibold whitespace-nowrap">SuperAdmin</dd></div>
+        <div class="lg:px-6"><dt class="text-[10px] font-semibold uppercase tracking-wider text-white/60">NIP / ID</dt><dd id="p-nip" class="mt-1 font-semibold whitespace-nowrap">-</dd></div>
+        <div class="lg:pl-6"><dt class="text-[10px] font-semibold uppercase tracking-wider text-white/60">Status Akun</dt><dd id="p-status" class="mt-1 font-semibold text-emerald-300">Aktif</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- Form Pengaturan Profil -->
+  <form id="form" class="bg-white rounded-xl border border-neutral4 elevation2" novalidate>
+    <div class="grid grid-cols-1 lg:grid-cols-2 lg:divide-x divide-neutral4">
+      <fieldset class="p-5 sm:p-6 space-y-4">
+        <div class="flex items-center gap-3 mb-1">
+          <span class="w-9 h-9 rounded-lg bg-primary5 text-primary1 flex items-center justify-center shrink-0"><i data-lucide="user-round" class="w-[18px] h-[18px]"></i></span>
+          <div>
+            <h3 class="text-base font-semibold text-neutral1">Informasi Akun</h3>
+            <p class="text-xs text-neutral3">Nama dan email resmi administrator utama Bengkel Koding.</p>
+          </div>
+        </div>
+        <div>
+          <label for="f-nama" class="label">Nama Administrator</label>
+          <input id="f-nama" name="nama" class="input" required maxlength="120">
+        </div>
+        <div>
+          <label for="f-email" class="label">Email Administrator</label>
+          <input id="f-email" name="email" type="email" class="input" required>
+        </div>
+        <div>
+          <label for="f-nip" class="label">NIP / NIK Administrator</label>
+          <input id="f-nip" name="nip" class="input" placeholder="198204152008121001">
+        </div>
+        <div>
+          <label for="f-telepon" class="label">Nomor Telepon / WhatsApp</label>
+          <input id="f-telepon" name="telepon" class="input" placeholder="0812-3456-7890">
+        </div>
+      </fieldset>
+
+      <fieldset class="p-5 sm:p-6 space-y-4 border-t lg:border-t-0 border-neutral4">
+        <div class="flex items-center gap-3 mb-1">
+          <span class="w-9 h-9 rounded-lg bg-yellow3 text-yellow1 flex items-center justify-center shrink-0"><i data-lucide="key-round" class="w-[18px] h-[18px]"></i></span>
+          <div>
+            <h3 class="text-base font-semibold text-neutral1">Keamanan</h3>
+            <p class="text-xs text-neutral3">Kosongkan jika tidak ingin mengubah password akun SuperAdmin.</p>
+          </div>
+        </div>
+        <div>
+          <label for="f-password" class="label">Password Baru</label>
+          <input id="f-password" name="password" type="password" class="input" minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter">
+        </div>
+        <div>
+          <label for="f-konfirmasi" class="label">Konfirmasi Password</label>
+          <input id="f-konfirmasi" name="konfirmasi" type="password" class="input" autocomplete="new-password" placeholder="Ulangi password baru">
+        </div>
+        <p id="f-error" class="text-sm text-red1 hidden" role="alert"></p>
+      </fieldset>
+    </div>
+
+    <div class="flex justify-end gap-2 px-5 sm:px-6 py-4 border-t border-neutral4 bg-neutral5/60 rounded-b-xl">
+      <a href="index.html" class="btn-outline">Batal</a>
+      <button type="submit" class="btn-primary">Simpan Perubahan</button>
+    </div>
+  </form>
+
+</main>
+
+<script>
+  const form = document.getElementById('form');
+  const errorEl = document.getElementById('f-error');
+
+  function render() {
+    const u = SUPERADMIN.user;
+    const avatarEl = document.getElementById('p-avatar');
+    if (avatarEl) {
+      avatarEl.innerHTML = u.foto
+        ? `<img src="${esc(u.foto)}" alt="" class="w-full h-full object-cover">`
+        : ((u.name || 'SA').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA');
+    }
+    const btnHapus = document.getElementById('btn-hapus-foto');
+    if (btnHapus) btnHapus.classList.toggle('hidden', !u.foto);
+
+    document.getElementById('p-nama').textContent = u.name || 'Super Admin';
+    document.getElementById('p-email').textContent = u.email || 'superadmin@dinus.ac.id';
+    document.getElementById('p-nip').textContent = u.nip || '198204152008121001';
+
+    form.elements.nama.value = u.name || '';
+    form.elements.email.value = u.email || '';
+    form.elements.nip.value = u.nip || '';
+    form.elements.telepon.value = u.telepon || '';
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const d = Object.fromEntries(new FormData(form));
+    const gagal = !d.nama.trim() || !form.elements.email.checkValidity() ? 'Nama dan email resmi wajib diisi dengan benar.'
+      : d.password && d.password.length < 8 ? 'Password baru minimal 8 karakter.'
+      : d.password !== d.konfirmasi ? 'Konfirmasi password tidak sama.' : '';
+    errorEl.textContent = gagal;
+    errorEl.classList.toggle('hidden', !gagal);
+    if (gagal) return;
+
+    const u = { ...SUPERADMIN.user };
+    u.name = d.nama.trim();
+    u.email = d.email.trim();
+    u.nip = d.nip.trim() || '198204152008121001';
+    u.telepon = d.telepon.trim();
+    if (d.password) {
+      u.password = d.password;
+    }
+    SUPERADMIN.user = u;
+
+    addActivityLog('Perbarui Profil', `Memperbarui data profil SuperAdmin (${u.name})`);
+    if (typeof showToast === 'function') {
+      showToast('Profil SuperAdmin berhasil diperbarui.', 'success');
+    }
+    setTimeout(() => location.reload(), 600);
+  });
+
+  // Foto profil langsung disimpan (data URL di localStorage, maksimal 1 MB)
+  const fotoError = document.getElementById('foto-error');
+  function simpanFoto(foto) {
+    const u = { ...SUPERADMIN.user, foto };
+    SUPERADMIN.user = u;
+    addActivityLog('Foto Profil', foto ? 'Mengubah foto profil SuperAdmin' : 'Menghapus foto profil SuperAdmin');
+    render();
+    if (typeof showToast === 'function') {
+      showToast(foto ? 'Foto profil berhasil diperbarui.' : 'Foto profil dihapus.', 'success');
+    }
+    setTimeout(() => location.reload(), 600);
+  }
+
+  document.getElementById('f-foto').addEventListener('change', e => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file) return;
+    const gagal = !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) ? 'Berkas harus berupa gambar JPG, PNG, atau WEBP.'
+      : file.size > 1024 * 1024 ? 'Ukuran foto maksimal 1 MB.' : '';
+    fotoError.textContent = gagal;
+    fotoError.classList.toggle('hidden', !gagal);
+    if (gagal) return;
+    const reader = new FileReader();
+    reader.onload = () => simpanFoto(reader.result);
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('btn-hapus-foto').addEventListener('click', () => {
+    confirmAction({
+      title: 'Hapus foto profil?',
+      message: 'Avatar akan kembali menampilkan inisial nama SuperAdmin.',
+      okLabel: 'Hapus',
+      danger: true
+    }, () => simpanFoto(null));
+  });
+
+  render();
+</script>
+</body>
+</html>
