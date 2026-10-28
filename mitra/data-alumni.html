@@ -30,7 +30,7 @@
       <i data-lucide="shield-check" class="w-5 h-5"></i>
     </div>
     <div class="text-sm text-neutral1 flex-1">
-      <strong class="text-primary1 font-bold">Akses Data Alumni & CV Resmi:</strong> Menampilkan profil alumni purna tugas Bengkel Koding UDINUS mencakup <strong>Nama, Status Pekerjaan (Mencari Pekerjaan / Sudah Bekerja), Jenis Pekerjaan (Fulltime/Parttime), Gender, Email, Telepon, Tahun Lulus, dan NIM</strong>. Mitra dapat langsung melihat dokumen CV alumni terverifikasi dengan jejak audit log otomatis.
+      <strong class="text-primary1 font-bold">Akses Data Alumni & CV Resmi:</strong> Menampilkan profil alumni purna tugas Bengkel Koding UDINUS mencakup <strong>Nama, Status Pekerjaan (Mencari Pekerjaan / Sudah Bekerja), Jenis Pekerjaan (Fulltime/Parttime), Gender, Email, Telepon, Tahun Lulus, dan NIM</strong>. Mitra dapat langsung melihat dokumen CV alumni dengan informasi riwayat dan waktu terakhir CV dilihat yang terpantau real-time pada setiap card alumni.
     </div>
   </div>
 
@@ -109,6 +109,7 @@
             <th class="th">Jenis Pekerjaan</th>
             <th class="th">Tahun Lulus</th>
             <th class="th">Kontak (Email & Telp)</th>
+            <th class="th">Riwayat Akses CV</th>
             <th class="th">Keahlian</th>
             <th class="th text-center">Aksi Langsung</th>
           </tr>
@@ -204,6 +205,57 @@ function getGenderBadge(gender) {
   return badge(gender);
 }
 
+function renderCvAccessBox(alumniId) {
+  const info = getAlumniCvAccessInfo(alumniId);
+  info.alumniId = alumniId;
+  return renderCvAccessBoxContent(info);
+}
+
+function renderCvAccessBoxContent(info) {
+  const lastViewText = info.hasViewed
+    ? `Terakhir dilihat ${fmtDateTime(info.lastViewed)}`
+    : `Belum pernah dilihat`;
+
+  return `
+  <div id="cv-history-box-${info.alumniId}" class="mb-3 text-xs text-neutral3 flex items-center gap-1.5">
+    <i data-lucide="clock" class="w-3.5 h-3.5 text-neutral3 shrink-0"></i>
+    <span>Riwayat Akses CV: <strong class="text-neutral1 font-medium">${lastViewText}</strong></span>
+  </div>`;
+}
+
+function renderCvAccessTableCell(alumniId) {
+  const info = typeof alumniId === 'object' ? alumniId : getAlumniCvAccessInfo(alumniId);
+  if (!info.hasViewed) {
+    return `<span class="text-xs text-neutral3">Belum pernah dilihat</span>`;
+  }
+  return `<span class="text-xs text-neutral1 font-medium">${fmtDateTime(info.lastViewed)}</span>`;
+}
+
+function updateCvAccessHistoryDOM(alumniId) {
+  const info = getAlumniCvAccessInfo(alumniId);
+  info.alumniId = alumniId;
+
+  // 1. Update text di Card
+  const cardBox = document.getElementById(`cv-history-box-${alumniId}`);
+  if (cardBox) {
+    cardBox.outerHTML = renderCvAccessBoxContent(info);
+  }
+
+  // 2. Update cell di Tabel
+  const tableCell = document.getElementById(`cv-history-table-${alumniId}`);
+  if (tableCell) {
+    tableCell.innerHTML = renderCvAccessTableCell(info);
+  }
+
+  // 3. Update text di Modal Detail jika terbuka
+  const modalBox = document.getElementById(`cv-history-modal-${alumniId}`);
+  if (modalBox) {
+    modalBox.innerHTML = renderCvAccessBoxContent(info);
+  }
+
+  refreshIcons();
+}
+
 function renderGrid(list) {
   const container = document.getElementById('view-grid');
   if (!list.length) { container.innerHTML = ''; return; }
@@ -287,9 +339,12 @@ function renderGrid(list) {
             ${a.skill.map(s => `<span class="px-2 py-0.5 bg-primary5/60 text-primary1 text-xs rounded-md font-medium border border-primary4/40">${esc(s)}</span>`).join('')}
           </div>
         </div>
+
+        <!-- 5. Riwayat Akses Dokumen CV -->
+        ${renderCvAccessBox(a.id)}
       </div>
 
-      <!-- 5. Tombol Aksi: Lihat CV Langsung & Detail Profil -->
+      <!-- 6. Tombol Aksi: Lihat CV Langsung & Detail Profil -->
       <div class="pt-3 border-t border-neutral4/80 flex items-center gap-2">
         <button onclick="openAlumniDetail(${a.id})" class="btn-outline flex-1 py-2 text-xs font-semibold focus:ring-2 focus:ring-primary3">
           <i data-lucide="user" class="w-3.5 h-3.5"></i>
@@ -350,6 +405,10 @@ function renderTable(list) {
             <a href="tel:${esc(a.telepon)}" class="hover:underline">${esc(a.telepon)}</a>
           </div>
         </div>
+      </td>
+      <!-- Riwayat Akses CV -->
+      <td class="td" id="cv-history-table-${a.id}">
+        ${renderCvAccessTableCell(a.id)}
       </td>
       <!-- Keahlian -->
       <td class="td">
@@ -427,7 +486,8 @@ let currentDirectCvAlumni = null;
 function downloadOrPrintCV() {
   if (currentDirectCvAlumni) {
     logCvAccess(currentDirectCvAlumni.id, currentDirectCvAlumni.nama, 'Mengunduh CV (PDF)', { nim: currentDirectCvAlumni.nim });
-    showToast(`Aktivitas unduh CV ${currentDirectCvAlumni.nama} dicatat ke audit log.`, 'success');
+    updateCvAccessHistoryDOM(currentDirectCvAlumni.id);
+    showToast(`Aktivitas unduh CV ${currentDirectCvAlumni.nama} dicatat ke riwayat akses.`, 'success');
   }
   window.print();
 }
@@ -440,7 +500,10 @@ function viewCVDirect(id) {
 
   // Catat audit log akses CV
   logCvAccess(a.id, a.nama, 'Melihat CV', { nim: a.nim });
-  showToast(`CV ${a.nama} berhasil dibuka. Jejak audit telah dicatat.`, 'success');
+  showToast(`CV ${a.nama} berhasil dibuka. Riwayat akses CV telah diperbarui.`, 'success');
+
+  // Perbarui waktu akses langsung di card tanpa reload halaman
+  updateCvAccessHistoryDOM(a.id);
 
   const gender = a.gender || 'Laki-laki';
   const jenis = a.jenis_pekerjaan || 'Full Time';
@@ -643,6 +706,12 @@ function openAlumniDetail(id) {
         <div class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-1.5">Ringkasan Profil</div>
         <div class="p-3 bg-neutral5 rounded-xl text-xs text-neutral1 leading-relaxed border border-neutral4/60">${esc(a.bio)}</div>
       </div>` : ''}
+      <div>
+        <div class="text-xs font-bold text-neutral3 uppercase tracking-wider mb-2">Riwayat Akses Dokumen CV</div>
+        <div id="cv-history-modal-${a.id}">
+          ${renderCvAccessBox(a.id)}
+        </div>
+      </div>
       <div class="flex gap-3 pt-3 border-t border-neutral4">
         <button onclick="closeModal('modal-alumni')" class="btn-outline flex-1 py-2 text-xs font-semibold">Tutup</button>
         <button onclick="closeModal('modal-alumni');viewCVDirect(${a.id})" class="btn-primary flex-1 py-2 text-xs font-semibold bg-primary1 hover:bg-primary2">
