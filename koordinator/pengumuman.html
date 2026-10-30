@@ -39,14 +39,28 @@
         <input id="f-judul" name="judul" class="input" required maxlength="120" placeholder="Contoh: Pengisian Tracer Study 2025">
       </div>
       <div>
-        <label for="f-target" class="label">Ditujukan untuk</label>
+        <label for="f-target" class="label">Sasaran Penerima</label>
         <select id="f-target" name="target" class="input">
-          <option>Alumni</option><option>Mitra</option><option>Alumni & Mitra</option>
+          <option value="Semua">Semua (Alumni & Mitra)</option>
+          <option value="Alumni">Alumni</option>
+          <option value="Mitra">Mitra</option>
+          <option value="Mitra & Alumni">Mitra & Alumni</option>
         </select>
       </div>
       <div>
         <label for="f-isi" class="label">Isi pengumuman</label>
         <textarea id="f-isi" name="isi" rows="5" class="input" required></textarea>
+      </div>
+      <div>
+        <label for="f-lampiran" class="label">Lampiran Dokumen <span class="text-xs text-neutral3 font-normal">(Opsional)</span></label>
+        <div class="flex gap-2">
+          <input id="f-lampiran" name="lampiran" class="input flex-1" placeholder="Contoh: Panduan_Tracer_Study.pdf">
+          <label class="btn-outline cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>Pilih</span>
+            <input type="file" class="hidden" onchange="if(this.files[0]) document.getElementById('f-lampiran').value = this.files[0].name;">
+          </label>
+        </div>
       </div>
     </div>
     <div class="mt-6 flex flex-wrap justify-end gap-2">
@@ -76,10 +90,17 @@
             </div>
             <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 mt-1 text-[13px] text-neutral3">
               <span>${p.published ? fmtDate(p.published_at) : 'Belum dipublikasikan'}</span><span>·</span>
-              <span>Oleh ${esc(p.author || KOOR.user.name)}</span>
+              <span>Oleh ${esc(p.author || KOOR.user.name)} ${p.author_role ? `<span class="text-xs text-neutral3 font-normal">(${esc(p.author_role)})</span>` : ''}</span>
               ${badge(p.target)}${p.published ? '' : badge('Draft')}
             </div>
             <p class="text-sm sm:text-[15px] text-neutral1 mt-2.5 leading-relaxed whitespace-pre-line">${esc(p.isi)}</p>
+            ${p.lampiran ? `
+              <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral5 text-neutral1 border border-neutral4/80">
+                <i data-lucide="paperclip" class="w-3.5 h-3.5 text-primary1"></i>
+                <span class="font-medium">${esc(p.lampiran)}</span>
+                <span class="text-[11px] text-neutral3">· Lampiran</span>
+              </div>
+            ` : ''}
           </div>
         </div>
       </article>`).join('')
@@ -94,9 +115,9 @@
     const p = KOOR.pengumuman.find(x => x.id === id);
     form.reset();
     document.getElementById('form-title').textContent = p ? 'Edit Pengumuman' : 'Buat Pengumuman';
-    if (p) ['id', 'judul', 'target', 'isi'].forEach(k => form.elements[k].value = p[k]);
-    // Target 'Semua' (data SuperAdmin) tidak ada di pilihan; di store setara 'Alumni & Mitra'
-    if (p?.target === 'Semua') form.elements.target.value = 'Alumni & Mitra';
+    if (p) ['id', 'judul', 'target', 'isi', 'lampiran'].forEach(k => {
+      if (form.elements[k]) form.elements[k].value = p[k] || '';
+    });
     openModal('form-modal');
   }
 
@@ -107,10 +128,16 @@
     const list = KOOR.pengumuman;
     let p = list.find(x => x.id === +data.id);
     if (!p) {
-      p = { id: Date.now(), published: false, published_at: '', author: KOOR.user.name };
+      p = { id: Date.now(), published: false, published_at: '', author: KOOR.user.name, author_role: 'Koordinator' };
       list.unshift(p);
     }
-    Object.assign(p, { judul: data.judul, target: data.target, isi: data.isi });
+    Object.assign(p, {
+      judul: data.judul,
+      target: data.target,
+      isi: data.isi,
+      lampiran: data.lampiran || '',
+      author_role: p.author_role || 'Koordinator'
+    });
     KOOR.pengumuman = list;
     closeModal('form-modal');
     if (publishNow && !p.published) return publish(p.id);

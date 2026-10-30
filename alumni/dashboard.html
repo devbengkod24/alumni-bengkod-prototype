@@ -622,30 +622,16 @@
         </div>
 
         <div class="divide-y divide-gray-100 border-t border-gray-100">
-          <a href="pengumuman.html#pengumuman-1" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
-            <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Jadwal Pelepasan Alumni Angkatan 2024</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#1E3A8A]">Informasi</span>
-            </div>
-            <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Rangkaian agenda wisuda dan pelepasan resmi alumni Bengkel Koding angkatan 2024 di Gedung Serbaguna UDINUS.</p>
-            <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 24 Okt 2025</p>
-          </a>
-          <a href="pengumuman.html#pengumuman-2" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
-            <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Pengisian Data Alumni Terbaru</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-red-50 text-red-600">Pemberitahuan</span>
-            </div>
-            <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Perbarui profil, keahlian, dan tracer study paling lambat 10 November 2025 untuk pendataan karier lulusan.</p>
-            <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 21 Okt 2025</p>
-          </a>
-          <a href="pengumuman.html#pengumuman-3" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
-            <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Workshop UI/UX Bersama Tokopedia</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#1E3A8A]">Informasi</span>
-            </div>
-            <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Sesi berbagi wawasan seputar product design dan best practice industri teknologi. Kuota 50 peserta.</p>
-            <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 17 Okt 2025</p>
-          </a>
+          <template x-for="p in announcements" :key="p.id">
+            <a :href="'pengumuman.html#pengumuman-' + p.id" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
+              <div class="flex items-start justify-between gap-3">
+                <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline" x-text="p.title"></h4>
+                <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#1E3A8A]" x-text="p.role || 'Informasi'"></span>
+              </div>
+              <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2" x-text="p.content"></p>
+              <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500" x-text="p.author"></span> <span class="mx-1">·</span> <span x-text="p.time"></span></p>
+            </a>
+          </template>
         </div>
       </div>
     </div><!-- end kolom samping -->
@@ -1045,10 +1031,13 @@
         pmContent: "",
         pmImageUrl: "",
         pmVisibility: "Semua orang",
+        announcements: [],
 
         init() {
           this.muat();
+          this.muatPengumuman();
           window.addEventListener("bengkod_posts_updated", () => this.muat());
+          window.addEventListener("bengkod:pengumuman-updated", () => this.muatPengumuman());
           try {
             const saved = localStorage.getItem("bengkod_alumni_profile");
             if (saved) {
@@ -1113,6 +1102,20 @@
             if (baru.length) comments[p.id] = [...ada, ...baru];
           });
           this.comments = comments;
+        },
+        muatPengumuman() {
+          if (window.BengkodStore) {
+            const list = window.BengkodStore.getPengumuman('Alumni');
+            this.announcements = list.slice(0, 3).map((p) => ({
+              id: p.id,
+              title: p.judul || p.title,
+              content: p.isi || p.content,
+              author: p.author || 'Koordinator Bengkel Koding',
+              role: p.author_role || (p.author?.includes('PT') || p.author?.includes('CV') ? 'Mitra' : 'Koordinator'),
+              time: p.published_at ? new Date(p.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Terbaru',
+              target: p.target
+            }));
+          }
         },
         // Tulis balik: post forum (id < 0) ke BengkodStore, sisanya ke penyimpanan alumni
         simpan() {

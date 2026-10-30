@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pengumuman | Portal Mitra Bengkel Koding</title>
-  <meta name="description" content="Daftar pengumuman dari koordinator alumni Bengkel Koding untuk mitra perusahaan.">
+  <meta name="description" content="Kelola pengumuman mitra dan informasi resmi dari koordinator alumni Bengkel Koding.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
@@ -17,15 +17,21 @@
 <main data-title="Pengumuman">
 
   <!-- ── HEADER ── -->
-  <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-gray-200">
     <div>
       <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Pengumuman</h1>
-      <p class="text-sm text-gray-500 mt-0.5">Informasi resmi dari koordinator Bengkel Koding</p>
+      <p class="text-sm text-gray-500 mt-0.5">Kelola pengumuman perusahaan Anda dan pantau informasi resmi Bengkel Koding</p>
     </div>
+    <button onclick="openForm()" class="btn-primary shrink-0"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pengumuman</button>
   </div>
 
+  <!-- ── FILTER TAB ── -->
+  <div class="flex items-center gap-2 border-b border-gray-200">
+    <button id="tab-semua" onclick="setTab('semua')" class="px-4 py-2.5 text-sm font-semibold border-b-2 border-primary1 text-primary1 transition-colors">Semua Pengumuman</button>
+    <button id="tab-saya" onclick="setTab('saya')" class="px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors">Pengumuman Saya</button>
+  </div>
 
-  <!-- ── DAFTAR PENGUMUMAN (LANGSUNG JUDUL, TANGGAL & DESKRIPSI) ── -->
+  <!-- ── DAFTAR PENGUMUMAN ── -->
   <div class="space-y-4">
     <div id="pengumuman-list" class="space-y-4"></div>
 
@@ -35,20 +41,64 @@
         <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
         <path d="M13.73 21a2 2 0 01-3.46 0"/>
       </svg>
-      <p class="text-[15px] font-medium text-gray-500">Tidak ada pengumuman ditemukan</p>
+      <p id="empty-text" class="text-[15px] font-medium text-gray-500">Tidak ada pengumuman ditemukan</p>
     </div>
   </div>
 
 </main>
 
-<!-- Modal Detail Pengumuman (Backward-compatibility) -->
-<div id="modal-pengumuman" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
+<!-- Modal Buat / Edit Pengumuman -->
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-lg" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4">Buat Pengumuman Baru</h3>
+    <input type="hidden" name="id">
+    <div class="space-y-4">
+      <div>
+        <label for="f-judul" class="label">Judul Pengumuman</label>
+        <input id="f-judul" name="judul" class="input" required maxlength="120" placeholder="Contoh: Open Recruitment Batch Ganjil 2026/2027">
+      </div>
+      <div>
+        <label for="f-target" class="label">Sasaran Penerima</label>
+        <select id="f-target" name="target" class="input">
+          <option value="Semua">Semua (Mitra & Alumni)</option>
+          <option value="Mitra & Alumni">Mitra & Alumni</option>
+          <option value="Alumni">Alumni Saja</option>
+        </select>
+        <p class="text-[11px] text-neutral3 mt-1">Pilih pihak yang dapat melihat pengumuman ini di portal mereka.</p>
+      </div>
+      <div>
+        <label for="f-isi" class="label">Isi Pengumuman</label>
+        <textarea id="f-isi" name="isi" rows="5" class="input" required placeholder="Tuliskan detail informasi, kualifikasi, atau pengumuman resmi perusahaan Anda..."></textarea>
+      </div>
+      <div>
+        <label for="f-lampiran" class="label">Lampiran Dokumen <span class="text-xs text-neutral3 font-normal">(Opsional)</span></label>
+        <div class="flex gap-2">
+          <input id="f-lampiran" name="lampiran" class="input flex-1" placeholder="Contoh: Kualifikasi_Rekrutmen.pdf">
+          <label class="btn-outline cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+            <span>Pilih</span>
+            <input type="file" class="hidden" onchange="if(this.files[0]) document.getElementById('f-lampiran').value = this.files[0].name;">
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 flex flex-wrap justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" value="draft" class="btn-outline">Simpan Draf</button>
+      <button type="submit" value="publish" class="btn-primary">Publikasikan</button>
+    </div>
+  </form>
+</div>
+
+<!-- Modal Detail Pengumuman -->
+<div id="modal-pengumuman" data-modal-backdrop class="modal-backdrop">
   <div class="bg-white rounded-2xl max-w-lg w-full p-6 elevation5">
     <div class="flex items-start justify-between gap-4 mb-4">
       <div id="modal-p-header" class="min-w-0"></div>
       <button onclick="closeModal('modal-pengumuman')" class="btn-icon shrink-0"><i data-lucide="x" class="w-5 h-5"></i></button>
     </div>
     <p id="modal-p-isi" class="text-sm text-neutral2 leading-relaxed whitespace-pre-wrap"></p>
+    <div id="modal-p-attachment" class="mt-4"></div>
     <div class="mt-5 flex justify-end">
       <button onclick="closeModal('modal-pengumuman')" class="btn-primary">Tutup</button>
     </div>
@@ -56,8 +106,21 @@
 </div>
 
 <script>
+let currentTab = 'semua';
+const form = document.getElementById('form');
+
+function getCompanyName() {
+  return (MITRA && MITRA.profil && MITRA.profil.nama_perusahaan) || 'PT Solusi Digital Jateng';
+}
+
+function isOwnAnnouncement(p) {
+  const company = getCompanyName().toLowerCase();
+  const author = (p.author || '').toLowerCase();
+  return p.author_role === 'Mitra' || author === company;
+}
+
 function formatAnnouncementDate(val) {
-  if (!val) return '';
+  if (!val) return 'Belum dipublikasikan';
   if (isNaN(Date.parse(val)) && typeof val === 'string' && val.includes(' ')) return val;
   try {
     const d = new Date(val);
@@ -68,74 +131,223 @@ function formatAnnouncementDate(val) {
   return val;
 }
 
+function setTab(tab) {
+  currentTab = tab;
+  const tabSemua = document.getElementById('tab-semua');
+  const tabSaya = document.getElementById('tab-saya');
+  if (tab === 'semua') {
+    tabSemua.className = 'px-4 py-2.5 text-sm font-semibold border-b-2 border-primary1 text-primary1 transition-colors';
+    tabSaya.className = 'px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors';
+  } else {
+    tabSaya.className = 'px-4 py-2.5 text-sm font-semibold border-b-2 border-primary1 text-primary1 transition-colors';
+    tabSemua.className = 'px-4 py-2.5 text-sm font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors';
+  }
+  loadAndRender();
+}
+
+function loadAndRender() {
+  const all = window.BengkodStore ? window.BengkodStore.getPengumuman('Mitra', getCompanyName()) : (MITRA.pengumuman || []);
+  let items = all;
+  if (currentTab === 'saya') {
+    items = all.filter(p => isOwnAnnouncement(p));
+  }
+  renderPengumuman(items);
+}
+
 function renderPengumuman(list) {
   const container = document.getElementById('pengumuman-list');
   const empty = document.getElementById('empty-state');
+  const emptyText = document.getElementById('empty-text');
   if (!container || !empty) return;
 
   const items = list || [];
   empty.classList.toggle('hidden', items.length > 0);
+  if (emptyText) {
+    emptyText.textContent = currentTab === 'saya' ? 'Anda belum membuat pengumuman' : 'Tidak ada pengumuman ditemukan';
+  }
 
   container.innerHTML = items.map((p) => {
     const title = p.judul || p.title || 'Pengumuman';
     const content = p.isi || p.content || '';
     const dateFormatted = formatAnnouncementDate(p.published_at || p.time);
     const target = p.target ? esc(p.target) : '';
+    const author = esc(p.author || getCompanyName());
+    const role = p.author_role || (isOwnAnnouncement(p) ? 'Mitra' : 'Koordinator');
+    const isOwn = isOwnAnnouncement(p);
 
     return `
-      <div
+      <article
         id="pengumuman-${p.id}"
         class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-blue-200"
       >
         <div class="flex items-start gap-4 p-5">
           <!-- Icon lonceng (Biru #1E3A8A seragam dengan alumni) -->
-          <div class="w-11 h-11 rounded-xl bg-[#1E3A8A] flex items-center justify-center flex-shrink-0 text-white shadow-xs">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-              <path d="M13.73 21a2 2 0 01-3.46 0"/>
-            </svg>
+          <div class="w-11 h-11 rounded-xl ${p.published ? 'bg-[#1E3A8A] text-white' : 'bg-neutral5 text-neutral3'} flex items-center justify-center flex-shrink-0 shadow-xs">
+            <i data-lucide="bell" class="w-5 h-5"></i>
           </div>
 
           <div class="flex-1 min-w-0">
-            <!-- Judul -->
-            <h2 class="text-[16px] sm:text-[17px] font-semibold text-gray-900 leading-snug">${esc(title)}</h2>
-            <!-- Tanggal & Target -->
-            <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+            <!-- Judul & Aksi -->
+            <div class="flex items-start justify-between gap-3">
+              <h2 class="text-[16px] sm:text-[17px] font-semibold text-gray-900 leading-snug cursor-pointer hover:text-primary1" onclick="openPengumumanDetail(${p.id})">${esc(title)}</h2>
+              ${isOwn ? `
+                <div class="flex items-center gap-1 shrink-0 -mt-1 -mr-1">
+                  ${!p.published ? `<button class="btn-icon text-primary1 hover:bg-primary5" onclick="publishPengumuman(${p.id})" aria-label="Publikasikan" title="Publikasikan"><i data-lucide="send" class="w-4 h-4"></i></button>` : ''}
+                  <button class="btn-icon" onclick="openForm(${p.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+                  <button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapusPengumuman(${p.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Meta info: Tanggal, Sasaran & Pembuat -->
+            <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 mt-1 text-[13px] text-gray-500">
               <span>${esc(dateFormatted)}</span>
-              ${target ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-600">${target}</span>` : ''}
-            </p>
+              <span>·</span>
+              <span>Oleh <strong class="font-medium text-neutral2">${author}</strong> <span class="text-xs text-neutral3">(${role})</span></span>
+              ${target ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">${target}</span>` : ''}
+              ${isOwn ? (p.published ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-green3 text-green1 border border-green2/30">Dipublikasikan</span>` : `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-neutral5 text-neutral2 border border-neutral4">Draf</span>`) : ''}
+            </div>
+
             <!-- Deskripsi Langsung -->
             <p class="text-[14px] sm:text-[15px] text-gray-700 mt-2.5 leading-relaxed whitespace-pre-line">${esc(content)}</p>
+
+            <!-- Lampiran Dokumen jika ada -->
+            ${p.lampiran ? `
+              <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-primary1 border border-blue-200/80 hover:bg-blue-100/60 transition-colors cursor-pointer" onclick="openPengumumanDetail(${p.id})">
+                <i data-lucide="paperclip" class="w-3.5 h-3.5 text-primary1"></i>
+                <span class="font-medium">${esc(p.lampiran)}</span>
+                <span class="text-[11px] text-primary3">· Lampiran</span>
+              </div>
+            ` : ''}
           </div>
         </div>
-      </div>
+      </article>
     `;
   }).join('');
 
   if (window.lucide) window.lucide.createIcons();
 }
 
+function openForm(id) {
+  form.reset();
+  const all = window.BengkodStore ? window.BengkodStore.getPengumuman() : (MITRA.pengumuman || []);
+  const p = id ? all.find(x => x.id === id) : null;
+  document.getElementById('form-title').textContent = p ? 'Edit Pengumuman' : 'Buat Pengumuman Baru';
+  if (p) {
+    ['id', 'judul', 'target', 'isi', 'lampiran'].forEach(k => {
+      if (form.elements[k]) form.elements[k].value = p[k] || '';
+    });
+  }
+  openModal('form-modal');
+  if (window.lucide) window.lucide.createIcons();
+}
+
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form));
+  const publishNow = e.submitter.value === 'publish';
+  const company = getCompanyName();
+
+  if (data.id) {
+    if (window.BengkodStore) {
+      window.BengkodStore.updatePengumuman(+data.id, {
+        judul: data.judul,
+        target: data.target,
+        isi: data.isi,
+        lampiran: data.lampiran || '',
+        published: publishNow,
+        status: publishNow ? 'Dipublikasikan' : 'Draf',
+      });
+    }
+  } else {
+    if (window.BengkodStore) {
+      window.BengkodStore.addPengumuman({
+        judul: data.judul,
+        target: data.target,
+        isi: data.isi,
+        lampiran: data.lampiran || '',
+        author: company,
+        author_role: 'Mitra',
+        published: publishNow,
+        status: publishNow ? 'Dipublikasikan' : 'Draf',
+      });
+    }
+  }
+
+  closeModal('form-modal');
+  loadAndRender();
+  if (window.showToast) window.showToast(publishNow ? 'Pengumuman berhasil dipublikasikan.' : 'Pengumuman disimpan sebagai draf.');
+});
+
+function publishPengumuman(id) {
+  if (window.BengkodStore) {
+    window.BengkodStore.updatePengumuman(id, { published: true, status: 'Dipublikasikan' });
+  }
+  loadAndRender();
+  if (window.showToast) window.showToast('Pengumuman berhasil dipublikasikan.');
+}
+
+function hapusPengumuman(id) {
+  const all = window.BengkodStore ? window.BengkodStore.getPengumuman() : (MITRA.pengumuman || []);
+  const p = all.find(x => x.id === id);
+  if (!p) return;
+  confirmAction({
+    title: 'Hapus pengumuman?',
+    message: `"${p.judul}" akan dihapus permanen.`,
+    okLabel: 'Hapus',
+    danger: true
+  }, () => {
+    if (window.BengkodStore) {
+      window.BengkodStore.deletePengumuman(id);
+    }
+    loadAndRender();
+    if (window.showToast) window.showToast('Pengumuman dihapus.');
+  });
+}
+
 function openPengumumanDetail(id) {
-  const list = MITRA.pengumuman || [];
-  const p = list.find(x => x.id === id);
+  const all = window.BengkodStore ? window.BengkodStore.getPengumuman() : (MITRA.pengumuman || []);
+  const p = all.find(x => x.id === id);
   if (!p) return;
   const title = p.judul || p.title || '';
   const dateFormatted = formatAnnouncementDate(p.published_at || p.time);
-  const oleh = p.oleh || p.author || 'Koordinator Alumni';
+  const oleh = p.author || 'Koordinator Alumni';
+  const role = p.author_role || (isOwnAnnouncement(p) ? 'Mitra' : 'Koordinator');
 
   document.getElementById('modal-p-header').innerHTML = `
-    <div class="text-xs font-semibold text-primary3 mb-1">PENGUMUMAN</div>
+    <div class="text-xs font-semibold text-primary3 mb-1">PENGUMUMAN ${p.target ? `· ${esc(p.target).toUpperCase()}` : ''}</div>
     <h3 class="font-semibold text-lg text-neutral1">${esc(title)}</h3>
     <div class="flex flex-wrap gap-2 mt-2">
-      ${p.target ? `<span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border bg-gray-100 text-gray-700 border-gray-200">${esc(p.target)}</span>` : ''}
-      <span class="text-xs text-neutral3">${esc(dateFormatted)} · Oleh: ${esc(oleh)}</span>
+      <span class="text-xs text-neutral3">${esc(dateFormatted)} · Oleh: <strong>${esc(oleh)}</strong> (${esc(role)})</span>
     </div>`;
   document.getElementById('modal-p-isi').textContent = p.isi || p.content || '';
+
+  const attachEl = document.getElementById('modal-p-attachment');
+  if (p.lampiran) {
+    attachEl.innerHTML = `
+      <div class="p-3 bg-neutral5 rounded-xl border border-neutral4 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <i data-lucide="file-text" class="w-5 h-5 text-primary1 shrink-0"></i>
+          <div class="min-w-0">
+            <p class="text-xs font-semibold text-neutral1 truncate">${esc(p.lampiran)}</p>
+            <p class="text-[11px] text-neutral3">Lampiran resmi</p>
+          </div>
+        </div>
+        <button type="button" class="btn-outline !py-1 !px-2.5 !text-xs shrink-0" onclick="alert('Mengunduh lampiran: ${esc(p.lampiran)}')">
+          <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh
+        </button>
+      </div>`;
+  } else {
+    attachEl.innerHTML = '';
+  }
+
   openModal('modal-pengumuman');
+  if (window.lucide) window.lucide.createIcons();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  renderPengumuman(MITRA.pengumuman);
+  loadAndRender();
+  window.addEventListener('bengkod:pengumuman-updated', () => loadAndRender());
 });
 </script>
 </body>
