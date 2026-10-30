@@ -6,7 +6,7 @@
 (function() {
   const KEYS = {
     LOWONGAN: 'bengkod_shared_lowongan_v2', // v2: tambah seed lowongan koordinator (Manajemen Pelamar)
-    PENGUMUMAN: 'bengkod_shared_pengumuman_v1',
+    PENGUMUMAN: 'bengkod_shared_pengumuman_v2', // v2: tambah field sasaran, status, lampiran, author_role
     KOORDINATOR: 'bengkod_shared_koordinator_v1',
     MITRA: 'bengkod_shared_mitra_v1',
     ALUMNI: 'bengkod_shared_alumni_v1',
@@ -266,8 +266,11 @@
       isi: 'Seluruh alumni purna tugas asisten lab lulusan 2025 dimohon memperbarui data status karir dan masa tunggu sebelum 30 November 2026.',
       target: 'Alumni',
       published: true,
+      status: 'Dipublikasikan',
       published_at: '2026-10-18',
-      author: 'Dr. Ayu Lestari, M.Kom'
+      author: 'Dr. Ayu Lestari, M.Kom',
+      author_role: 'Koordinator',
+      lampiran: 'Panduan_Tracer_Study_2025.pdf'
     },
     {
       id: 2,
@@ -275,17 +278,47 @@
       isi: 'Mitra industri dimohon meluangkan waktu 5 menit untuk mengisi survei kepuasan performa kerja alumni Bengkel Koding.',
       target: 'Mitra',
       published: true,
+      status: 'Dipublikasikan',
       published_at: '2026-10-10',
-      author: 'Dr. Ayu Lestari, M.Kom'
+      author: 'Dr. Ayu Lestari, M.Kom',
+      author_role: 'Koordinator',
+      lampiran: 'Survei_Kepuasan_Mitra_2026.pdf'
     },
     {
       id: 3,
+      judul: 'Open Recruitment Batch Ganjil 2026/2027',
+      isi: 'PT Solusi Digital Jateng membuka kesempatan rekrutmen posisi Backend Developer & Data Analyst khusus lulusan Bengkel Koding. Silakan kirimkan lamaran melalui portal.',
+      target: 'Alumni',
+      published: true,
+      status: 'Dipublikasikan',
+      published_at: '2026-10-22',
+      author: 'PT Solusi Digital Jateng',
+      author_role: 'Mitra',
+      lampiran: 'Kualifikasi_Rekrutmen_SolusiDigital.pdf'
+    },
+    {
+      id: 4,
       judul: 'Kemitraan Rekrutmen Batch Ganjil 2026/2027',
       isi: 'Pendaftaran mitra industri baru untuk rekrutmen talenta asisten lab resmi dibuka.',
       target: 'Semua',
       published: true,
+      status: 'Dipublikasikan',
       published_at: '2026-10-05',
-      author: 'Super Admin'
+      author: 'Super Admin',
+      author_role: 'SuperAdmin',
+      lampiran: 'Term_of_Reference_Kemitraan_2026.pdf'
+    },
+    {
+      id: 5,
+      judul: 'Jadwal Onboarding Peserta Magang Batch 1',
+      isi: 'Draf informasi orientasi dan technical briefing bagi mahasiswa alumni yang telah lolos seleksi magang di perusahaan kami.',
+      target: 'Alumni',
+      published: false,
+      status: 'Draf',
+      published_at: '',
+      author: 'PT Solusi Digital Jateng',
+      author_role: 'Mitra',
+      lampiran: 'Draft_Jadwal_Onboarding.pdf'
     }
   ];
 
@@ -568,31 +601,86 @@
     },
 
     // --- PENGUMUMAN ---
-    getPengumuman(target = null) {
+    getPengumuman(targetRole = null, currentAuthor = null) {
       const list = lsGet(KEYS.PENGUMUMAN, SEED_PENGUMUMAN);
-      if (!target) return list;
-      return list.filter(p => p.published && (p.target === target || p.target === 'Semua' || p.target === 'Alumni & Mitra'));
+      if (!targetRole) return list;
+
+      const isTargetMatch = (p, role) => {
+        const t = p.target;
+        if (t === 'Semua') return true;
+        if (t === 'Alumni & Mitra' || t === 'Mitra & Alumni') return role === 'Alumni' || role === 'Mitra';
+        return t === role;
+      };
+
+      if (targetRole === 'Alumni') {
+        return list.filter(p => p.published && isTargetMatch(p, 'Alumni'));
+      }
+
+      if (targetRole === 'Mitra') {
+        return list.filter(p => {
+          const forMitra = p.published && isTargetMatch(p, 'Mitra');
+          const isOwn = p.author_role === 'Mitra' || (currentAuthor && p.author === currentAuthor);
+          return forMitra || isOwn;
+        });
+      }
+
+      return list;
     },
     savePengumuman(list) {
       lsSet(KEYS.PENGUMUMAN, list);
       window.dispatchEvent(new CustomEvent('bengkod:pengumuman-updated', { detail: list }));
     },
     addPengumuman(item) {
-      const list = lsGet(KEYS.PENGUMUMAN, SEED_PENGUMUMAN);
+      const list = this.getPengumuman();
       const newId = list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+      const isPub = item.published !== false && item.status !== 'Draf' && item.status !== 'draft';
+      const role = item.author_role || item.role || 'Koordinator';
+      const author = item.author || (role === 'Mitra' ? 'PT Solusi Digital Jateng' : 'Dr. Ayu Lestari, M.Kom');
       const created = {
         id: newId,
-        judul: item.judul,
-        isi: item.isi,
+        judul: item.judul || 'Pengumuman Baru',
+        isi: item.isi || '',
         target: item.target || 'Semua',
-        published: item.published !== false,
-        published_at: item.published_at || new Date().toISOString().slice(0, 10),
-        author: item.author || 'Dr. Ayu Lestari, M.Kom'
+        published: isPub,
+        status: isPub ? 'Dipublikasikan' : 'Draf',
+        published_at: isPub ? (item.published_at || new Date().toISOString().slice(0, 10)) : '',
+        author: author,
+        author_role: role,
+        lampiran: item.lampiran || ''
       };
       list.unshift(created);
       this.savePengumuman(list);
-      this.logActivity('Koordinator', 'Publikasi Pengumuman', `Menerbitkan pengumuman "${created.judul}" (Target: ${created.target})`);
+      this.logActivity(role, isPub ? 'Publikasi Pengumuman' : 'Draft Pengumuman',
+        `${isPub ? 'Menerbitkan' : 'Menyimpan draf'} pengumuman "${created.judul}" (Sasaran: ${created.target})`);
       return created;
+    },
+    updatePengumuman(id, updates) {
+      const list = this.getPengumuman();
+      const idx = list.findIndex(p => p.id === id);
+      if (idx >= 0) {
+        const isPub = updates.published !== undefined ? updates.published : (updates.status ? (updates.status !== 'Draf' && updates.status !== 'draft') : list[idx].published);
+        list[idx] = {
+          ...list[idx],
+          ...updates,
+          published: isPub,
+          status: isPub ? 'Dipublikasikan' : 'Draf',
+          published_at: isPub ? (list[idx].published_at || new Date().toISOString().slice(0, 10)) : ''
+        };
+        this.savePengumuman(list);
+        this.logActivity(list[idx].author_role || 'Koordinator', 'Ubah Pengumuman', `Memperbarui pengumuman "${list[idx].judul}"`);
+        return list[idx];
+      }
+      return null;
+    },
+    deletePengumuman(id) {
+      const list = this.getPengumuman();
+      const item = list.find(p => p.id === id);
+      const filtered = list.filter(p => p.id !== id);
+      this.savePengumuman(filtered);
+      if (item) {
+        this.logActivity(item.author_role || 'Koordinator', 'Hapus Pengumuman', `Menghapus pengumuman "${item.judul}"`);
+      }
+      return filtered;
     },
 
     // --- KOORDINATOR ---
@@ -636,6 +724,17 @@
         this.logActivity('SuperAdmin', 'Update Status Mitra', `Memperbarui status mitra ${m.nama_perusahaan}: ${statusAkun || statusVerifikasi}`);
       }
       return m;
+    },
+
+    // --- ALUMNI BEKERJA DI MITRA ---
+    getAlumniBekerjaMitra(namaPerusahaan = '') {
+      return [
+        { id: 1, nama: 'Calvin Revianto', nim: 'A11.2021.13782', divisi: 'Divisi Developer', posisi: 'Frontend Developer', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+        { id: 2, nama: 'Dimas Wahyu Saputra', nim: 'A11.2022.14101', divisi: 'Divisi Developer', posisi: 'Junior Backend Engineer', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+        { id: 3, nama: 'Siti Nurhaliza', nim: 'A11.2022.14150', divisi: 'Divisi Developer', posisi: 'Mobile Developer (Flutter)', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+        { id: 4, nama: 'Bagus Wicaksono', nim: 'A11.2022.14205', divisi: 'Divisi Data Science', posisi: 'Data Analyst Intern', tipe_kerja: 'Magang', status: 'Aktif Magang' },
+        { id: 5, nama: 'Fajar Nugroho', nim: 'A12.2022.09876', divisi: 'Divisi Data Science', posisi: 'Machine Learning Specialist', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' }
+      ];
     },
 
     // --- ALUMNI ---

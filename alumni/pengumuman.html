@@ -6,6 +6,7 @@
   <title>Pengumuman - Bengkel Koding</title>
   <meta name="description" content="Pengumuman dari koordinator Bengkel Koding">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/store.js"></script>
   <script src="../assets/js/page-skeleton.js"></script>
   <script src="assets/js/alumni.js"></script>
 </head>
@@ -17,7 +18,7 @@
     <div class="flex items-center justify-between pb-3 border-b border-gray-200">
       <div>
         <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Pengumuman</h1>
-        <p class="text-sm text-gray-500 mt-0.5">Informasi resmi dari koordinator Bengkel Koding</p>
+        <p class="text-sm text-gray-500 mt-0.5">Informasi resmi dari koordinator dan mitra Bengkel Koding</p>
       </div>
     </div>
 
@@ -40,10 +41,26 @@
             <div class="flex-1 min-w-0">
               <!-- Judul -->
               <h2 class="text-[16px] sm:text-[17px] font-semibold text-gray-900 leading-snug" x-text="item.title"></h2>
-              <!-- Tanggal -->
-              <p class="text-[13px] text-gray-500 mt-1" x-text="item.time"></p>
+              <!-- Tanggal, Pembuat & Target -->
+              <p class="text-[13px] text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
+                <span x-text="item.time"></span>
+                <span>·</span>
+                <span>Oleh <strong class="font-medium text-gray-700" x-text="item.author"></strong> <span class="text-xs text-gray-400" x-text="'(' + (item.role || 'Koordinator') + ')'"></span></span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-600 border border-gray-200" x-text="item.target"></span>
+              </p>
               <!-- Deskripsi Langsung -->
-              <p class="text-[14px] sm:text-[15px] text-gray-700 mt-2.5 leading-relaxed" x-text="item.content"></p>
+              <p class="text-[14px] sm:text-[15px] text-gray-700 mt-2.5 leading-relaxed whitespace-pre-line" x-text="item.content"></p>
+
+              <!-- Lampiran Dokumen jika ada -->
+              <template x-if="item.lampiran">
+                <div class="mt-3">
+                  <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-50 text-[#1E3A8A] border border-blue-200/80 cursor-pointer hover:bg-blue-100/60 transition-colors" @click="alert('Mengunduh lampiran: ' + item.lampiran)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    <span class="font-medium" x-text="item.lampiran"></span>
+                    <span class="text-[11px] text-blue-500">· Unduh Dokumen</span>
+                  </span>
+                </div>
+              </template>
             </div>
           </div>
         </div>
@@ -66,56 +83,62 @@
 <script>
 document.addEventListener('alpine:init', () => {
   Alpine.data('pengumumanPage', () => ({
-    announcements: [
-      {
-        id: 1,
-        title: 'Jadwal Pelepasan Alumni Angkatan 2024',
-        time: '24 Oktober 2025',
-        content: 'Acara pelepasan alumni akan dilaksanakan pada Sabtu, 15 November 2025 pukul 09.00 WIB di Gedung Serbaguna Universitas Dian Nuswantoro Semarang. Seluruh alumni angkatan 2024 diwajibkan hadir dengan mengenakan almamater resmi. Konfirmasi kehadiran melalui tautan yang akan dikirimkan ke email masing-masing alumni paling lambat 10 November 2025.',
-      },
-      {
-        id: 2,
-        title: 'Pengisian Data Alumni Terbaru',
-        time: '21 Oktober 2025',
-        content: 'Seluruh alumni Bengkel Koding diwajibkan untuk memperbarui data diri terbaru melalui portal alumni. Data yang perlu diperbarui meliputi: nama lengkap sesuai KTP, posisi pekerjaan saat ini, nama perusahaan/instansi, dan domisili terkini. Pembaruan data ini diperlukan untuk keperluan tracer study dan database alumni.',
-      },
-      {
-        id: 3,
-        title: 'Workshop UI/UX Bersama Tokopedia',
-        time: '17 Oktober 2025',
-        content: 'Pendaftaran workshop UI/UX gratis bersama tim desainer Tokopedia telah dibuka. Workshop akan berlangsung secara online via Zoom pada 20 November 2025 pukul 13.00–17.00 WIB. Kuota terbatas hanya 50 peserta. Daftarkan diri segera melalui link yang tersedia.',
-      },
-      {
-        id: 4,
-        title: 'Rekrutmen Asisten Koordinator 2025',
-        time: '10 Oktober 2025',
-        content: 'Bengkel Koding membuka rekrutmen Asisten Koordinator untuk periode 2025–2026. Posisi ini terbuka bagi alumni aktif yang memiliki dedikasi tinggi terhadap pengembangan program Bengkel Koding. Kualifikasi: lulus dari program Bengkel Koding, IPK minimal 3.0, bersedia hadir 2x seminggu. Kirimkan CV dan portofolio ke email koordinator@bengkelkoding.com dengan subject "Lamaran Asisten Koordinator 2025".',
-      },
-      {
-        id: 5,
-        title: 'Pembaruan Kurikulum Program 2025',
-        time: '3 Oktober 2025',
-        content: 'Koordinator telah merilis kurikulum baru untuk program coding 2025 yang mencakup penambahan modul Artificial Intelligence, Cloud Computing, dan Cybersecurity Fundamentals. Dokumen kurikulum lengkap dapat diakses oleh seluruh alumni melalui portal internal Bengkel Koding di menu Akademik.',
-      },
-      {
-        id: 6,
-        title: 'Program Mentorship Karier Tech 2025',
-        time: '28 September 2025',
-        content: 'Program mentorship 1-on-1 bersama alumni senior Bengkel Koding kini resmi dibuka. Sesi mencakup konsultasi persiapan karier tech, peninjauan portofolio dan resume, serta simulasi technical interview bagi lulusan fresh graduate.',
-      },
-      {
-        id: 7,
-        title: 'Gathering Akbar & Networking Night',
-        time: '19 September 2025',
-        content: 'Temu alumni akbar lintas generasi Bengkel Koding akan diselenggarakan di Aula Utama Kampus Imam Bonjol UDINUS. Kegiatan ini menghadirkan sesi networking santai dan sharing alumni yang telah berkarier di berbagai tech unicorn & startup.',
-      },
-      {
-        id: 8,
-        title: 'Voucher Diskon Sertifikasi AWS & GCP',
-        time: '12 September 2025',
-        content: 'Bengkel Koding bekerjasama dengan mitra sertifikasi internasional menyediakan voucher subsidi biaya ujian resmi sertifikasi Cloud Practitioner, Solutions Architect, dan Associate Cloud Engineer bagi seluruh alumni terdaftar.',
-      },
-    ],
+    announcements: [],
+
+    init() {
+      this.load();
+      window.addEventListener('bengkod:pengumuman-updated', () => this.load());
+    },
+
+    load() {
+      if (window.BengkodStore) {
+        const raw = window.BengkodStore.getPengumuman('Alumni');
+        this.announcements = raw.map(p => ({
+          id: p.id,
+          title: p.judul || p.title,
+          time: this.formatDate(p.published_at || p.time),
+          content: p.isi || p.content,
+          author: p.author || 'Koordinator Bengkel Koding',
+          role: p.author_role || (p.author?.includes('PT') || p.author?.includes('CV') ? 'Mitra' : 'Koordinator'),
+          target: p.target || 'Alumni',
+          lampiran: p.lampiran || ''
+        }));
+      } else {
+        this.announcements = [
+          {
+            id: 1,
+            title: 'Pengisian Tracer Study Angkatan 2025',
+            time: '18 Oktober 2026',
+            content: 'Seluruh alumni purna tugas asisten lab lulusan 2025 dimohon memperbarui data status karir dan masa tunggu sebelum 30 November 2026.',
+            author: 'Dr. Ayu Lestari, M.Kom',
+            role: 'Koordinator',
+            target: 'Alumni',
+            lampiran: 'Panduan_Tracer_Study_2025.pdf'
+          },
+          {
+            id: 2,
+            title: 'Open Recruitment Batch Ganjil 2026/2027',
+            time: '22 Oktober 2026',
+            content: 'PT Solusi Digital Jateng membuka kesempatan rekrutmen posisi Backend Developer & Data Analyst khusus lulusan Bengkel Koding.',
+            author: 'PT Solusi Digital Jateng',
+            role: 'Mitra',
+            target: 'Alumni',
+            lampiran: 'Kualifikasi_Rekrutmen_SolusiDigital.pdf'
+          }
+        ];
+      }
+    },
+
+    formatDate(val) {
+      if (!val) return 'Terbaru';
+      try {
+        const d = new Date(val);
+        if (!isNaN(d.getTime())) {
+          return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+      } catch {}
+      return val;
+    }
   }));
 });
 </script>

@@ -515,8 +515,9 @@ const _rootBase = _depth >= 2 ? '../../' : '../';
 
 const MITRA_NAV = [
   { href: _base + 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
+  { href: _base + 'kelola-anggota.html', icon: 'user-check', label: 'Alumni Bekerja', match: 'kelola-anggota.html' },
+  { href: _base + 'manajemen-pelamar.html', icon: 'file-text', label: 'Manajemen Pelamar', match: 'manajemen-pelamar.html' },
   { href: _base + 'data-alumni.html', icon: 'users', label: 'Data Alumni', match: 'data-alumni.html' },
-  { href: _base + 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar', match: 'manajemen-pelamar.html' },
   { href: _base + 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman', match: 'pengumuman.html' },
   { href: _base + 'forum.html', icon: 'messages-square', label: 'Forum', match: 'forum.html' },
   {

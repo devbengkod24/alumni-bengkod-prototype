@@ -369,9 +369,9 @@
             <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
           </div>
 
-          <!-- Daftar 8 Rekomendasi Teman (Menyatu dalam 1 card, tanpa garis-garis, tanpa box terpisah per item) -->
+          <!-- Daftar Rekomendasi Teman (Maksimal 3 orang ditampilkan awal, klik "Lihat semua" untuk memuat seluruhnya) -->
           <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
-            <template x-for="person in recommendedPeople" :key="person.id">
+            <template x-for="person in (showAllRecommended ? recommendedPeople : recommendedPeople.slice(0, 3))" :key="person.id">
               <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
                 <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
                 <div class="flex-1 min-w-0">
@@ -406,6 +406,19 @@
               </div>
             </template>
           </div>
+
+          <!-- Tombol Lihat Semua -->
+          <template x-if="recommendedPeople.length > 3">
+            <div class="mt-3 pt-3 border-t border-gray-100">
+              <button type="button" id="btn-toggle-recommended" @click="showAllRecommended = !showAllRecommended" :aria-expanded="showAllRecommended"
+                class="w-full py-2 px-4 rounded-full border border-gray-200 hover:border-blue-300 hover:bg-blue-50/50 text-[13px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer">
+                <span x-text="showAllRecommended ? 'Tampilkan lebih sedikit' : 'Lihat semua'"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="showAllRecommended ? '-rotate-90 transition-transform' : 'transition-transform'">
+                  <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </template>
         </div>
 
       </div>
@@ -822,6 +835,7 @@
         tempPublicUrl: 'www.bengkelkoding.com/alumni/aisharah',
         editLanguageModalOpen: false,
         editPublicUrlModalOpen: false,
+        showAllRecommended: false,
         connectedPeopleIds: [],
         toggleConnect(id) {
           if (this.connectedPeopleIds.includes(id)) {
