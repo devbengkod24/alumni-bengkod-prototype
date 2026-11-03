@@ -73,14 +73,13 @@
   </div>
 </main>
 
-<div id="cv-modal" data-modal-backdrop class="modal-backdrop">
-  <div class="modal max-w-4xl" role="dialog" aria-modal="true" aria-labelledby="cv-judul">
-    <div class="flex items-center justify-between gap-3 mb-4">
-      <h3 id="cv-judul" class="font-semibold text-base text-neutral1">Preview CV</h3>
-      <button type="button" onclick="closeModal('cv-modal')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
-    </div>
-    <div id="cv-isi" class="rounded-xl border border-neutral4 p-6 sm:p-10"></div>
+<!-- Panel split screen CV: muncul dari kiri saat preview CV di drawer referral -->
+<div id="cv-split-panel" class="fixed inset-y-0 left-0 h-full max-h-screen z-50 hidden flex-col bg-white border-r border-neutral4 elevation5" style="width:0;transition:width 0.25s ease" aria-label="Preview CV">
+  <div class="sticky top-0 z-10 bg-white border-b border-neutral4 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
+    <h3 id="cv-split-judul" class="font-semibold text-base text-neutral1">Preview CV</h3>
+    <button type="button" id="cv-split-close" class="btn-icon" aria-label="Tutup Preview CV"><i data-lucide="x" class="w-5 h-5"></i></button>
   </div>
+  <div id="cv-isi" class="flex-1 overflow-y-auto min-h-0 p-6 sm:p-10"></div>
 </div>
 
 <script>
@@ -702,12 +701,137 @@
     openModal('pengajuan-drawer');
   }
 
+  // ===== SPLIT SCREEN: Panel CV + Drawer Referral =====
+  const cvSplitPanel = document.getElementById('cv-split-panel');
+  const drawerEl = document.getElementById('pengajuan-drawer');
+  const drawerInner = drawerEl ? drawerEl.querySelector(':scope > div') : null;
+
+  // Breakpoint di mana split screen aktif (desktop >=1024px)
+  const isSplitMode = () => window.innerWidth >= 1024;
+
+  function bukaCvSplit(idAlumni, format) {
+    document.getElementById('cv-isi').innerHTML = dokumenCv(Number(idAlumni), format);
+    const label = format === 'ats' ? 'Preview CV ATS' : 'Preview CV Modern';
+    document.getElementById('cv-split-judul').textContent = label;
+
+    if (isSplitMode()) {
+      // Split screen: drawer digeser ke kanan (45vw), backdrop blur dihilangkan agar tidak menutupi sisi kiri
+      if (drawerEl) {
+        drawerEl.classList.remove('bg-neutral1/60', 'backdrop-blur-sm');
+        drawerEl.style.left = '55vw';
+        drawerEl.style.width = '45vw';
+        drawerEl.style.transition = 'left 0.25s ease, width 0.25s ease';
+      }
+      if (drawerInner) {
+        drawerInner.style.maxWidth = '100%';
+        drawerInner.style.width = '100%';
+      }
+      // Panel CV menempati sisi kiri 55vw dan berada berdampingan
+      cvSplitPanel.style.left = '0';
+      cvSplitPanel.style.width = '55vw';
+      cvSplitPanel.style.zIndex = '50';
+      cvSplitPanel.classList.remove('hidden');
+      cvSplitPanel.classList.add('flex');
+    } else {
+      // Layar sempit / mobile: panel CV full-width di atas drawer
+      cvSplitPanel.style.left = '0';
+      cvSplitPanel.style.width = '100vw';
+      cvSplitPanel.style.zIndex = '60';
+      cvSplitPanel.classList.remove('hidden');
+      cvSplitPanel.classList.add('flex');
+    }
+    refreshIcons();
+  }
+
+  function tutupCvSplit() {
+    cvSplitPanel.classList.add('hidden');
+    cvSplitPanel.classList.remove('flex');
+    cvSplitPanel.style.width = '0';
+    cvSplitPanel.style.zIndex = '';
+    // Kembalikan drawer referral ke posisi dan lebar semula
+    if (drawerEl) {
+      drawerEl.style.left = '';
+      drawerEl.style.width = '';
+      drawerEl.style.transition = '';
+      drawerEl.classList.add('bg-neutral1/60', 'backdrop-blur-sm');
+    }
+    // Kembalikan lebar drawer inner ke default
+    if (drawerInner) {
+      drawerInner.style.maxWidth = '';
+      drawerInner.style.width = '';
+    }
+  }
+
+  document.getElementById('cv-split-close').addEventListener('click', tutupCvSplit);
+
+  // Cegah klik di dalam panel CV merambat ke backdrop modal manapun
+  cvSplitPanel.addEventListener('click', e => {
+    e.stopPropagation();
+  });
+
+  // Pastikan penutupan modal pengajuan-drawer selalu membersihkan panel split
+  const _origCloseModal = window.closeModal;
+  window.closeModal = function(id) {
+    if (id === 'pengajuan-drawer') {
+      tutupCvSplit();
+    }
+    if (typeof _origCloseModal === 'function') {
+      _origCloseModal(id);
+    }
+  };
+
+  if (drawerEl) {
+    const closeBtn = drawerEl.querySelector('[onclick*="closeModal"]');
+    if (closeBtn) closeBtn.addEventListener('click', tutupCvSplit);
+    drawerEl.addEventListener('click', e => {
+      if (e.target === drawerEl) tutupCvSplit();
+    });
+  }
+
+  // Tutup panel CV ketika Escape ditekan
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && cvSplitPanel && !cvSplitPanel.classList.contains('hidden')) {
+      tutupCvSplit();
+    }
+  });
+
+  // Tangani perubahan ukuran jendela (resize responsif)
+  window.addEventListener('resize', () => {
+    if (cvSplitPanel && !cvSplitPanel.classList.contains('hidden')) {
+      if (isSplitMode()) {
+        cvSplitPanel.style.left = '0';
+        cvSplitPanel.style.width = '55vw';
+        cvSplitPanel.style.zIndex = '50';
+        if (drawerEl) {
+          drawerEl.classList.remove('bg-neutral1/60', 'backdrop-blur-sm');
+          drawerEl.style.left = '55vw';
+          drawerEl.style.width = '45vw';
+        }
+        if (drawerInner) {
+          drawerInner.style.maxWidth = '100%';
+          drawerInner.style.width = '100%';
+        }
+      } else {
+        cvSplitPanel.style.left = '0';
+        cvSplitPanel.style.width = '100vw';
+        cvSplitPanel.style.zIndex = '60';
+        if (drawerEl) {
+          drawerEl.style.left = '';
+          drawerEl.style.width = '';
+        }
+        if (drawerInner) {
+          drawerInner.style.maxWidth = '';
+          drawerInner.style.width = '';
+        }
+      }
+    }
+  });
+
   const isiDrawer = document.getElementById('pengajuan-drawer-isi');
   isiDrawer.addEventListener('click', e => {
     const tombolCv = e.target.closest('[data-cv]');
     if (tombolCv) {
-      document.getElementById('cv-isi').innerHTML = dokumenCv(Number(tombolCv.dataset.cv), tombolCv.dataset.format);
-      openModal('cv-modal');
+      bukaCvSplit(tombolCv.dataset.cv, tombolCv.dataset.format);
     }
     const hubungi = e.target.closest('[data-hubungi]');
     if (hubungi) {
@@ -722,7 +846,6 @@
     renderPengajuan();
     showToast('Masukan terkirim.');
   });
-
   document.getElementById('spotlight-carousel-wrap')?.addEventListener('click', e => {
     const btnSuka = e.target.closest('[data-spotlight-suka]');
     if (btnSuka) {
