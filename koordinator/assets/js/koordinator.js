@@ -53,10 +53,7 @@ const KOOR_DEFAULT = {
     { href: 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar' },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
-    { icon: 'database', label: 'Tracer Data', submenu: [
-      { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
-      { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
-    ] },
+    { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
     { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
     { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
   ],

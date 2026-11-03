@@ -17,14 +17,14 @@
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
       <h2 class="text-2xl font-semibold text-neutral1">Management Users</h2>
-      <p class="text-sm text-neutral2 mt-1">Tambah dan kelola akun alumni dan mitra.</p>
+      <p class="text-sm text-neutral2 mt-1">Tambah dan kelola akun alumni.</p>
     </div>
     <a href="tambah-akun.html" class="btn-primary"><i data-lucide="user-plus" class="w-4 h-4"></i> Tambah Akun</a>
   </div>
 
   <div class="flex items-start gap-3 p-4 rounded-xl bg-primary5/60 border border-primary4/50 text-sm text-primary1">
     <i data-lucide="lock" class="w-4 h-4 mt-0.5 shrink-0"></i>
-    <p class="text-sm">Koordinator hanya dapat mengelola akun <strong>alumni</strong> dan <strong>mitra</strong>. Akun SuperAdmin dan koordinator lain hanya bisa dilihat.</p>
+    <p class="text-sm">Koordinator hanya dapat mengelola akun <strong>alumni</strong>. Akun SuperAdmin dan koordinator lain hanya bisa dilihat.</p>
   </div>
 
   <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
@@ -36,7 +36,6 @@
       <select id="filter-role" class="input sm:w-48" aria-label="Filter role">
         <option value="">Semua role</option>
         <option value="alumnus">Alumni</option>
-        <option value="mitra">Mitra</option>
         <option value="koordinator">Koordinator</option>
         <option value="superadmin">SuperAdmin</option>
       </select>
@@ -62,7 +61,6 @@
         <label for="f-role" class="label">Role</label>
         <select id="f-role" name="role" class="input">
           <option value="alumnus">Alumni</option>
-          <option value="mitra">Mitra</option>
         </select>
         <p class="text-xs text-neutral3 mt-1">Role koordinator dan SuperAdmin tidak tersedia untuk koordinator.</p>
       </div>
@@ -75,15 +73,16 @@
 </div>
 
 <script>
-  const ROLE_LABEL = { alumnus: 'Alumni', mitra: 'Mitra', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
-  const EDITABLE = ['alumnus', 'mitra'];
+  const ROLE_LABEL = { alumnus: 'Alumni', koordinator: 'Koordinator', superadmin: 'SuperAdmin' };
+  const EDITABLE = ['alumnus'];
   const form = document.getElementById('form');
   const find = id => KOOR.users.find(u => u.id === id);
 
   function render() {
     const q = document.getElementById('q').value.toLowerCase();
     const role = document.getElementById('filter-role').value;
-    const list = KOOR.users.filter(u => (!role || u.role === role) && (u.name + u.email).toLowerCase().includes(q));
+    // Akun mitra lama disembunyikan karena role mitra sudah ditutup
+    const list = KOOR.users.filter(u => u.role !== 'mitra' && (!role || u.role === role) && (u.name + u.email).toLowerCase().includes(q));
     document.getElementById('rows').innerHTML = list.map(u => {
       const can = EDITABLE.includes(u.role);
       const lock = can ? '' : 'disabled title="Di luar wewenang koordinator"';

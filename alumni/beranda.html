@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Beranda | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=5"></script>
+  <script src="assets/js/app.js?v=5"></script>
+  <script src="assets/js/cv.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Beranda">
+  <!-- Tata letak ala media sosial: feed di tengah, info pendukung di kolom kanan -->
+  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+    <div class="min-w-0 w-full max-w-2xl mx-auto lg:mx-0 lg:max-w-none space-y-4">
+      <form id="composer" class="bg-white rounded-xl border border-neutral4 elevation1 p-4 sm:p-5" aria-label="Buat postingan" novalidate>
+        <div class="flex gap-3">
+          <div id="avatar-saya" class="shrink-0"></div>
+          <div class="flex-1 min-w-0">
+            <textarea name="isi" rows="2" maxlength="1000" placeholder="Apa kabar terbaru Anda?" aria-label="Isi postingan"
+              class="block w-full resize-none border-0 bg-transparent p-0 pt-2.5 !text-[15px] text-neutral1 placeholder-neutral3 leading-relaxed focus:outline-none focus:ring-0"></textarea>
+
+            <input type="file" name="gambar" accept="image/png,image/jpeg,image/webp" class="hidden">
+            <div data-media-ada class="hidden relative mt-3">
+              <img alt="Pratinjau gambar" class="w-full max-h-80 object-cover rounded-2xl border border-neutral4">
+              <div class="absolute top-2 right-2 flex gap-1.5">
+                <button type="button" data-pilih class="px-3 py-1 rounded-full bg-white/95 text-xs font-semibold text-neutral1 elevation2 hover:bg-white">Ganti</button>
+                <button type="button" data-hapus class="w-7 h-7 rounded-full bg-neutral1/80 text-white flex items-center justify-center hover:bg-neutral1" aria-label="Hapus gambar"><i data-lucide="x" class="w-4 h-4"></i></button>
+              </div>
+            </div>
+
+            <fieldset class="flex flex-wrap items-center gap-2 mt-3">
+              <legend class="sr-only">Jenis postingan</legend>
+              <label class="cursor-pointer">
+                <input type="radio" name="jenis" value="pengalaman" class="peer sr-only" checked>
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Pengalaman</span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="jenis" value="kegiatan" class="peer sr-only">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Kegiatan</span>
+              </label>
+            </fieldset>
+            <p data-error class="hidden mt-2 !text-sm text-red1" role="alert"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-neutral4/70 sm:pl-14">
+          <div class="flex items-center gap-0.5 -ml-2">
+            <button type="button" data-pilih class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-primary2 hover:bg-primary5 transition-colors" title="Tambah foto"><i data-lucide="image" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Foto</span></button>
+            <button type="button" data-buka="karya-modal" class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-green1 hover:bg-green3/50 transition-colors" title="Pamerkan karya"><i data-lucide="rocket" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Karya</span></button>
+            <button type="button" data-buka="referral-modal" class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-yellow1 hover:bg-yellow3/60 transition-colors" title="Bagikan info referral"><i data-lucide="handshake" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Referral</span></button>
+          </div>
+          <div class="flex items-center gap-3">
+            <span data-hitung class="!text-xs text-neutral3 tabular-nums">0/1000</span>
+            <button type="submit" disabled class="px-5 py-2 rounded-full bg-primary1 hover:bg-primary2 text-white text-sm font-semibold transition-colors focus:outline-none focus:ring-4 focus:ring-primary5 disabled:bg-neutral4 disabled:text-neutral3 disabled:cursor-not-allowed">Posting</button>
+          </div>
+        </div>
+      </form>
+
+      <section class="bg-white rounded-xl border border-neutral4 elevation1 overflow-hidden" aria-label="Linimasa">
+        <nav id="saring" class="flex overflow-x-auto no-scrollbar border-b border-neutral4 px-2" aria-label="Saring postingan"></nav>
+        <div id="daftar" class="p-3 sm:p-4 space-y-3 bg-neutral5/40"></div>
+      </section>
+    </div>
+
+    <aside id="samping" class="space-y-4 min-w-0 lg:sticky lg:top-20" aria-label="Info Beranda"></aside>
+  </div>
+</main>
+
+<div id="cv-modal" data-modal-backdrop class="modal-backdrop">
+  <div class="modal max-w-4xl" role="dialog" aria-modal="true" aria-labelledby="cv-judul">
+    <div class="flex items-center justify-between gap-3 mb-4">
+      <h3 id="cv-judul" class="font-semibold text-base text-neutral1">Preview CV</h3>
+      <button type="button" onclick="closeModal('cv-modal')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+    <div id="cv-isi" class="rounded-xl border border-neutral4 p-6 sm:p-10"></div>
+  </div>
+</div>
+
+<script>
+  const JENIS = {
+    pengalaman: { label: 'Pengalaman', ikon: 'lightbulb' },
+    kegiatan: { label: 'Kegiatan', ikon: 'calendar-days' },
+    karya: { label: 'Karya', ikon: 'rocket' },
+    referral: { label: 'Referral', ikon: 'handshake' },
+  };
+  const SARING = [
+    ['semua', 'Semua', () => true],
+    ['pengalaman', 'Pengalaman', p => p.jenis === 'pengalaman'],
+    ['kegiatan', 'Kegiatan', p => p.jenis === 'kegiatan'],
+    ['live', 'Hall of Fame', p => p.karya?.tahap === 'live'],
+    ['beta', 'Uji Coba Beta', p => p.karya?.tahap === 'beta'],
+    ['referral', '#Referral', p => p.jenis === 'referral'],
+  ];
+  const WARNA_FEEDBACK = { Bug: 'red', 'UI/UX': 'blue', 'Arsitektur/Performa': 'yellow', Apresiasi: 'green' };
+  const AKSI = 'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full !text-[13px] font-medium transition-colors';
+  const PIL = 'px-4 py-1.5 rounded-full text-[13px] font-semibold transition-colors';
+  const daftar = document.getElementById('daftar');
+  const terbuka = new Set(); // kartu yang panel komentar atau feedback-nya sedang dibuka
+  let saring = 'semua';
+  let referralAktif = null;
+
+  const ditutup = p => p.referral.batas < DB.hariIni();
+  const spotlight = p => p.spotlight_sampai > new Date().toISOString();
+  const namaTautan = u => `<a href="${tautanProfil(u.id)}" class="font-semibold text-neutral1 hover:text-primary1">${esc(u.nama)}</a>`;
+  // Tautan http(s) di isi postingan bisa diklik, sisanya tetap teks biasa
+  const tautkan = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, url => `<a href="${url}" target="_blank" rel="noreferrer" class="text-primary1 font-semibold hover:underline break-all">${url}</a>`);
+  const paragraf = teks => `<p class="!text-[15px] text-neutral1 leading-relaxed mt-1.5 whitespace-pre-line">${tautkan(teks)}</p>`;
+
+  // ===================== FORM =====================
+  // Modal bergaya form postingan lama: header dan footer tetap, isi bisa digulir
+  function modalBesar(id, judul, isi, tombol, lebar = 'max-w-2xl') {
+    return `
+      <div id="${id}" data-modal-backdrop class="modal-backdrop">
+        <form class="bg-white rounded-xl border border-neutral4 w-full ${lebar} max-h-[92vh] flex flex-col overflow-hidden elevation5" role="dialog" aria-modal="true" aria-labelledby="${id}-judul" novalidate>
+          <div class="px-6 py-4 border-b border-neutral4 flex items-center justify-between gap-3 shrink-0">
+            <h3 id="${id}-judul" class="!text-lg font-bold text-neutral1">${judul}</h3>
+            <button type="button" onclick="closeModal('${id}')" class="w-9 h-9 rounded-full flex items-center justify-center text-neutral3 hover:text-primary1 hover:bg-primary5 transition-colors" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+          </div>
+          <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+            ${isi}
+            <p data-error class="hidden !text-sm text-red1" role="alert"></p>
+          </div>
+          <div class="border-t border-neutral4 px-6 py-3.5 bg-neutral5/50 flex justify-end gap-3 shrink-0">
+            <button type="button" onclick="closeModal('${id}')" class="${PIL} border border-neutral4 bg-white text-neutral1 hover:bg-neutral5">Batal</button>
+            <button type="submit" class="${PIL} !px-6 bg-primary1 hover:bg-primary2 text-white">${tombol}</button>
+          </div>
+        </form>
+      </div>`;
+  }
+
+  const kotakMedia = label => `
+    <div class="space-y-1.5">
+      <p class="label !mb-0">${label}</p>
+      <input type="file" name="gambar" accept="image/png,image/jpeg,image/webp" class="hidden">
+      <div data-media-kosong>
+        <button type="button" data-pilih class="${PIL} border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 inline-flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> Tambahkan media</button>
+        <p class="!text-xs text-neutral3 mt-2">Opsional. JPG, PNG, atau WEBP, maksimal 500 KB.</p>
+      </div>
+      <div data-media-ada class="hidden rounded-xl border border-neutral4 bg-neutral5/50 p-4">
+        <img alt="Pratinjau gambar" class="w-full max-h-[260px] object-contain rounded-lg border border-neutral4 bg-white">
+        <div class="mt-3 flex justify-end gap-2">
+          <button type="button" data-pilih class="${PIL} border border-neutral4 bg-white text-neutral1 hover:bg-neutral5">Ganti media</button>
+          <button type="button" data-hapus class="${PIL} bg-red2 hover:bg-red1 text-white">Hapus media</button>
+        </div>
+      </div>
+    </div>`;
+
+  const opsiAlumni = DB.akun.alumni().filter(a => a.id !== SAYA.id).map(a => `<option value="${a.id}">${esc(a.nama)}</option>`).join('');
+
+  document.body.insertAdjacentHTML('beforeend', [
+    modalBesar('karya-modal', 'Pamerkan Karya', `
+      <div><label for="k-proyek" class="label">Ambil dari Proyek dan Portofolio</label><select id="k-proyek" name="id_proyek" class="input"></select>
+        <p class="!text-xs text-neutral3 mt-1">Karya yang ditulis dari nol otomatis masuk ke portofolio Anda.</p></div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label for="k-nama" class="label">Nama Produk <span class="text-red1">*</span></label><input id="k-nama" name="nama" class="input" maxlength="60" required></div>
+        <div><label for="k-link" class="label">Tautan Staging atau Live <span class="text-red1">*</span></label><input id="k-link" name="link" type="url" class="input" placeholder="https://" required></div>
+      </div>
+      <div><label for="k-tagline" class="label">Tagline Satu Baris <span class="text-red1">*</span></label><input id="k-tagline" name="tagline" class="input" maxlength="100" required placeholder="Contoh: Antrean klinik dari ponsel"></div>
+      <fieldset><legend class="label">Tahap</legend>
+        <div class="grid grid-cols-2 gap-2">${pilihanPil('radio', 'tahap', 'beta', 'Beta, butuh tester', 'flask-conical')}${pilihanPil('radio', 'tahap', 'live', 'Live, sudah rilis', 'badge-check')}</div>
+      </fieldset>
+      <fieldset id="k-fokus"><legend class="label">Fokus Review untuk Tester</legend>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">${DB.OPSI.fokus_review.map(f => pilihanPil('checkbox', 'fokus', f, f)).join('')}</div>
+      </fieldset>
+      <div><label for="k-isi" class="label">Deskripsi</label><textarea id="k-isi" name="isi" rows="4" class="input resize-none" maxlength="1000" placeholder="Masalah yang diselesaikan dan cara memakainya"></textarea></div>
+      ${kotakMedia('Tangkapan Layar')}
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label for="k-stack" class="label">Tech Stack</label><input id="k-stack" name="stack" class="input" placeholder="Contoh: Laravel, MySQL"></div>
+        <div><label for="k-tag" class="label">Tag Tim</label><select id="k-tag" name="tag" multiple size="3" class="input">${opsiAlumni}</select>
+          <p class="!text-xs text-neutral3 mt-1">Tahan Ctrl atau Cmd untuk memilih beberapa.</p></div>
+      </div>`, 'Publikasikan'),
+
+    modalBesar('referral-modal', 'Bagikan Info Referral', `
+      <p class="!text-sm text-neutral2 rounded-lg bg-primary5/50 border border-primary4/50 p-3">Anda hanya membuka jalan perkenalan ke kantor Anda. Sistem tidak mencatat proses rekrutmen dan Anda tidak wajib menjamin pelamar diterima.</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div><label for="r-perusahaan" class="label">Nama Perusahaan <span class="text-red1">*</span></label><input id="r-perusahaan" name="perusahaan" class="input" maxlength="80" required></div>
+        <div><label for="r-posisi" class="label">Role atau Posisi <span class="text-red1">*</span></label><input id="r-posisi" name="posisi" class="input" maxlength="80" required></div>
+        <div><label for="r-level" class="label">Level Pengalaman <span class="text-red1">*</span></label><select id="r-level" name="level" class="input" required><option value="">Pilih level</option>${DB.OPSI.level_referral.map(l => `<option>${esc(l)}</option>`).join('')}</select></div>
+        <div><label for="r-batas" class="label">Batas Waktu Review <span class="text-red1">*</span></label><input id="r-batas" name="batas" type="date" min="${DB.hariIni()}" class="input" required></div>
+      </div>
+      <div><label for="r-isi" class="label">Pesan dan Kriteria Utama <span class="text-red1">*</span></label><textarea id="r-isi" name="isi" rows="3" class="input resize-none" maxlength="300" required placeholder="Satu sampai dua kalimat, contoh: paham Laravel dan siap belajar Docker"></textarea></div>`, 'Bagikan'),
+
+    modalBesar('feedback-modal', 'Beri Feedback', `
+      <input type="hidden" name="id">
+      <fieldset><legend class="label">Kategori</legend>
+        <div class="grid grid-cols-2 gap-2">${DB.OPSI.kategori_feedback.map(k => pilihanPil('radio', 'kategori', k, k)).join('')}</div>
+      </fieldset>
+      <div><label for="b-isi" class="label">Feedback <span class="text-red1">*</span></label><textarea id="b-isi" name="isi" rows="4" class="input resize-none" maxlength="500" required placeholder="Langkah yang Anda coba, hasilnya, dan saran perbaikan"></textarea></div>`, 'Kirim Feedback', 'max-w-lg'),
+
+    modalBesar('ajukan-modal', 'Minta Review dan Referral', `
+      <input type="hidden" name="id">
+      <p id="ajukan-info" class="!text-sm text-neutral2"></p>
+      <fieldset><legend class="label">Versi CV dari Generate CV</legend>
+        <div class="grid grid-cols-2 gap-2">${pilihanPil('radio', 'format', 'ats', 'ATS Standar', 'file-text')}${pilihanPil('radio', 'format', 'modern', 'Modern Clean', 'layout-template')}</div>
+        <a href="generate-cv.html" target="_blank" class="inline-block mt-1.5 text-xs font-semibold text-primary2 hover:underline">Lihat CV saya</a>
+      </fieldset>
+      <div><label for="a-pesan" class="label">Pesan Perkenalan <span class="text-red1">*</span></label><textarea id="a-pesan" name="pesan" rows="4" class="input resize-none" maxlength="250" required placeholder="Perkenalkan diri dan alasan Anda cocok"></textarea>
+        <p class="!text-xs text-neutral3 mt-1">Maksimal 250 karakter.</p></div>`, 'Kirim Pengajuan', 'max-w-lg'),
+
+    kerangkaDrawer('pengajuan-drawer', 'Pengajuan Referral'),
+  ].join(''));
+
+  // Pilih, ganti, atau hapus gambar sebelum dibagikan. Pratinjau hilang saat form direset.
+  function pasangMedia(form, ubah = () => {}) {
+    const input = form.elements.gambar;
+    const img = form.querySelector('[data-media-ada] img');
+    const tampil = file => {
+      if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+      if (file) img.src = URL.createObjectURL(file);
+      else img.removeAttribute('src');
+      form.querySelector('[data-media-ada]').classList.toggle('hidden', !file);
+      form.querySelector('[data-media-kosong]')?.classList.toggle('hidden', Boolean(file));
+      ubah();
+    };
+    form.addEventListener('click', e => {
+      if (e.target.closest('[data-pilih]')) input.click();
+      if (e.target.closest('[data-hapus]')) {
+        input.value = '';
+        tampil(null);
+      }
+    });
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (file && !file.type.startsWith('image/')) {
+        input.value = '';
+        showToast('File harus berupa gambar.', 'error');
+      }
+      tampil(input.files[0] || null);
+    });
+    form.addEventListener('reset', () => setTimeout(() => tampil(null)));
+  }
+
+  async function denganGambar(fd, simpan) {
+    try {
+      const file = fd.get('gambar');
+      return simpan(file && file.size ? await bacaGambar(file, 500) : '');
+    } catch (err) {
+      return { ok: false, error: err.message, field: 'gambar' };
+    }
+  }
+
+  // Kotak tulis di atas feed, langsung terbit tanpa membuka modal
+  const composer = document.getElementById('composer');
+  const isiComposer = composer.elements.isi;
+  function aturComposer() {
+    composer.querySelector('[data-hitung]').textContent = `${isiComposer.value.length}/1000`;
+    composer.querySelector('[type="submit"]').disabled = !isiComposer.value.trim() && !composer.elements.gambar.files.length;
+    isiComposer.style.height = 'auto';
+    isiComposer.style.height = `${isiComposer.scrollHeight}px`;
+  }
+  pasangMedia(composer, aturComposer);
+  isiComposer.addEventListener('input', aturComposer);
+  composer.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(composer);
+    const hasil = await denganGambar(fd, gambar => DB.feed.tambah(SAYA.id, { jenis: fd.get('jenis'), isi: fd.get('isi'), gambar }));
+    const galat = composer.querySelector('[data-error]');
+    galat.textContent = hasil.ok ? '' : hasil.error;
+    galat.classList.toggle('hidden', hasil.ok);
+    if (!hasil.ok) return;
+    composer.reset();
+    saring = 'semua';
+    render();
+    showToast('Postingan berhasil dibagikan.');
+  });
+
+  const formKarya = pasangForm('karya-modal', 'Karya berhasil dipublikasikan.', fd => denganGambar(fd, gambar =>
+    DB.feed.tambah(SAYA.id, {
+      jenis: 'karya', isi: fd.get('isi'), gambar, tag: fd.getAll('tag'),
+      karya: { id_proyek: fd.get('id_proyek'), nama: fd.get('nama'), tagline: fd.get('tagline'), tahap: fd.get('tahap'), fokus: fd.getAll('fokus'), stack: fd.get('stack'), link: fd.get('link') },
+    })), render);
+  pasangMedia(formKarya);
+
+  pasangForm('referral-modal', 'Info referral berhasil dibagikan.', fd =>
+    DB.feed.tambah(SAYA.id, { jenis: 'referral', isi: fd.get('isi'), referral: Object.fromEntries(fd) }), render);
+
+  pasangForm('feedback-modal', 'Terima kasih, feedback terkirim ke pembuat karya.', fd =>
+    DB.feed.feedback(fd.get('id'), SAYA.id, { kategori: fd.get('kategori'), isi: fd.get('isi') }), render);
+
+  pasangForm('ajukan-modal', 'Pengajuan terkirim ke senior.', fd =>
+    DB.feed.ajukan(fd.get('id'), SAYA.id, { format: fd.get('format'), pesan: fd.get('pesan') }), render);
+
+  // Karya bisa diambil dari portofolio supaya tidak mengisi ulang dari nol
+  function isiDariProyek(id) {
+    const r = DB.cv.milik('projects', SAYA.id).find(x => x.id === Number(id));
+    if (!r) return;
+    formKarya.elements.nama.value = r.nama_proyek;
+    formKarya.elements.stack.value = r.stack_proyek;
+    formKarya.elements.link.value = r.link_proyek || '';
+    formKarya.elements.isi.value = r.deskripsi_proyek;
+  }
+
+  function aturFokus() {
+    document.getElementById('k-fokus').classList.toggle('hidden', formKarya.elements.tahap.value !== 'beta');
+  }
+
+  formKarya.addEventListener('change', e => {
+    if (e.target.name === 'id_proyek') isiDariProyek(e.target.value);
+    if (e.target.name === 'tahap') aturFokus();
+  });
+
+  function bukaKarya(idProyek = '') {
+    const belum = DB.cv.milik('projects', SAYA.id).filter(r => !r.id_post);
+    formKarya.elements.id_proyek.innerHTML = `<option value="">Tulis dari nol</option>${belum.map(r => `<option value="${r.id}">${esc(r.nama_proyek)}</option>`).join('')}`;
+    bukaModalForm('karya-modal', { id_proyek: idProyek, tahap: 'beta' });
+    isiDariProyek(formKarya.elements.id_proyek.value);
+    aturFokus();
+  }
+
+  document.querySelector('main').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-buka]');
+    if (!tombol) return;
+    if (tombol.dataset.buka === 'karya-modal') return bukaKarya();
+    bukaModalForm(tombol.dataset.buka);
+  });
+
+  // ===================== KARTU POSTINGAN =====================
+  function isiKarya(p) {
+    const k = p.karya;
+    const beta = k.tahap === 'beta';
+    return `
+      ${p.isi ? paragraf(p.isi) : ''}
+      <div class="mt-3 rounded-xl border border-neutral4 bg-white p-4">
+        <div class="flex flex-wrap items-center gap-2">
+          <h3 class="!text-base font-semibold text-neutral1">${esc(k.nama)}</h3>
+          ${badge(beta ? 'Beta Tester Wanted' : 'Live Product', beta ? 'yellow' : 'green')}
+          ${spotlight(p) ? badge('Spotlight', 'blue') : ''}
+        </div>
+        <p class="!text-sm text-neutral2 mt-1">${esc(k.tagline)}</p>
+        ${k.stack.length ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${k.stack.map(chip).join('')}</div>` : ''}
+        ${beta ? `<p class="!text-xs text-neutral2 mt-2.5"><span class="font-semibold">Fokus review:</span> ${esc(k.fokus.join(', '))}</p>` : ''}
+        <a href="${esc(tautanAman(k.link))}" target="_blank" rel="noreferrer" class="btn-primary !px-3 !py-1.5 !text-xs !rounded-full mt-3 w-fit">${beta ? 'Coba dan Uji' : 'Buka Aplikasi'} <i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+      </div>`;
+  }
+
+  function aksiReferral(p) {
+    if (p.id_alumni === SAYA.id) return `<button type="button" data-aksi="pengajuan" data-id="${p.id}" class="btn-primary !rounded-full"><i data-lucide="inbox" class="w-4 h-4"></i> Lihat Pengajuan (${p.pengajuan.length})</button>`;
+    const saya = p.pengajuan.find(a => a.id_user === SAYA.id);
+    if (saya) {
+      return {
+        menunggu: '<p class="!text-sm text-neutral2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-yellow1"></i> Pengajuan terkirim, menunggu review senior.</p>',
+        dihubungi: '<p class="!text-sm text-green1 flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Senior akan menghubungi Anda lewat WhatsApp.</p>',
+        masukan: `<div class="rounded-lg bg-yellow3/50 border border-yellow2/30 p-3 !text-sm text-neutral1"><span class="font-semibold">Masukan dari senior:</span> ${esc(saya.masukan)}</div>`,
+      }[saya.status];
+    }
+    if (ditutup(p)) return '<p class="!text-sm text-neutral3">Batas waktu review sudah lewat.</p>';
+    return `<button type="button" data-aksi="ajukan" data-id="${p.id}" class="btn-primary !rounded-full"><i data-lucide="send" class="w-4 h-4"></i> Minta Review & Referral</button>`;
+  }
+
+  function isiReferral(p) {
+    const r = p.referral;
+    return `
+      ${paragraf(p.isi)}
+      <div class="mt-3 rounded-xl border border-primary4/50 bg-primary5/40 p-4">
+        <p class="!text-xs font-semibold uppercase tracking-wider text-primary1">#Referral</p>
+        <h3 class="!text-base font-semibold text-neutral1 mt-1">${esc(r.posisi)} · ${esc(r.perusahaan)}</h3>
+        <p class="!text-sm text-neutral2 mt-0.5">${esc(r.level)} · Review sampai ${fmtDate(r.batas)} ${ditutup(p) ? badge('Ditutup', 'gray') : ''}</p>
+        <div class="mt-3">${aksiReferral(p)}</div>
+      </div>`;
+  }
+
+  function balasan(u, waktu, kepala, isi) {
+    return `
+      <div class="flex items-start gap-2.5">
+        <a href="${tautanProfil(u.id)}" class="shrink-0">${fotoBulat(u, 'w-8 h-8')}</a>
+        <div class="flex-1 min-w-0 bg-neutral5 rounded-2xl px-3.5 py-2">
+          <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 !text-[13px]">${kepala}<span class="text-neutral3">· ${waktuLalu(waktu)}</span></div>
+          ${isi}
+        </div>
+      </div>`;
+  }
+
+  function panelKomentar(p) {
+    return `
+      <div class="mt-2 pt-3 border-t border-neutral4/70 space-y-3">
+        <form data-komentar="${p.id}" class="flex items-center gap-2.5">
+          ${fotoBulat(SAYA, 'w-8 h-8')}
+          <input name="isi" class="flex-1 min-w-0 px-4 py-2 rounded-full border border-neutral4 bg-white text-sm placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1" placeholder="Tulis komentar" aria-label="Tulis komentar" maxlength="500" required>
+          <button type="submit" class="${PIL} bg-primary1 hover:bg-primary2 text-white shrink-0">Kirim</button>
+        </form>
+        ${p.komentar.map(k => {
+          const penulis = DB.akun.cari(k.id_alumni);
+          return balasan(penulis, k.waktu, namaTautan(penulis), `<p class="!text-sm text-neutral1 mt-0.5 leading-relaxed whitespace-pre-line">${esc(k.isi)}</p>`);
+        }).join('')}
+      </div>`;
+  }
+
+  function panelFeedback(p) {
+    const milik = p.id_alumni === SAYA.id;
+    return `
+      <div class="mt-2 pt-3 border-t border-neutral4/70 space-y-3">
+        ${milik ? '' : `<button type="button" data-aksi="feedback" data-id="${p.id}" class="${PIL} w-full border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 inline-flex items-center justify-center gap-2"><i data-lucide="message-square-plus" class="w-4 h-4"></i> Beri Feedback</button>`}
+        ${p.feedback.map(f => {
+          const u = DB.akun.cari(f.id_user);
+          const lencana = DB.feed.lencanaTester(u.id);
+          const kepala = `${namaTautan(u)} ${lencana ? badge(lencana, 'green') : ''} ${badge(f.kategori, WARNA_FEEDBACK[f.kategori])}
+            ${f.status ? badge(f.status === 'diperbaiki' ? 'Sudah diperbaiki' : 'Saran diterapkan', 'green') : ''}`;
+          return balasan(u, f.waktu, kepala, `
+            <p class="!text-sm text-neutral1 mt-1 leading-relaxed whitespace-pre-line">${esc(f.isi)}</p>
+            ${milik && !f.status && f.kategori !== 'Apresiasi' ? `<button type="button" data-aksi="tanggapi" data-id="${p.id}" data-feedback="${f.id}" class="mt-1.5 text-xs font-semibold text-primary2 hover:underline">${f.kategori === 'Bug' ? 'Tandai Diperbaiki' : 'Saran Diterapkan'}</button>` : ''}`);
+        }).join('') || `<p class="!text-sm text-neutral3 text-center py-2">${milik ? 'Belum ada feedback dari tester.' : 'Belum ada feedback. Jadilah tester pertama.'}</p>`}
+      </div>`;
+  }
+
+  function barAksi(p) {
+    const karya = p.jenis === 'karya';
+    const ditekan = p.suka.includes(SAYA.id);
+    const buka = terbuka.has(p.id);
+    const jumlah = karya ? p.feedback.length : p.komentar.length;
+    return `
+      <div class="flex items-center justify-between gap-2 mt-2 -ml-2.5">
+        <div class="flex items-center gap-1">
+          <button type="button" data-aksi="buka" data-id="${p.id}" aria-expanded="${buka}" aria-label="${karya ? 'Feedback' : 'Komentar'} (${jumlah})" class="${AKSI} ${buka ? 'text-primary1 bg-primary5' : 'text-neutral3 hover:text-primary1 hover:bg-primary5/70'}">
+            <i data-lucide="${karya ? 'flask-conical' : 'message-circle'}" class="w-[18px] h-[18px]"></i>${jumlah}<span class="hidden sm:inline">${karya ? 'feedback' : 'komentar'}</span></button>
+          <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${ditekan}" aria-label="${karya ? 'Dukung' : 'Suka'} (${p.suka.length})" class="${AKSI} ${ditekan ? 'text-primary1 bg-primary5' : 'text-neutral3 hover:text-primary1 hover:bg-primary5/70'}">
+            <i data-lucide="${karya ? 'arrow-big-up' : 'thumbs-up'}" class="w-[18px] h-[18px] ${ditekan ? 'fill-current' : ''}"></i>${p.suka.length}<span class="hidden sm:inline">${karya ? 'dukungan' : 'suka'}</span></button>
+          <button type="button" data-aksi="bagikan" data-id="${p.id}" aria-label="Salin tautan postingan" class="${AKSI} text-neutral3 hover:text-primary1 hover:bg-primary5/70">
+            <i data-lucide="share-2" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Bagikan</span></button>
+        </div>
+        ${karya && p.id_alumni === SAYA.id && p.karya.tahap === 'beta' ? `<button type="button" data-aksi="rilis" data-id="${p.id}" class="${PIL} bg-green3/70 text-green1 hover:bg-green3 inline-flex items-center gap-1.5 shrink-0"><i data-lucide="badge-check" class="w-4 h-4"></i> Ubah ke Live</button>` : ''}
+      </div>
+      ${buka ? (karya ? panelFeedback(p) : panelKomentar(p)) : ''}`;
+  }
+
+  // Foto penulis di kiri, isi di kanan, aksi di bawah isi
+  function kartuPost(p) {
+    const penulis = DB.akun.cari(p.id_alumni);
+    const jenis = JENIS[p.jenis];
+    const tim = p.tag.map(id => DB.akun.cari(id)).filter(Boolean);
+    const isi = { karya: isiKarya, referral: isiReferral }[p.jenis];
+    return `
+      <article id="post-${p.id}" class="bg-white rounded-xl border border-neutral4 px-4 sm:px-5 pt-4 pb-2 scroll-mt-20">
+        <div class="flex gap-3">
+          <a href="${tautanProfil(penulis.id)}" class="shrink-0 h-fit rounded-full focus:outline-none focus:ring-2 focus:ring-primary3">${fotoBulat(penulis, 'w-11 h-11 sm:w-12 sm:h-12')}</a>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-start justify-between gap-2">
+              <div class="min-w-0">
+                <p class="flex flex-wrap items-baseline gap-x-1.5 !text-[15px] leading-snug">
+                  ${namaTautan(penulis)}<span class="!text-[13px] text-neutral3">· ${waktuLalu(p.waktu)}</span>
+                </p>
+                <p class="!text-[13px] text-neutral3 leading-snug line-clamp-1">${esc(DB.tracer.karir(DB.tracer.milik(p.id_alumni)).ringkas)}</p>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <span class="inline-flex items-center gap-1 !text-[11px] font-semibold text-neutral2 bg-neutral5 border border-neutral4/70 px-2 py-0.5 rounded-full"><i data-lucide="${jenis.ikon}" class="w-3 h-3"></i>${jenis.label}</span>
+                ${p.id_alumni === SAYA.id ? `<button type="button" data-aksi="hapus" data-id="${p.id}" class="btn-icon !p-1.5 hover:!bg-red3 hover:!text-red1" aria-label="Hapus postingan" title="Hapus postingan"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : ''}
+              </div>
+            </div>
+            ${tim.length ? `<p class="!text-[13px] text-neutral2 mt-1 flex items-center gap-1.5"><i data-lucide="users" class="w-3.5 h-3.5 text-neutral3"></i>Bersama ${tim.map(namaTautan).join(', ')}</p>` : ''}
+            ${isi ? isi(p) : p.isi ? paragraf(p.isi) : ''}
+            ${p.gambar ? `<img src="${esc(p.gambar)}" alt="Gambar dari ${esc(penulis.nama)}" loading="lazy" class="mt-3 w-full max-h-[460px] object-cover rounded-2xl border border-neutral4/80 bg-neutral5">` : ''}
+            ${barAksi(p)}
+          </div>
+        </div>
+      </article>`;
+  }
+
+  async function salinTautan(id) {
+    try {
+      await navigator.clipboard.writeText(new URL(`beranda.html#post-${id}`, location.href).href);
+      showToast('Tautan postingan disalin.');
+    } catch {
+      showToast('Browser menolak akses salin.', 'error');
+    }
+  }
+
+  // ===================== SARINGAN DAN SAMPING =====================
+  function renderSaring() {
+    const semua = DB.feed.semua();
+    document.getElementById('saring').innerHTML = SARING.map(([kunci, label, cocok]) => `
+      <button type="button" data-saring="${kunci}" aria-pressed="${saring === kunci}" class="shrink-0 whitespace-nowrap px-3.5 py-3 border-b-2 -mb-px !text-sm font-semibold transition-colors ${saring === kunci ? 'border-primary1 text-primary1' : 'border-transparent text-neutral3 hover:text-neutral1'}">${label} <span class="!text-xs font-medium opacity-70">${semua.filter(cocok).length}</span></button>`).join('');
+  }
+
+  function renderSamping() {
+    const tumpuk = list => `<div class="flex flex-col gap-2">${list.join('')}</div>`;
+    const pengumuman = DB.pengumuman.semua().slice(0, 3);
+    const beta = DB.feed.semua().filter(p => p.karya?.tahap === 'beta').slice(0, 3);
+    const gig = DB.gigs.daftar().slice(0, 3);
+    const jumlahCv = Object.values(CV_KATEGORI).reduce((n, k) => n + DB.cv.milik(k.tabel, SAYA.id).length, 0);
+    const baris = (href, ikon, label, nilai) => `
+      <a href="${href}" class="flex items-center justify-between gap-3 px-5 py-2.5 hover:bg-neutral5 transition-colors">
+        <span class="flex items-center gap-2.5 !text-sm text-neutral1"><i data-lucide="${ikon}" class="w-4 h-4 text-neutral3"></i>${label}</span>
+        <span class="!text-xs text-neutral3">${esc(nilai)}</span>
+      </a>`;
+    document.getElementById('samping').innerHTML = [
+      `<section class="bg-white rounded-2xl border border-neutral4/80 elevation1 overflow-hidden">
+        <div class="h-14" style="background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);"></div>
+        <div class="px-5 -mt-7">
+          <a href="profil.html" class="inline-block rounded-full">${fotoBulat(SAYA, 'w-14 h-14 ring-4 ring-white')}</a>
+          <a href="profil.html" class="block mt-1.5 !text-[15px] font-semibold text-neutral1 hover:text-primary1">${esc(SAYA.nama)}</a>
+          <p class="!text-xs text-neutral3 leading-snug">${esc(DB.tracer.karir(DB.tracer.milik(SAYA.id)).ringkas)}</p>
+        </div>
+        <div class="mt-3 py-1.5 border-t border-neutral4/70">
+          ${baris('profil.html', 'user-round', 'Profil dan portofolio', `${jumlahCv} data`)}
+          ${baris('tracer.html', 'clipboard-list', 'Status karir', 'Perbarui')}
+          ${baris('generate-cv.html', 'file-text', 'Generate CV', 'ATS dan Modern')}
+          ${baris('gigs.html', 'briefcase-business', 'Lamaran gigs', `${DB.gigs.dilamar(SAYA.id).length} aktif`)}
+        </div>
+      </section>`,
+      kartuSamping('megaphone', 'Pengumuman Terbaru', pengumuman.length ? tumpuk(pengumuman.map(p => itemRingkas('pengumuman.html', p.judul, fmtDate(p.published_at)))) : '<p class="!text-sm text-neutral3">Belum ada pengumuman.</p>', 'pengumuman.html'),
+      beta.length && kartuSamping('flask-conical', 'Butuh Tester', tumpuk(beta.map(p => itemRingkas(`#post-${p.id}`, p.karya.nama, `Fokus: ${p.karya.fokus.join(', ')}`)))),
+      gig.length && kartuSamping('briefcase-business', 'Gigs Terbuka', tumpuk(gig.map(g => itemRingkas(`gigs.html?id=${g.id}`, g.judul, `${g.peran.join(', ')} · ${g.budget}`))), 'gigs.html'),
+    ].filter(Boolean).join('');
+  }
+
+  function render() {
+    const cocok = SARING.find(([kunci]) => kunci === saring)[2];
+    renderSaring();
+    daftar.innerHTML = DB.feed.semua().filter(cocok).map(kartuPost).join('') || kartuKosong('newspaper', 'Belum ada postingan', 'Bagikan kabar, karya, atau info referral pertama Anda.');
+    renderSamping();
+    refreshIcons();
+  }
+
+  // Hanya satu kartu yang digambar ulang supaya komentar yang sedang diketik di kartu lain tidak hilang
+  function segarkan(id) {
+    document.getElementById(`post-${id}`).outerHTML = kartuPost(DB.feed.cari(id));
+    refreshIcons();
+  }
+
+  function hapus(id) {
+    const karya = DB.feed.cari(id).jenis === 'karya';
+    confirmAction({ title: 'Hapus postingan?', message: `Postingan ini akan dihapus dari Beranda.${karya ? ' Proyeknya tetap ada di portofolio dan bisa dipublikasikan lagi.' : ''}`, okLabel: 'Hapus', danger: true }, () => {
+      DB.feed.hapus(id, SAYA.id);
+      render();
+      showToast('Postingan berhasil dihapus.');
+    });
+  }
+
+  function bukaAjukan(id) {
+    const p = DB.feed.cari(id);
+    document.getElementById('ajukan-info').textContent = `${p.referral.posisi} di ${p.referral.perusahaan}, direview oleh ${DB.akun.cari(p.id_alumni).nama}. Profil dan CV Anda ikut terlampir.`;
+    bukaModalForm('ajukan-modal', { id, format: 'ats' });
+  }
+
+  daftar.addEventListener('click', e => {
+    const tombol = e.target.closest('[data-aksi]');
+    if (!tombol) return;
+    const id = Number(tombol.dataset.id);
+    const aksi = tombol.dataset.aksi;
+    if (aksi === 'hapus') return hapus(id);
+    if (aksi === 'feedback') return bukaModalForm('feedback-modal', { id });
+    if (aksi === 'ajukan') return bukaAjukan(id);
+    if (aksi === 'pengajuan') return bukaPengajuan(id);
+    if (aksi === 'bagikan') return salinTautan(id);
+    if (aksi === 'rilis') {
+      return confirmAction({ title: 'Ubah status ke Live?', message: 'Karya tampil sebagai Live Product di Hall of Fame dan bisa dipilih koordinator untuk Spotlight.', okLabel: 'Ubah ke Live' }, () => {
+        DB.feed.rilis(id, SAYA.id);
+        render();
+        showToast('Karya sekarang Live.');
+      });
+    }
+    if (aksi === 'tanggapi') {
+      DB.feed.tanggapi(id, tombol.dataset.feedback, SAYA.id);
+      showToast('Feedback ditandai dan tester diberi tahu.');
+    }
+    if (aksi === 'suka') DB.feed.suka(id, SAYA.id);
+    if (aksi === 'buka' && !terbuka.delete(id)) terbuka.add(id);
+    segarkan(id);
+  });
+
+  daftar.addEventListener('submit', e => {
+    e.preventDefault();
+    const id = Number(e.target.dataset.komentar);
+    DB.feed.komentar(id, SAYA.id, e.target.elements.isi.value);
+    segarkan(id);
+  });
+
+  document.getElementById('saring').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-saring]');
+    if (!tombol) return;
+    saring = tombol.dataset.saring;
+    render();
+  });
+
+  // ===================== PENGAJUAN REFERRAL (khusus pemilik postingan) =====================
+  function kartuPengajuan(p, a) {
+    const u = DB.akun.cari(a.id_user);
+    const t = DB.tracer.milik(a.id_user);
+    const wa = tautanWa(t.no_hp, `Halo ${u.nama}, saya ${SAYA.nama} dari Portal Alumni Bengkel Koding. Terima kasih sudah mengajukan referral ${p.referral.posisi} di ${p.referral.perusahaan}. Boleh kita ngobrol sebentar soal posisinya?`);
+    const status = { menunggu: badge('Menunggu', 'yellow'), dihubungi: badge('Dihubungi', 'green'), masukan: badge('Diberi masukan', 'gray') }[a.status];
+    return `
+      <article class="rounded-xl border border-neutral4 p-4 space-y-3">
+        <div class="flex items-start gap-3">
+          ${fotoBulat(u, 'w-10 h-10')}
+          <div class="min-w-0 flex-1 !text-sm">
+            <div class="flex flex-wrap items-center gap-2">${namaTautan(u)} ${status}</div>
+            <p class="!text-xs text-neutral3 mt-0.5">Angkatan ${esc(t.tahun_masuk)} · ${esc(DB.tracer.karir(t).ringkas)}</p>
+          </div>
+        </div>
+        ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.map(chip).join('')}</div>` : ''}
+        <p class="!text-sm text-neutral1 leading-relaxed bg-neutral5/70 rounded-lg px-3 py-2 border border-neutral4/60">${esc(a.pesan)}</p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-cv="${u.id}" data-format="${a.format}" class="btn-outline !px-3 !py-1.5 !text-xs"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Preview CV ${a.format === 'ats' ? 'ATS' : 'Modern'}</button>
+          ${a.status !== 'masukan' ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" ${a.status === 'menunggu' ? `data-hubungi="${a.id}"` : ''} class="btn-success !px-3 !py-1.5 !text-xs"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi via WhatsApp</a>` : ''}
+        </div>
+        ${a.status === 'menunggu' ? `
+          <form data-masukan="${a.id}" class="flex flex-col sm:flex-row gap-2">
+            <input name="masukan" class="input" maxlength="150" placeholder="Belum pas? Beri masukan satu baris" aria-label="Masukan singkat untuk ${esc(u.nama)}">
+            <button type="submit" class="btn-outline shrink-0">Beri Masukan</button>
+          </form>` : ''}
+        ${a.status === 'masukan' ? `<p class="!text-xs text-neutral2"><span class="font-semibold">Masukan terkirim:</span> ${esc(a.masukan)}</p>` : ''}
+      </article>`;
+  }
+
+  function renderPengajuan() {
+    const p = DB.feed.cari(referralAktif);
+    document.getElementById('pengajuan-drawer-isi').innerHTML = `
+      <div>
+        <p class="!text-sm font-semibold text-neutral1">${esc(p.referral.posisi)} · ${esc(p.referral.perusahaan)}</p>
+        <p class="!text-xs text-neutral3">${p.pengajuan.length} pengajuan · review sampai ${fmtDate(p.referral.batas)}</p>
+      </div>
+      ${p.pengajuan.map(a => kartuPengajuan(p, a)).join('') || kartuKosong('inbox', 'Belum ada pengajuan', 'Adik tingkat yang tertarik akan tampil di sini.')}`;
+    refreshIcons();
+  }
+
+  function bukaPengajuan(id) {
+    referralAktif = id;
+    renderPengajuan();
+    openModal('pengajuan-drawer');
+  }
+
+  const isiDrawer = document.getElementById('pengajuan-drawer-isi');
+  isiDrawer.addEventListener('click', e => {
+    const tombolCv = e.target.closest('[data-cv]');
+    if (tombolCv) {
+      document.getElementById('cv-isi').innerHTML = dokumenCv(Number(tombolCv.dataset.cv), tombolCv.dataset.format);
+      openModal('cv-modal');
+    }
+    const hubungi = e.target.closest('[data-hubungi]');
+    if (hubungi) {
+      DB.feed.hubungi(referralAktif, hubungi.dataset.hubungi, SAYA.id);
+      setTimeout(renderPengajuan); // tunggu tautan WhatsApp terbuka dulu
+    }
+  });
+  isiDrawer.addEventListener('submit', e => {
+    e.preventDefault();
+    const hasil = DB.feed.beriMasukan(referralAktif, e.target.dataset.masukan, SAYA.id, e.target.elements.masukan.value);
+    if (!hasil.ok) return showToast(hasil.error, 'error');
+    renderPengajuan();
+    showToast('Masukan terkirim.');
+  });
+
+  document.getElementById('avatar-saya').innerHTML = fotoBulat(SAYA, 'w-11 h-11 sm:w-12 sm:h-12');
+  render();
+
+  // Tombol "Publish ke Beranda" dari portofolio membuka form karya yang sudah terisi
+  document.addEventListener('DOMContentLoaded', () => {
+    const idProyek = new URLSearchParams(location.search).get('karya');
+    if (idProyek) bukaKarya(idProyek);
+  });
+  window.addEventListener('load', () => document.getElementById(location.hash.slice(1))?.scrollIntoView());
+</script>
+</body>
+</html>

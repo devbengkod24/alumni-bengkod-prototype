@@ -265,7 +265,7 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
   openModal('confirm-modal');
 }
 
-// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Mitra, Koordinator) dan Log Aktivitas)
+// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Koordinator) dan Log Aktivitas)
 const SUPERADMIN_NAV = [
   { href: 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   {
@@ -274,7 +274,6 @@ const SUPERADMIN_NAV = [
     submenu: [
       { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator', match: 'koordinator.html' },
       { href: 'alumni.html', icon: 'user-check', label: 'Alumni', match: 'alumni.html' },
-      { href: 'mitra.html', icon: 'building-2', label: 'Mitra', match: 'mitra.html' },
     ]
   },
   { href: 'log-aktivitas.html', icon: 'history', label: 'Log Aktivitas', match: 'log-aktivitas.html' },

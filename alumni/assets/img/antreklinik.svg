@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Poppins, Arial, sans-serif">
+  <rect width="1200" height="630" fill="#EEF3FF"/>
+  <circle cx="1080" cy="80" r="190" fill="#DBEAFE"/>
+  <circle cx="120" cy="590" r="150" fill="#DBEAFE"/>
+  <text x="90" y="200" font-size="54" font-weight="700" fill="#1E3A8A">AntreKlinik</text>
+  <text x="90" y="252" font-size="26" fill="#55585E">Antrean klinik dari ponsel,</text>
+  <text x="90" y="290" font-size="26" fill="#55585E">tanpa menunggu di ruang tunggu.</text>
+  <rect x="90" y="340" width="230" height="56" rx="28" fill="#1E3A8A"/>
+  <text x="205" y="376" font-size="22" font-weight="600" fill="#FFFFFF" text-anchor="middle">Ambil Nomor</text>
+  <text x="90" y="460" font-size="20" fill="#6B6E76">Dipakai 3 klinik di Semarang</text>
+
+  <g transform="translate(700 60)">
+    <rect width="300" height="540" rx="40" fill="#1F2937"/>
+    <rect x="14" y="14" width="272" height="512" rx="30" fill="#FFFFFF"/>
+    <rect x="110" y="28" width="80" height="10" rx="5" fill="#DEDFE1"/>
+    <text x="40" y="92" font-size="18" fill="#6B6E76">Klinik Sehat Pemuda</text>
+    <text x="40" y="122" font-size="24" font-weight="700" fill="#46494E">Poli Umum</text>
+    <rect x="40" y="148" width="220" height="170" rx="20" fill="#1E3A8A"/>
+    <text x="150" y="190" font-size="16" fill="#BFDBFE" text-anchor="middle">Nomor Anda</text>
+    <text x="150" y="262" font-size="64" font-weight="700" fill="#FFFFFF" text-anchor="middle">A-12</text>
+    <text x="150" y="298" font-size="16" fill="#BFDBFE" text-anchor="middle">Perkiraan 25 menit</text>
+    <text x="40" y="360" font-size="16" font-weight="600" fill="#46494E">Sedang dilayani</text>
+    <rect x="40" y="376" width="220" height="44" rx="12" fill="#F4F4F4"/>
+    <text x="58" y="404" font-size="16" fill="#46494E">A-09</text>
+    <rect x="196" y="388" width="50" height="20" rx="10" fill="#CDFECF"/>
+    <rect x="40" y="430" width="220" height="44" rx="12" fill="#F4F4F4"/>
+    <text x="58" y="458" font-size="16" fill="#46494E">A-10</text>
+    <rect x="196" y="442" width="50" height="20" rx="10" fill="#FFECAA"/>
+  </g>
+</svg>

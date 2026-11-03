@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | SuperAdmin Bengkel Koding</title>
-  <meta name="description" content="Dashboard SuperAdmin Bengkel Koding UDINUS - Kendali penuh manajemen pengguna (koordinator, alumni, mitra) dan log aktivitas sistem.">
+  <meta name="description" content="Dashboard SuperAdmin Bengkel Koding UDINUS - Kendali penuh manajemen pengguna (koordinator dan alumni) dan log aktivitas sistem.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css">
@@ -26,13 +26,13 @@
       <p class="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-1" id="current-date-banner">KAMIS, 22 OKTOBER 2026</p>
       <h1 class="text-xl sm:text-2xl font-bold text-white mb-1 leading-tight">Halo, SuperAdmin! 👋</h1>
       <p class="text-xs sm:text-[12px] text-white/80 max-w-xl leading-relaxed">
-        Kendali penuh platform: kelola akun koordinator alumni, alumni, mitra industri, dan pantau log aktivitas sistem dari satu tempat.
+        Kendali penuh platform: kelola akun koordinator alumni dan alumni, serta pantau log aktivitas sistem dari satu tempat.
       </p>
     </div>
   </div>
 
-  <!-- 4 STAT CARDS WITH VIVID GRADIENTS (100% Identik dengan StatCard lms-bengkod-web) -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+  <!-- 3 STAT CARDS WITH VIVID GRADIENTS (100% Identik dengan StatCard lms-bengkod-web) -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
     <!-- Card 1: Total Koordinator Alumni (Purple / Indigo) -->
     <a href="koordinator.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#5b21b6 0%,#7c3aed 100%);">
       <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
@@ -61,21 +61,7 @@
       </div>
     </a>
 
-    <!-- Card 3: Total Mitra Industri (Orange / Amber) -->
-    <a href="mitra.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#9a3412 0%,#ea580c 100%);">
-      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
-      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
-      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
-        <i data-lucide="building-2" class="w-5 h-5"></i>
-      </div>
-      <div class="relative z-10 flex-1 min-w-0">
-        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: #FED7AA;">MITRA INDUSTRI</p>
-        <p id="stat-mitra-count" class="text-[22px] font-bold text-white leading-none">5</p>
-        <p class="text-[10px] mt-1" style="color: #FED7AA;"><span id="stat-mitra-verified">3</span> Terverifikasi</p>
-      </div>
-    </a>
-
-    <!-- Card 4: Log Aktivitas (Blue / Navy) -->
+    <!-- Card 3: Log Aktivitas (Blue / Navy) -->
     <a href="log-aktivitas.html" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%);">
       <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
       <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
@@ -98,7 +84,7 @@
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral4">
         <div>
           <h2 class="text-sm font-semibold text-neutral1">Direktori Pengguna Terkelola</h2>
-          <p class="text-[11px] text-neutral3 mt-0.5">Kelola akses akun koordinator alumni, mitra, dan alumni</p>
+          <p class="text-[11px] text-neutral3 mt-0.5">Kelola akses akun koordinator alumni dan alumni</p>
         </div>
         <!-- Tab Selector -->
         <div class="flex items-center gap-1.5 p-1 bg-neutral5 rounded-xl border border-neutral4/70 text-xs">
@@ -107,9 +93,6 @@
           </button>
           <button id="tab-btn-alumni" onclick="switchDashboardTab('alumni')" class="px-3 py-1 rounded-lg font-medium text-neutral2 hover:text-neutral1 transition-all">
             Alumni (<span id="tab-cnt-alumni">8</span>)
-          </button>
-          <button id="tab-btn-mitra" onclick="switchDashboardTab('mitra')" class="px-3 py-1 rounded-lg font-medium text-neutral2 hover:text-neutral1 transition-all">
-            Mitra (<span id="tab-cnt-mitra">5</span>)
           </button>
         </div>
       </div>
@@ -165,17 +148,6 @@
             <i data-lucide="chevron-right" class="w-4 h-4 text-neutral3 shrink-0 group-hover:text-primary3 transition-colors"></i>
           </a>
 
-          <a href="mitra.html?action=tambah" class="flex items-center gap-3 p-2.5 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/20 transition-all group">
-            <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-700 flex items-center justify-center shrink-0">
-              <i data-lucide="building-2" class="w-4 h-4"></i>
-            </div>
-            <div class="min-w-0 flex-1">
-              <div class="text-xs font-semibold text-neutral1 group-hover:text-primary1 transition-colors">+ Tambah Akun Mitra</div>
-              <div class="text-[10px] text-neutral3 truncate">Registrasi perusahaan mitra</div>
-            </div>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-neutral3 shrink-0 group-hover:text-primary3 transition-colors"></i>
-          </a>
-
           <a href="log-aktivitas.html" class="flex items-center gap-3 p-2.5 rounded-xl border border-neutral4 hover:border-primary3 hover:bg-primary5/20 transition-all group">
             <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
               <i data-lucide="history" class="w-4 h-4"></i>
@@ -215,7 +187,6 @@
     activeTab = tab;
     const btnKoor = document.getElementById('tab-btn-koor');
     const btnAlumni = document.getElementById('tab-btn-alumni');
-    const btnMitra = document.getElementById('tab-btn-mitra');
     const linkManage = document.getElementById('link-manage-tab');
     const textManage = document.getElementById('manage-tab-text');
 
@@ -224,17 +195,13 @@
 
     btnKoor.className = tab === 'koor' ? activeCls : inactiveCls;
     btnAlumni.className = tab === 'alumni' ? activeCls : inactiveCls;
-    btnMitra.className = tab === 'mitra' ? activeCls : inactiveCls;
 
     if (tab === 'koor') {
       linkManage.href = 'koordinator.html';
       textManage.textContent = 'Buka Manajemen Koordinator';
-    } else if (tab === 'alumni') {
+    } else {
       linkManage.href = 'alumni.html';
       textManage.textContent = 'Buka Manajemen Alumni';
-    } else {
-      linkManage.href = 'mitra.html';
-      textManage.textContent = 'Buka Manajemen Mitra';
     }
 
     renderTabContent();
@@ -294,31 +261,6 @@
           </div>
         `).join('');
       }
-    } else if (activeTab === 'mitra') {
-      const list = SUPERADMIN.mitra || [];
-      if (list.length === 0) {
-        container.innerHTML = `<div class="text-center py-8 text-neutral3 text-xs bg-neutral5/60 rounded-xl">Belum ada data mitra industri.</div>`;
-      } else {
-        container.innerHTML = list.slice(0, 4).map(m => `
-          <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors border border-transparent hover:border-neutral4/80">
-            <div class="flex items-center gap-3 min-w-0">
-              <div class="w-9 h-9 rounded-xl flex-shrink-0 flex items-center justify-center font-bold text-xs bg-orange-100 text-orange-700 border border-orange-200">
-                <i data-lucide="building-2" class="w-4 h-4"></i>
-              </div>
-              <div class="min-w-0 flex-1">
-                <p class="text-xs font-semibold text-neutral1 truncate">${esc(m.nama_perusahaan)}</p>
-                <p class="text-[10px] text-neutral3 truncate">${esc(m.bidang_usaha)} · Kota ${esc(m.kota)} · PIC: ${esc(m.pic)}</p>
-              </div>
-            </div>
-            <div class="flex items-center gap-2 shrink-0">
-              ${badge(m.status_verifikasi)}
-              <a href="mitra.html" class="p-1 rounded-md text-neutral3 hover:text-primary1 hover:bg-white transition-colors" title="Buka Detail">
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </a>
-            </div>
-          </div>
-        `).join('');
-      }
     }
 
     if (window.lucide) window.lucide.createIcons();
@@ -336,30 +278,23 @@
     // 2. Counts
     const koorList = SUPERADMIN.koordinator || [];
     const alumniList = SUPERADMIN.alumni || [];
-    const mitraList = SUPERADMIN.mitra || [];
     const logsList = SUPERADMIN.activityLogs || [];
 
     const totalKoor = document.getElementById('stat-total-koor');
     const aktifKoor = document.getElementById('stat-aktif-koor');
     const totalAlumni = document.getElementById('stat-alumni-count');
-    const totalMitra = document.getElementById('stat-mitra-count');
-    const verifiedMitra = document.getElementById('stat-mitra-verified');
     const totalLogs = document.getElementById('stat-logs-count');
 
     if (totalKoor) totalKoor.textContent = koorList.length;
     if (aktifKoor) aktifKoor.textContent = koorList.filter(k => k.status === 'Aktif').length;
     if (totalAlumni) totalAlumni.textContent = alumniList.length;
-    if (totalMitra) totalMitra.textContent = mitraList.length;
-    if (verifiedMitra) verifiedMitra.textContent = mitraList.filter(m => m.status_verifikasi === 'Terverifikasi').length;
     if (totalLogs) totalLogs.textContent = logsList.length;
 
     // Tab counts
     const cntKoor = document.getElementById('tab-cnt-koor');
     const cntAlumni = document.getElementById('tab-cnt-alumni');
-    const cntMitra = document.getElementById('tab-cnt-mitra');
     if (cntKoor) cntKoor.textContent = koorList.length;
     if (cntAlumni) cntAlumni.textContent = alumniList.length;
-    if (cntMitra) cntMitra.textContent = mitraList.length;
 
     renderTabContent();
 
