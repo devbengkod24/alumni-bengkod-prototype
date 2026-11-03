@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alumni | Alumni Bengkel Koding</title>
+  <title>Direktori Alumni | Alumni Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
@@ -13,7 +13,7 @@
   <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
-<main data-title="Alumni">
+<main data-title="Direktori Alumni">
   <div>
     <h2 class="!text-2xl font-semibold text-neutral1">Direktori Alumni</h2>
     <p class="!text-sm text-neutral2 mt-1">Temukan rekan alumni berdasarkan angkatan, keahlian, kota, atau yang sedang studi lanjut S2.</p>
@@ -56,19 +56,32 @@
     const u = DB.akun.cari(t.id_alumni);
     const lencana = DB.feed.lencanaTester(u.id);
     const tanda = [t.nama_studi && badge('Sedang S2', 'yellow'), t.nama_sampingan && badge('Freelance', 'blue'), lencana && badge(lencana, 'green')].filter(Boolean);
+    const pesanWa = `Halo ${u.nama}, saya ${SAYA.nama} rekan alumni asisten lab Bengkel Koding. Salam kenal!`;
+    const urlWa = tautanWa(t.no_hp, pesanWa);
+    const urlLi = t.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(u.nama)}`;
     return `
-      <a href="profil-alumni.html?id=${u.id}" class="card !p-4 flex flex-col gap-3 hover:border-primary4 hover:-translate-y-0.5 transition-all min-w-0">
-        <div class="flex items-start gap-3 min-w-0">
-          ${fotoBulat(u)}
-          <div class="min-w-0">
-            <p class="!text-sm font-semibold text-neutral1 truncate">${esc(u.nama)}</p>
-            <p class="!text-xs text-neutral2 leading-snug mt-0.5">${esc(DB.tracer.karir(t).ringkas)}</p>
-            <p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, t.kota].filter(Boolean).join(' · '))}</p>
+      <div class="card !p-4 flex flex-col justify-between gap-3 hover:border-primary4 transition-all min-w-0">
+        <a href="profil-alumni.html?id=${u.id}" class="flex flex-col gap-3 min-w-0 flex-1">
+          <div class="flex items-start gap-3 min-w-0">
+            ${fotoBulat(u)}
+            <div class="min-w-0">
+              <p class="!text-sm font-semibold text-neutral1 truncate hover:text-primary1">${esc(u.nama)}</p>
+              <p class="!text-xs text-neutral2 leading-snug mt-0.5">${esc(DB.tracer.karir(t).ringkas)}</p>
+              <p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, t.kota].filter(Boolean).join(' · '))}</p>
+            </div>
           </div>
+          ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.slice(0, 4).map(chip).join('')}</div>` : ''}
+          ${tanda.length ? `<div class="flex flex-wrap gap-1.5">${tanda.join('')}</div>` : ''}
+        </a>
+        <div class="flex items-center gap-2 pt-2.5 border-t border-neutral4/60 mt-auto">
+          <a href="${esc(urlWa)}" target="_blank" rel="noreferrer" class="btn-outline !py-1 !px-2.5 !text-xs !text-green1 !border-green1/40 hover:!bg-green3/30 inline-flex items-center gap-1.5">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+          </a>
+          <a href="${esc(tautanAman(urlLi))}" target="_blank" rel="noreferrer" class="btn-outline !py-1 !px-2.5 !text-xs !text-blue1 !border-blue1/40 hover:!bg-blue3/30 inline-flex items-center gap-1.5">
+            <i data-lucide="linkedin" class="w-3.5 h-3.5"></i> LinkedIn
+          </a>
         </div>
-        ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.slice(0, 4).map(chip).join('')}</div>` : ''}
-        ${tanda.length ? `<div class="flex flex-wrap gap-1.5">${tanda.join('')}</div>` : ''}
-      </a>`;
+      </div>`;
   }
 
   function render() {

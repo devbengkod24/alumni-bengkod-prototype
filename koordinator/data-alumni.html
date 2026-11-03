@@ -41,6 +41,8 @@
 <script>
   const tahunSel = document.getElementById('f-tahun');
   [...new Set(KOOR.alumni.map(a => a.tahun_lulus))].sort().forEach(t => tahunSel.add(new Option(t, t)));
+  const urlQ = new URLSearchParams(location.search).get('q');
+  if (urlQ) document.getElementById('q').value = urlQ;
 
   function render() {
     const t = tahunSel.value, q = document.getElementById('q').value.toLowerCase();

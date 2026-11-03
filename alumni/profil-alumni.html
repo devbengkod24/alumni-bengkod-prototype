@@ -31,6 +31,10 @@
   const t = DB.tracer.milik(alumni.id);
   const lencana = DB.feed.lencanaTester(alumni.id);
   const tanda = [t?.nama_studi && badge('Sedang S2', 'yellow'), t?.nama_sampingan && badge('Freelance', 'blue'), lencana && badge(lencana, 'green')].filter(Boolean);
+  const pesanWa = `Halo ${alumni.nama}, saya ${SAYA.nama} rekan alumni asisten lab Bengkel Koding. Salam kenal!`;
+  const urlWa = t?.no_hp ? tautanWa(t.no_hp, pesanWa) : '';
+  const urlLi = t?.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(alumni.nama)}`;
+
   document.getElementById('kepala').innerHTML = `
     ${fotoBulat(alumni, 'w-16 h-16')}
     <div class="min-w-0 flex-1 space-y-2">
@@ -42,7 +46,11 @@
       ${t?.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.map(chip).join('')}</div>` : ''}
       ${tanda.length ? `<div class="flex flex-wrap gap-1.5">${tanda.join('')}</div>` : ''}
     </div>
-    <a href="mailto:${esc(alumni.email)}" class="btn-outline shrink-0 self-start"><i data-lucide="mail" class="w-4 h-4"></i> Kirim Email</a>`;
+    <div class="flex flex-wrap sm:flex-col gap-2 shrink-0 self-start">
+      ${urlWa ? `<a href="${esc(urlWa)}" target="_blank" rel="noreferrer" class="btn-success !py-1.5 !px-3 !text-xs inline-flex items-center gap-1.5"><i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp</a>` : ''}
+      <a href="${esc(tautanAman(urlLi))}" target="_blank" rel="noreferrer" class="btn-outline !py-1.5 !px-3 !text-xs !text-blue1 hover:!bg-blue3/30 inline-flex items-center gap-1.5"><i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn</a>
+      <a href="mailto:${esc(alumni.email)}" class="btn-outline !py-1.5 !px-3 !text-xs inline-flex items-center gap-1.5"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
+    </div>`;
   if (t) document.getElementById('tracer').innerHTML = ringkasanTracer(t, true);
   renderCv('cv', alumni.id, false);
 </script>

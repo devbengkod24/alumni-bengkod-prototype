@@ -18,6 +18,7 @@
   <!-- Tata letak ala media sosial: feed di tengah, info pendukung di kolom kanan -->
   <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
     <div class="min-w-0 w-full max-w-2xl mx-auto lg:mx-0 lg:max-w-none space-y-4">
+      <div id="spotlight-carousel-wrap" class="hidden"></div>
       <form id="composer" class="bg-white rounded-xl border border-neutral4 elevation1 p-4 sm:p-5" aria-label="Buat postingan" novalidate>
         <div class="flex gap-3">
           <div id="avatar-saya" class="shrink-0"></div>
@@ -191,7 +192,11 @@
       <fieldset><legend class="label">Kategori</legend>
         <div class="grid grid-cols-2 gap-2">${DB.OPSI.kategori_feedback.map(k => pilihanPil('radio', 'kategori', k, k)).join('')}</div>
       </fieldset>
-      <div><label for="b-isi" class="label">Feedback <span class="text-red1">*</span></label><textarea id="b-isi" name="isi" rows="4" class="input resize-none" maxlength="500" required placeholder="Langkah yang Anda coba, hasilnya, dan saran perbaikan"></textarea></div>`, 'Kirim Feedback', 'max-w-lg'),
+      <div><label for="b-isi" class="label">Feedback <span class="text-red1">*</span></label><textarea id="b-isi" name="isi" rows="4" class="input resize-none" maxlength="500" required placeholder="Langkah yang Anda coba, hasilnya, dan saran perbaikan"></textarea></div>
+      <label class="flex items-center gap-2.5 cursor-pointer mt-3 p-2.5 rounded-lg bg-neutral5 border border-neutral4/60">
+        <input type="checkbox" name="upvote" value="1" class="rounded border-neutral4 text-primary1 focus:ring-primary5">
+        <span class="!text-sm text-neutral1 font-medium flex items-center gap-1.5"><i data-lucide="thumbs-up" class="w-4 h-4 text-primary1"></i> Sertakan Dukungan (Upvote karya ini)</span>
+      </label>`, 'Kirim Feedback', 'max-w-lg'),
 
     modalBesar('ajukan-modal', 'Minta Review dan Referral', `
       <input type="hidden" name="id">
@@ -281,9 +286,13 @@
     DB.feed.tambah(SAYA.id, { jenis: 'referral', isi: fd.get('isi'), referral: Object.fromEntries(fd) }), render);
 
   pasangForm('feedback-modal', 'Terima kasih, feedback terkirim ke pembuat karya.', fd =>
-    DB.feed.feedback(fd.get('id'), SAYA.id, { kategori: fd.get('kategori'), isi: fd.get('isi') }), render);
+    DB.feed.feedback(fd.get('id'), SAYA.id, {
+      kategori: fd.get('kategori'),
+      isi: fd.get('isi'),
+      upvote: Boolean(fd.get('upvote'))
+    }), render);
 
-  pasangForm('ajukan-modal', 'Pengajuan terkirim ke senior.', fd =>
+  pasangForm('ajukan-modal', 'Pengajuan terkirim ke rekan alumni.', fd =>
     DB.feed.ajukan(fd.get('id'), SAYA.id, { format: fd.get('format'), pesan: fd.get('pesan') }), render);
 
   // Karya bisa diambil dari portofolio supaya tidak mengisi ulang dari nol
@@ -324,18 +333,25 @@
   function isiKarya(p) {
     const k = p.karya;
     const beta = k.tahap === 'beta';
+    const milik = p.id_alumni === SAYA.id;
     return `
       ${p.isi ? paragraf(p.isi) : ''}
       <div class="mt-3 rounded-xl border border-neutral4 bg-white p-4">
-        <div class="flex flex-wrap items-center gap-2">
-          <h3 class="!text-base font-semibold text-neutral1">${esc(k.nama)}</h3>
-          ${badge(beta ? 'Beta Tester Wanted' : 'Live Product', beta ? 'yellow' : 'green')}
-          ${spotlight(p) ? badge('Spotlight', 'blue') : ''}
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <h3 class="!text-base font-semibold text-neutral1">${esc(k.nama)}</h3>
+            ${badge(beta ? 'Beta Tester Wanted' : 'Live Product', beta ? 'yellow' : 'green')}
+            ${spotlight(p) ? badge('Spotlight', 'blue') : ''}
+          </div>
+          ${milik && beta ? `<button type="button" data-aksi="rilis" data-id="${p.id}" class="btn-outline !px-2.5 !py-1 !text-xs !text-green1 !border-green1/40 hover:!bg-green3/30 flex items-center gap-1.5"><i data-lucide="sparkles" class="w-3.5 h-3.5"></i> Promosikan ke Hall of Fame</button>` : ''}
         </div>
         <p class="!text-sm text-neutral2 mt-1">${esc(k.tagline)}</p>
         ${k.stack.length ? `<div class="flex flex-wrap gap-1.5 mt-2.5">${k.stack.map(chip).join('')}</div>` : ''}
         ${beta ? `<p class="!text-xs text-neutral2 mt-2.5"><span class="font-semibold">Fokus review:</span> ${esc(k.fokus.join(', '))}</p>` : ''}
-        <a href="${esc(tautanAman(k.link))}" target="_blank" rel="noreferrer" class="btn-primary !px-3 !py-1.5 !text-xs !rounded-full mt-3 w-fit">${beta ? 'Coba dan Uji' : 'Buka Aplikasi'} <i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+        <div class="flex flex-wrap items-center gap-2.5 mt-3">
+          <a href="${esc(tautanAman(k.link))}" target="_blank" rel="noreferrer" class="btn-primary !px-3.5 !py-1.5 !text-xs !rounded-full w-fit">${beta ? 'Coba dan Uji' : 'Buka Aplikasi'} <i data-lucide="external-link" class="w-3.5 h-3.5"></i></a>
+          ${beta && !milik ? `<button type="button" data-aksi="feedback" data-id="${p.id}" class="btn-outline !px-3.5 !py-1.5 !text-xs !rounded-full"><i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i> Beri Feedback</button>` : ''}
+        </div>
       </div>`;
   }
 
@@ -344,9 +360,9 @@
     const saya = p.pengajuan.find(a => a.id_user === SAYA.id);
     if (saya) {
       return {
-        menunggu: '<p class="!text-sm text-neutral2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-yellow1"></i> Pengajuan terkirim, menunggu review senior.</p>',
-        dihubungi: '<p class="!text-sm text-green1 flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Senior akan menghubungi Anda lewat WhatsApp.</p>',
-        masukan: `<div class="rounded-lg bg-yellow3/50 border border-yellow2/30 p-3 !text-sm text-neutral1"><span class="font-semibold">Masukan dari senior:</span> ${esc(saya.masukan)}</div>`,
+        menunggu: '<p class="!text-sm text-neutral2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-yellow1"></i> Pengajuan terkirim, menunggu respons rekan alumni.</p>',
+        dihubungi: '<p class="!text-sm text-green1 flex items-center gap-2"><i data-lucide="message-circle" class="w-4 h-4"></i> Rekan alumni akan menghubungi Anda lewat WhatsApp / LinkedIn.</p>',
+        masukan: `<div class="rounded-lg bg-yellow3/50 border border-yellow2/30 p-3 !text-sm text-neutral1"><span class="font-semibold">Masukan dari rekan alumni:</span> ${esc(saya.masukan)}</div>`,
       }[saya.status];
     }
     if (ditutup(p)) return '<p class="!text-sm text-neutral3">Batas waktu review sudah lewat.</p>';
@@ -470,6 +486,61 @@
   }
 
   // ===================== SARINGAN DAN SAMPING =====================
+  function renderSpotlight() {
+    const list = DB.feed.spotlightAktif();
+    const wadah = document.getElementById('spotlight-carousel-wrap');
+    if (!wadah) return;
+    if (!list.length) {
+      wadah.innerHTML = '';
+      wadah.classList.add('hidden');
+      return;
+    }
+    wadah.classList.remove('hidden');
+    wadah.innerHTML = `
+      <section class="rounded-xl border border-primary4/60 bg-gradient-to-r from-primary1 to-primary2 p-4 sm:p-5 text-white elevation1" aria-label="Spotlight of the Month">
+        <div class="flex items-center justify-between gap-3 pb-3 border-b border-white/15">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary1 text-neutral1 text-xs font-bold uppercase tracking-wider">
+              <i data-lucide="trophy" class="w-3.5 h-3.5"></i> Spotlight Bulan Ini
+            </span>
+            <span class="text-xs text-white/80 hidden sm:inline">Kurasi Karya Live Terbaik Alumni</span>
+          </div>
+          <span class="text-xs text-white/70">Dikurasi Koordinator</span>
+        </div>
+        <div class="mt-3.5 space-y-4">
+          ${list.map(p => {
+            const penulis = DB.akun.cari(p.id_alumni);
+            const ditekan = p.suka.includes(SAYA.id);
+            return `
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h2 class="text-lg font-bold text-white tracking-tight">${esc(p.karya.nama)}</h2>
+                    <span class="px-2 py-0.5 rounded-full bg-green1 text-white text-[11px] font-semibold">Live Product</span>
+                  </div>
+                  <p class="text-sm text-white/90 mt-0.5 line-clamp-2">${esc(p.karya.tagline)}</p>
+                  <div class="flex flex-wrap items-center gap-2 mt-2">
+                    <span class="text-xs text-white/70">Karya oleh</span>
+                    <a href="profil-alumni.html?id=${penulis.id}" class="text-xs font-semibold text-secondary1 hover:underline inline-flex items-center gap-1.5">
+                      ${fotoBulat(penulis, 'w-5 h-5 ring-1 ring-white/50')} ${esc(penulis.nama)}
+                    </a>
+                    ${p.karya.stack?.length ? `<span class="text-white/40">·</span><div class="flex flex-wrap gap-1">${p.karya.stack.map(s => `<span class="px-2 py-0.5 rounded-md bg-white/15 text-[11px] font-medium text-white">${esc(s)}</span>`).join('')}</div>` : ''}
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <a href="${esc(tautanAman(p.karya.link))}" target="_blank" rel="noreferrer" class="px-4 py-2 rounded-full bg-secondary1 text-neutral1 text-xs font-bold hover:bg-secondary2 transition-colors flex items-center gap-1.5">
+                    Kunjungi Produk <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  </a>
+                  <button type="button" data-spotlight-suka="${p.id}" class="px-3 py-2 rounded-full ${ditekan ? 'bg-secondary1 text-neutral1' : 'bg-white/15 hover:bg-white/25 text-white'} text-xs font-semibold transition-colors flex items-center gap-1.5" title="Beri dukungan">
+                    <i data-lucide="thumbs-up" class="w-3.5 h-3.5 ${ditekan ? 'fill-current' : ''}"></i> ${p.suka.length}
+                  </button>
+                </div>
+              </div>`;
+          }).join('<hr class="border-white/15 my-3">')}
+        </div>
+      </section>`;
+  }
+
   function renderSaring() {
     const semua = DB.feed.semua();
     document.getElementById('saring').innerHTML = SARING.map(([kunci, label, cocok]) => `
@@ -510,6 +581,7 @@
 
   function render() {
     const cocok = SARING.find(([kunci]) => kunci === saring)[2];
+    renderSpotlight();
     renderSaring();
     daftar.innerHTML = DB.feed.semua().filter(cocok).map(kartuPost).join('') || kartuKosong('newspaper', 'Belum ada postingan', 'Bagikan kabar, karya, atau info referral pertama Anda.');
     renderSamping();
@@ -548,10 +620,15 @@
     if (aksi === 'pengajuan') return bukaPengajuan(id);
     if (aksi === 'bagikan') return salinTautan(id);
     if (aksi === 'rilis') {
-      return confirmAction({ title: 'Ubah status ke Live?', message: 'Karya tampil sebagai Live Product di Hall of Fame dan bisa dipilih koordinator untuk Spotlight.', okLabel: 'Ubah ke Live' }, () => {
-        DB.feed.rilis(id, SAYA.id);
+      const p = DB.feed.cari(id);
+      return confirmAction({
+        title: 'Promosikan ke Hall of Fame?',
+        message: `Karya "${p.karya.nama}" akan dialihkan statusnya menjadi Live Product, masuk ke etalase utama Hall of Fame, dan berpeluang dikurasi Koordinator untuk Spotlight Beranda.`,
+        okLabel: 'Promosikan ke Live',
+      }, () => {
+        DB.feed.promosikanKeLive(id, SAYA.id);
         render();
-        showToast('Karya sekarang Live.');
+        showToast(`Selamat! "${p.karya.nama}" kini berstatus Live Product di Hall of Fame.`);
       });
     }
     if (aksi === 'tanggapi') {
@@ -597,6 +674,7 @@
         <div class="flex flex-wrap gap-2">
           <button type="button" data-cv="${u.id}" data-format="${a.format}" class="btn-outline !px-3 !py-1.5 !text-xs"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Preview CV ${a.format === 'ats' ? 'ATS' : 'Modern'}</button>
           ${a.status !== 'masukan' ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" ${a.status === 'menunggu' ? `data-hubungi="${a.id}"` : ''} class="btn-success !px-3 !py-1.5 !text-xs"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi via WhatsApp</a>` : ''}
+          ${t.linkedin ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="btn-outline !px-3 !py-1.5 !text-xs !text-blue1 hover:!bg-blue3/30"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i> LinkedIn</a>` : ''}
         </div>
         ${a.status === 'menunggu' ? `
           <form data-masukan="${a.id}" class="flex flex-col sm:flex-row gap-2">
@@ -614,7 +692,7 @@
         <p class="!text-sm font-semibold text-neutral1">${esc(p.referral.posisi)} · ${esc(p.referral.perusahaan)}</p>
         <p class="!text-xs text-neutral3">${p.pengajuan.length} pengajuan · review sampai ${fmtDate(p.referral.batas)}</p>
       </div>
-      ${p.pengajuan.map(a => kartuPengajuan(p, a)).join('') || kartuKosong('inbox', 'Belum ada pengajuan', 'Adik tingkat yang tertarik akan tampil di sini.')}`;
+      ${p.pengajuan.map(a => kartuPengajuan(p, a)).join('') || kartuKosong('inbox', 'Belum ada pengajuan', 'Rekan alumni yang mengajukan akan tampil di sini.')}`;
     refreshIcons();
   }
 
@@ -643,6 +721,15 @@
     if (!hasil.ok) return showToast(hasil.error, 'error');
     renderPengajuan();
     showToast('Masukan terkirim.');
+  });
+
+  document.getElementById('spotlight-carousel-wrap')?.addEventListener('click', e => {
+    const btnSuka = e.target.closest('[data-spotlight-suka]');
+    if (btnSuka) {
+      const id = Number(btnSuka.dataset.spotlightSuka);
+      DB.feed.suka(id, SAYA.id);
+      render();
+    }
   });
 
   document.getElementById('avatar-saya').innerHTML = fotoBulat(SAYA, 'w-11 h-11 sm:w-12 sm:h-12');

@@ -457,9 +457,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('afterbegin', `
     <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu ${NAMA_ROLE[SAYA.role]}">
-      <a href="${nav[0].href}" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
-        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
-      </a>
+      <div class="flex items-center justify-between py-4 px-4 border-b border-neutral4">
+        <a href="${nav[0].href}" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
+          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
+        </a>
+        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors" aria-label="Tutup menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
         <button type="button" onclick="keluar()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
@@ -468,17 +473,13 @@ document.addEventListener('DOMContentLoaded', () => {
     </aside>`);
 
   const beranda = nav[0].href;
-  const isDashboard = NAMA_FILE === beranda;
   const judulHalaman = esc(main.dataset.title);
-  const induk = nav.find(n => n.href === activeHref && !isDashboard && main.dataset.nav && n.href !== beranda);
 
-  const breadcrumbHTML = isDashboard
-    ? `<a href="${beranda}" class="text-neutral1 hover:text-primary1 transition-colors font-medium">${nav[0].label}</a>
-       ${SAYA.role === 'admin' ? '<span class="mx-2 text-neutral3 select-none font-normal">›</span><span class="font-medium text-neutral1">Koordinator</span>' : ''}`
-    : `<a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors">${nav[0].label}</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       ${induk ? `<span class="hidden sm:inline-flex items-center"><a href="${induk.href}" class="text-neutral2 hover:text-primary1 transition-colors">${esc(induk.label)}</a><span class="mx-2 text-neutral3 select-none font-normal">›</span></span>` : ''}
-       <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
+  // Format baku sesuai arahan: Role -> Nama Halaman (Alumni › [Judul Halaman])
+  const breadcrumbHTML = `
+    <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Alumni</a>
+    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+    <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
@@ -486,8 +487,17 @@ document.addEventListener('DOMContentLoaded', () => {
   wrapper.innerHTML = `
     <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
       <div class="flex items-center gap-2 min-w-0 flex-1">
-        <button id="sidebar-toggle" type="button" class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0" aria-label="Buka atau tutup menu" aria-expanded="true">
-          <i data-lucide="menu" class="w-[22px] h-[22px]"></i>
+        <button
+          id="sidebar-toggle"
+          type="button"
+          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0"
+          aria-label="Toggle sidebar"
+          aria-expanded="true"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M20 11H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1zM4 18h10c.55 0-1 .45-1 1s.45 1 1 1H4c-.55 0-1-.45-1-1s.45-1-1-1zM20 6H4c-.55 0-1 .45-1 1v.01c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1z"/>
+          </svg>
         </button>
         <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">${breadcrumbHTML}</nav>
       </div>
@@ -504,9 +514,9 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group" aria-expanded="false" aria-label="Menu Pengguna">
             <div class="text-right hidden sm:block">
               <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" data-nama-saya>${esc(SAYA.nama)}</div>
-              <div class="text-[11px] text-neutral3">${NAMA_ROLE[SAYA.role]}</div>
+              <div class="text-[11px] text-neutral3">Alumni Asisten Lab</div>
             </div>
-            <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50">${avatar(SAYA)}</div>
+            <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">${avatar(SAYA)}</div>
           </button>
 
           <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
@@ -592,9 +602,17 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.setAttribute('aria-expanded', String(sidebarOpen));
   }
   applySidebarState();
+  refreshIcons();
 
   toggleBtn.addEventListener('click', () => { sidebarOpen = !sidebarOpen; applySidebarState(); });
   overlay.addEventListener('click', () => { sidebarOpen = false; applySidebarState(); });
+  const closeBtn = document.getElementById('sidebar-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      sidebarOpen = false;
+      applySidebarState();
+    });
+  }
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !isDesktop() && sidebarOpen) { sidebarOpen = false; applySidebarState(); }
   });

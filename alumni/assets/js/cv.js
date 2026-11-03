@@ -59,7 +59,10 @@ function kartuEntriCv(k, r, ekstra = '') {
   return `
     <div class="p-4 rounded-lg border border-neutral4">
       <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-1">
-        <p class="!text-sm font-semibold text-neutral1">${esc(x.judul)}</p>
+        <div class="flex flex-wrap items-center gap-2">
+          <p class="!text-sm font-semibold text-neutral1">${esc(x.judul)}</p>
+          ${r.id_gig ? '<span class="inline-flex items-center gap-1 text-[11px] font-semibold text-primary1 bg-primary5 border border-primary4/60 px-2 py-0.5 rounded-full"><i data-lucide="briefcase-business" class="w-3 h-3"></i> Bengkod Gigs</span>' : ''}
+        </div>
         ${x.waktu ? `<p class="!text-xs text-neutral3 shrink-0">${esc(x.waktu)}</p>` : ''}
       </div>
       ${x.baris ? `<p class="!text-sm text-neutral2 mt-0.5">${esc(x.baris)}</p>` : ''}
