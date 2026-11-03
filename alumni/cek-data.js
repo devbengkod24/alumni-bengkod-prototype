@@ -57,7 +57,8 @@ assert.equal(tracer.milik(akun.daftar({ nama: 'Baru', email: 'baru@contoh.id', p
 reset();
 const sebelum = statistik.terdeteksi(TAHUN);
 const wiraSebelum = tracer.jumlahPerStatus().Wiraswasta;
-assert.equal(tracer.simpan(NADIA, jawaban).ok, true);
+assert.equal(tracer.simpan(NADIA, { ...jawaban, linkedin: 'https://linkedin.com/in/nadia' }).ok, true);
+assert.equal(tracer.milik(NADIA).linkedin, 'https://linkedin.com/in/nadia');
 assert.equal(statistik.terdeteksi(TAHUN), sebelum + 1);
 assert.equal(tracer.jumlahPerStatus().Wiraswasta, wiraSebelum + 1);
 assert.equal(tracer.simpan(RIZKY, { ...jawaban, nim: 'A11.BEDA' }).field, 'no_hp');
@@ -308,15 +309,17 @@ assert.equal(proyekKarya.id_post, pk.id); // karya yang ditulis dari nol otomati
 assert.equal(feed.feedback(pk.id, NADIA, { kategori: 'Bug', isi: 'x' }).ok, false);
 assert.equal(feed.feedback(pk.id, RIZKY, { kategori: 'Lainnya', isi: 'x' }).field, 'kategori');
 assert.equal(feed.feedback(pk.id, RIZKY, { kategori: 'Bug', isi: 'Tombol hitung tidak merespons.' }).ok, true);
-assert.match(notifikasi.milik(NADIA)[0].pesan, /feedback Bug/);
+assert.equal(feed.feedback(pk.id, FAJAR, { kategori: 'Apresiasi', isi: 'Keren sekali aplikasinya!', upvote: true }).ok, true);
+assert.ok(feed.cari(pk.id).suka.includes(FAJAR));
+assert.match(notifikasi.milik(NADIA)[0].pesan, /feedback/);
 assert.equal(feed.tanggapi(pk.id, 1, RIZKY).ok, false);
 assert.equal(feed.tanggapi(pk.id, 1, NADIA).ok, true);
 assert.equal(pk.feedback[0].status, 'diperbaiki');
 assert.match(notifikasi.milik(RIZKY)[0].pesan, /sudah diperbaiki/);
 assert.equal(feed.tanggapi(pk.id, 1, NADIA).ok, false);
 assert.equal(feed.spotlight(pk.id, KOOR).ok, false); // masih beta
-assert.equal(feed.rilis(pk.id, RIZKY).ok, false);
-assert.equal(feed.rilis(pk.id, NADIA).ok, true);
+assert.equal(feed.promosikanKeLive(pk.id, RIZKY).ok, false);
+assert.equal(feed.promosikanKeLive(pk.id, NADIA).ok, true);
 assert.deepEqual([pk.karya.tahap, pk.karya.fokus], ['live', []]);
 feed.hapus(pk.id, NADIA);
 assert.equal(proyekKarya.id_post, null); // proyek tetap ada dan bisa dipublikasikan lagi

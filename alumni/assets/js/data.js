@@ -196,7 +196,7 @@
         const tracer = {
           id, id_alumni: id, nama_alumni: nama, jns_kelamin: lk ? 'Laki-Laki' : 'Perempuan',
           nim: `A11.${tahun - 4}.${String(11000 + i * 37)}`, tahun_masuk: tahun - 4, tahun_lulus: tahun,
-          no_hp: `0812${String(10000000 + i * 4111)}`, email, status, kota: kota[i % 8], keahlian: keahlian[i % 8],
+          no_hp: `0812${String(10000000 + i * 4111)}`, linkedin: `https://linkedin.com/in/${nama.toLowerCase().replace(/\s+/g, '-')}`, email, status, kota: kota[i % 8], keahlian: keahlian[i % 8],
           bidang_job: '', jns_job: '', nama_job: '', jabatan_job: '', lingkup_job: '',
           biaya_studi: '', nama_studi: '', prodi: '', tgl_studi: '', nama_sampingan: '', peran_sampingan: '',
           updated_at: `${tahun}-11-${String((i % 20) + 1).padStart(2, '0')}`,
@@ -576,7 +576,9 @@
       const sampingan = Boolean(form.ada_sampingan);
       const baris = {
         id_alumni: idAlumni, nama_alumni: user.nama, email: user.email, jns_kelamin: form.jns_kelamin, nim,
-        tahun_masuk: Number(form.tahun_masuk), tahun_lulus: Number(form.tahun_lulus), no_hp: noHp, status: form.status,
+        tahun_masuk: Number(form.tahun_masuk), tahun_lulus: Number(form.tahun_lulus), no_hp: noHp,
+        linkedin: bersih(form.linkedin) || (data.tracer.find(t => t.id_alumni === idAlumni)?.linkedin || ''),
+        status: form.status,
         kota: bersih(form.kota), keahlian: daftarKata(form.keahlian),
         // Jawaban cabang lain dikosongkan agar tidak tertinggal saat status berubah
         bidang_job: kerja ? form.bidang_job : '', jns_job: kerja ? form.jns_job : '', nama_job: kerja ? bersih(form.nama_job) : '',
@@ -760,7 +762,7 @@
     },
 
     // ----- Karya: feedback tester, tanggapan pembuat, dan rilis Live -----
-    feedback(id, idUser, { kategori, isi }) {
+    feedback(id, idUser, { kategori, isi, upvote = false }) {
       const p = feed.cari(id);
       const teks = bersih(isi);
       if (p?.jenis !== 'karya') return gagal('Feedback hanya untuk karya.');
@@ -768,6 +770,7 @@
       if (!OPSI.kategori_feedback.includes(kategori)) return gagal('Pilih kategori feedback.', 'kategori');
       if (!teks) return gagal('Tulis feedback Anda.', 'isi');
       p.feedback.push({ id: idBaru(p.feedback), id_user: idUser, kategori, isi: teks, status: '', waktu: kini() });
+      if (upvote && !p.suka.includes(idUser)) p.suka.push(idUser);
       beritahu(p.id_alumni, 'flask-conical', `${akun.cari(idUser).nama} memberi feedback ${kategori} untuk ${p.karya.nama}.`, `beranda.html#post-${p.id}`);
       simpan();
       return { ok: true };
@@ -792,6 +795,10 @@
       Object.assign(p.karya, { tahap: 'live', fokus: [] });
       simpan();
       return { ok: true };
+    },
+
+    promosikanKeLive(id, idUser) {
+      return feed.rilis(id, idUser);
     },
 
     // Koordinator menyematkan karya Live ke carousel Beranda selama 30 hari. Tekan lagi untuk melepas.
