@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lengkapi Data | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=5"></script>
+  <script src="assets/js/app.js?v=5"></script>
+  <script src="assets/js/tracer.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+
+  <div class="max-w-3xl mx-auto px-4 py-8 space-y-6">
+    <header class="flex items-center justify-between gap-3">
+      <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding" class="h-10 w-auto object-contain">
+      <button type="button" onclick="keluar()" class="btn-outline"><i data-lucide="log-out" class="w-4 h-4"></i> Keluar</button>
+    </header>
+
+    <div>
+      <h1 class="font-bold !text-2xl text-neutral1">Lengkapi Data Anda</h1>
+      <p id="sapaan" class="!text-sm text-neutral2 mt-1"></p>
+    </div>
+
+    <div id="isi"></div>
+  </div>
+
+  <script>
+    if (DB.tracer.milik(SAYA.id)) location.replace('profil.html');
+
+    document.getElementById('sapaan').textContent = `Selamat datang, ${SAYA.nama}. Isi data ini sekali saja sebelum masuk ke portal. Setelah disimpan, Anda langsung masuk ke Profil Saya.`;
+    formTracer(document.getElementById('isi'), null, () => location.replace('profil.html'));
+  </script>
+</body>
+</html>

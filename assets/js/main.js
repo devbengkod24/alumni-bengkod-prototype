@@ -33,7 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modal) {
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-      document.body.classList.remove('overflow-hidden');
+      // Modal bisa bertumpuk (pratinjau CV di atas daftar pelamar), kunci scroll dilepas setelah semuanya tertutup
+      if (!document.querySelector('[data-modal-backdrop]:not(.hidden)')) document.body.classList.remove('overflow-hidden');
       if (lastFocusedElement) {
         lastFocusedElement.focus();
       }

@@ -18,7 +18,7 @@
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
       <h2 class="text-2xl font-semibold text-neutral1">Pengumuman</h2>
-      <p class="text-sm text-neutral2 mt-1">Buat dan publikasikan pengumuman untuk alumni dan mitra.</p>
+      <p class="text-sm text-neutral2 mt-1">Buat dan publikasikan pengumuman untuk alumni.</p>
     </div>
     <button onclick="openForm()" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pengumuman</button>
   </div>
@@ -41,10 +41,8 @@
       <div>
         <label for="f-target" class="label">Sasaran Penerima</label>
         <select id="f-target" name="target" class="input">
-          <option value="Semua">Semua (Alumni & Mitra)</option>
+          <option value="Semua">Semua</option>
           <option value="Alumni">Alumni</option>
-          <option value="Mitra">Mitra</option>
-          <option value="Mitra & Alumni">Mitra & Alumni</option>
         </select>
       </div>
       <div>
@@ -118,6 +116,8 @@
     if (p) ['id', 'judul', 'target', 'isi', 'lampiran'].forEach(k => {
       if (form.elements[k]) form.elements[k].value = p[k] || '';
     });
+    // Sasaran Mitra sudah tidak tersedia, pengumuman lama untuk mitra dialihkan ke Semua saat diedit
+    if (!form.elements.target.value) form.elements.target.value = 'Semua';
     openModal('form-modal');
   }
 

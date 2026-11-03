@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Poppins, Arial, sans-serif">
+  <rect width="1200" height="630" fill="#F4F4F4"/>
+  <rect x="60" y="50" width="1080" height="530" rx="24" fill="#FFFFFF" stroke="#DEDFE1" stroke-width="2"/>
+  <rect x="60" y="50" width="220" height="530" rx="24" fill="#1E3A8A"/>
+  <rect x="256" y="50" width="24" height="530" fill="#1E3A8A"/>
+  <text x="96" y="118" font-size="30" font-weight="700" fill="#FFFFFF">KasRT</text>
+  <rect x="88" y="160" width="164" height="40" rx="10" fill="#FFFFFF" fill-opacity="0.18"/>
+  <text x="108" y="187" font-size="17" fill="#FFFFFF">Ringkasan</text>
+  <text x="108" y="242" font-size="17" fill="#BFDBFE">Iuran Warga</text>
+  <text x="108" y="292" font-size="17" fill="#BFDBFE">Pengeluaran</text>
+  <text x="108" y="342" font-size="17" fill="#BFDBFE">Laporan</text>
+
+  <text x="320" y="118" font-size="26" font-weight="700" fill="#46494E">Ringkasan Oktober 2026</text>
+  <rect x="580" y="92" width="96" height="30" rx="15" fill="#FFECAA"/>
+  <text x="628" y="113" font-size="15" font-weight="600" fill="#8F6F00" text-anchor="middle">Beta</text>
+
+  <g font-size="16">
+    <rect x="320" y="150" width="250" height="110" rx="16" fill="#DBEAFE"/>
+    <text x="344" y="190" fill="#1E3A8A">Saldo kas</text>
+    <text x="344" y="232" font-size="28" font-weight="700" fill="#1E3A8A">Rp4.250.000</text>
+    <rect x="590" y="150" width="250" height="110" rx="16" fill="#CDFECF"/>
+    <text x="614" y="190" fill="#1C6A1A">Iuran masuk</text>
+    <text x="614" y="232" font-size="28" font-weight="700" fill="#1C6A1A">Rp1.800.000</text>
+    <rect x="860" y="150" width="250" height="110" rx="16" fill="#FCC6CD"/>
+    <text x="884" y="190" fill="#B00B0B">Pengeluaran</text>
+    <text x="884" y="232" font-size="28" font-weight="700" fill="#B00B0B">Rp650.000</text>
+  </g>
+
+  <text x="320" y="312" font-size="18" font-weight="600" fill="#46494E">Iuran per minggu</text>
+  <g fill="#3B82F6">
+    <rect x="330" y="420" width="70" height="120" rx="8"/>
+    <rect x="430" y="380" width="70" height="160" rx="8"/>
+    <rect x="530" y="440" width="70" height="100" rx="8"/>
+    <rect x="630" y="350" width="70" height="190" rx="8"/>
+  </g>
+  <line x1="320" y1="540" x2="720" y2="540" stroke="#DEDFE1" stroke-width="2"/>
+
+  <text x="770" y="312" font-size="18" font-weight="600" fill="#46494E">Belum membayar</text>
+  <g font-size="16" fill="#55585E">
+    <rect x="770" y="330" width="340" height="52" rx="12" fill="#F4F4F4"/>
+    <text x="792" y="362">Blok A-04 · Pak Darmo</text>
+    <rect x="770" y="394" width="340" height="52" rx="12" fill="#F4F4F4"/>
+    <text x="792" y="426">Blok B-11 · Bu Ratna</text>
+    <rect x="770" y="458" width="340" height="52" rx="12" fill="#F4F4F4"/>
+    <text x="792" y="490">Blok C-02 · Pak Hadi</text>
+  </g>
+</svg>

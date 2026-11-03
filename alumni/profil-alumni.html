@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Alumni | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=5"></script>
+  <script src="assets/js/app.js?v=5"></script>
+  <script src="assets/js/cv.js?v=5"></script>
+  <script src="assets/js/tracer.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Profil Alumni" data-nav="direktori.html">
+  <a href="direktori.html" class="inline-flex items-center gap-1.5 text-sm text-neutral2 hover:text-primary1"><i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Alumni</a>
+  <section id="kepala" class="card !p-5 flex flex-col sm:flex-row sm:items-start gap-4"></section>
+  <div id="tracer" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
+  <div id="cv" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
+</main>
+
+<script>
+  // Profil untuk sesama alumni: tanpa NIM dan nomor HP. Kontak WhatsApp terbuka lewat Gigs atau Referral.
+  const alumni = DB.akun.cari(new URLSearchParams(location.search).get('id'));
+  if (!alumni || alumni.role !== 'alumni') location.replace('direktori.html');
+  if (alumni.id === SAYA.id) location.replace('profil.html');
+
+  const t = DB.tracer.milik(alumni.id);
+  const lencana = DB.feed.lencanaTester(alumni.id);
+  const tanda = [t?.nama_studi && badge('Sedang S2', 'yellow'), t?.nama_sampingan && badge('Freelance', 'blue'), lencana && badge(lencana, 'green')].filter(Boolean);
+  const pesanWa = `Halo ${alumni.nama}, saya ${SAYA.nama} rekan alumni asisten lab Bengkel Koding. Salam kenal!`;
+  const urlWa = t?.no_hp ? tautanWa(t.no_hp, pesanWa) : '';
+  const urlLi = t?.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(alumni.nama)}`;
+
+  document.getElementById('kepala').innerHTML = `
+    ${fotoBulat(alumni, 'w-16 h-16')}
+    <div class="min-w-0 flex-1 space-y-2">
+      <div>
+        <h2 class="!text-xl font-semibold text-neutral1">${esc(alumni.nama)}</h2>
+        <p class="!text-sm text-neutral2">${esc(DB.tracer.karir(t).ringkas)}</p>
+        ${t ? `<p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, `Lulus ${t.tahun_lulus}`, t.kota].filter(Boolean).join(' · '))}</p>` : ''}
+      </div>
+      ${t?.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.map(chip).join('')}</div>` : ''}
+      ${tanda.length ? `<div class="flex flex-wrap gap-1.5">${tanda.join('')}</div>` : ''}
+    </div>
+    <div class="flex flex-wrap sm:flex-col gap-2 shrink-0 self-start">
+      ${urlWa ? `<a href="${esc(urlWa)}" target="_blank" rel="noreferrer" class="btn-success !py-1.5 !px-3 !text-xs inline-flex items-center gap-1.5"><i data-lucide="message-circle" class="w-4 h-4"></i> WhatsApp</a>` : ''}
+      <a href="${esc(tautanAman(urlLi))}" target="_blank" rel="noreferrer" class="btn-outline !py-1.5 !px-3 !text-xs !text-blue1 hover:!bg-blue3/30 inline-flex items-center gap-1.5"><i data-lucide="linkedin" class="w-4 h-4"></i> LinkedIn</a>
+      <a href="mailto:${esc(alumni.email)}" class="btn-outline !py-1.5 !px-3 !text-xs inline-flex items-center gap-1.5"><i data-lucide="mail" class="w-4 h-4"></i> Email</a>
+    </div>`;
+  if (t) document.getElementById('tracer').innerHTML = ringkasanTracer(t, true);
+  renderCv('cv', alumni.id, false);
+</script>
+</body>
+</html>

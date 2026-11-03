@@ -46,19 +46,13 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 const KOOR_DEFAULT = {
   user: { name: 'Dr. Ayu Lestari, M.Kom', email: 'ayu.lestari@dinus.ac.id' },
 
-  // Urut per alur kerja: rekrutmen, komunikasi, tracer study, administrasi
+  // Navigasi resmi 5 menu utama koordinator (P2P ekosistem alumni)
   nav: [
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
-    { href: 'lowongan.html', icon: 'briefcase', label: 'Lowongan' },
-    { href: 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar' },
-    { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
-    { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
-    { icon: 'database', label: 'Tracer Data', submenu: [
-      { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
-      { href: 'data-mitra.html', icon: 'building-2', label: 'Data Mitra' },
-    ] },
     { href: 'analitik.html', icon: 'chart-column', label: 'Analitik Tracer' },
-    { href: 'manajemen-users.html', icon: 'users', label: 'Management Users' },
+    { href: 'karya.html', icon: 'award', label: 'Kurasi Spotlight' },
+    { href: 'data-alumni.html', icon: 'graduation-cap', label: 'Data Alumni' },
+    { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
   ],
 
   // Rekap per tahun lulus (status karir mengikuti enum alumni-api)
@@ -245,6 +239,7 @@ const KOOR = {
     KOOR_DEFAULT.users = val;
   },
 };
+window.KOOR = KOOR;
 
 // ===================== STANDAR BADGE RESMI (TANPA IKON) =====================
 const BADGE = {
@@ -421,9 +416,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('afterbegin', `
     <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu Koordinator">
-      <a href="../index.html" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
-        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
-      </a>
+      <div class="flex items-center justify-between py-4 px-4 border-b border-neutral4">
+        <a href="../index.html" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
+          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
+        </a>
+        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors" aria-label="Tutup menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
         <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
@@ -431,21 +431,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </aside>`);
 
-  // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
-  const isDashboard = current === 'dashboard.html' || main.dataset.title === 'Dashboard';
+  // Breadcrumbs Generator: Role -> Nama Halaman (Koordinator › [pageTitle])
   const pageTitle = esc(main.dataset.title);
-  const parent = KOOR.nav.find(n => n.href && n.href === main.dataset.nav);
-
-  const breadcrumbHTML = isDashboard
-    ? `<a href="dashboard.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">Koordinator</span>`
-    : `<a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors">Koordinator</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       ${parent ? `<span class="hidden sm:inline-flex items-center"><a href="${parent.href}" class="text-neutral2 hover:text-primary1 transition-colors">${parent.label}</a><span class="mx-2 text-neutral3 select-none font-normal">›</span></span>` : ''}
-       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+  const breadcrumbHTML = `
+    <a href="dashboard.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Koordinator</a>
+    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+    <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
 
   const wrapper = document.createElement('div');
@@ -617,6 +608,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Terapkan state awal saat DOM siap
   applySidebarState();
+  if (window.lucide) window.lucide.createIcons();
 
   toggleBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -628,6 +620,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOpen = false;
     applySidebarState();
   });
+
+  const closeBtn = document.getElementById('sidebar-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      sidebarOpen = false;
+      applySidebarState();
+    });
+  }
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !checkIsDesktop() && sidebarOpen) {

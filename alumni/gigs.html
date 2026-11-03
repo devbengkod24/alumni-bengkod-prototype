@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gigs & Proyek | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=5"></script>
+  <script src="assets/js/app.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Gigs & Proyek">
+  <div class="max-w-7xl mx-auto space-y-5">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-neutral4">
+      <div>
+        <h2 class="!text-2xl font-semibold text-neutral1">Gigs & Proyek</h2>
+        <p class="!text-sm text-neutral2 mt-1">Rekrut tim untuk side-project atau ambil proyek freelance dari sesama alumni. Budget ditulis sebagai kisaran, pembayaran diatur langsung di luar sistem.</p>
+      </div>
+      <button id="btn-buat" type="button" class="btn-primary shrink-0 self-start sm:self-auto"><i data-lucide="plus" class="w-4 h-4"></i> Buat Gig</button>
+    </div>
+
+    <div id="tab" class="flex gap-1 overflow-x-auto no-scrollbar border-b border-neutral4" role="group" aria-label="Bagian gigs"></div>
+
+    <div id="saring" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+      <div class="relative sm:col-span-2">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input data-saring="kata" type="search" class="input !pl-9" placeholder="Cari judul, deskripsi, atau stack" aria-label="Cari gig">
+      </div>
+      <select id="f-peran" data-saring="peran" class="input" aria-label="Saring peran"></select>
+      <select id="f-stack" data-saring="stack" class="input" aria-label="Saring tech stack"></select>
+      <select id="f-budget" data-saring="budget" class="input" aria-label="Saring budget"></select>
+      <select id="f-status" data-saring="status" class="input" aria-label="Saring status"></select>
+    </div>
+
+    <section id="daftar" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 items-start" aria-label="Daftar gig"></section>
+  </div>
+</main>
+
+<div id="detail-modal" data-modal-backdrop class="modal-backdrop">
+  <div id="detail-isi" class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="detail-judul"></div>
+</div>
+
+<script>
+  const TAB = [['papan', 'Papan Gigs'], ['saya', 'Proyek Saya'], ['lamaran', 'Lamaran Saya']];
+  const STATUS_GIG = { open: ['Buka Lamaran', 'green'], progress: ['Sedang Dikerjakan', 'blue'], selesai: ['Selesai', 'gray'], batal: ['Dibatalkan', 'red'] };
+  const saring = { kata: '', peran: '', stack: '', budget: '', status: 'open' };
+  let tab = 'papan';
+  let gigAktif = null;
+
+  const badgeGig = g => badge(...STATUS_GIG[g.status]);
+  const pilihanSelect = (kosong, list) => `<option value="">${kosong}</option>${list.map(x => `<option>${esc(x)}</option>`).join('')}`;
+
+  document.getElementById('f-peran').innerHTML = pilihanSelect('Semua peran', DB.OPSI.peran_gig);
+  document.getElementById('f-stack').innerHTML = pilihanSelect('Semua tech stack', [...new Set(DB.gigs.semua().flatMap(g => g.stack))].sort());
+  document.getElementById('f-budget').innerHTML = pilihanSelect('Semua budget', DB.OPSI.budget_gig);
+  document.getElementById('f-status').innerHTML = [['open', 'Buka Lamaran'], ['progress', 'Sedang Dikerjakan'], ['selesai', 'Selesai'], ['', 'Semua status']]
+    .map(([nilai, label]) => `<option value="${nilai}">${label}</option>`).join('');
+
+  // ===================== FORM =====================
+  document.body.insertAdjacentHTML('beforeend', [
+    kerangkaModal('gig-modal', 'Buat Gig', `
+      <div><label for="g-judul" class="label">Judul Proyek</label><input id="g-judul" name="judul" class="input" maxlength="100" required placeholder="Contoh: Aplikasi kasir untuk kedai kopi"></div>
+      <fieldset><legend class="label">Kategori Peran yang Dibutuhkan</legend>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">${DB.OPSI.peran_gig.map(p => pilihanPil('checkbox', 'peran', p, p)).join('')}</div>
+      </fieldset>
+      <div><label for="g-stack" class="label">Tech Stack</label><input id="g-stack" name="stack" class="input" required placeholder="Pisahkan dengan koma, contoh: Laravel, Vue"></div>
+      <div><label for="g-deskripsi" class="label">Deskripsi dan Deliverables</label><textarea id="g-deskripsi" name="deskripsi" rows="5" class="input" maxlength="2000" required placeholder="Kebutuhan proyek, hasil yang diserahkan, dan cara koordinasi"></textarea></div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div><label for="g-budget" class="label">Rentang Budget</label><select id="g-budget" name="budget" class="input" required>${pilihanSelect('Pilih', DB.OPSI.budget_gig)}</select></div>
+        <div><label for="g-deadline" class="label">Deadline</label><input id="g-deadline" name="deadline" type="date" min="${DB.hariIni()}" class="input" required></div>
+        <div><label for="g-kuota" class="label">Kuota Tim</label><input id="g-kuota" name="kuota" type="number" min="1" max="10" class="input" required></div>
+      </div>
+      <p class="!text-xs text-neutral3">Sistem hanya mencatat kisaran budget, tidak mencatat DP atau pelunasan. Kesepakatan dibuat langsung antar-alumni.</p>`, 'Publikasikan', 'max-w-2xl'),
+
+    kerangkaModal('selesai-modal', 'Tandai Gig Selesai', `
+      <input type="hidden" name="id">
+      <p class="!text-sm text-neutral2">Pastikan hasil kerja sudah Anda uji. Proyek ini otomatis masuk ke portofolio setiap kontributor dan bisa mereka pakai di Generate CV.</p>
+      <div><label for="s-endorsement" class="label">Catatan Rekomendasi (Endorsement)</label><textarea id="s-endorsement" name="endorsement" rows="3" class="input" maxlength="300" required placeholder="Contoh: komunikatif, rapi, dan tepat waktu"></textarea></div>
+      <label class="flex items-start gap-2.5 text-sm text-neutral1 cursor-pointer"><input type="checkbox" name="bagikan" value="1" checked class="w-4 h-4 mt-0.5 accent-[#1E3A8A]"> Bagikan ke Beranda dan tandai tim</label>`, 'Tandai Selesai'),
+
+    kerangkaDrawer('kelola-drawer', 'Kelola Pelamar'),
+  ].join(''));
+
+  pasangForm('gig-modal', 'Gig berhasil dipublikasikan.', fd => DB.gigs.simpan(SAYA.id, { ...Object.fromEntries(fd), peran: fd.getAll('peran') }), () => {
+    tab = 'saya';
+    render();
+  });
+
+  pasangForm('selesai-modal', 'Gig selesai. Portofolio tim sudah diperbarui.', fd =>
+    DB.gigs.selesai(fd.get('id'), SAYA.id, { endorsement: fd.get('endorsement'), bagikan: Boolean(fd.get('bagikan')) }), segarkanKelola);
+
+  // ===================== KARTU =====================
+  function infoGig(g, kolom = 'grid-cols-2') {
+    return `
+      <div class="flex flex-wrap gap-1.5">${g.peran.map(p => badge(p)).join('')}</div>
+      <div class="flex flex-wrap gap-1.5">${g.stack.map(chip).join('')}</div>
+      <dl class="grid ${kolom} gap-3">
+        ${[['Budget', g.budget], ['Deadline', fmtDate(g.deadline)], ['Kuota Tim', `${DB.gigs.terisi(g)}/${g.kuota} terisi`], ['Pelamar', `${g.pelamar.length} orang`]].map(([label, nilai]) => `
+          <div><dt class="text-xs text-neutral3">${label}</dt><dd class="text-sm font-medium text-neutral1">${esc(nilai)}</dd></div>`).join('')}
+      </dl>`;
+  }
+
+  function statusLamaran(g, a) {
+    if (g.status === 'batal') return badge('Gig dibatalkan', 'gray');
+    if (a.status === 'menunggu') return badge('Menunggu review', 'yellow');
+    if (a.status === 'ditolak') return badge('Belum diterima', 'red');
+    return { open: badge('Diterima', 'green'), progress: badge('Sedang Dikerjakan', 'blue'), selesai: badge('Selesai', 'green') }[g.status];
+  }
+
+  function kakiKartu(g) {
+    if (g.id_owner === SAYA.id) return `<button type="button" data-kelola-id="${g.id}" class="btn-primary w-full"><i data-lucide="users" class="w-4 h-4"></i> Kelola Pelamar (${g.pelamar.length})</button>`;
+    const saya = g.pelamar.find(a => a.id_user === SAYA.id);
+    return `<div class="flex items-center justify-between gap-2">${saya ? statusLamaran(g, saya) : '<span></span>'}<button type="button" data-detail="${g.id}" class="btn-outline">Lihat Detail</button></div>`;
+  }
+
+  function kartuGig(g) {
+    const owner = DB.akun.cari(g.id_owner);
+    return `
+      <article class="card !p-5 flex flex-col gap-3 min-w-0">
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-start gap-3 min-w-0">
+            ${fotoBulat(owner, 'w-10 h-10')}
+            <div class="min-w-0">
+              <h3 class="!text-[15px] font-semibold text-neutral1 leading-snug">${esc(g.judul)}</h3>
+              <p class="!text-xs text-neutral3 mt-0.5">${esc(owner.nama)} · ${waktuLalu(g.waktu)}</p>
+            </div>
+          </div>
+          ${badgeGig(g)}
+        </div>
+        ${infoGig(g)}
+        <div class="pt-1">${kakiKartu(g)}</div>
+      </article>`;
+  }
+
+  function renderTab() {
+    const jumlah = { papan: DB.gigs.daftar().length, saya: DB.gigs.milik(SAYA.id).length, lamaran: DB.gigs.dilamar(SAYA.id).length };
+    document.getElementById('tab').innerHTML = TAB.map(([kunci, label]) => `
+      <button type="button" data-tab="${kunci}" aria-pressed="${tab === kunci}" class="shrink-0 whitespace-nowrap px-3 py-2.5 border-b-2 text-sm font-medium transition-colors ${tab === kunci ? 'border-primary1 text-primary1' : 'border-transparent text-neutral2 hover:text-primary1'}">${label} <span class="text-xs opacity-70">${jumlah[kunci]}</span></button>`).join('');
+  }
+
+  function render() {
+    renderTab();
+    document.getElementById('saring').classList.toggle('hidden', tab !== 'papan');
+    const list = { papan: () => DB.gigs.daftar(saring), saya: () => DB.gigs.milik(SAYA.id), lamaran: () => DB.gigs.dilamar(SAYA.id) }[tab]();
+    const kosong = {
+      papan: ['search-x', 'Belum ada gig yang cocok', 'Coba saringan lain atau buat gig Anda sendiri.'],
+      saya: ['briefcase-business', 'Anda belum membuat gig', 'Tekan Buat Gig untuk merekrut tim dari sesama alumni.'],
+      lamaran: ['hand', 'Anda belum mengajukan minat', 'Buka Papan Gigs dan ajukan minat pada proyek yang cocok.'],
+    }[tab];
+    document.getElementById('daftar').innerHTML = list.map(kartuGig).join('') || `<div class="md:col-span-2 xl:col-span-3">${kartuKosong(...kosong)}</div>`;
+    refreshIcons();
+  }
+
+  // ===================== DETAIL DAN AJUKAN MINAT (kontributor) =====================
+  function formLamar(g, proyek) {
+    return `
+      <form data-gig="${g.id}" class="space-y-4" novalidate>
+        <h4 class="!text-sm font-semibold text-neutral1">Ajukan Minat</h4>
+        <div><label for="l-pesan" class="label">Pitching Singkat</label><textarea id="l-pesan" name="pesan" rows="3" class="input" maxlength="250" required placeholder="Kenapa Anda cocok untuk proyek ini?"></textarea>
+          <p class="!text-xs text-neutral3 mt-1">Maksimal 250 karakter.</p></div>
+        <fieldset><legend class="label">Lampirkan 1 sampai 2 Proyek dari Portofolio</legend>
+          <div class="space-y-2">${proyek.map(r => `
+            <label class="flex items-start gap-2.5 rounded-lg border border-neutral4 p-3 cursor-pointer hover:bg-neutral5/60 has-[:checked]:border-primary1 has-[:checked]:bg-primary5/40">
+              <input type="checkbox" name="portofolio" value="${r.id}" class="w-4 h-4 mt-0.5 accent-[#1E3A8A]">
+              <span class="min-w-0"><span class="block !text-sm font-medium text-neutral1">${esc(r.nama_proyek)}</span><span class="block !text-xs text-neutral3">${esc(r.peran_proyek)} · ${esc(r.stack_proyek)}</span></span>
+            </label>`).join('')}</div>
+        </fieldset>
+        <p data-error class="hidden !text-sm text-red1" role="alert"></p>
+        <div class="flex justify-end"><button type="submit" class="btn-primary"><i data-lucide="hand" class="w-4 h-4"></i> Ajukan Minat</button></div>
+      </form>`;
+  }
+
+  function statusSaya(g, a, owner) {
+    if (g.status === 'batal') return '<p class="!text-sm text-neutral3">Gig ini dibatalkan oleh pemilik proyek.</p>';
+    if (a.status === 'menunggu') return '<p class="!text-sm text-neutral2 flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-yellow1"></i> Pengajuan terkirim. Pemilik proyek sedang meninjau.</p>';
+    if (a.status === 'ditolak') return '<p class="!text-sm text-neutral2">Pengajuan Anda belum diterima kali ini. Coba gig lain yang cocok.</p>';
+    const wa = tautanWa(DB.tracer.milik(owner.id).no_hp, `Halo ${owner.nama}, saya ${SAYA.nama}. Terima kasih sudah menerima saya di "${g.judul}" lewat Bengkod Gigs. Kapan kita bisa mulai koordinasi?`);
+    const pesan = { open: 'Anda diterima. Pengerjaan dimulai setelah tim lengkap.', progress: 'Anda kontributor di proyek ini. Status: Sedang Dikerjakan.', selesai: 'Proyek selesai. Endorsement sudah masuk ke portofolio Anda.' }[g.status];
+    return `
+      <div class="rounded-lg bg-green3/40 border border-green2/30 p-3 space-y-2">
+        <p class="!text-sm font-semibold text-green1">${pesan}</p>
+        ${g.endorsement ? `<p class="!text-sm text-neutral1">"${esc(g.endorsement)}"</p>` : ''}
+        ${g.status !== 'selesai' ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" class="btn-success !px-3 !py-1.5 !text-xs w-fit"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi Pemilik via WhatsApp</a>` : ''}
+      </div>`;
+  }
+
+  function renderDetail(id) {
+    const g = DB.gigs.cari(id);
+    const owner = DB.akun.cari(g.id_owner);
+    const saya = g.pelamar.find(a => a.id_user === SAYA.id);
+    const proyek = DB.cv.milik('projects', SAYA.id);
+    let bawah = formLamar(g, proyek);
+    if (saya) bawah = statusSaya(g, saya, owner);
+    else if (g.status !== 'open') bawah = '<p class="!text-sm text-neutral3">Gig ini sudah tidak menerima pelamar.</p>';
+    else if (!proyek.length) bawah = '<div class="rounded-lg bg-yellow3/50 border border-yellow2/30 p-3 !text-sm text-neutral1">Pengajuan minat butuh bukti karya. <a href="kategori-cv.html?k=project" class="font-semibold text-primary2 hover:underline">Tambahkan proyek di Profil Saya</a> terlebih dahulu.</div>';
+
+    document.getElementById('detail-isi').innerHTML = `
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <h3 id="detail-judul" class="!text-lg font-semibold text-neutral1 leading-snug">${esc(g.judul)}</h3>
+          <p class="!text-xs text-neutral3 mt-1">Oleh <a href="${tautanProfil(owner.id)}" class="font-semibold text-neutral2 hover:text-primary1">${esc(owner.nama)}</a> · ${waktuLalu(g.waktu)}</p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">${badgeGig(g)}<button type="button" onclick="closeModal('detail-modal')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+      </div>
+      <div class="space-y-4 mt-4">
+        ${infoGig(g, 'grid-cols-2 sm:grid-cols-4')}
+        <p class="!text-sm text-neutral1 leading-relaxed whitespace-pre-line">${esc(g.deskripsi)}</p>
+        <div class="border-t border-neutral4 pt-4">${bawah}</div>
+      </div>`;
+    refreshIcons();
+  }
+
+  function bukaDetail(id) {
+    renderDetail(id);
+    openModal('detail-modal');
+  }
+
+  document.getElementById('detail-isi').addEventListener('submit', e => {
+    e.preventDefault();
+    const form = e.target;
+    const fd = new FormData(form);
+    const hasil = DB.gigs.lamar(form.dataset.gig, SAYA.id, { pesan: fd.get('pesan'), portofolio: fd.getAll('portofolio') });
+    if (!hasil.ok) return tampilGagal(form, hasil);
+    renderDetail(form.dataset.gig);
+    render();
+    showToast('Minat Anda terkirim ke pemilik proyek.');
+  });
+
+  // ===================== KELOLA PELAMAR (pemilik proyek) =====================
+  function kartuPelamar(g, a) {
+    const u = DB.akun.cari(a.id_user);
+    const t = DB.tracer.milik(a.id_user);
+    const lampiran = DB.cv.milik('projects', a.id_user).filter(r => a.portofolio.includes(r.id));
+    const status = { menunggu: badge('Menunggu', 'yellow'), diterima: badge('Diterima', 'green'), ditolak: badge('Tidak diterima', 'gray') }[a.status];
+    const wa = tautanWa(t.no_hp, `Halo ${u.nama}, saya ${SAYA.nama}. Pengajuan Anda untuk "${g.judul}" di Bengkod Gigs saya terima. Yuk atur waktu untuk membahas pembagian tugas.`);
+    return `
+      <article class="rounded-xl border border-neutral4 p-4 space-y-3">
+        <div class="flex items-start gap-3">
+          ${fotoBulat(u, 'w-10 h-10')}
+          <div class="min-w-0 flex-1 !text-sm">
+            <div class="flex flex-wrap items-center gap-2"><a href="${tautanProfil(u.id)}" class="font-semibold text-neutral1 hover:text-primary1">${esc(u.nama)}</a> ${status}</div>
+            <p class="!text-xs text-neutral3 mt-0.5">Angkatan ${esc(t.tahun_masuk)} · ${esc(DB.tracer.karir(t).ringkas)}</p>
+          </div>
+        </div>
+        ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.map(chip).join('')}</div>` : ''}
+        <p class="!text-sm text-neutral1 leading-relaxed bg-neutral5/70 rounded-lg px-3 py-2 border border-neutral4/60">${esc(a.pesan)}</p>
+        <div class="space-y-1.5">${lampiran.map(r => `
+          <div class="flex items-start gap-2 !text-xs text-neutral2"><i data-lucide="folder-git-2" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
+            <span class="min-w-0"><span class="font-semibold text-neutral1">${esc(r.nama_proyek)}</span> · ${esc(r.stack_proyek)}${tautanAman(r.link_proyek) ? ` · <a href="${esc(tautanAman(r.link_proyek))}" target="_blank" rel="noreferrer" class="text-primary2 hover:underline">Lihat</a>` : ''}</span>
+          </div>`).join('')}</div>
+        ${a.status === 'menunggu' && g.status === 'open' ? `
+          <div class="flex gap-2">
+            <button type="button" data-terima="${a.id}" class="btn-success !px-3 !py-1.5 !text-xs">Terima</button>
+            <button type="button" data-tolak="${a.id}" class="btn-outline !px-3 !py-1.5 !text-xs">Tolak</button>
+          </div>` : ''}
+        ${a.status === 'diterima' && ['open', 'progress'].includes(g.status) ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" class="btn-success !px-3 !py-1.5 !text-xs w-fit"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi via WhatsApp</a>` : ''}
+      </article>`;
+  }
+
+  function renderKelola() {
+    const g = DB.gigs.cari(gigAktif);
+    const terisi = DB.gigs.terisi(g);
+    const aksi = [
+      g.status === 'open' && terisi > 0 && '<button type="button" data-kelola="mulai" class="btn-primary">Mulai Pengerjaan</button>',
+      g.status === 'progress' && '<button type="button" data-kelola="selesai" class="btn-success">Tandai Selesai</button>',
+      ['open', 'progress'].includes(g.status) && '<button type="button" data-kelola="batal" class="btn-outline hover:!text-red1">Batalkan Gig</button>',
+    ].filter(Boolean).join('');
+    document.getElementById('kelola-drawer-isi').innerHTML = `
+      <div class="space-y-2">
+        <div class="flex flex-wrap items-center gap-2"><p class="!text-sm font-semibold text-neutral1">${esc(g.judul)}</p>${badgeGig(g)}</div>
+        <p class="!text-xs text-neutral3">${terisi}/${g.kuota} kontributor · deadline ${fmtDate(g.deadline)}</p>
+        ${g.status === 'open' ? '<p class="!text-xs text-neutral2">Status otomatis menjadi Sedang Dikerjakan saat kuota tim penuh. Mulai lebih awal jika tim yang ada sudah cukup.</p>' : ''}
+        ${g.endorsement ? `<p class="!text-sm text-neutral1 rounded-lg bg-green3/40 border border-green2/30 p-3"><span class="font-semibold">Endorsement:</span> ${esc(g.endorsement)}</p>` : ''}
+        ${aksi ? `<div class="flex flex-wrap gap-2 pt-1">${aksi}</div>` : ''}
+      </div>
+      ${g.pelamar.map(a => kartuPelamar(g, a)).join('') || kartuKosong('users', 'Belum ada pelamar', 'Alumni yang tertarik akan tampil di sini.')}`;
+    refreshIcons();
+  }
+
+  function segarkanKelola() {
+    renderKelola();
+    render();
+  }
+
+  function bukaKelola(id) {
+    gigAktif = Number(id);
+    renderKelola();
+    openModal('kelola-drawer');
+  }
+
+  document.getElementById('kelola-drawer-isi').addEventListener('click', e => {
+    const t = e.target.closest('[data-terima], [data-tolak], [data-kelola]');
+    if (!t) return;
+    if (t.dataset.kelola === 'selesai') return bukaModalForm('selesai-modal', { id: gigAktif });
+    if (t.dataset.kelola === 'batal') {
+      return confirmAction({ title: 'Batalkan gig?', message: 'Semua pelamar dan kontributor akan diberi tahu. Gig yang dibatalkan tidak bisa dibuka lagi.', okLabel: 'Batalkan Gig', danger: true }, () => {
+        DB.gigs.batal(gigAktif, SAYA.id);
+        segarkanKelola();
+        showToast('Gig dibatalkan.');
+      });
+    }
+    if (t.dataset.kelola === 'mulai') {
+      DB.gigs.mulai(gigAktif, SAYA.id);
+      showToast('Gig sekarang Sedang Dikerjakan.');
+    } else {
+      const terima = Boolean(t.dataset.terima);
+      DB.gigs.putuskan(gigAktif, t.dataset.terima || t.dataset.tolak, SAYA.id, terima);
+      showToast(terima ? 'Pelamar diterima, kontak WhatsApp sudah terbuka.' : 'Pelamar diberi tahu.');
+    }
+    segarkanKelola();
+  });
+
+  // ===================== NAVIGASI =====================
+  document.querySelector('main').addEventListener('click', e => {
+    const t = e.target.closest('[data-tab], [data-detail], [data-kelola-id], #btn-buat');
+    if (!t) return;
+    if (t.id === 'btn-buat') return bukaModalForm('gig-modal', { kuota: 1 });
+    if (t.dataset.tab) {
+      tab = t.dataset.tab;
+      return render();
+    }
+    if (t.dataset.detail) return bukaDetail(t.dataset.detail);
+    bukaKelola(t.dataset.kelolaId);
+  });
+
+  document.getElementById('saring').addEventListener('input', e => {
+    saring[e.target.dataset.saring] = e.target.value;
+    render();
+  });
+
+  render();
+
+  // Tautan notifikasi gigs.html?id= membuka gig yang dimaksud
+  document.addEventListener('DOMContentLoaded', () => {
+    const g = DB.gigs.cari(new URLSearchParams(location.search).get('id'));
+    if (!g) return;
+    if (g.id_owner !== SAYA.id) return bukaDetail(g.id);
+    tab = 'saya';
+    render();
+    bukaKelola(g.id);
+  });
+</script>
+</body>
+</html>

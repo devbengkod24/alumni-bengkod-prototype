@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direktori Alumni | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=5"></script>
+  <script src="assets/js/app.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Direktori Alumni">
+  <div>
+    <h2 class="!text-2xl font-semibold text-neutral1">Direktori Alumni</h2>
+    <p class="!text-sm text-neutral2 mt-1">Temukan rekan alumni berdasarkan angkatan, keahlian, kota, atau yang sedang studi lanjut S2.</p>
+  </div>
+
+  <div id="saring" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
+    <div class="relative sm:col-span-2">
+      <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+      <input data-saring="kata" type="search" class="input !pl-9" placeholder="Cari nama, tempat kerja, atau keahlian" aria-label="Cari alumni">
+    </div>
+    <select id="f-angkatan" data-saring="angkatan" class="input" aria-label="Saring angkatan"></select>
+    <select id="f-keahlian" data-saring="keahlian" class="input" aria-label="Saring keahlian"></select>
+    <select id="f-kota" data-saring="kota" class="input" aria-label="Saring kota"></select>
+    <label class="flex items-center gap-2.5 px-3.5 py-2.5 rounded-md border border-neutral4 text-sm text-neutral1 cursor-pointer has-[:checked]:border-primary1 has-[:checked]:bg-primary5/40">
+      <input type="checkbox" data-saring="s2" class="w-4 h-4 accent-[#1E3A8A]"> Sedang S2
+    </label>
+  </div>
+
+  <p id="jumlah" class="!text-sm text-neutral2" aria-live="polite"></p>
+  <section id="daftar" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="Daftar alumni"></section>
+  <div id="pager"></div>
+</main>
+
+<script>
+  const PER_HALAMAN = 12;
+  const saring = { kata: '', angkatan: '', keahlian: '', kota: '', s2: false };
+  const semua = DB.tracer.semua();
+  let halaman = 1;
+
+  // Keahlian yang paling banyak dimiliki tampil paling atas
+  const hitungKeahlian = new Map();
+  semua.flatMap(t => t.keahlian).forEach(k => hitungKeahlian.set(k, (hitungKeahlian.get(k) || 0) + 1));
+  const pilihan = (kosong, list) => `<option value="">${kosong}</option>${list.map(x => `<option>${esc(x)}</option>`).join('')}`;
+  document.getElementById('f-angkatan').innerHTML = pilihan('Semua angkatan', [...new Set(semua.map(t => t.tahun_masuk))].sort((a, b) => b - a));
+  document.getElementById('f-keahlian').innerHTML = pilihan('Semua keahlian', [...hitungKeahlian].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([k]) => k));
+  // Alumni yang mendaftar sebelum revisi bisa belum mengisi kota
+  document.getElementById('f-kota').innerHTML = pilihan('Semua kota', [...new Set(semua.map(t => t.kota).filter(Boolean))].sort());
+
+  function kartuAlumni(t) {
+    const u = DB.akun.cari(t.id_alumni);
+    const lencana = DB.feed.lencanaTester(u.id);
+    const tanda = [t.nama_studi && badge('Sedang S2', 'yellow'), t.nama_sampingan && badge('Freelance', 'blue'), lencana && badge(lencana, 'green')].filter(Boolean);
+    const pesanWa = `Halo ${u.nama}, saya ${SAYA.nama} rekan alumni asisten lab Bengkel Koding. Salam kenal!`;
+    const urlWa = tautanWa(t.no_hp, pesanWa);
+    const urlLi = t.linkedin || `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(u.nama)}`;
+    return `
+      <div class="card !p-4 flex flex-col justify-between gap-3 hover:border-primary4 transition-all min-w-0">
+        <a href="profil-alumni.html?id=${u.id}" class="flex flex-col gap-3 min-w-0 flex-1">
+          <div class="flex items-start gap-3 min-w-0">
+            ${fotoBulat(u)}
+            <div class="min-w-0">
+              <p class="!text-sm font-semibold text-neutral1 truncate hover:text-primary1">${esc(u.nama)}</p>
+              <p class="!text-xs text-neutral2 leading-snug mt-0.5">${esc(DB.tracer.karir(t).ringkas)}</p>
+              <p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, t.kota].filter(Boolean).join(' · '))}</p>
+            </div>
+          </div>
+          ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.slice(0, 4).map(chip).join('')}</div>` : ''}
+          ${tanda.length ? `<div class="flex flex-wrap gap-1.5">${tanda.join('')}</div>` : ''}
+        </a>
+        <div class="flex items-center gap-2 pt-2.5 border-t border-neutral4/60 mt-auto">
+          <a href="${esc(urlWa)}" target="_blank" rel="noreferrer" class="btn-outline !py-1 !px-2.5 !text-xs !text-green1 !border-green1/40 hover:!bg-green3/30 inline-flex items-center gap-1.5">
+            <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> WhatsApp
+          </a>
+          <a href="${esc(tautanAman(urlLi))}" target="_blank" rel="noreferrer" class="btn-outline !py-1 !px-2.5 !text-xs !text-blue1 !border-blue1/40 hover:!bg-blue3/30 inline-flex items-center gap-1.5">
+            <i data-lucide="linkedin" class="w-3.5 h-3.5"></i> LinkedIn
+          </a>
+        </div>
+      </div>`;
+  }
+
+  function render() {
+    const list = DB.tracer.direktori(SAYA.id, saring);
+    document.getElementById('jumlah').textContent = `${list.length} alumni ditemukan`;
+    document.getElementById('daftar').innerHTML = potong(list, halaman, PER_HALAMAN).map(kartuAlumni).join('')
+      || `<div class="sm:col-span-2 xl:col-span-3">${kartuKosong('search-x', 'Alumni tidak ditemukan', 'Coba ubah saringan atau kata kunci.')}</div>`;
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+    refreshIcons();
+  }
+
+  document.getElementById('saring').addEventListener('input', e => {
+    const el = e.target;
+    saring[el.dataset.saring] = el.type === 'checkbox' ? el.checked : el.value;
+    halaman = 1;
+    render();
+  });
+  render();
+</script>
+</body>
+</html>
