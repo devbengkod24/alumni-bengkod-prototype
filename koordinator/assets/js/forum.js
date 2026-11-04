@@ -83,6 +83,33 @@ function tautanRingkas(t) {
 
 const daftarRingkas = list => `<div class="flex flex-col gap-2">${list.map(tautanRingkas).join('')}</div>`;
 
+// Info #Referral dibagikan alumni di Beranda. Koordinator hanya memantau, tidak ikut mengajukan.
+function barisReferral(p) {
+  const penulis = DB.akun.cari(p.id_alumni);
+  const r = p.referral;
+  const ditutup = r.batas < DB.hariIni();
+  const jumlah = status => p.pengajuan.filter(a => a.status === status).length;
+  const angka = [
+    ['inbox', `${p.pengajuan.length} pengajuan`],
+    ['clock', `${jumlah('menunggu')} menunggu`],
+    ['message-circle', `${jumlah('dihubungi')} dihubungi`],
+    ['lightbulb', `${jumlah('masukan')} diberi masukan`],
+  ];
+  return `
+    <article class="p-4 sm:p-5 flex items-start gap-3">
+      ${fotoBulat(penulis, 'w-10 h-10')}
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-center gap-1.5">${badge('#Referral')}${badge(r.level, 'gray')}${ditutup ? badge('Ditutup', 'gray') : badge('Dibuka', 'green')}</div>
+        <h3 class="!text-[15px] font-semibold text-neutral1 leading-snug mt-2 break-words">${esc(r.posisi)} · ${esc(r.perusahaan)}</h3>
+        <p class="!text-[13px] text-neutral2 mt-1 leading-relaxed line-clamp-2 break-words">${esc(p.isi)}</p>
+        <p class="!text-xs text-neutral3 mt-2"><a href="profil-alumni.html?id=${penulis.id}" class="hover:text-primary1 hover:underline">${esc(penulis.nama)}</a> · ${esc(identitasForum(penulis))} · Review sampai ${fmtDate(r.batas)}</p>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-neutral3">
+          ${angka.map(([ikon, teks]) => `<span class="inline-flex items-center gap-1"><i data-lucide="${ikon}" class="w-3.5 h-3.5"></i>${teks}</span>`).join('')}
+        </div>
+      </div>
+    </article>`;
+}
+
 // ===================== FORM DISKUSI =====================
 function pasangFormDiskusi(setelahSimpan) {
   document.body.insertAdjacentHTML('beforeend', `
@@ -211,13 +238,14 @@ function pasangForum() {
   const PER_HALAMAN = 8;
   const TAB = [
     ['terbaru', 'Terbaru'], ['populer', 'Populer'], ['belum', 'Belum Terjawab'], ['tersimpan', 'Tersimpan'], ['saya', 'Diskusi Saya'],
-    ...(KOORDINATOR ? [['tersembunyi', 'Disembunyikan']] : []),
+    ...(KOORDINATOR ? [['referral', '#Referral'], ['tersembunyi', 'Disembunyikan']] : []),
   ];
   const KOSONG = {
     belum: ['circle-check', 'Semua pertanyaan sudah terjawab', 'Pertanyaan yang belum punya jawaban terbaik akan tampil di sini.'],
     tersimpan: ['bookmark', 'Belum ada diskusi tersimpan', 'Tekan ikon simpan agar diskusi mudah dibuka lagi.'],
     saya: ['messages-square', 'Anda belum ikut berdiskusi', 'Diskusi yang Anda buat atau balas akan tampil di sini.'],
     tersembunyi: ['eye-off', 'Tidak ada diskusi yang disembunyikan'],
+    referral: ['handshake', 'Belum ada info referral', 'Info referral yang dibagikan alumni di Beranda akan tampil di sini.'],
   };
   const saring = { tab: 'terbaru', kategori: '', tag: new URLSearchParams(location.search).get('tag') || '', kata: '' };
   let halaman = 1;
@@ -254,6 +282,8 @@ function pasangForum() {
     const chip = (nilai, label, jumlah) => `
       <button type="button" data-kategori="${esc(nilai)}" aria-pressed="${saring.kategori === nilai}" class="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors ${saring.kategori === nilai ? 'bg-primary1 border-primary1 text-white' : 'bg-white border-neutral4 text-neutral2 hover:bg-primary5 hover:text-primary1'}">${esc(label)} <span class="text-xs opacity-70">${jumlah}</span></button>`;
     const semua = DB.forum.daftar(SAYA.id).filter(t => !t.disembunyikan);
+    // Kategori hanya untuk diskusi, info referral tidak punya kategori
+    document.getElementById('kategori').classList.toggle('hidden', saring.tab === 'referral');
     document.getElementById('kategori').innerHTML = chip('', 'Semua', semua.length)
       + DB.OPSI.kategori_forum.map(k => chip(k, k, semua.filter(t => t.kategori === k).length)).join('');
     document.getElementById('tab').innerHTML = TAB.map(([nilai, label]) => `
@@ -262,7 +292,18 @@ function pasangForum() {
       <button type="button" data-hapus-tag aria-label="Hapus saringan tag ${esc(saring.tag)}" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary5 text-primary1 text-xs font-semibold">#${esc(saring.tag)}<i data-lucide="x" class="w-3.5 h-3.5"></i></button>` : '';
   }
 
+  function renderReferral() {
+    const kata = saring.kata.trim().toLowerCase();
+    const list = DB.feed.semua().filter(p => p.jenis === 'referral'
+      && [p.referral.posisi, p.referral.perusahaan, p.isi, DB.akun.cari(p.id_alumni).nama].join(' ').toLowerCase().includes(kata));
+    document.getElementById('daftar').innerHTML = list.length
+      ? `<div class="bg-white rounded-xl border border-neutral4 elevation1 divide-y divide-neutral4 overflow-hidden">${potong(list, halaman, PER_HALAMAN).map(barisReferral).join('')}</div>`
+      : kartuKosong(...(kata ? ['search-x', 'Info referral tidak ditemukan', 'Coba kata kunci lain.'] : KOSONG.referral));
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+  }
+
   function renderDaftar() {
+    if (saring.tab === 'referral') return renderReferral();
     const list = DB.forum.daftar(SAYA.id, saring);
     const adaSaringan = saring.kata.trim() || saring.kategori || saring.tag;
     const kosong = adaSaringan ? ['search-x', 'Diskusi tidak ditemukan', 'Coba kata kunci, kategori, atau tag lain.'] : KOSONG[saring.tab] || ['messages-square', 'Belum ada diskusi', 'Tekan Buat Diskusi untuk memulai.'];
