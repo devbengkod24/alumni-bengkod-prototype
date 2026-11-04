@@ -493,7 +493,7 @@ Halaman ini hanya baca.
 ### 7.4 Analitik Tracer (`tracer.html`)
 
 - Grafik donat per status dan legendanya.
-- Kartu 7 status plus 2 kartu profil (Sedang studi lanjut S2, Punya pekerjaan sampingan). Klik kartu mengisi filter dan menggulir ke tabel.
+- Kartu 7 status (kategori Melanjutkan Pendidikan dan Sedang Studi Lanjut S2 disatukan) plus 1 kartu profil (Punya pekerjaan sampingan). Klik kartu mengisi filter dan menggulir ke tabel.
 - Filter: cari (nama, NIM, tempat, kota), status, profil, tahun lulus.
 - Tabel 10 per halaman: Alumni (foto, nama, NIM), Lulus, Kontak (WhatsApp, email, LinkedIn), Status, Tempat (plus baris S2 dan sampingan), Posisi, tombol **Lihat** ke profil.
 - Alat: **Salin**, **Ekspor ke Excel** (`analitik-tracer.csv`, 22 kolom kuesioner lengkap, mengikuti filter), **Cetak**.

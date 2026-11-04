@@ -17,7 +17,7 @@
 <main data-title="Analitik Tracer">
   <div>
     <h2 class="!text-2xl font-semibold text-neutral1">Analitik Tracer</h2>
-    <p class="!text-sm text-neutral2 mt-1">Sebaran status alumni dari Profil Saya masing-masing: pekerjaan utama, studi lanjut S2, pekerjaan sampingan, dan kontak aktif.</p>
+    <p class="!text-sm text-neutral2 mt-1">Sebaran status alumni dari Profil Saya masing-masing: pekerjaan utama, melanjutkan pendidikan, pekerjaan sampingan, dan kontak aktif.</p>
   </div>
 
   <section class="card">
@@ -69,12 +69,33 @@
     ['nama_studi', 'Nama Universitas'], ['prodi', 'Program Studi'], ['tgl_studi', 'Tanggal Studi'],
     ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
   ];
-  // Studi lanjut dan pekerjaan sampingan bisa berjalan bersama status utama, jadi dihitung terpisah
+  function isMelanjutkanPendidikan(t) {
+    if (!t) return false;
+    const s = (t.status || '').trim().toLowerCase();
+    return s === 'melanjutkan pendidikan' || s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut' || Boolean(t.nama_studi);
+  }
+
+  function getKategori(t) {
+    if (isMelanjutkanPendidikan(t)) {
+      return 'Melanjutkan Pendidikan';
+    }
+    return t.status;
+  }
+
+  // Pekerjaan sampingan bisa berjalan bersama status utama, jadi dihitung terpisah
   const PROFIL = {
-    s2: ['Sedang studi lanjut S2', 'graduation-cap', t => Boolean(t.nama_studi)],
     sampingan: ['Punya pekerjaan sampingan', 'laptop', t => Boolean(t.nama_sampingan)],
   };
-  const perStatus = DB.tracer.jumlahPerStatus();
+
+  function hitungPerStatus() {
+    const hasil = Object.fromEntries(DB.STATUS.map(s => [s, 0]));
+    DB.tracer.semua().forEach(t => {
+      const k = getKategori(t);
+      if (k in hasil) hasil[k]++;
+    });
+    return hasil;
+  }
+  const perStatus = hitungPerStatus();
   const nilai = DB.STATUS.map(s => perStatus[s]);
   const total = DB.tracer.semua().length;
   const filterStatus = document.getElementById('f-status');
@@ -105,10 +126,21 @@
   filterProfil.innerHTML = `<option value="">Semua profil</option>${Object.entries(PROFIL).map(([kunci, [label]]) => `<option value="${kunci}">${label}</option>`).join('')}`;
   filterTahun.innerHTML = `<option value="">Semua tahun lulus</option>${[...new Set(DB.tracer.semua().map(t => t.tahun_lulus))].sort((a, b) => b - a).map(t => `<option>${t}</option>`).join('')}`;
 
+  function cocokStatus(t, status) {
+    if (!status) return true;
+    if (status === 'Melanjutkan Pendidikan') {
+      return isMelanjutkanPendidikan(t);
+    }
+    if (isMelanjutkanPendidikan(t)) {
+      return false;
+    }
+    return t.status === status;
+  }
+
   function daftar() {
     const kata = document.getElementById('cari').value.trim().toLowerCase();
     return DB.tracer.semua()
-      .filter(t => (!filterStatus.value || t.status === filterStatus.value)
+      .filter(t => cocokStatus(t, filterStatus.value)
         && (!filterTahun.value || t.tahun_lulus === Number(filterTahun.value))
         && (!filterProfil.value || PROFIL[filterProfil.value][2](t))
         && `${t.nama_alumni} ${t.nim} ${DB.tracer.karir(t).tempat} ${t.kota}`.toLowerCase().includes(kata))
@@ -133,7 +165,7 @@
           <a href="mailto:${esc(t.email)}" class="block text-xs text-neutral3 hover:text-primary1">${esc(t.email)}</a>
           ${tautanAman(t.linkedin) ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="block text-xs text-neutral3 hover:text-primary1">LinkedIn</a>` : ''}
         </td>
-        <td class="td">${badgeStatus(t.status)}</td>
+        <td class="td">${badgeStatus(t.status === 'Sedang studi lanjut S2' || t.status === 'Sedang Studi Lanjut S2' ? 'Melanjutkan Pendidikan' : t.status)}</td>
         <td class="td min-w-44">
           ${esc(karir.tempat || '-')}
           ${t.nama_studi && t.nama_job ? `<div class="text-xs text-neutral3 mt-0.5">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</div>` : ''}
@@ -154,8 +186,13 @@
   document.getElementById('kartu').addEventListener('click', e => {
     const kartu = e.target.closest('[data-status], [data-profil]');
     if (!kartu) return;
-    if (kartu.dataset.status) filterStatus.value = kartu.dataset.status;
-    else filterProfil.value = kartu.dataset.profil;
+    if (kartu.dataset.status) {
+      filterStatus.value = kartu.dataset.status;
+      filterProfil.value = '';
+    } else {
+      filterProfil.value = kartu.dataset.profil;
+      filterStatus.value = '';
+    }
     ubahFilter();
     document.getElementById('detail').scrollIntoView({ behavior: 'smooth' });
   });
