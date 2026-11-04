@@ -170,7 +170,7 @@ document.addEventListener("alpine:init", () => {
     submitted: false,
     passwordApiError: "",
     init() {
-      this.draft = initProfileDraft(this.$data.profile);
+      this.draft = { ...initProfileDraft(this.$data.profile), skills: this.$data.skills.map((sk) => sk.name) };
       this._lock();
       this.$watch("draft.countryCode", (code, old) => {
         if (code !== old) this.draft.city = "";
@@ -178,6 +178,27 @@ document.addEventListener("alpine:init", () => {
     },
     get cityOptions() {
       return (CITIES[this.draft.countryCode] || []).map((c) => ({ value: c, label: c }));
+    },
+    // Tahun lulus tidak boleh lebih awal dari tahun masuk dan tidak melewati tahun ini
+    get gradYearOptions() {
+      const akhir = new Date().getFullYear();
+      const awal = Number(this.$data.profile.entryYear) || akhir - 15;
+      return Array.from({ length: Math.max(akhir - awal + 1, 1) }, (_, i) => String(akhir - i));
+    },
+    // Keahlian diketik lalu Enter/koma, atau dipilih dari saran
+    skillQuery: "",
+    SKILL_SUGGESTIONS: SKILL_OPTIONS.flatMap((g) => g.items),
+    addSkill() {
+      const nama = this.skillQuery.trim().replace(/,+$/, "").trim();
+      this.skillQuery = "";
+      if (!nama) return;
+      this.touch("skills");
+      if (this.draft.skills.some((sk) => sk.toLowerCase() === nama.toLowerCase())) return;
+      this.draft.skills = [...this.draft.skills, nama];
+    },
+    removeSkill(i) {
+      this.touch("skills");
+      this.draft.skills = this.draft.skills.filter((_, idx) => idx !== i);
     },
     urlError(v, domain, name) {
       if (!v.trim()) return "";
@@ -191,6 +212,12 @@ document.addEventListener("alpine:init", () => {
       const pwdBaru = (d.newPassword || "").trim();
       return {
         fullName: d.fullName.trim() ? "" : "Nama lengkap wajib diisi.",
+        gradYear: !d.gradYear
+          ? "Tahun lulus wajib dipilih."
+          : Number(d.gradYear) < Number(this.$data.profile.entryYear || 0)
+            ? "Tahun lulus tidak boleh lebih awal dari tahun masuk."
+            : "",
+        skills: d.skills.length > 10 ? "Maksimal 10 keahlian." : d.skills.some((sk) => sk.length > 40) ? "Nama keahlian maksimal 40 karakter." : "",
         headline: d.headline.trim() ? "" : "Moto profesional tidak boleh kosong.",
         countryCode: d.countryCode ? "" : "Pilih negara atau wilayah Anda.",
         linkedin: this.urlError(d.linkedin, "linkedin.com", "LinkedIn"),
@@ -236,6 +263,9 @@ document.addEventListener("alpine:init", () => {
         lastName: parts.length > 1 ? parts[parts.length - 1] : "",
         name,
         nim: (d.nim || "").trim(),
+        gradYear: d.gradYear,
+        batch: d.gradYear,
+        skillNames: [...d.skills],
         whatsapp: (d.whatsapp || "").trim(),
         phone: (d.whatsapp || "").trim(),
         headline: d.headline.trim(),
@@ -1440,6 +1470,31 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
     err: "''",
     hint: "draft.countryCode ? 'Daftar disesuaikan dengan negara yang dipilih. Jika kota Anda belum ada, ketik nama kota lalu pilih.' : ''",
   })}
+  ${profileFieldHTML({
+    label: "Keahlian",
+    forId: "ep-skills",
+    err: "showErr('skills')",
+    body: `<div class="flex flex-wrap items-center gap-1.5 rounded-md border bg-white px-2.5 py-2 cursor-text transition-all focus-within:ring-1" :class="showErr('skills') ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 hover:border-gray-400 focus-within:border-[#1E3A8A] focus-within:ring-[#1E3A8A]'" @click="$refs.skillInput.focus()">
+      <template x-for="(sk, i) in draft.skills" :key="sk">
+        <span class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#1E3A8A]">
+          <span x-text="sk"></span>
+          <button type="button" @click.stop="removeSkill(i)" class="w-5 h-5 rounded-full flex items-center justify-center text-[#1E3A8A]/70 hover:bg-blue-100 hover:text-[#1E3A8A] cursor-pointer" :aria-label="'Hapus keahlian ' + sk">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </span>
+      </template>
+      <input id="ep-skills" x-ref="skillInput" type="text" list="ep-skill-list" autocomplete="off" maxlength="40" x-model="skillQuery"
+        @keydown.enter.prevent="addSkill()" @keydown.comma.prevent="addSkill()" @blur="addSkill()"
+        @keydown.backspace="if (!skillQuery && draft.skills.length) removeSkill(draft.skills.length - 1)"
+        @input="if ($event.inputType === 'insertReplacementText' || !$event.inputType) addSkill()"
+        :placeholder="draft.skills.length ? 'Tambah keahlian lain...' : 'Contoh: Laravel, MySQL, Flutter'"
+        class="flex-1 min-w-[160px] border-0 bg-transparent px-1 py-1 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none focus:ring-0">
+      <datalist id="ep-skill-list">
+        <template x-for="opt in SKILL_SUGGESTIONS" :key="opt"><option :value="opt"></option></template>
+      </datalist>
+    </div>
+    <p class="text-[12px] text-gray-500 leading-relaxed">Tekan Enter atau koma untuk menambahkan. Keahlian tampil di halaman Alumni dan bisa dicari rekan alumni.</p>`,
+  })}
   <div class="border-t border-gray-200 pt-6 space-y-5">
     <div>
       <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Pengaturan Akun &amp; Keamanan</h3>
@@ -1454,6 +1509,10 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         ${profileFieldHTML({ label: "NIM Mahasiswa", forId: "ep-nim", err: "showErr('nim')", body: `<input id="ep-nim" type="text" autocomplete="off" x-model="draft.nim" placeholder="Contoh: A11.2020.12345" ${inputCls("nim")}>` })}
+        ${profileFieldHTML({ label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
+          <option value="">Pilih tahun lulus</option>
+          <template x-for="y in gradYearOptions" :key="y"><option :value="y" :selected="y === draft.gradYear" x-text="y"></option></template>
+        </select>` })}
         ${profileFieldHTML({ label: "Nomor WhatsApp / HP", forId: "ep-whatsapp", err: "showErr('whatsapp')", body: iconInput("ep-whatsapp", "whatsapp", "text", "081234567890", "bg-emerald-600", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>`, "") })}
         ${profileFieldHTML({ label: "Alamat Email", forId: "ep-email", err: "showErr('email')", body: iconInput("ep-email", "email", "email", "nama@alumni.dinus.ac.id", "bg-[#1E3A8A]", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>`, "") })}
         <div>
