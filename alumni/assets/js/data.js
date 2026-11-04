@@ -388,6 +388,16 @@
     }
     // Data yang tersimpan sebelum postingan contoh punya gambar ikut dilengkapi
     db.feed.forEach(p => { if (!p.gambar && GAMBAR_CONTOH[p.id] && p.waktu < '2026-11-01') p.gambar = GAMBAR_CONTOH[p.id]; });
+    // Normalisasi: satukan 'Sedang studi lanjut S2' ke 'Melanjutkan Pendidikan'
+    let adaNormalisasi = false;
+    db.tracer.forEach(t => {
+      const s = (t.status || '').trim().toLowerCase();
+      if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') {
+        t.status = 'Melanjutkan Pendidikan';
+        adaNormalisasi = true;
+      }
+    });
+    if (adaNormalisasi) simpan();
     return db;
   }
 
@@ -547,7 +557,12 @@
 
     jumlahPerStatus() {
       const hasil = Object.fromEntries(STATUS.map(s => [s, 0]));
-      muat().tracer.forEach(t => { if (t.status in hasil) hasil[t.status]++; });
+      muat().tracer.forEach(t => {
+        let st = t.status;
+        const s = (st || '').trim().toLowerCase();
+        if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') st = 'Melanjutkan Pendidikan';
+        if (st in hasil) hasil[st]++;
+      });
       return hasil;
     },
 
