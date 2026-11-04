@@ -16,7 +16,7 @@
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Dashboard" class="space-y-4">
   <div id="banner"></div>
-  <div id="pintasan" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
+  <div id="pintasan" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-5 gap-3"></div>
 
   <h2 class="!text-xl font-semibold text-neutral1 pt-2">Statistik Alumni</h2>
   <section id="ringkasan" class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Angka ringkas alumni"></section>
@@ -93,6 +93,7 @@
   document.getElementById('pintasan').innerHTML = [
     kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Analitik Tracer', nilai: DB.tracer.semua().length, sub: 'Jawaban masuk', warna: 'biru' }),
     kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau' }),
+    kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: `${DB.feed.spotlightAktif().length} spotlight`, sub: `${DB.feed.semua().filter(p => p.karya?.tahap === 'live').length} karya Live siap kurasi`, warna: 'oranye' }),
     kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu' }),
     kartuPintasan({ href: 'forum.html', ikon: 'messages-square', label: 'Forum', nilai: `${DB.forum.daftar(SAYA.id).length} diskusi`, sub: `${DB.forum.laporan('menunggu').length} laporan menunggu`, warna: 'merah' }),
   ].join('');
