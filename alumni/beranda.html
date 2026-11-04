@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="assets/js/data.js?v=6"></script>
+  <script src="assets/js/data.js?v=8"></script>
   <script src="assets/js/app.js?v=6"></script>
   <script src="assets/js/cv.js?v=5"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
@@ -15,54 +15,18 @@
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Beranda">
+  <div class="max-w-6xl mx-auto space-y-5">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-neutral4">
+    <div>
+      <h2 class="!text-2xl font-semibold text-neutral1">Beranda</h2>
+      <p class="!text-sm text-neutral2 mt-1">Kabar, karya, dan info referral dari sesama alumni Bengkel Koding.</p>
+    </div>
+    <button id="btn-buat" type="button" class="btn-primary shrink-0 self-start sm:self-auto"><i data-lucide="plus" class="w-4 h-4"></i> Buat Postingan</button>
+  </div>
   <!-- Tata letak ala media sosial: feed di tengah, info pendukung di kolom kanan -->
-  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6 items-start">
     <div class="min-w-0 w-full max-w-2xl mx-auto lg:mx-0 lg:max-w-none space-y-4">
       <div id="spotlight-carousel-wrap" class="hidden"></div>
-      <form id="composer" class="bg-white rounded-xl border border-neutral4 elevation1 p-4 sm:p-5" aria-label="Buat postingan" novalidate>
-        <div class="flex gap-3">
-          <div id="avatar-saya" class="shrink-0"></div>
-          <div class="flex-1 min-w-0">
-            <textarea name="isi" rows="2" maxlength="1000" placeholder="Apa kabar terbaru Anda?" aria-label="Isi postingan"
-              class="block w-full resize-none border-0 bg-transparent p-0 pt-2.5 !text-[15px] text-neutral1 placeholder-neutral3 leading-relaxed focus:outline-none focus:ring-0"></textarea>
-
-            <input type="file" name="gambar" accept="image/png,image/jpeg,image/webp" class="hidden">
-            <div data-media-ada class="hidden relative mt-3">
-              <img alt="Pratinjau gambar" class="w-full max-h-80 object-cover rounded-2xl border border-neutral4">
-              <div class="absolute top-2 right-2 flex gap-1.5">
-                <button type="button" data-pilih class="px-3 py-1 rounded-full bg-white/95 text-xs font-semibold text-neutral1 elevation2 hover:bg-white">Ganti</button>
-                <button type="button" data-hapus class="w-7 h-7 rounded-full bg-neutral1/80 text-white flex items-center justify-center hover:bg-neutral1" aria-label="Hapus gambar"><i data-lucide="x" class="w-4 h-4"></i></button>
-              </div>
-            </div>
-
-            <fieldset class="flex flex-wrap items-center gap-2 mt-3">
-              <legend class="sr-only">Jenis postingan</legend>
-              <label class="cursor-pointer">
-                <input type="radio" name="jenis" value="pengalaman" class="peer sr-only" checked>
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Pengalaman</span>
-              </label>
-              <label class="cursor-pointer">
-                <input type="radio" name="jenis" value="kegiatan" class="peer sr-only">
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Kegiatan</span>
-              </label>
-            </fieldset>
-            <p data-error class="hidden mt-2 !text-sm text-red1" role="alert"></p>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-between gap-3 mt-3 pt-3 border-t border-neutral4/70 sm:pl-14">
-          <div class="flex items-center gap-0.5 -ml-2">
-            <button type="button" data-pilih class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-primary2 hover:bg-primary5 transition-colors" title="Tambah foto"><i data-lucide="image" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Foto</span></button>
-            <button type="button" data-buka="karya-modal" class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-green1 hover:bg-green3/50 transition-colors" title="Pamerkan karya"><i data-lucide="rocket" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Karya</span></button>
-            <button type="button" data-buka="referral-modal" class="inline-flex items-center gap-1.5 px-2.5 py-2 rounded-full text-sm font-semibold text-yellow1 hover:bg-yellow3/60 transition-colors" title="Bagikan info referral"><i data-lucide="handshake" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Referral</span></button>
-          </div>
-          <div class="flex items-center gap-3">
-            <span data-hitung class="!text-xs text-neutral3 tabular-nums">0/1000</span>
-            <button type="submit" disabled class="px-5 py-2 rounded-full bg-primary1 hover:bg-primary2 text-white text-sm font-semibold transition-colors focus:outline-none focus:ring-4 focus:ring-primary5 disabled:bg-neutral4 disabled:text-neutral3 disabled:cursor-not-allowed">Posting</button>
-          </div>
-        </div>
-      </form>
-
       <section class="bg-white rounded-xl border border-neutral4 elevation1 overflow-hidden" aria-label="Linimasa">
         <nav id="saring" class="flex overflow-x-auto no-scrollbar border-b border-neutral4 px-2" aria-label="Saring postingan"></nav>
         <div id="daftar" class="p-3 sm:p-4 space-y-3 bg-neutral5/40"></div>
@@ -71,7 +35,70 @@
 
     <aside id="samping" class="space-y-4 min-w-0 lg:sticky lg:top-20" aria-label="Info Beranda"></aside>
   </div>
+  </div>
 </main>
+
+<!-- Modal buat postingan: penulis dan jenis di atas, isi di tengah, lampiran dan tombol Posting di bawah -->
+<div id="post-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="composer" class="bg-white rounded-xl border border-neutral4 w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden elevation5" role="dialog" aria-modal="true" aria-labelledby="post-modal-judul" novalidate>
+    <div class="px-6 py-4 border-b border-neutral4 flex items-center justify-between gap-3 shrink-0">
+      <h3 id="post-modal-judul" class="!text-lg font-bold text-neutral1">Buat Postingan</h3>
+      <button type="button" onclick="closeModal('post-modal')" class="w-9 h-9 rounded-full flex items-center justify-center text-neutral3 hover:text-primary1 hover:bg-primary5 transition-colors" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+      <div class="flex items-center gap-3">
+        <div id="avatar-saya" class="shrink-0"></div>
+        <div class="min-w-0">
+          <p id="composer-nama" class="!text-[15px] font-semibold text-neutral1 truncate"></p>
+          <fieldset class="flex flex-wrap items-center gap-2 mt-1">
+            <legend class="sr-only">Jenis postingan</legend>
+            <label class="cursor-pointer">
+              <input type="radio" name="jenis" value="pengalaman" class="peer sr-only" checked>
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="lightbulb" class="w-3.5 h-3.5"></i> Pengalaman</span>
+            </label>
+            <label class="cursor-pointer">
+              <input type="radio" name="jenis" value="kegiatan" class="peer sr-only">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-neutral4 text-xs font-semibold text-neutral2 transition-colors peer-checked:border-primary1 peer-checked:bg-primary5 peer-checked:text-primary1 peer-focus-visible:ring-4 peer-focus-visible:ring-primary5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i> Kegiatan</span>
+            </label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="rounded-xl border border-neutral4 bg-white px-4 py-3 cursor-text transition-colors focus-within:border-primary1 focus-within:ring-4 focus-within:ring-primary5" onclick="this.querySelector('textarea').focus()">
+        <textarea name="isi" rows="4" maxlength="1000" placeholder="Apa kabar terbaru Anda?" aria-label="Isi postingan"
+          class="block w-full min-h-[112px] resize-none border-0 bg-transparent p-0 !text-[15px] text-neutral1 placeholder-neutral3 leading-relaxed focus:outline-none focus:ring-0"></textarea>
+      </div>
+
+      <input type="file" name="gambar" accept="image/png,image/jpeg,image/webp" class="hidden">
+      <div data-media-ada class="hidden relative">
+        <img alt="Pratinjau gambar" class="w-full max-h-80 object-cover rounded-2xl border border-neutral4">
+        <div class="absolute top-2 right-2 flex gap-1.5">
+          <button type="button" data-pilih class="px-3 py-1 rounded-full bg-white/95 text-xs font-semibold text-neutral1 elevation2 hover:bg-white">Ganti</button>
+          <button type="button" data-hapus class="w-7 h-7 rounded-full bg-neutral1/80 text-white flex items-center justify-center hover:bg-neutral1" aria-label="Hapus gambar"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+      <p data-error class="hidden !text-sm text-red1" role="alert"></p>
+
+      <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-neutral4 px-4 py-2">
+        <span class="!text-sm font-semibold text-neutral2">Tambahkan ke postingan</span>
+        <div class="flex items-center gap-0.5 -mr-2">
+          <button type="button" data-pilih class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold transition-colors text-primary2 hover:bg-primary5" title="Tambah foto"><i data-lucide="image" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Foto</span></button>
+            <button type="button" data-buka="karya-modal" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold transition-colors text-green1 hover:bg-green3/50" title="Pamerkan karya"><i data-lucide="rocket" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Karya</span></button>
+            <button type="button" data-buka="referral-modal" class="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-semibold transition-colors text-yellow1 hover:bg-yellow3/60" title="Bagikan info referral"><i data-lucide="handshake" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Referral</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-neutral4 px-6 py-3.5 bg-neutral5/50 flex items-center justify-between gap-3 shrink-0">
+      <span data-hitung class="!text-xs text-neutral3 tabular-nums">0/1000</span>
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="closeModal('post-modal')" class="px-4 py-2 rounded-full border border-neutral4 bg-white text-sm font-semibold text-neutral1 hover:bg-neutral5 transition-colors">Batal</button>
+        <button type="submit" disabled class="px-5 py-2 rounded-full bg-primary1 hover:bg-primary2 text-white text-sm font-semibold transition-colors focus:outline-none focus:ring-4 focus:ring-primary5 disabled:bg-neutral4 disabled:text-neutral3 disabled:cursor-not-allowed">Posting</button>
+      </div>
+    </div>
+  </form>
+</div>
 
 <!-- Panel split screen CV: muncul dari kiri saat preview CV di drawer referral -->
 <div id="cv-split-panel" class="fixed inset-y-0 left-0 h-full max-h-screen z-50 hidden flex-col bg-white border-r border-neutral4 elevation5" style="width:0;transition:width 0.25s ease" aria-label="Preview CV">
@@ -250,7 +277,7 @@
     }
   }
 
-  // Kotak tulis di atas feed, langsung terbit tanpa membuka modal
+  // Kotak tulis di modal Buat Postingan
   const composer = document.getElementById('composer');
   const isiComposer = composer.elements.isi;
   function aturComposer() {
@@ -269,6 +296,7 @@
     galat.textContent = hasil.ok ? '' : hasil.error;
     galat.classList.toggle('hidden', hasil.ok);
     if (!hasil.ok) return;
+    closeModal('post-modal');
     composer.reset();
     saring = 'semua';
     render();
@@ -322,9 +350,22 @@
     aturFokus();
   }
 
-  document.querySelector('main').addEventListener('click', e => {
+  function bukaComposer() {
+    composer.reset();
+    composer.querySelector('[data-error]').classList.add('hidden');
+    openModal('post-modal');
+    aturComposer();
+    // openModal memfokuskan tombol pertama setelah 50 ms, jadi kursor dipindah ke kotak teks sesudahnya
+    setTimeout(() => isiComposer.focus(), 60);
+  }
+
+  document.getElementById('btn-buat').addEventListener('click', bukaComposer);
+
+  // Karya dan Referral punya form sendiri, jadi modal Buat Postingan ditutup dulu
+  composer.addEventListener('click', e => {
     const tombol = e.target.closest('[data-buka]');
     if (!tombol) return;
+    closeModal('post-modal');
     if (tombol.dataset.buka === 'karya-modal') return bukaKarya();
     bukaModalForm(tombol.dataset.buka);
   });
@@ -883,7 +924,8 @@
     }
   });
 
-  document.getElementById('avatar-saya').innerHTML = fotoBulat(SAYA, 'w-11 h-11 sm:w-12 sm:h-12');
+  document.getElementById('avatar-saya').innerHTML = fotoBulat(SAYA, 'w-12 h-12');
+  document.getElementById('composer-nama').textContent = SAYA.nama;
   render();
 
   // Tombol "Publish ke Beranda" dari portofolio membuka form karya yang sudah terisi
