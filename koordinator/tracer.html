@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analitik Tracer | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Analitik Tracer">
+  <div>
+    <h2 class="!text-2xl font-semibold text-neutral1">Analitik Tracer</h2>
+    <p class="!text-sm text-neutral2 mt-1">Sebaran status alumni dari Profil Saya masing-masing: pekerjaan utama, studi lanjut S2, pekerjaan sampingan, dan kontak aktif.</p>
+  </div>
+
+  <section class="card">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-center">
+      <div class="h-72"><canvas id="grafik" role="img" aria-label="Grafik lingkaran jumlah alumni per status. Angkanya ada di kartu status di bawah."></canvas></div>
+      <ul id="legenda" class="space-y-2"></ul>
+    </div>
+  </section>
+
+  <section id="kartu" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="Status alumni"></section>
+
+  <section id="detail" class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden scroll-mt-20" aria-label="Detail alumni">
+    <div class="p-4 border-b border-neutral4 space-y-3 no-print">
+      <div id="alat" class="flex flex-wrap gap-2"></div>
+      <div class="flex flex-col lg:flex-row gap-3">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+          <input id="cari" type="search" class="input !pl-9" placeholder="Cari nama, NIM, tempat, atau kota" aria-label="Cari nama, NIM, tempat, atau kota">
+        </div>
+        <select id="f-status" class="input lg:w-72" aria-label="Filter status"></select>
+        <select id="f-profil" class="input lg:w-64" aria-label="Filter studi lanjut dan pekerjaan sampingan"></select>
+        <select id="f-tahun" class="input lg:w-48" aria-label="Filter tahun lulus"></select>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th class="th">Alumni</th><th class="th">Lulus</th><th class="th">Kontak</th><th class="th">Status</th><th class="th">Tempat</th><th class="th">Posisi</th><th class="th text-right no-print">Profil</th>
+        </tr></thead>
+        <tbody id="baris"></tbody>
+      </table>
+    </div>
+    <div id="pager" class="p-4 empty:hidden no-print"></div>
+  </section>
+</main>
+
+<script>
+  Chart.defaults.font.family = 'Poppins, sans-serif';
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = '#55585E';
+
+  const PER_HALAMAN = 10;
+  const IKON = ['briefcase', 'clock', 'store', 'graduation-cap', 'search', 'user-x', 'house'];
+  // Kolom ekspor mengikuti kuesioner monolight, jadi tidak ada jawaban yang hilang dari tabel ringkas
+  const KOLOM_EKSPOR = [
+    ['nama_alumni', 'Nama'], ['jns_kelamin', 'Jenis Kelamin'], ['nim', 'NIM'], ['tahun_masuk', 'Tahun Masuk'], ['tahun_lulus', 'Tahun Lulus'],
+    ['no_hp', 'No WhatsApp'], ['email', 'Email'], ['linkedin', 'LinkedIn'], ['status', 'Status'], ['bidang_job', 'Bidang Pekerjaan'], ['jns_job', 'Kategori Pekerjaan'],
+    ['nama_job', 'Tempat Kerja'], ['jabatan_job', 'Jabatan'], ['lingkup_job', 'Tingkat Pekerjaan'], ['biaya_studi', 'Biaya Studi'],
+    ['nama_studi', 'Nama Universitas'], ['prodi', 'Program Studi'], ['tgl_studi', 'Tanggal Studi'],
+    ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
+  ];
+  // Studi lanjut dan pekerjaan sampingan bisa berjalan bersama status utama, jadi dihitung terpisah
+  const PROFIL = {
+    s2: ['Sedang studi lanjut S2', 'graduation-cap', t => Boolean(t.nama_studi)],
+    sampingan: ['Punya pekerjaan sampingan', 'laptop', t => Boolean(t.nama_sampingan)],
+  };
+  const perStatus = DB.tracer.jumlahPerStatus();
+  const nilai = DB.STATUS.map(s => perStatus[s]);
+  const total = DB.tracer.semua().length;
+  const filterStatus = document.getElementById('f-status');
+  const filterTahun = document.getElementById('f-tahun');
+  const filterProfil = document.getElementById('f-profil');
+  let halaman = 1;
+
+  grafikDonat('grafik', DB.STATUS, nilai, WARNA_STATUS);
+  document.getElementById('legenda').innerHTML = legendaDonat(DB.STATUS, nilai, WARNA_STATUS);
+
+  document.getElementById('kartu').innerHTML = DB.STATUS.map((s, i) => `
+    <button type="button" data-status="${esc(s)}" class="card !p-4 flex flex-col gap-3 text-left hover:border-primary4 hover:-translate-y-0.5 transition-all">
+      <span class="flex items-center gap-3 min-w-0">
+        <span class="w-10 h-10 rounded-xl flex items-center justify-center text-white shrink-0" style="background:${WARNA_STATUS[i]}"><i data-lucide="${IKON[i]}" class="w-5 h-5"></i></span>
+        <span class="text-sm font-semibold text-neutral1 leading-snug">${esc(s)}</span>
+      </span>
+      <span class="text-sm text-neutral2"><span class="font-semibold text-neutral1">${perStatus[s]}</span> dari ${total} alumni</span>
+    </button>`).join('') + Object.entries(PROFIL).map(([kunci, [label, ikon, cocok]]) => `
+    <button type="button" data-profil="${kunci}" class="card !p-4 flex flex-col gap-3 text-left hover:border-primary4 hover:-translate-y-0.5 transition-all">
+      <span class="flex items-center gap-3 min-w-0">
+        <span class="w-10 h-10 rounded-xl flex items-center justify-center bg-primary1 text-white shrink-0"><i data-lucide="${ikon}" class="w-5 h-5"></i></span>
+        <span class="text-sm font-semibold text-neutral1 leading-snug">${label}</span>
+      </span>
+      <span class="text-sm text-neutral2"><span class="font-semibold text-neutral1">${DB.tracer.semua().filter(cocok).length}</span> dari ${total} alumni, termasuk yang juga bekerja</span>
+    </button>`).join('');
+
+  filterStatus.innerHTML = `<option value="">Semua status</option>${DB.STATUS.map(s => `<option>${esc(s)}</option>`).join('')}`;
+  filterProfil.innerHTML = `<option value="">Semua profil</option>${Object.entries(PROFIL).map(([kunci, [label]]) => `<option value="${kunci}">${label}</option>`).join('')}`;
+  filterTahun.innerHTML = `<option value="">Semua tahun lulus</option>${[...new Set(DB.tracer.semua().map(t => t.tahun_lulus))].sort((a, b) => b - a).map(t => `<option>${t}</option>`).join('')}`;
+
+  function daftar() {
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    return DB.tracer.semua()
+      .filter(t => (!filterStatus.value || t.status === filterStatus.value)
+        && (!filterTahun.value || t.tahun_lulus === Number(filterTahun.value))
+        && (!filterProfil.value || PROFIL[filterProfil.value][2](t))
+        && `${t.nama_alumni} ${t.nim} ${DB.tracer.karir(t).tempat} ${t.kota}`.toLowerCase().includes(kata))
+      .sort((a, b) => b.tahun_lulus - a.tahun_lulus || a.nama_alumni.localeCompare(b.nama_alumni));
+  }
+
+  function render() {
+    const list = daftar();
+    document.getElementById('baris').innerHTML = potong(list, halaman, PER_HALAMAN).map(t => {
+      const karir = DB.tracer.karir(t);
+      return `
+      <tr class="tr">
+        <td class="td">
+          <div class="flex items-center gap-3 min-w-48">
+            ${fotoBulat(DB.akun.cari(t.id_alumni), 'w-9 h-9')}
+            <div class="min-w-0"><div class="font-medium">${esc(t.nama_alumni)}</div><div class="text-xs text-neutral3">${esc(t.nim)}</div></div>
+          </div>
+        </td>
+        <td class="td">${esc(t.tahun_lulus)}</td>
+        <td class="td whitespace-nowrap">
+          <a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="block text-primary2 hover:underline">${esc(t.no_hp)}</a>
+          <a href="mailto:${esc(t.email)}" class="block text-xs text-neutral3 hover:text-primary1">${esc(t.email)}</a>
+          ${tautanAman(t.linkedin) ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="block text-xs text-neutral3 hover:text-primary1">LinkedIn</a>` : ''}
+        </td>
+        <td class="td">${badgeStatus(t.status)}</td>
+        <td class="td min-w-44">
+          ${esc(karir.tempat || '-')}
+          ${t.nama_studi && t.nama_job ? `<div class="text-xs text-neutral3 mt-0.5">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</div>` : ''}
+          ${t.nama_sampingan ? `<div class="text-xs text-neutral3 mt-0.5">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</div>` : ''}
+        </td>
+        <td class="td min-w-36">${esc(karir.posisi || '-')}</td>
+        <td class="td text-right no-print"><a href="profil-alumni.html?id=${t.id_alumni}" class="text-primary2 font-medium hover:underline">Lihat</a></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="7" class="td text-center text-neutral3 py-8">Tidak ada alumni yang cocok.</td></tr>';
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+  }
+
+  function ubahFilter() {
+    halaman = 1;
+    render();
+  }
+
+  document.getElementById('kartu').addEventListener('click', e => {
+    const kartu = e.target.closest('[data-status], [data-profil]');
+    if (!kartu) return;
+    if (kartu.dataset.status) filterStatus.value = kartu.dataset.status;
+    else filterProfil.value = kartu.dataset.profil;
+    ubahFilter();
+    document.getElementById('detail').scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('cari').addEventListener('input', ubahFilter);
+  filterStatus.addEventListener('change', ubahFilter);
+  filterTahun.addEventListener('change', ubahFilter);
+  filterProfil.addEventListener('change', ubahFilter);
+
+  pasangToolsTabel('alat', 'analitik-tracer.csv', () => [
+    KOLOM_EKSPOR.map(([, label]) => label),
+    ...daftar().map(t => KOLOM_EKSPOR.map(([k]) => [t[k] ?? ''].flat().join(', '))),
+  ]);
+  render();
+</script>
+</body>
+</html>

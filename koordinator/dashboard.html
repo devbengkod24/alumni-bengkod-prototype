@@ -1,524 +1,171 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-role="admin">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="../assets/js/store.js"></script>
-  <script src="assets/js/koordinator.js"></script>
-  <script src="../alumni/assets/js/data.js"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Dashboard" class="space-y-4">
+  <div id="banner"></div>
+  <div id="pintasan" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"></div>
 
-  <!-- GREETING BANNER -->
-  <div class="rounded-xl p-6 bg-primary1 text-white border border-primary2/50 elevation1">
-    <div class="flex flex-col justify-center">
-      <p class="text-[11px] font-semibold uppercase tracking-wider text-white/70 mb-1" id="current-date-banner">RABU, 21 OKTOBER 2026</p>
-      <h1 class="text-xl sm:text-2xl font-bold text-white mb-1 leading-tight">Halo, Koordinator</h1>
-      <p class="text-xs sm:text-[13px] text-white/80 max-w-xl leading-relaxed">
-        Pusat monitoring data alumni, pengisian tracer study, dan kurasi karya inovasi asisten lab Bengkel Koding.
-      </p>
-    </div>
-  </div>
+  <h2 class="!text-xl font-semibold text-neutral1 pt-2">Statistik Alumni</h2>
+  <section id="ringkasan" class="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Angka ringkas alumni"></section>
 
-  <!-- 4 STAT CARDS -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-    <!-- Card 1: Total Alumni -->
-    <a href="data-alumni.html" class="card !p-4 flex items-center justify-between gap-3 hover:border-primary3 transition-colors group cursor-pointer">
-      <div class="min-w-0 flex-1">
-        <p class="text-[11px] font-medium text-neutral3 uppercase tracking-wider mb-1">Total Alumni</p>
-        <p id="stat-koor-total-alumni" class="text-2xl font-bold text-neutral1 leading-none">-</p>
-        <p class="text-xs text-neutral3 mt-1.5">Terdaftar aktif</p>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <section class="card xl:col-span-2">
+      <h3 class="!text-base font-semibold text-neutral1">Tracer Study</h3>
+      <p class="!text-xs text-neutral3 mt-0.5">Jumlah alumni per status</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-4 items-center">
+        <div class="h-64"><canvas id="grafik-status" role="img" aria-label="Grafik lingkaran jumlah alumni per status. Angkanya ada di daftar sebelah grafik."></canvas></div>
+        <ul id="legenda-status" class="space-y-2"></ul>
       </div>
-      <div class="w-11 h-11 rounded-lg bg-primary5 text-primary1 border border-primary4/50 flex items-center justify-center shrink-0">
-        <i data-lucide="users" class="w-5 h-5"></i>
-      </div>
-    </a>
-
-    <!-- Card 2: Alumni Terverifikasi -->
-    <a href="data-alumni.html" class="card !p-4 flex items-center justify-between gap-3 hover:border-primary3 transition-colors group cursor-pointer">
-      <div class="min-w-0 flex-1">
-        <p class="text-[11px] font-medium text-neutral3 uppercase tracking-wider mb-1">Alumni Terverifikasi</p>
-        <p id="stat-koor-terdaftar" class="text-2xl font-bold text-neutral1 leading-none">-</p>
-        <p class="text-xs text-neutral3 mt-1.5">Akun terverifikasi</p>
-      </div>
-      <div class="w-11 h-11 rounded-lg bg-green3 text-green1 border border-green2/30 flex items-center justify-center shrink-0">
-        <i data-lucide="user-check" class="w-5 h-5"></i>
-      </div>
-    </a>
-
-    <!-- Card 3: Karya Unggulan -->
-    <a href="karya.html" class="card !p-4 flex items-center justify-between gap-3 hover:border-primary3 transition-colors group cursor-pointer">
-      <div class="min-w-0 flex-1">
-        <p class="text-[11px] font-medium text-neutral3 uppercase tracking-wider mb-1">Karya Unggulan</p>
-        <p id="stat-koor-loker-aktif" class="text-2xl font-bold text-neutral1 leading-none">-</p>
-        <p id="stat-koor-loker-sub" class="text-xs text-neutral3 mt-1.5">Siap dikurasi</p>
-      </div>
-      <div class="w-11 h-11 rounded-lg bg-secondary3 text-neutral1 border border-secondary2/50 flex items-center justify-center shrink-0">
-        <i data-lucide="award" class="w-5 h-5"></i>
-      </div>
-    </a>
-
-    <!-- Card 4: Pengisi Tracer -->
-    <a href="analitik.html" class="card !p-4 flex items-center justify-between gap-3 hover:border-primary3 transition-colors group cursor-pointer">
-      <div class="min-w-0 flex-1">
-        <p class="text-[11px] font-medium text-neutral3 uppercase tracking-wider mb-1">Pengisi Tracer</p>
-        <p id="stat-koor-pending" class="text-2xl font-bold text-neutral1 leading-none">-</p>
-        <p class="text-xs text-neutral3 mt-1.5">Data karir tercatat</p>
-      </div>
-      <div class="w-11 h-11 rounded-lg bg-blue3/40 text-blue1 border border-blue2/30 flex items-center justify-center shrink-0">
-        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-      </div>
-    </a>
-  </div>
-
-  <!-- TWO MAIN COLUMNS: KARYA ALUMNI SIAP KURASI & STATISTIK TRACER -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-    <!-- LEFT CARD: Karya Alumni Siap Kurasi -->
-    <div class="bg-white rounded-2xl border border-neutral4/80 p-5 flex flex-col justify-between gap-4 elevation1">
-      <div>
-        <div class="flex items-center justify-between gap-3 pb-3 border-b border-neutral4/60">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-primary5 flex items-center justify-center shrink-0 text-primary1">
-              <i data-lucide="folder-git-2" class="w-4 h-4"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm font-semibold text-neutral1">Karya Alumni Siap Kurasi</h3>
-              <p class="text-[11px] text-neutral3 mt-0.5">Produk alumni berstatus rilis untuk disematkan ke Beranda</p>
-            </div>
-          </div>
-          <a href="karya.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary1 hover:underline shrink-0">
-            Halaman Kurasi <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-          </a>
-        </div>
-
-        <!-- Content List Karya -->
-        <div id="content-list-container" class="flex flex-col gap-2.5 mt-3">
-          <!-- Rendered via JS -->
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-neutral4/60 flex items-center justify-between text-xs">
-        <span id="stat-karya-footer" class="text-neutral3">-</span>
-        <a href="karya.html" class="font-semibold text-primary1 hover:underline inline-flex items-center gap-1">
-          Kelola Spotlight Beranda <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-        </a>
-      </div>
-    </div>
-
-    <!-- RIGHT CARD: Statistik Tracer Study Alumni -->
-    <div class="bg-white rounded-2xl border border-neutral4/80 p-5 flex flex-col justify-between gap-4 elevation1">
-      <div>
-        <div class="flex items-center justify-between gap-3 pb-3 border-b border-neutral4/60">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-8 h-8 rounded-lg bg-primary5 flex items-center justify-center shrink-0 text-primary1">
-              <i data-lucide="chart-column" class="w-4 h-4"></i>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h3 class="text-sm font-semibold text-neutral1">Statistik Tracer Study</h3>
-              <p class="text-[11px] text-neutral3 mt-0.5">Analisis sebaran status karir &amp; masa tunggu alumni</p>
-            </div>
-          </div>
-          <a href="analitik.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary1 hover:underline shrink-0">
-            Analitik Lengkap <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-          </a>
-        </div>
-
-        <div class="flex items-center justify-between gap-3 mt-3">
-          <!-- Sub-tabs with Bottom Underline Indicator -->
-          <div class="flex border-b border-neutral4/70 text-xs">
-            <button id="tab-chart-karir" onclick="switchChartTab('karir')" class="px-3 py-1.5 font-semibold border-b-2 border-primary2 text-primary2 transition-colors">
-              Status Karir
-            </button>
-            <button id="tab-chart-masatunggu" onclick="switchChartTab('masatunggu')" class="px-3 py-1.5 font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors">
-              Masa Tunggu
-            </button>
-            <button id="tab-chart-serapan" onclick="switchChartTab('serapan')" class="px-3 py-1.5 font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors">
-              Tingkat Serapan
-            </button>
-          </div>
-
-          <!-- Year Dropdown -->
-          <div class="relative shrink-0">
-            <select id="select-year-chart" onchange="renderBarChart()" class="appearance-none text-[11px] font-medium text-neutral1 bg-white border border-neutral4 rounded-lg px-2.5 py-1 pr-6 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary5 hover:border-neutral3 transition-colors">
-              <option value="all" selected>Semua Angkatan</option>
-              <option value="2025">Lulusan 2025</option>
-              <option value="2024">Lulusan 2024</option>
-              <option value="2023">Lulusan 2023</option>
-              <option value="2022">Lulusan 2022</option>
-              <option value="2021">Lulusan 2021</option>
-            </select>
-            <div class="absolute inset-y-0 right-0 flex items-center pr-1.5 pointer-events-none text-neutral3">
-              <i data-lucide="chevron-down" class="w-3 h-3"></i>
-            </div>
-          </div>
-        </div>
-
-        <!-- Chart Display Area -->
-        <div class="pt-2">
-          <div class="mb-1.5">
-            <p id="chart-inner-title" class="text-[12px] font-semibold text-neutral1">Sebaran Status Karir Alumni</p>
-            <p id="chart-inner-subtitle" class="text-[10px] text-neutral3">Top 5 status karir alumni Bengkel Koding berdasarkan data tracer study</p>
-          </div>
-
-          <!-- Pure Responsive SVG Bar Chart -->
-          <div id="bar-chart-container" class="relative w-full h-[185px] flex items-end">
-            <!-- Rendered via JS -->
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-neutral4/60 flex items-center justify-between text-xs">
-        <span id="stat-tracer-footer" class="text-neutral3">-</span>
-        <a href="analitik.html" class="font-semibold text-primary1 hover:underline inline-flex items-center gap-1">
-          Buka Laporan Lengkap <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-        </a>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- BOTTOM SECTION: Data Tracer Alumni Terbaru -->
-  <section class="bg-white rounded-2xl border border-neutral4/80 p-5 space-y-3 elevation1" aria-label="Pembaruan Tracer Alumni">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-neutral4/60">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-8 h-8 rounded-lg bg-primary5 flex items-center justify-center shrink-0 text-primary1">
-          <i data-lucide="users" class="w-4 h-4"></i>
-        </div>
-        <div>
-          <h3 class="text-sm font-semibold text-neutral1">Pembaruan Tracer Study Alumni</h3>
-          <p class="text-[11px] text-neutral3 mt-0.5">Daftar alumni yang baru mengisi data tracer dan pembaruan karir</p>
-        </div>
-      </div>
-      <a href="data-alumni.html" class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary1 hover:underline self-start sm:self-auto">
-        Lihat Semua Data Alumni <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-      </a>
-    </div>
-
-    <div class="overflow-x-auto">
-      <table class="w-full text-left text-xs">
-        <thead>
-          <tr class="border-b border-neutral4/70 text-neutral3 font-semibold uppercase tracking-wider">
-            <th class="py-2.5 px-3">Alumni</th>
-            <th class="py-2.5 px-3">Lulusan</th>
-            <th class="py-2.5 px-3">Status Karir</th>
-            <th class="py-2.5 px-3">Instansi / Tempat Bekerja</th>
-            <th class="py-2.5 px-3">Jabatan</th>
-            <th class="py-2.5 px-3 text-right">Navigasi</th>
-          </tr>
-        </thead>
-        <tbody id="table-tracer-terbaru" class="divide-y divide-neutral4/50 text-neutral1">
-          <!-- Rendered via JS -->
-        </tbody>
+    </section>
+    <section class="card" aria-label="Kalender">
+      <h3 id="kalender-judul" class="!text-base font-semibold text-primary1 text-center"></h3>
+      <table class="w-full mt-4 text-center text-sm">
+        <thead><tr class="text-xs text-neutral3"><th class="py-1 font-medium">Min</th><th class="py-1 font-medium">Sen</th><th class="py-1 font-medium">Sel</th><th class="py-1 font-medium">Rab</th><th class="py-1 font-medium">Kam</th><th class="py-1 font-medium">Jum</th><th class="py-1 font-medium">Sab</th></tr></thead>
+        <tbody id="kalender"></tbody>
       </table>
-    </div>
-  </section>
+    </section>
+  </div>
 
+  <h2 class="!text-xl font-semibold text-neutral1 pt-2">Alumni Terdeteksi</h2>
+  <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
+    <section class="card xl:col-span-2">
+      <h3 class="!text-base font-semibold text-neutral1">Tiga Tahun Terakhir</h3>
+      <p class="!text-xs text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study</p>
+      <div class="h-64 mt-4"><canvas id="grafik-terdeteksi" role="img" aria-label="Grafik batang total, terdeteksi, dan tidak terdeteksi per tahun lulus. Angkanya ada di tabel sebelah grafik."></canvas></div>
+    </section>
+    <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead><tr><th class="th">Tahun Lulus</th><th class="th text-right">Total</th><th class="th text-right">Terdeteksi</th></tr></thead>
+          <tbody id="tabel-terdeteksi"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <h2 class="!text-xl font-semibold text-neutral1 pt-2">Pekerjaan Alumni</h2>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <section class="card">
+      <h3 class="!text-base font-semibold text-neutral1">Status Alumni</h3>
+      <p class="!text-xs text-neutral3 mt-0.5">Alumni yang melanjutkan pendidikan tidak dihitung</p>
+      <div class="h-44 mt-4"><canvas id="grafik-kerja" role="img" aria-label="Grafik lingkaran alumni bekerja dan tidak bekerja."></canvas></div>
+      <ul id="legenda-kerja" class="space-y-2 mt-4"></ul>
+    </section>
+    <section class="card">
+      <h3 class="!text-base font-semibold text-neutral1">Bidang Pekerjaan</h3>
+      <p class="!text-xs text-neutral3 mt-0.5">Infokom dan Non Infokom</p>
+      <div class="h-44 mt-4"><canvas id="grafik-bidang" role="img" aria-label="Grafik lingkaran bidang pekerjaan alumni."></canvas></div>
+      <ul id="legenda-bidang" class="space-y-2 mt-4"></ul>
+    </section>
+    <section class="card">
+      <h3 class="!text-base font-semibold text-neutral1">Lingkup Pekerjaan</h3>
+      <p class="!text-xs text-neutral3 mt-0.5">Lokal sampai internasional</p>
+      <div class="h-44 mt-4"><canvas id="grafik-lingkup" role="img" aria-label="Grafik lingkaran lingkup pekerjaan alumni."></canvas></div>
+      <ul id="legenda-lingkup" class="space-y-2 mt-4"></ul>
+    </section>
+  </div>
 </main>
 
 <script>
-  function esc(s) {
-    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-  function fmtDate(iso) {
-    return iso ? new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-';
-  }
+  Chart.defaults.font.family = 'Poppins, sans-serif';
+  Chart.defaults.font.size = 12;
+  Chart.defaults.color = '#55585E';
 
-  // 1. Tanggal & Greeting Banner Resmi
-  const today = new Date();
-  const dateFormatted = today.toLocaleDateString('id-ID', {
-    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-  }).toUpperCase();
-  const dateBanner = document.getElementById('current-date-banner');
-  if (dateBanner) dateBanner.textContent = dateFormatted;
+  const jumlah = (list, ambil) => list.reduce((n, x) => n + ambil(x), 0);
+  const tiga = DB.statistik.tigaTahun();
+  const perStatus = DB.tracer.jumlahPerStatus();
 
-  const currentKoor = KOOR.user;
-  const greetHeading = document.querySelector('h1.text-xl');
-  if (greetHeading && currentKoor && currentKoor.name) {
-    greetHeading.textContent = `Halo, ${currentKoor.name}`;
-  }
+  document.getElementById('banner').innerHTML = bannerSapaan(SAYA.nama, 'Pantau kondisi lulusan, jumlah alumni yang sudah terdeteksi, serta kontak dan tempat kerja alumni.');
 
-  // Update Dinamis Stat Cards dari SSOT Store
-  function updateStatCards() {
-    const alumniList = (window.DB?.akun ? window.DB.akun.alumni() : KOOR.alumni) || [];
-    const tracerList = (window.DB?.tracer ? window.DB.tracer.semua() : []) || [];
-    const feedList = (window.DB?.feed ? window.DB.feed.semua() : []) || [];
-    const karyaLive = feedList.filter(p => p.karya?.tahap === 'live');
-    const spotlightAktif = (window.DB?.feed ? window.DB.feed.spotlightAktif() : []) || [];
+  document.getElementById('pintasan').innerHTML = [
+    kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Analitik Tracer', nilai: DB.tracer.semua().length, sub: 'Jawaban masuk', warna: 'biru' }),
+    kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau' }),
+    kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu' }),
+    kartuPintasan({ href: 'forum.html', ikon: 'messages-square', label: 'Forum', nilai: `${DB.forum.daftar(SAYA.id).length} diskusi`, sub: `${DB.forum.laporan('menunggu').length} laporan menunggu`, warna: 'merah' }),
+  ].join('');
 
-    const elTotal = document.getElementById('stat-koor-total-alumni');
-    const elTerdaftar = document.getElementById('stat-koor-terdaftar');
-    const elAktif = document.getElementById('stat-koor-loker-aktif');
-    const elPending = document.getElementById('stat-koor-pending');
-    const elSubAktif = document.getElementById('stat-koor-loker-sub');
-
-    if (elTotal) elTotal.textContent = alumniList.length;
-    if (elTerdaftar) elTerdaftar.textContent = alumniList.length;
-    if (elAktif) elAktif.textContent = karyaLive.length;
-    if (elPending) elPending.textContent = tracerList.length;
-    if (elSubAktif) {
-      elSubAktif.textContent = `${spotlightAktif.length} Spotlight Aktif`;
-    }
-  }
-
-  // 2. Data Riil Karya Alumni Siap Kurasi
-  function renderKaryaList() {
-    const container = document.getElementById('content-list-container');
-    const footerStat = document.getElementById('stat-karya-footer');
-    if (!container) return;
-
-    const feedList = (window.DB?.feed ? window.DB.feed.semua() : []) || [];
-    const items = feedList.filter(p => p.jenis === 'karya' && p.karya?.tahap === 'live');
-
-    if (footerStat) {
-      footerStat.textContent = `${items.length} karya rilis siap dikurasi`;
-    }
-
-    if (!items.length) {
-      container.innerHTML = '<p class="text-xs text-neutral3 text-center py-6">Belum ada karya alumni berstatus rilis.</p>';
-      return;
-    }
-
-    container.innerHTML = items.slice(0, 4).map(p => {
-      const k = p.karya;
-      const isSpotlight = p.spotlight_sampai && new Date(p.spotlight_sampai) > new Date();
-      const badgeClass = isSpotlight ? 'bg-secondary3 text-neutral1 border border-secondary2/60' : 'bg-green3 text-green1';
-      const badgeText = isSpotlight ? 'Aktif di Beranda' : 'Karya Siap Tampil';
-
-      return `
-        <div class="flex items-center justify-between gap-3 px-3.5 py-2.5 bg-neutral5/80 rounded-xl hover:bg-neutral4/40 transition-colors border border-transparent hover:border-neutral4/80">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center ${isSpotlight ? 'bg-secondary3 text-neutral1 border border-secondary2/50' : 'bg-primary5 text-primary1'}">
-              <i data-lucide="${isSpotlight ? 'award' : 'folder-git-2'}" class="w-4 h-4"></i>
-            </div>
-            <div class="min-w-0 flex-1">
-              <p class="text-[12px] font-semibold text-neutral1 truncate">${esc(k.nama)}</p>
-              <p class="text-[10px] text-neutral3 truncate">${esc(k.tagline)}</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2.5 shrink-0">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${badgeClass}">
-              ${badgeText}
-            </span>
-            <a href="karya.html#karya-${p.id}" class="text-xs font-semibold text-primary1 hover:underline inline-flex items-center gap-1">
-              Kelola <i data-lucide="arrow-right" class="w-3 h-3"></i>
-            </a>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  // 3. Data Riil Pembaruan Tracer Study Alumni Terbaru
-  function renderTracerTable() {
-    const tbody = document.getElementById('table-tracer-terbaru');
-    const footerStat = document.getElementById('stat-tracer-footer');
-    if (!tbody) return;
-
-    const tracerList = (window.DB?.tracer ? window.DB.tracer.semua() : []) || [];
-    if (footerStat) {
-      footerStat.textContent = `${tracerList.length} alumni telah mengisi data tracer`;
-    }
-
-    if (!tracerList.length) {
-      tbody.innerHTML = '<tr><td colspan="6" class="py-6 text-center text-neutral3">Belum ada data tracer yang tercatat.</td></tr>';
-      return;
-    }
-
-    const items = tracerList.slice(0, 5);
-    tbody.innerHTML = items.map(a => {
-      const instansi = a.nama_job || a.nama_studi || '-';
-      const posisi = a.jabatan_job || a.prodi || a.status;
-
-      return `
-        <tr class="hover:bg-neutral5/60 transition-colors">
-          <td class="py-2.5 px-3">
-            <a href="data-alumni.html?q=${encodeURIComponent(a.nama_alumni)}" class="font-semibold text-primary1 hover:underline">${esc(a.nama_alumni)}</a>
-            <p class="text-[10px] text-neutral3">${esc(a.nim)}</p>
-          </td>
-          <td class="py-2.5 px-3 text-neutral3">${esc(a.tahun_lulus)}</td>
-          <td class="py-2.5 px-3">${badge(a.status)}</td>
-          <td class="py-2.5 px-3 text-neutral2 truncate max-w-[140px]">${esc(instansi)}</td>
-          <td class="py-2.5 px-3 text-neutral2 truncate max-w-[120px]">${esc(posisi)}</td>
-          <td class="py-2.5 px-3 text-right">
-            <a href="data-alumni.html?q=${encodeURIComponent(a.nama_alumni)}" class="text-primary1 font-semibold hover:underline inline-flex items-center gap-1">
-              Buka Data <i data-lucide="arrow-right" class="w-3 h-3"></i>
-            </a>
-          </td>
-        </tr>
-      `;
-    }).join('');
-
-    if (window.lucide) window.lucide.createIcons();
-  }
-
-  // 4. Data & Bar Chart Generator Sesuai Style lms-bengkod-web Admin.tsx
-  const BLUE_GRADIENT = ["#1E3A8A", "#1D4ED8", "#3B82F6", "#60A5FA", "#93C5FD", "#BFDBFE"];
-  let activeChartTab = 'karir';
-
-  function getChartDataset(tab, yearVal) {
-    const rekapRows = (yearVal === 'all')
-      ? KOOR.rekap
-      : KOOR.rekap.filter(r => r.tahun === Number(yearVal));
-
-    if (tab === 'karir') {
-      const sum = k => rekapRows.reduce((acc, r) => acc + (r[k] || 0), 0);
-      const raw = [
-        { label: 'Full Time', full: 'Bekerja Full Time', value: sum('fulltime') },
-        { label: 'Wirausaha', full: 'Wirausaha / Founder', value: sum('wirausaha') },
-        { label: 'Part Time', full: 'Bekerja Part Time', value: sum('parttime') },
-        { label: 'S2 Lanjut', full: 'Melanjutkan Pendidikan', value: sum('studi') },
-        { label: 'Cari Kerja', full: 'Mencari Pekerjaan', value: sum('mencari') },
-      ];
-      const maxVal = Math.max(...raw.map(d => d.value), 5);
-      return {
-        title: 'Sebaran Status Karir Alumni',
-        subtitle: `Top 5 status karir alumni Bengkel Koding (${yearVal === 'all' ? 'Seluruh Angkatan Lulusan' : 'Lulusan Tahun ' + yearVal})`,
-        yLabel: 'Jumlah Alumni',
-        maxVal: Math.ceil((maxVal * 1.2) / 5) * 5,
-        unit: ' alumni',
-        data: raw.map((d, i) => ({ ...d, color: BLUE_GRADIENT[i % BLUE_GRADIENT.length] }))
-      };
-    } else if (tab === 'masatunggu') {
-      // Masa tunggu kerja dalam bulan per angkatan
-      const raw = KOOR.rekap.slice(-5).map(r => ({
-        label: `Th ${r.tahun}`,
-        full: `Lulusan ${r.tahun}`,
-        value: r.masaTunggu,
-      }));
-      const maxVal = Math.max(...raw.map(d => d.value), 4);
-      return {
-        title: 'Rata-Rata Masa Tunggu Kerja',
-        subtitle: 'Rata-rata waktu (dalam bulan) dari kelulusan sampai mendapatkan pekerjaan',
-        yLabel: 'Bulan',
-        maxVal: Math.ceil(maxVal * 1.25),
-        unit: ' bulan',
-        data: raw.map((d, i) => ({ ...d, color: BLUE_GRADIENT[i % BLUE_GRADIENT.length] }))
-      };
-    } else if (tab === 'serapan') {
-      // Persentase serapan (fulltime + parttime + wirausaha) / terdaftar
-      const raw = KOOR.rekap.slice(-5).map(r => {
-        const terserap = r.fulltime + r.parttime + r.wirausaha;
-        const pct = Math.round((terserap / r.terdaftar) * 100);
-        return {
-          label: `Th ${r.tahun}`,
-          full: `Lulusan ${r.tahun} (${terserap}/${r.terdaftar} alumni bekerja & wirausaha)`,
-          value: pct,
-        };
-      });
-      return {
-        title: 'Tingkat Serapan Kerja & Wirausaha',
-        subtitle: 'Persentase alumni bekerja & wirausaha per tahun kelulusan',
-        yLabel: 'Persen (%)',
-        maxVal: 100,
-        unit: '%',
-        data: raw.map((d, i) => ({ ...d, color: BLUE_GRADIENT[i % BLUE_GRADIENT.length] }))
-      };
-    }
-  }
-
-  window.renderBarChart = function() {
-    const container = document.getElementById('bar-chart-container');
-    const yearSelect = document.getElementById('select-year-chart');
-    if (!container || !yearSelect) return;
-
-    const yearVal = yearSelect.value;
-    const ds = getChartDataset(activeChartTab, yearVal);
-    const maxVal = ds.maxVal;
-    const data = ds.data;
-
-    // Update title & subtitle
-    const titleEl = document.getElementById('chart-inner-title');
-    const subEl = document.getElementById('chart-inner-subtitle');
-    if (titleEl && subEl) {
-      titleEl.textContent = ds.title;
-      subEl.textContent = ds.subtitle;
-    }
-
-    // Dimensi SVG
-    const svgHeight = 190;
-    const padB = 25;
-    const chartAreaH = svgHeight - padB - 20;
-
-    // Build SVG Bars & Axis
-    const barsHTML = data.map((item) => {
-      const barHeight = Math.max((item.value / maxVal) * chartAreaH, 4);
-
-      return `
-        <div class="flex-1 flex flex-col items-center justify-end h-full group relative cursor-pointer" title="${item.full}: ${item.value}${ds.unit}">
-          <!-- Value Label on Top of Bar (Identik dengan Recharts LabelList) -->
-          <span class="text-[9px] font-bold text-neutral1 mb-1 transition-transform group-hover:scale-110">${item.value}${activeChartTab === 'serapan' ? '%' : ''}</span>
-          <!-- The Bar -->
-          <div class="w-9 sm:w-11 rounded-t transition-all duration-300 group-hover:brightness-110 shadow-sm" style="height: ${barHeight}px; background-color: ${item.color};"></div>
-          <!-- X Axis Label under Bar -->
-          <span class="text-[8.5px] text-neutral3 mt-2 truncate w-full text-center group-hover:text-neutral1 font-medium">${item.label}</span>
-        </div>
-      `;
-    }).join('');
-
-    // Grid lines horizontal
-    const gridYValues = [0, 0.25, 0.5, 0.75, 1];
-    const gridLinesHTML = gridYValues.map(r => {
-      const val = Math.round(maxVal * r);
-      const bottomPx = padB + (r * chartAreaH);
-      return `
-        <div class="absolute w-full flex items-center pointer-events-none" style="bottom: ${bottomPx}px; left: 0;">
-          <span class="text-[8px] text-neutral3 w-7 text-right pr-1.5 shrink-0 select-none">${val}</span>
-          <div class="flex-1 h-px bg-neutral4/50"></div>
-        </div>
-      `;
-    }).join('');
-
-    container.innerHTML = `
-      <!-- Grid Lines Background -->
-      <div class="absolute inset-0 flex flex-col justify-end pointer-events-none">
-        ${gridLinesHTML}
+  document.getElementById('ringkasan').innerHTML = [
+    ['Jumlah alumni dalam 3 tahun', jumlah(tiga, s => s.alumni_total), 'users', 'bg-primary5 text-primary1'],
+    ['Alumni terdeteksi dalam 3 tahun', jumlah(tiga, s => s.alumni_terlacak), 'user-check', 'bg-green3 text-green1'],
+    ['Jumlah alumni dari semua tahun', jumlah(DB.statistik.semua(), s => s.alumni_total), 'graduation-cap', 'bg-yellow3 text-yellow1'],
+  ].map(([label, nilai, ikon, warna]) => `
+    <div class="card !p-4 flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl ${warna} flex items-center justify-center shrink-0"><i data-lucide="${ikon}" class="w-5 h-5"></i></div>
+      <div class="min-w-0">
+        <div class="text-2xl font-semibold text-primary1">${nilai}</div>
+        <div class="text-sm text-neutral2">${label}</div>
       </div>
+    </div>`).join('');
 
-      <!-- Y Axis Label Rotated -->
-      <div class="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] font-semibold text-neutral3 select-none pointer-events-none origin-center -ml-3">
-        ${ds.yLabel}
-      </div>
+  // Grafik status
+  const nilaiStatus = DB.STATUS.map(s => perStatus[s]);
+  grafikDonat('grafik-status', DB.STATUS, nilaiStatus, WARNA_STATUS);
+  document.getElementById('legenda-status').innerHTML = legendaDonat(DB.STATUS, nilaiStatus, WARNA_STATUS);
 
-      <!-- Bars Container with Left Padding for Y Axis -->
-      <div class="relative z-10 w-full h-full flex items-end pl-8 pr-2 pb-0">
-        ${barsHTML}
-      </div>
-    `;
-  };
+  // Kalender bulan berjalan
+  const hariIni = new Date();
+  const hariPertama = new Date(hariIni.getFullYear(), hariIni.getMonth(), 1).getDay();
+  const jumlahHari = new Date(hariIni.getFullYear(), hariIni.getMonth() + 1, 0).getDate();
+  const sel = [...Array(hariPertama).fill(''), ...Array.from({ length: jumlahHari }, (_, i) => i + 1)];
+  const minggu = [];
+  for (let i = 0; i < sel.length; i += 7) minggu.push(sel.slice(i, i + 7));
+  document.getElementById('kalender-judul').textContent = hariIni.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+  document.getElementById('kalender').innerHTML = minggu.map(m => `<tr>${m.map(t => `
+    <td class="py-1.5">${t === hariIni.getDate() ? `<span class="inline-flex w-7 h-7 items-center justify-center rounded-full bg-primary1 text-white font-semibold">${t}</span>` : t}</td>`).join('')}</tr>`).join('');
 
-  window.switchChartTab = function(tab) {
-    activeChartTab = tab;
-    ['karir', 'masatunggu', 'serapan'].forEach(t => {
-      const btn = document.getElementById(`tab-chart-${t}`);
-      if (btn) {
-        if (t === tab) {
-          btn.className = 'px-3 py-1.5 font-semibold border-b-2 border-primary2 text-primary2 transition-colors';
-        } else {
-          btn.className = 'px-3 py-1.5 font-medium border-b-2 border-transparent text-neutral3 hover:text-neutral1 transition-colors';
-        }
-      }
-    });
-
-    renderBarChart();
-  };
-
-  // Initial Render
-  document.addEventListener('DOMContentLoaded', () => {
-    updateStatCards();
-    renderKaryaList();
-    renderTracerTable();
-    renderBarChart();
+  // Grafik alumni terdeteksi
+  new Chart(document.getElementById('grafik-terdeteksi'), {
+    type: 'bar',
+    data: {
+      labels: tiga.map(s => String(s.tahun_lulus)),
+      datasets: [
+        { label: 'Total Alumni', data: tiga.map(s => s.alumni_total), backgroundColor: '#1E3A8A', borderRadius: 4, maxBarThickness: 40 },
+        { label: 'Alumni Terdeteksi', data: tiga.map(s => s.alumni_terlacak), backgroundColor: '#3B82F6', borderRadius: 4, maxBarThickness: 40 },
+        { label: 'Alumni Tidak Terdeteksi', data: tiga.map(s => Math.max(s.alumni_total - s.alumni_terlacak, 0)), backgroundColor: '#FFC150', borderRadius: 4, maxBarThickness: 40 },
+      ],
+    },
+    options: {
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { grid: { display: false }, border: { display: false } },
+        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#EDEEF0' }, border: { display: false } },
+      },
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
+    },
   });
+  document.getElementById('tabel-terdeteksi').innerHTML = tiga.map(s => `
+    <tr class="tr"><td class="td font-medium">${s.tahun_lulus}</td><td class="td text-right tabular-nums">${s.alumni_total}</td><td class="td text-right tabular-nums">${s.alumni_terlacak}</td></tr>`).join('')
+    || '<tr><td colspan="3" class="td text-center text-neutral3 py-8">Belum ada data.</td></tr>';
+
+  // Grafik pekerjaan
+  function pasangDonat(nama, label, nilai, warna) {
+    grafikDonat(`grafik-${nama}`, label, nilai, warna);
+    document.getElementById(`legenda-${nama}`).innerHTML = legendaDonat(label, nilai, warna);
+  }
+
+  pasangDonat('kerja', ['Bekerja', 'Tidak Bekerja'],
+    [jumlah(DB.STATUS_BEKERJA, s => perStatus[s]), jumlah(DB.STATUS_TIDAK_BEKERJA, s => perStatus[s])],
+    ['#2a78d6', '#e87ba4']);
+
+  const perBidang = DB.tracer.hitung('bidang_job', DB.OPSI.bidang_job);
+  pasangDonat('bidang', DB.OPSI.bidang_job, DB.OPSI.bidang_job.map(b => perBidang[b]), ['#1baf7a', '#eda100']);
+
+  const perLingkup = DB.tracer.hitung('lingkup_job', DB.OPSI.lingkup_job);
+  pasangDonat('lingkup', DB.OPSI.lingkup_job, DB.OPSI.lingkup_job.map(l => perLingkup[l]), WARNA_STATUS);
 </script>
 </body>
 </html>
