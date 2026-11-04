@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Forum | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Laporan Forum">
+  <div>
+    <h2 class="!text-2xl font-semibold text-neutral1">Laporan Forum</h2>
+    <p class="!text-sm text-neutral2 mt-1">Tinjau konten yang dilaporkan alumni. Konten disembunyikan, bukan dihapus, sehingga masih bisa dipulihkan.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 border-b border-neutral4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div id="tab" class="flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Saring status laporan"></div>
+      <div class="relative lg:w-72">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="cari" type="search" class="input !pl-9" placeholder="Cari konten, penulis, atau pelapor" aria-label="Cari laporan">
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr><th class="th">Konten</th><th class="th">Alasan</th><th class="th">Pelapor</th><th class="th">Tanggal</th><th class="th text-right">Aksi</th></tr></thead>
+        <tbody id="baris"></tbody>
+      </table>
+    </div>
+    <div id="pager" class="p-4 empty:hidden"></div>
+  </section>
+</main>
+
+<script>
+  const PER_HALAMAN = 8;
+  const TAB = [['menunggu', 'Menunggu'], ['selesai', 'Selesai'], ['diabaikan', 'Diabaikan']];
+  const KECIL = '!px-3 !py-1.5 !text-xs';
+  let tabAktif = 'menunggu';
+  let halaman = 1;
+
+  function teksKonten(l) {
+    const { t, b, sasaran } = DB.forum.konten(l);
+    return { t, b, sasaran, penulis: DB.akun.cari(sasaran.id_user), pelapor: DB.akun.cari(l.id_pelapor), isi: b ? b.isi : t.judul };
+  }
+
+  function daftar() {
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    return DB.forum.laporan(tabAktif).filter(l => {
+      const k = teksKonten(l);
+      return `${k.isi} ${k.penulis.nama} ${k.pelapor.nama}`.toLowerCase().includes(kata);
+    });
+  }
+
+  function tombolAksi(l, sasaran) {
+    if (l.status === 'menunggu') return `
+      <button type="button" data-aksi="abaikan" data-id="${l.id}" class="btn-outline ${KECIL}">Abaikan</button>
+      <button type="button" data-aksi="sembunyikan" data-id="${l.id}" class="btn-danger ${KECIL}">Sembunyikan</button>`;
+    if (l.status === 'selesai' && sasaran.disembunyikan) return `<button type="button" data-aksi="pulihkan" data-id="${l.id}" class="btn-outline ${KECIL}">Pulihkan</button>`;
+    return `<span class="text-xs text-neutral3">Ditinjau ${fmtDate(l.ditinjau)}</span>`;
+  }
+
+  function render() {
+    const list = daftar();
+    document.getElementById('tab').innerHTML = TAB.map(([nilai, label]) => {
+      const jumlah = DB.forum.laporan(nilai).length;
+      return `<button type="button" data-tab="${nilai}" aria-pressed="${tabAktif === nilai}" class="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors ${tabAktif === nilai ? 'bg-primary1 border-primary1 text-white' : 'bg-white border-neutral4 text-neutral2 hover:bg-primary5 hover:text-primary1'}">${label} <span class="text-xs opacity-70">${jumlah}</span></button>`;
+    }).join('');
+    document.getElementById('baris').innerHTML = potong(list, halaman, PER_HALAMAN).map(l => {
+      const { t, b, sasaran, penulis, pelapor, isi } = teksKonten(l);
+      const tautan = `forum-detail.html?id=${t.id}${b ? `#balasan-${b.id}` : ''}`;
+      return `
+        <tr class="tr">
+          <td class="td min-w-72">
+            <div class="flex flex-wrap items-center gap-2 mb-1">${badge(b ? 'Balasan' : 'Diskusi', 'gray')}<span class="text-xs text-neutral3">oleh ${esc(penulis.nama)}</span></div>
+            <p class="!text-sm text-neutral1 line-clamp-2">${esc(isi)}</p>
+            <a href="${tautan}" class="text-xs text-primary2 hover:underline">${b ? `Lihat di ${esc(t.judul)}` : 'Lihat diskusi'}</a>
+          </td>
+          <td class="td min-w-40">
+            ${badge(l.alasan, 'red')}
+            ${l.catatan ? `<p class="!text-xs text-neutral2 mt-1.5">${esc(l.catatan)}</p>` : ''}
+          </td>
+          <td class="td whitespace-nowrap">${esc(pelapor.nama)}</td>
+          <td class="td whitespace-nowrap">${fmtDate(l.waktu)}</td>
+          <td class="td text-right whitespace-nowrap">${tombolAksi(l, sasaran)}</td>
+        </tr>`;
+    }).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada laporan.</td></tr>';
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+    refreshIcons();
+  }
+
+  function tinjau(id, statusBaru, pesan) {
+    const hasil = DB.forum.tinjau(id, SAYA.id, statusBaru);
+    if (!hasil.ok) return showToast(hasil.error, 'error');
+    halaman = 1;
+    render();
+    showToast(pesan);
+  }
+
+  document.getElementById('tab').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-tab]');
+    if (!tombol) return;
+    tabAktif = tombol.dataset.tab;
+    halaman = 1;
+    render();
+  });
+
+  document.getElementById('baris').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-aksi]');
+    if (!tombol) return;
+    const l = DB.forum.laporan(tabAktif).find(x => x.id === Number(tombol.dataset.id));
+    if (tombol.dataset.aksi === 'abaikan') return tinjau(l.id, 'diabaikan', 'Laporan diabaikan, konten tetap tampil.');
+    if (tombol.dataset.aksi === 'sembunyikan') {
+      return confirmAction({ title: 'Sembunyikan konten?', message: 'Konten disembunyikan dari alumni. Penulis dan pelapor akan diberi tahu.', okLabel: 'Sembunyikan', danger: true }, () => tinjau(l.id, 'selesai', 'Konten disembunyikan dan laporan selesai.'));
+    }
+    DB.forum.pulihkan(l, SAYA.id);
+    render();
+    showToast('Konten dipulihkan.');
+  });
+
+  document.getElementById('cari').addEventListener('input', () => { halaman = 1; render(); });
+  render();
+</script>
+</body>
+</html>

@@ -7,8 +7,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="assets/js/data.js?v=5"></script>
-  <script src="assets/js/app.js?v=5"></script>
+  <script src="assets/js/data.js?v=6"></script>
+  <script src="assets/js/app.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
@@ -58,7 +58,7 @@
           <a href="register.html" class="text-primary1 font-semibold hover:underline">Daftar di sini</a>
         </p>
 
-        <!-- Khusus prototype: akun contoh agar mudah mencoba alur alumni -->
+        <!-- Khusus prototype: akun contoh agar mudah mencoba alur alumni dan koordinator -->
         <div class="mt-5 p-3 bg-blue-50 border border-blue-200 rounded-xl">
           <div class="flex items-center gap-2 mb-2">
             <i data-lucide="info" class="w-4 h-4 text-blue-600 flex-shrink-0"></i>
@@ -67,6 +67,7 @@
           <div class="space-y-1.5">
             <button type="button" onclick="isiDemo('rizky@contoh.id', 'alumni123')" class="w-full text-left px-2.5 py-1.5 rounded-lg bg-white border border-blue-100 hover:border-blue-300 text-xs text-blue-900">Alumni yang sudah mengisi data</button>
             <button type="button" onclick="isiDemo('nadia@contoh.id', 'alumni123')" class="w-full text-left px-2.5 py-1.5 rounded-lg bg-white border border-blue-100 hover:border-blue-300 text-xs text-blue-900">Alumni first login (belum mengisi data)</button>
+            <button type="button" onclick="isiDemo('koordinator@contoh.id', 'koor12345')" class="w-full text-left px-2.5 py-1.5 rounded-lg bg-white border border-blue-100 hover:border-blue-300 text-xs text-blue-900">Koordinator</button>
           </div>
           <button type="button" onclick="kembalikanData()" class="mt-2 text-[11px] text-blue-700 underline underline-offset-2 hover:text-blue-900">Kembalikan data contoh ke awal</button>
         </div>
@@ -108,9 +109,7 @@
   </div>
 
   <script>
-    // Hanya sesi alumni yang langsung dialihkan. Portal koordinator tidak bisa mengakhiri sesi ini,
-    // jadi sesi koordinator tetap melihat form agar bisa masuk sebagai alumni.
-    if (SAYA?.role === 'alumni') location.replace(DASHBOARD.alumni);
+    if (SAYA) location.replace(DASHBOARD[SAYA.role]);
 
     const form = document.getElementById('login-form');
 

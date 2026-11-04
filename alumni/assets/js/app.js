@@ -1,6 +1,5 @@
 /**
  * JS bersama: config Tailwind, komponen UI, helper, penjaga role, dan layout sidebar/topbar.
- * Tampilan disalin dari koordinator.js di alumni-bengkod-prototype.
  * Dimuat di <head> setelah Tailwind CDN, data.js, dan sebelum main.js.
  */
 
@@ -41,15 +40,14 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 </style>`);
 
 // ===================== PENJAGA ROLE (pengganti middleware userAkses) =====================
-// Semua halaman yang memuat file ini ada di folder alumni/, termasuk login.
-// Portal koordinator memakai koordinator.js sendiri dan tidak membaca sesi ini.
+// Dipakai halaman di folder alumni/ (termasuk login) dan koordinator/. Login hanya ada di alumni/.
 const ROLE_HALAMAN = document.documentElement.dataset.role || '';
 const SAYA = DB.akun.aktif();
 const DASHBOARD = { alumni: 'beranda.html', admin: '../koordinator/dashboard.html' };
 const NAMA_FILE = location.pathname.split('/').pop() || 'dashboard.html';
 
 if (ROLE_HALAMAN && SAYA?.role !== ROLE_HALAMAN) {
-  location.replace('login.html');
+  location.replace(ROLE_HALAMAN === 'admin' ? '../alumni/login.html' : 'login.html');
 } else if (ROLE_HALAMAN === 'alumni' && NAMA_FILE !== 'isi-data.html' && !DB.tracer.milik(SAYA.id)) {
   // First login: alumni mengisi data dulu sebelum masuk portal
   location.replace('isi-data.html');
@@ -477,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Format baku sesuai arahan: Role -> Nama Halaman (Alumni › [Judul Halaman])
   const breadcrumbHTML = `
-    <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Alumni</a>
+    <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
     <span class="mx-2 text-neutral3 select-none font-normal">›</span>
     <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
 
@@ -514,7 +512,7 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group" aria-expanded="false" aria-label="Menu Pengguna">
             <div class="text-right hidden sm:block">
               <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" data-nama-saya>${esc(SAYA.nama)}</div>
-              <div class="text-[11px] text-neutral3">Alumni Asisten Lab</div>
+              <div class="text-[11px] text-neutral3">${SAYA.role === 'admin' ? NAMA_ROLE.admin : 'Alumni Asisten Lab'}</div>
             </div>
             <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">${avatar(SAYA)}</div>
           </button>

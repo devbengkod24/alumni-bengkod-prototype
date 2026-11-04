@@ -1,65 +1,60 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-role="admin">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Data Alumni | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="../assets/js/store.js"></script>
-  <script src="assets/js/koordinator.js"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Data Alumni">
-
   <div>
-    <h2 class="text-2xl font-semibold text-neutral1">Data Alumni</h2>
-    <p class="text-sm text-neutral2 mt-1">Lihat data tracer study yang diisi alumni.</p>
+    <h2 class="!text-2xl font-semibold text-neutral1">Data Alumni</h2>
+    <p class="!text-sm text-neutral2 mt-1">Data diambil dari Profil Saya masing-masing alumni. Pilih satu alumni untuk melihat profil lengkapnya.</p>
   </div>
 
-  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
-    <div class="p-4 flex flex-col sm:flex-row gap-3 border-b border-neutral4">
-      <div class="relative flex-1">
-        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
-        <input id="q" type="search" class="input !pl-9" placeholder="Cari nama atau NIM" aria-label="Cari alumni">
-      </div>
-      <select id="f-tahun" class="input sm:w-48" aria-label="Filter tahun lulus"><option value="">Semua tahun lulus</option></select>
-    </div>
-    <div class="overflow-x-auto">
-      <table class="w-full table-fixed min-w-[720px]">
-        <thead><tr><th class="th w-[24%]">Alumni</th><th class="th w-[10%]">Lulus</th><th class="th w-[20%]">Status Karir</th><th class="th w-[24%]">Instansi</th><th class="th w-[22%]">Jabatan</th></tr></thead>
-        <tbody id="alumni"></tbody>
-      </table>
-    </div>
-  </section>
+  <div class="relative">
+    <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+    <input id="cari" type="search" class="input !pl-9" placeholder="Cari nama, email, atau tempat" aria-label="Cari nama, email, atau tempat">
+  </div>
 
+  <section id="daftar" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="Daftar alumni"></section>
+  <div id="pager"></div>
 </main>
 
 <script>
-  const tahunSel = document.getElementById('f-tahun');
-  [...new Set(KOOR.alumni.map(a => a.tahun_lulus))].sort().forEach(t => tahunSel.add(new Option(t, t)));
-  const urlQ = new URLSearchParams(location.search).get('q');
-  if (urlQ) document.getElementById('q').value = urlQ;
+  const PER_HALAMAN = 12;
+  let halaman = 1;
+
+  // Alumni yang belum menyelesaikan first login belum punya data tracer
+  const ringkasAlumni = a => {
+    const t = DB.tracer.milik(a.id);
+    return t ? DB.tracer.karir(t).ringkas : 'Belum mengisi data';
+  };
 
   function render() {
-    const t = tahunSel.value, q = document.getElementById('q').value.toLowerCase();
-    const list = KOOR.alumni.filter(a => (!t || a.tahun_lulus == t) && (a.nama + a.nim).toLowerCase().includes(q));
-    document.getElementById('alumni').innerHTML = list.map(a => `
-      <tr class="tr">
-        <td class="td"><div class="font-medium">${esc(a.nama)}</div><div class="text-xs text-neutral3">${esc(a.nim)}</div></td>
-        <td class="td">${esc(a.tahun_lulus)}</td>
-        <td class="td">${badge(a.status || a.status_karir || 'Mencari Pekerjaan')}</td>
-        <td class="td">${esc(a.nama_perusahaan || a.perusahaan || '-')}</td>
-        <td class="td">${esc(a.jabatan || '-')}</td>
-      </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada data.</td></tr>';
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    const list = DB.akun.alumni().filter(a => `${a.nama} ${a.email} ${ringkasAlumni(a)}`.toLowerCase().includes(kata));
+    document.getElementById('daftar').innerHTML = potong(list, halaman, PER_HALAMAN).map(a => `
+      <a href="profil-alumni.html?id=${a.id}" class="card !p-4 flex items-start gap-3 hover:border-primary4 hover:-translate-y-0.5 transition-all min-w-0">
+        ${fotoBulat(a)}
+        <div class="min-w-0">
+          <p class="!text-sm font-semibold text-neutral1 truncate">${esc(a.nama)}</p>
+          <p class="!text-xs text-neutral3 truncate">${esc(a.email)}</p>
+          <p class="!text-xs text-neutral2 mt-1 leading-snug">${esc(ringkasAlumni(a))}</p>
+        </div>
+      </a>`).join('') || `<div class="sm:col-span-2 xl:col-span-3">${kartuKosong('search-x', 'Alumni tidak ditemukan')}</div>`;
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
     refreshIcons();
   }
 
-  tahunSel.addEventListener('change', render);
-  document.getElementById('q').addEventListener('input', render);
+  document.getElementById('cari').addEventListener('input', () => { halaman = 1; render(); });
   render();
 </script>
 </body>
