@@ -377,13 +377,13 @@ const NAV = {
   ],
   admin: [
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
+    { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
+    { href: 'laporan-forum.html', icon: 'flag', label: 'Laporan Forum' },
     { href: 'statistik.html', icon: 'chart-column', label: 'Statistik Data Alumni' },
     { href: 'tracer.html', icon: 'clipboard-list', label: 'Analitik Tracer' },
     { href: 'data-alumni.html', icon: 'id-card', label: 'Data Alumni' },
     { href: 'karya.html', icon: 'trophy', label: 'Karya Alumni' },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
-    { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
-    { href: 'laporan-forum.html', icon: 'flag', label: 'Laporan Forum' },
   ],
 };
 const NAMA_ROLE = { alumni: 'Alumni', admin: 'Koordinator Alumni' };
