@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil Alumni | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../alumni/assets/js/cv.js?v=6"></script>
+  <script src="../alumni/assets/js/tracer.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Profil Alumni" data-nav="data-alumni.html">
+  <a href="data-alumni.html" class="inline-flex items-center gap-1.5 text-sm text-neutral2 hover:text-primary1"><i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Data Alumni</a>
+  <section id="kepala" class="card !p-5 flex flex-col sm:flex-row sm:items-center gap-4"></section>
+  <div id="tracer" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
+  <div id="cv" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
+</main>
+
+<script>
+  const alumni = DB.akun.cari(new URLSearchParams(location.search).get('id'));
+  if (!alumni || alumni.role !== 'alumni') location.replace('data-alumni.html');
+
+  const t = DB.tracer.milik(alumni.id);
+  document.getElementById('kepala').innerHTML = `
+    ${fotoBulat(alumni, 'w-14 h-14')}
+    <div class="min-w-0 flex-1">
+      <h2 class="!text-xl font-semibold text-neutral1 truncate">${esc(alumni.nama)}</h2>
+      <p class="!text-sm text-neutral3 truncate">${esc(alumni.email)}${t ? ` · NIM ${esc(t.nim)} · Lulus ${esc(t.tahun_lulus)}` : ''}</p>
+      ${t ? `<a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="text-sm text-primary2 hover:underline">WhatsApp ${esc(t.no_hp)}</a>` : ''}
+      ${tautanAman(t?.linkedin) ? `<span class="text-neutral3 mx-1">·</span><a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="text-sm text-primary2 hover:underline">LinkedIn</a>` : ''}
+    </div>
+    ${t ? badgeStatus(t.status) : badge('Belum mengisi data', 'gray')}`;
+  if (t) document.getElementById('tracer').innerHTML = ringkasanTracer(t);
+  renderCv('cv', alumni.id, false);
+</script>
+</body>
+</html>

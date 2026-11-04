@@ -1,170 +1,128 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-role="admin">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pengumuman | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="../assets/js/store.js"></script>
-  <script src="assets/js/koordinator.js"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Pengumuman">
-
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
-      <h2 class="text-2xl font-semibold text-neutral1">Pengumuman</h2>
-      <p class="text-sm text-neutral2 mt-1">Buat dan publikasikan pengumuman untuk alumni.</p>
+      <h2 class="!text-2xl font-semibold text-neutral1">Kelola Pengumuman</h2>
+      <p class="!text-sm text-neutral2 mt-1">Pengumuman langsung terbit dan tampil di halaman alumni.</p>
     </div>
-    <button onclick="openForm()" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Buat Pengumuman</button>
+    <button type="button" onclick="bukaForm()" class="btn-primary no-print"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Pengumuman</button>
   </div>
 
-  <!-- Daftar pengumuman, gaya kartu sama dengan halaman pengumuman alumni -->
-  <section id="rows" class="space-y-4" aria-label="Daftar pengumuman"></section>
-
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 border-b border-neutral4 flex flex-col lg:flex-row lg:items-center justify-between gap-3 no-print">
+      <div id="alat" class="flex flex-wrap gap-2"></div>
+      <div class="relative lg:w-72">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="cari" type="search" class="input !pl-9" placeholder="Cari judul atau isi" aria-label="Cari pengumuman">
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr><th class="th w-14">No</th><th class="th">Judul</th><th class="th">Isi Pengumuman</th><th class="th">Tanggal</th><th class="th text-right no-print">Aksi</th></tr></thead>
+        <tbody id="baris"></tbody>
+      </table>
+    </div>
+    <div id="pager" class="p-4 empty:hidden no-print"></div>
+  </section>
 </main>
 
-<!-- Form buat / edit -->
 <div id="form-modal" data-modal-backdrop class="modal-backdrop">
   <form id="form" class="modal max-w-lg" role="dialog" aria-modal="true" aria-labelledby="form-title">
     <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
     <input type="hidden" name="id">
     <div class="space-y-4">
       <div>
-        <label for="f-judul" class="label">Judul</label>
-        <input id="f-judul" name="judul" class="input" required maxlength="120" placeholder="Contoh: Pengisian Tracer Study 2025">
+        <label for="f-judul" class="label">Judul Pengumuman <span class="text-red2">*</span></label>
+        <input id="f-judul" name="judul" class="input" required maxlength="255">
       </div>
       <div>
-        <label for="f-target" class="label">Sasaran Penerima</label>
-        <select id="f-target" name="target" class="input">
-          <option value="Semua">Semua</option>
-          <option value="Alumni">Alumni</option>
-        </select>
-      </div>
-      <div>
-        <label for="f-isi" class="label">Isi pengumuman</label>
-        <textarea id="f-isi" name="isi" rows="5" class="input" required></textarea>
-      </div>
-      <div>
-        <label for="f-lampiran" class="label">Lampiran Dokumen <span class="text-xs text-neutral3 font-normal">(Opsional)</span></label>
-        <div class="flex gap-2">
-          <input id="f-lampiran" name="lampiran" class="input flex-1" placeholder="Contoh: Panduan_Tracer_Study.pdf">
-          <label class="btn-outline cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3">
-            <i data-lucide="upload" class="w-4 h-4"></i>
-            <span>Pilih</span>
-            <input type="file" class="hidden" onchange="if(this.files[0]) document.getElementById('f-lampiran').value = this.files[0].name;">
-          </label>
-        </div>
+        <label for="f-isi" class="label">Isi Pengumuman <span class="text-red2">*</span></label>
+        <textarea id="f-isi" name="isi" rows="6" class="input" required></textarea>
       </div>
     </div>
-    <div class="mt-6 flex flex-wrap justify-end gap-2">
+    <div class="mt-6 flex justify-end gap-2">
       <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
-      <button type="submit" value="draft" class="btn-outline">Simpan Draft</button>
-      <button type="submit" value="publish" class="btn-primary">Publikasikan</button>
+      <button type="submit" class="btn-primary">Simpan</button>
     </div>
   </form>
 </div>
 
 <script>
+  const PER_HALAMAN = 5;
   const form = document.getElementById('form');
+  let halaman = 1;
+
+  function daftar() {
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    return DB.pengumuman.semua().filter(p => `${p.judul} ${p.isi}`.toLowerCase().includes(kata));
+  }
 
   function render() {
-    document.getElementById('rows').innerHTML = KOOR.pengumuman.map(p => `
-      <article class="bg-white rounded-xl border border-neutral4 shadow-sm hover:border-primary4 transition-colors">
-        <div class="flex items-start gap-4 p-5">
-          <div class="w-11 h-11 rounded-xl ${p.published ? 'bg-primary1 text-white' : 'bg-neutral5 text-neutral3'} flex items-center justify-center shrink-0"><i data-lucide="bell" class="w-5 h-5"></i></div>
-          <div class="flex-1 min-w-0">
-            <div class="flex items-start justify-between gap-3">
-              <h3 class="text-base sm:text-[17px] font-semibold text-neutral1 leading-snug">${esc(p.judul)}</h3>
-              <div class="flex items-center gap-1 shrink-0 -mt-1 -mr-1">
-                ${p.published ? '' : `<button class="btn-icon" onclick="publish(${p.id})" aria-label="Publikasikan" title="Publikasikan"><i data-lucide="send" class="w-4 h-4"></i></button>`}
-                <button class="btn-icon" onclick="openForm(${p.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
-                <button class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${p.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-              </div>
-            </div>
-            <div class="flex flex-wrap items-center gap-x-2 gap-y-1.5 mt-1 text-[13px] text-neutral3">
-              <span>${p.published ? fmtDate(p.published_at) : 'Belum dipublikasikan'}</span><span>·</span>
-              <span>Oleh ${esc(p.author || KOOR.user.name)} ${p.author_role ? `<span class="text-xs text-neutral3 font-normal">(${esc(p.author_role)})</span>` : ''}</span>
-              ${badge(p.target)}${p.published ? '' : badge('Draft')}
-            </div>
-            <p class="text-sm sm:text-[15px] text-neutral1 mt-2.5 leading-relaxed whitespace-pre-line">${esc(p.isi)}</p>
-            ${p.lampiran ? `
-              <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-neutral5 text-neutral1 border border-neutral4/80">
-                <i data-lucide="paperclip" class="w-3.5 h-3.5 text-primary1"></i>
-                <span class="font-medium">${esc(p.lampiran)}</span>
-                <span class="text-[11px] text-neutral3">· Lampiran</span>
-              </div>
-            ` : ''}
-          </div>
-        </div>
-      </article>`).join('')
-      || `<div class="bg-white rounded-xl border border-neutral4 p-12 text-center text-neutral3">
-            <i data-lucide="bell" class="w-10 h-10 mx-auto mb-3 text-neutral4"></i>
-            <p class="text-[15px] font-medium">Belum ada pengumuman</p>
-          </div>`;
+    const list = daftar();
+    document.getElementById('baris').innerHTML = potong(list, halaman, PER_HALAMAN).map((p, i) => `
+      <tr class="tr">
+        <td class="td">${(halaman - 1) * PER_HALAMAN + i + 1}</td>
+        <td class="td font-medium min-w-48">${esc(p.judul)}</td>
+        <td class="td min-w-64">${esc(p.isi)}</td>
+        <td class="td whitespace-nowrap">${fmtDate(p.published_at)}</td>
+        <td class="td text-right whitespace-nowrap no-print">
+          <button type="button" class="btn-icon" onclick="bukaForm(${p.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button type="button" class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${p.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Tidak ada pengumuman.</td></tr>';
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
     refreshIcons();
   }
 
-  function openForm(id) {
-    const p = KOOR.pengumuman.find(x => x.id === id);
+  function bukaForm(id) {
+    const p = id ? DB.pengumuman.cari(id) : null;
     form.reset();
-    document.getElementById('form-title').textContent = p ? 'Edit Pengumuman' : 'Buat Pengumuman';
-    if (p) ['id', 'judul', 'target', 'isi', 'lampiran'].forEach(k => {
-      if (form.elements[k]) form.elements[k].value = p[k] || '';
-    });
-    // Sasaran Mitra sudah tidak tersedia, pengumuman lama untuk mitra dialihkan ke Semua saat diedit
-    if (!form.elements.target.value) form.elements.target.value = 'Semua';
+    document.getElementById('form-title').textContent = p ? 'Edit Pengumuman' : 'Tambah Pengumuman';
+    form.elements.id.value = p ? p.id : '';
+    if (p) {
+      form.elements.judul.value = p.judul;
+      form.elements.isi.value = p.isi;
+    }
     openModal('form-modal');
+  }
+
+  function hapus(id) {
+    const p = DB.pengumuman.cari(id);
+    confirmAction({ title: 'Hapus pengumuman?', message: `"${p.judul}" akan dihapus permanen.`, okLabel: 'Hapus', danger: true }, () => {
+      DB.pengumuman.hapus(id);
+      halaman = 1;
+      render();
+      showToast('Pengumuman berhasil dihapus.');
+    });
   }
 
   form.addEventListener('submit', e => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(form));
-    const publishNow = e.submitter.value === 'publish';
-    const list = KOOR.pengumuman;
-    let p = list.find(x => x.id === +data.id);
-    if (!p) {
-      p = { id: Date.now(), published: false, published_at: '', author: KOOR.user.name, author_role: 'Koordinator' };
-      list.unshift(p);
-    }
-    Object.assign(p, {
-      judul: data.judul,
-      target: data.target,
-      isi: data.isi,
-      lampiran: data.lampiran || '',
-      author_role: p.author_role || 'Koordinator'
-    });
-    KOOR.pengumuman = list;
+    DB.pengumuman.simpan(Object.fromEntries(new FormData(form)));
     closeModal('form-modal');
-    if (publishNow && !p.published) return publish(p.id);
     render();
-    showToast('Pengumuman disimpan.');
+    showToast('Pengumuman berhasil disimpan.');
   });
 
-  function publish(id) {
-    const list = KOOR.pengumuman;
-    const p = list.find(x => x.id === id);
-    Object.assign(p, { published: true, published_at: new Date().toISOString() });
-    KOOR.pengumuman = list;
-    audit('Publikasi pengumuman', p.judul);
-    render();
-    showToast(`Pengumuman dipublikasikan ke ${p.target}.`);
-  }
-
-  function hapus(id) {
-    const p = KOOR.pengumuman.find(x => x.id === id);
-    confirmAction({ title: 'Hapus pengumuman?', message: `"${p.judul}" akan dihapus permanen.`, okLabel: 'Hapus', danger: true }, () => {
-      KOOR.pengumuman = KOOR.pengumuman.filter(x => x.id !== id);
-      audit('Hapus pengumuman', p.judul);
-      render();
-      showToast('Pengumuman dihapus.');
-    });
-  }
-
+  document.getElementById('cari').addEventListener('input', () => { halaman = 1; render(); });
+  pasangToolsTabel('alat', 'pengumuman.csv', () => [
+    ['Judul', 'Isi Pengumuman', 'Tanggal'],
+    ...DB.pengumuman.semua().map(p => [p.judul, p.isi, p.published_at]),
+  ]);
   render();
 </script>
 </body>
