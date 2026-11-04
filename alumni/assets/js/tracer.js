@@ -25,14 +25,13 @@ const judulBagian = (ikon, judul, warna = 'bg-primary5 text-primary1') => `
 const LABEL_TEMPAT = { 'Bekerja Full Time': 'Tempat Bekerja', 'Bekerja Part Time': 'Tempat Part Time', Wiraswasta: 'Nama Usaha' };
 
 // Dua kartu: data diri dan status karir. publik menyembunyikan NIM dan nomor HP untuk sesama alumni.
-function ringkasanTracer(t, publik = false) {
-  const baris = rows => rows.map(([label, nilai]) => `
-    <div class="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-x-4 gap-y-0.5 py-2.5 border-b border-neutral4/70 last:border-0">
-      <dt class="text-sm text-neutral3">${esc(label)}</dt><dd class="text-sm font-medium text-neutral1">${esc(nilai || '-')}</dd>
-    </div>`).join('');
-  const subjudul = teks => `<p class="!text-xs font-semibold uppercase tracking-wider text-neutral3 mt-4">${teks}</p>`;
+const barisTracer = rows => rows.map(([label, nilai]) => `
+  <div class="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-x-4 gap-y-0.5 py-2.5 border-b border-neutral4/70 last:border-0">
+    <dt class="text-sm text-neutral3">${esc(label)}</dt><dd class="text-sm font-medium text-neutral1">${esc(nilai || '-')}</dd>
+  </div>`).join('');
 
-  const kerja = DB.STATUS_BEKERJA.includes(t.status);
+// Kartu Data Diri saja, dipakai juga oleh profil alumni yang dilihat sesama alumni
+function kartuDataDiri(t, publik = false) {
   const diri = [
     ['Nama Alumni', t.nama_alumni], ['Jenis Kelamin', t.jns_kelamin], !publik && ['NIM', t.nim], ['Tahun Masuk', t.tahun_masuk], ['Tahun Lulus', t.tahun_lulus],
     ['Kota Domisili', t.kota], ['Keahlian', t.keahlian.join(', ')], ['Email', t.email], !publik && ['Nomor HP (WhatsApp)', t.no_hp],
@@ -40,8 +39,17 @@ function ringkasanTracer(t, publik = false) {
   return `
     <section class="card">
       ${judulBagian('user-round', 'Data Diri')}
-      <dl>${baris(diri)}</dl>
-    </section>
+      <dl>${barisTracer(diri)}</dl>
+    </section>`;
+}
+
+function ringkasanTracer(t, publik = false) {
+  const baris = barisTracer;
+  const subjudul = teks => `<p class="!text-xs font-semibold uppercase tracking-wider text-neutral3 mt-4">${teks}</p>`;
+
+  const kerja = DB.STATUS_BEKERJA.includes(t.status);
+  return `
+    ${kartuDataDiri(t, publik)}
     <section class="card">
       ${judulBagian('flag', 'Status Karir')}
       <div class="mb-1">${badgeStatus(t.status)}</div>
