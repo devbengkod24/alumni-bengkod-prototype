@@ -468,7 +468,7 @@
     daftar({ nama, email, password }) {
       if (!bersih(nama)) return gagal('Nama wajib diisi.', 'nama');
       if (akun.cariEmail(email)) return gagal('Alamat email sudah terdaftar, silakan gunakan email lain.', 'email');
-      if (String(password).length < 7) return gagal('Password harus terdiri dari minimal 7 karakter.', 'password');
+      if (String(password).length < 8) return gagal('Password harus terdiri dari minimal 8 karakter.', 'password');
       const data = muat();
       const user = {
         id: idBaru(data.users), nama: bersih(nama), email: bersih(email), password,
@@ -504,7 +504,7 @@
     gantiPasswordLewatKode(email, kode, password) {
       const u = akun.cariEmail(email);
       if (!u || !u.code || u.code !== bersih(kode)) return gagal('Kode yang Anda masukkan salah.', 'otp');
-      if (String(password).length < 7) return gagal('Password harus terdiri dari minimal 7 karakter.', 'password');
+      if (String(password).length < 8) return gagal('Password harus terdiri dari minimal 8 karakter.', 'password');
       u.password = password;
       u.code = '';
       simpan();
@@ -514,7 +514,7 @@
     gantiPassword(id, lama, baru) {
       const u = muat().users.find(x => x.id === id);
       if (!u || u.password !== lama) return gagal('Password lama tidak sesuai.', 'lama');
-      if (String(baru).length < 7) return gagal('Password baru minimal 7 karakter.', 'baru');
+      if (String(baru).length < 8) return gagal('Password baru minimal 8 karakter.', 'baru');
       u.password = baru;
       simpan();
       return { ok: true };
