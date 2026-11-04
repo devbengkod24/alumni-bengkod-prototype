@@ -7,37 +7,227 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/data.js?v=8"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
-  <script src="../alumni/assets/js/cv.js?v=6"></script>
-  <script src="../alumni/assets/js/tracer.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
+  <!-- Komponen yang sama dengan halaman Profil Saya milik alumni (varian detail = hanya baca) -->
+  <script src="../alumni/assets/js/alumni-data.js"></script>
+  <script src="../alumni/assets/js/alumni-profile-data.js"></script>
+  <script src="../alumni/assets/js/alumni-profile-modals.js"></script>
+  <script src="../alumni/assets/js/alumni-profile-page.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Profil Alumni" data-nav="data-alumni.html">
   <a href="data-alumni.html" class="inline-flex items-center gap-1.5 text-sm text-neutral2 hover:text-primary1"><i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Data Alumni</a>
-  <section id="kepala" class="card !p-5 flex flex-col sm:flex-row sm:items-center gap-4"></section>
-  <div id="tracer" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
-  <div id="cv" class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start"></div>
+
+  <div x-data="profilAlumni" class="w-full space-y-6 pb-12 antialiased">
+    <div data-partial="profile-top" data-variant="detail"></div>
+
+    <div id="section-status-karir" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
+      <div class="flex items-center justify-between pb-4 border-b border-gray-100 flex-wrap gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#1E3A8A] border border-blue-100 flex items-center justify-center font-bold">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+              <line x1="4" y1="22" x2="4" y2="15"></line>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Status Karir &amp; Tracer</h3>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
+                :class="hasTracer ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
+                x-text="hasTracer ? profile.careerStatus : 'Belum mengisi data'"></span>
+            </div>
+            <p class="text-[14px] text-gray-500 font-medium">Tracer study alumni: status profesi, pekerjaan utama, dan studi lanjut.</p>
+          </div>
+        </div>
+      </div>
+
+      <template x-if="!hasTracer">
+        <p class="text-center text-[15px] text-gray-500 py-6">Alumni ini belum mengisi data tracer study.</p>
+      </template>
+
+      <template x-if="hasTracer">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 space-y-2">
+            <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Pekerjaan Utama</p>
+            <template x-if="profile.jobTitle || profile.companyName">
+              <div class="space-y-1">
+                <p class="text-base font-bold text-gray-900" x-text="profile.jobTitle || '-'"></p>
+                <p class="text-sm font-medium text-gray-700" x-text="profile.companyName || '-'"></p>
+                <div class="flex flex-wrap gap-2 text-xs text-gray-500 pt-1">
+                  <template x-if="profile.jobField"><span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Bidang: ' + profile.jobField"></span></template>
+                  <template x-if="profile.jobCategory"><span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Kategori: ' + profile.jobCategory"></span></template>
+                  <template x-if="profile.jobScope"><span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Lingkup: ' + profile.jobScope"></span></template>
+                </div>
+              </div>
+            </template>
+            <template x-if="!(profile.jobTitle || profile.companyName)">
+              <p class="text-sm text-gray-500">Belum ada pekerjaan utama.</p>
+            </template>
+          </div>
+
+          <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 space-y-2">
+            <template x-if="profile.studyUniversity">
+              <div class="space-y-1">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Studi Lanjut S2</p>
+                <p class="text-base font-bold text-gray-900" x-text="profile.studyMajor || '-'"></p>
+                <p class="text-sm font-medium text-gray-700" x-text="profile.studyUniversity"></p>
+                <template x-if="profile.studyFunding"><span class="inline-block px-2.5 py-1 rounded bg-white border border-gray-200 text-xs text-gray-500" x-text="'Biaya: ' + profile.studyFunding"></span></template>
+              </div>
+            </template>
+            <template x-if="!profile.studyUniversity && profile.sideJobCompany">
+              <div class="space-y-1">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Pekerjaan Sampingan / Freelance</p>
+                <p class="text-base font-bold text-gray-900" x-text="profile.sideJobRole || '-'"></p>
+                <p class="text-sm font-medium text-gray-700" x-text="profile.sideJobCompany"></p>
+              </div>
+            </template>
+            <template x-if="!profile.studyUniversity && !profile.sideJobCompany">
+              <div class="space-y-1">
+                <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Studi Lanjut / Sampingan</p>
+                <p class="text-sm text-gray-500">Tidak ada studi lanjut atau pekerjaan sampingan.</p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+    </div>
+
+    <template x-if="experiences.length > 0">
+      <div id="section-experience" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+        <div class="flex items-center gap-2.5 pb-4 border-b border-gray-100">
+          <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Pengalaman Kerja &amp; Magang</h3>
+          <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-gray-100 text-gray-600 text-[13px] font-semibold" x-text="experiences.length"></span>
+        </div>
+        <div class="divide-y divide-gray-100 pt-2">
+          <template x-for="(exp, idx) in experiences" :key="exp.key">
+            <div class="py-5" :class="[idx === 0 ? 'pt-2' : '', idx === experiences.length - 1 ? 'pb-0' : '']">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="exp.title"></h4>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#1E3A8A]" x-text="exp.type"></span>
+              </div>
+              <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="exp.place"></p>
+              <p class="text-[14px] text-gray-500 mt-1" x-text="exp.period"></p>
+              <template x-if="exp.note"><p class="text-[15px] text-gray-600 mt-2.5 leading-relaxed" x-text="exp.note"></p></template>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <div data-partial="profile-bottom" data-variant="detail"></div>
+  </div>
 </main>
 
 <script>
+  // Data tetap dibaca dari localStorage lewat DB (data.js). Halaman ini hanya menampilkan ulang dalam tampilan Profil Saya.
   const alumni = DB.akun.cari(new URLSearchParams(location.search).get('id'));
   if (!alumni || alumni.role !== 'alumni') location.replace('data-alumni.html');
 
   const t = DB.tracer.milik(alumni.id);
-  document.getElementById('kepala').innerHTML = `
-    ${fotoBulat(alumni, 'w-14 h-14')}
-    <div class="min-w-0 flex-1">
-      <h2 class="!text-xl font-semibold text-neutral1 truncate">${esc(alumni.nama)}</h2>
-      <p class="!text-sm text-neutral3 truncate">${esc(alumni.email)}${t ? ` · NIM ${esc(t.nim)} · Lulus ${esc(t.tahun_lulus)}` : ''}</p>
-      ${t ? `<a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="text-sm text-primary2 hover:underline">WhatsApp ${esc(t.no_hp)}</a>` : ''}
-      ${tautanAman(t?.linkedin) ? `<span class="text-neutral3 mx-1">·</span><a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="text-sm text-primary2 hover:underline">LinkedIn</a>` : ''}
-    </div>
-    ${t ? badgeStatus(t.status) : badge('Belum mengisi data', 'gray')}`;
-  if (t) document.getElementById('tracer').innerHTML = ringkasanTracer(t);
-  renderCv('cv', alumni.id, false);
+  const baris = tabel => DB.cv.milik(tabel, alumni.id);
+  const rentang = (a, b) => [a, b].filter(Boolean).join(' – ');
+  const singkatan = nama => String(nama || '?').split(/\s+/).map(k => k[0]).join('').slice(0, 4).toUpperCase();
+  const kota = r => [r.kota, r.negara].filter(Boolean).join(', ');
+  const pisah = teks => String(teks || '').split(',').map(x => x.trim()).filter(Boolean);
+
+  const lokasi = t?.kota ? `${t.kota}, Indonesia` : '';
+  const tentang = t
+    ? `Alumni Bengkel Koding angkatan ${t.tahun_masuk}, lulus tahun ${t.tahun_lulus}. ${DB.tracer.karir(t).ringkas}.`
+    : 'Alumni ini belum mengisi data tracer study.';
+
+  const profilAlumni = {
+    ...INITIAL_PROFILE,
+    name: alumni.nama,
+    nim: t?.nim || '',
+    gender: t?.jns_kelamin || '',
+    entryYear: String(t?.tahun_masuk || ''),
+    gradYear: String(t?.tahun_lulus || ''),
+    batch: String(t?.tahun_lulus || t?.tahun_masuk || ''),
+    phone: t?.no_hp || '',
+    whatsapp: t?.no_hp || '',
+    headline: t ? DB.tracer.karir(t).ringkas : 'Belum mengisi data',
+    location: lokasi,
+    city: t?.kota || '',
+    linkedin: t?.linkedin || '',
+    github: '',
+    website: '',
+    email: alumni.email,
+    careerStatus: t?.status || '',
+    jobField: t?.bidang_job || '',
+    jobCategory: t?.jns_job || '',
+    companyName: t?.nama_job || '',
+    jobTitle: t?.jabatan_job || '',
+    jobScope: t?.lingkup_job || '',
+    studyFunding: t?.biaya_studi || '',
+    studyUniversity: t?.nama_studi || '',
+    studyMajor: t?.prodi || '',
+    studyStartDate: t?.tgl_studi || '',
+    sideJobCompany: t?.nama_sampingan || '',
+    sideJobRole: t?.peran_sampingan || '',
+    about: tentang,
+    avatarUrl: alumni.foto || '',
+    coverImageUrl: '',
+  };
+
+  const data = {
+    profile: profilAlumni,
+    posts: [],
+    skills: (t?.keahlian || []).map((k, i) => ({ id: String(i + 1), name: k, level: 'Tingkat Menengah', links: [] })),
+    projects: baris('projects').map(r => ({
+      id: r.id, title: r.nama_proyek, period: String(r.tahun_proyek || ''), desc: [r.peran_proyek && `Peran: ${r.peran_proyek}.`, r.deskripsi_proyek].filter(Boolean).join(' '),
+      tags: pisah(r.stack_proyek), linkUrl: r.link_proyek || '', imageUrl: '',
+    })),
+    organizations: baris('organizations').map(r => ({
+      id: r.id, abbr: singkatan(r.nama_org), name: r.nama_org, role: r.jabatan_org, period: rentang(r.periode_masuk_org, r.periode_keluar_org),
+      affiliated: '', tags: [], desc: r.catatan || '', logoUrl: '',
+    })),
+    educations: baris('academics').map(r => ({
+      id: r.id, name: r.nama_studi, major: [r.prodi, r.ipk && `IPK ${r.ipk}/4.00`].filter(Boolean).join(' · '), period: rentang(r.tahun_masuk, r.tahun_lulus),
+      tags: [], logoUrl: '',
+    })),
+    certifications: baris('courses').map(r => ({
+      id: r.id, logoBg: 'bg-[#1E3A8A]', logoText: 'text-white', logoLabel: singkatan(r.institusi_course), name: r.nama_course, issuer: r.institusi_course,
+      date: `Diterbitkan ${r.tahun_course}`, credId: '', tags: r.tingkat_course ? [`Tingkat ${r.tingkat_course}`] : [], url: '', logoUrl: '',
+    })),
+    honors: baris('awards').map(r => ({
+      id: r.id, title: r.nama_award, issuer: r.institusi_award, date: String(r.tahun_award || ''),
+      description: [r.tingkat_award && `Tingkat ${r.tingkat_award}.`, r.deskripsi_award].filter(Boolean).join(' '),
+    })),
+  };
+
+  // Pekerjaan dan magang tidak punya seksi di Profil Saya, jadi ditampilkan sebagai satu kartu tambahan
+  const pengalaman = [
+    ...baris('jobs').map(r => ({ key: `j${r.id}`, type: 'Pekerjaan', title: r.jabatan_job, place: [r.nama_job, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_job, r.periode_keluar_job), note: r.catatan })),
+    ...baris('internships').map(r => ({ key: `i${r.id}`, type: 'Magang', title: r.jabatan_intern, place: [r.nama_intern, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_intern, r.periode_keluar_intern), note: r.catatan })),
+  ];
+
+  document.addEventListener('alpine:init', () => {
+    Alpine.data('profilAlumni', () => profilePageData('detail', {
+      hasTracer: !!t,
+      experiences: pengalaman,
+      isDetailConnected: false,
+      toggleConnectDetail() {},
+    }, data));
+  });
+
+  // Alumni.js tidak dimuat di sini, jadi partial dirangkai langsung lalu Alpine dijalankan setelah layout koordinator terpasang
+  document.addEventListener('DOMContentLoaded', () => {
+    const wadah = document.querySelector('[x-data="profilAlumni"]');
+    let el;
+    while ((el = wadah.querySelector('[data-partial]'))) {
+      const render = ALUMNI_PARTIALS[el.dataset.partial];
+      el.outerHTML = render ? render(el.dataset) : '';
+    }
+    // Tombol "Hubungkan" hanya relevan antar alumni
+    [...wadah.querySelectorAll('button')].find(b => b.getAttribute('@click') === 'toggleConnectDetail()')?.remove();
+    const alpine = document.createElement('script');
+    alpine.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js';
+    document.head.appendChild(alpine);
+  });
 </script>
 </body>
 </html>
