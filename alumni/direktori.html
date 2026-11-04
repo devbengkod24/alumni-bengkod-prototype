@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="assets/js/data.js?v=6"></script>
+  <script src="assets/js/data.js?v=8"></script>
   <script src="assets/js/app.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
@@ -67,7 +67,7 @@
             <div class="min-w-0">
               <p class="!text-sm font-semibold text-neutral1 truncate hover:text-primary1">${esc(u.nama)}</p>
               <p class="!text-xs text-neutral2 leading-snug mt-0.5">${esc(DB.tracer.karir(t).ringkas)}</p>
-              <p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, t.kota].filter(Boolean).join(' · '))}</p>
+              <p class="!text-xs text-neutral3 mt-0.5">${esc([`Angkatan ${t.tahun_masuk}`, t.tahun_lulus && `Lulus ${t.tahun_lulus}`, t.kota].filter(Boolean).join(' · '))}</p>
             </div>
           </div>
           ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.slice(0, 4).map(chip).join('')}</div>` : ''}

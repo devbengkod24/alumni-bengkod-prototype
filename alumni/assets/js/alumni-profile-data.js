@@ -417,6 +417,7 @@ function initProfileDraft(p) {
   return {
     fullName: p.name || "",
     nim: p.nim || "",
+    gradYear: String(p.gradYear || ""),
     whatsapp: p.whatsapp || p.phone || "",
     headline: p.headline || "",
     countryCode: matchedCountry || "ID", // default Indonesia

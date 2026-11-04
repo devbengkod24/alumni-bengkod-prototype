@@ -160,7 +160,7 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
 
             <div class="flex flex-col gap-1 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
               <div class="flex items-center gap-1.5"><span x-text="profile.location"></span></div>
-              <div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>
+              ${detail ? "" : `<div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>`}
             </div>
 
             <template x-if="profile.linkedin || profile.github || profile.website || profile.email || profile.whatsapp">
@@ -652,7 +652,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="edu.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="edu.degree ? edu.degree + ' ' + edu.major : edu.major"></p>
                 <p class="text-[14px] text-gray-500 mt-1" x-text="edu.period"></p>
-                <p class="text-[14px] text-gray-500 mt-2.5 font-medium">Mata Kuliah Relevan:</p>
+                <p class="text-[14px] text-gray-500 mt-2.5 font-medium"${detail ? ' x-show="edu.tags && edu.tags.length"' : ""}>Mata Kuliah Relevan:</p>
                 <div class="flex flex-wrap gap-2.5 mt-3">
                   <template x-for="tag in edu.tags" :key="tag"><span class="${CHIP}" x-text="tag"></span></template>
                 </div>
@@ -676,11 +676,11 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="cert.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="cert.issuer"></p>
                 <p class="text-[14px] text-gray-500 mt-1" x-text="cert.date"></p>
-                <p class="text-[14px] font-medium text-gray-600 mt-0.5" x-text="'ID Kredensial: ' + cert.credId"></p>
+                <p class="text-[14px] font-medium text-gray-600 mt-0.5" x-show="cert.credId" x-text="'ID Kredensial: ' + cert.credId"></p>
                 <div class="flex flex-wrap gap-2.5 mt-3">
                   <template x-for="tag in cert.tags" :key="tag"><span class="${CHIP}" x-text="tag"></span></template>
                 </div>
-                <div class="mt-3.5">
+                <div class="mt-3.5"${detail ? ' x-show="cert.url"' : ""}>
                   <a :href="${detail ? "cert.url" : "cert.url ? (cert.url.startsWith('http') ? cert.url : 'https://' + cert.url) : '#'"}" target="_blank" rel="noopener noreferrer"
                     class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] text-white text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors shadow-xs cursor-pointer">
                     <span>Lihat Kredensial Resmi</span>
@@ -716,12 +716,12 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
             : SECTION_ADD_BTN("btn-add-certification", "addCertificationOpen", "Tambah sertifikasi") + SECTION_EDIT_BTN("btn-edit-certification", "editCertificationOpen", "Edit sertifikasi")
         )}
         ${certList}
-        <div class="mt-4 pt-2">
+        ${detail ? "" : `        <div class="mt-4 pt-2">
           <button class="w-full px-5 py-2.5 rounded-full border border-gray-200/90 hover:border-blue-300 hover:bg-blue-50/40 text-[15px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer">
             <span>Tampilkan semua 23 sertifikasi</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-        </div>
+        </div>`}
       </div>`;
 
   const toast = `<template x-if="toast">
@@ -799,8 +799,9 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     deleteTargetId: null,
 
     init() {
-      if (variant !== "detail" && this.$el && typeof this.$el.addEventListener === "function") {
-        bindProfileModalEvents(this.$el, this);
+      // Modal di-teleport ke <body>, jadi event-nya tidak melewati elemen halaman dan didengar dari document
+      if (variant !== "detail") {
+        bindProfileModalEvents(document, this);
       }
       if (typeof this.$watch === "function") {
         this.$watch("profile.avatarUrl", () => (this.avatarBroken = false));
@@ -932,7 +933,55 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     },
 
     // Hasil modal (event dari alumni-profile-modals.js)
-    handleSaveProfile(next) {
+    // Data diri ikut disimpan ke akun dan tracer, sumber halaman Alumni (direktori) dan profil publik
+    simpanKeTracer(patch, akunBaru = null) {
+      if (typeof DB === "undefined") return { ok: true };
+      const user = DB.akun.aktif();
+      const tracer = user && DB.tracer.milik(user.id);
+      if (!tracer) return { ok: true };
+      if (akunBaru && akunBaru.email && akunBaru.email.toLowerCase() !== user.email.toLowerCase()) {
+        const pemilik = DB.akun.cariEmail(akunBaru.email);
+        if (pemilik && pemilik.id !== user.id) return { ok: false, error: "Alamat email sudah dipakai akun lain." };
+      }
+      const lama = { nama: user.nama, email: user.email };
+      // Objek dari DB.akun.cari ikut tersimpan saat DB.tracer.simpan menulis ulang data
+      if (akunBaru) Object.assign(user, akunBaru);
+      const hasil = DB.tracer.simpan(user.id, {
+        ...tracer,
+        // Studi lanjut dan pekerjaan sampingan dipertahankan, bukan ikut terhapus
+        juga_studi: Boolean(tracer.nama_studi),
+        ada_sampingan: Boolean(tracer.nama_sampingan),
+        keahlian: (tracer.keahlian || []).join(", "),
+        ...patch,
+      });
+      if (!hasil.ok) Object.assign(user, lama);
+      return hasil;
+    },
+
+    // Hasil modal (event dari alumni-profile-modals.js)
+    handleSaveProfile(detail) {
+      const { skillNames = this.skills.map((sk) => sk.name), ...next } = detail;
+      let user = null;
+      try {
+        user = typeof DB !== "undefined" ? DB.akun.aktif() : null;
+      } catch (e) {}
+      const tracer = user ? DB.tracer.milik(user.id) || {} : {};
+      const hasil = this.simpanKeTracer(
+        {
+          nim: next.nim || tracer.nim,
+          no_hp: next.whatsapp || tracer.no_hp,
+          kota: next.city || tracer.kota,
+          linkedin: next.linkedin || tracer.linkedin,
+          tahun_lulus: next.gradYear || tracer.tahun_lulus,
+          keahlian: skillNames.join(", "),
+        },
+        { nama: next.name, email: next.email || (user && user.email) },
+      );
+      if (!hasil.ok) {
+        this.toast = hasil.error;
+        return;
+      }
+
       const oldName = this.profile.name;
       const shortHeadline = next.headline.length > 55 ? next.headline.slice(0, 52).trimEnd() + "..." : next.headline;
       this.posts = this.posts.map((p) => ({
@@ -942,36 +991,12 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
         repostedBy: p.repostedBy === oldName ? next.name : p.repostedBy,
       }));
       this.profile = next;
-
-      // Sinkronisasi data ke localStorage & DB prototype
+      // Keahlian yang sudah ada tetap membawa level dan tautannya
+      this.skills = skillNames.map(
+        (nama, i) => this.skills.find((sk) => sk.name.toLowerCase() === nama.toLowerCase()) || { id: `skill-${Date.now()}-${i}`, name: nama, level: DEFAULT_SKILL_LEVEL, links: [] },
+      );
       try {
         localStorage.setItem("bengkod_alumni_profile", JSON.stringify(next));
-        if (typeof DB !== "undefined") {
-          const userAktif = DB.akun.aktif();
-          if (userAktif) {
-            // Update nama & email di DB users
-            const dbRaw = JSON.parse(localStorage.getItem("alumni_revisi_data_v5") || "null");
-            if (dbRaw && dbRaw.users) {
-              const u = dbRaw.users.find((x) => x.id === userAktif.id);
-              if (u) {
-                u.nama = next.name;
-                u.email = next.email;
-                localStorage.setItem("alumni_revisi_data_v5", JSON.stringify(dbRaw));
-              }
-            }
-            // Update data tracer
-            const currentTracer = DB.tracer.milik(userAktif.id) || {};
-            DB.tracer.simpan(userAktif.id, {
-              ...currentTracer,
-              nama_alumni: next.name,
-              nim: next.nim || currentTracer.nim,
-              no_hp: next.whatsapp || currentTracer.no_hp,
-              email: next.email,
-              kota: next.city || currentTracer.kota,
-              linkedin: next.linkedin || currentTracer.linkedin,
-            });
-          }
-        }
       } catch (e) {}
 
       this.editProfileOpen = false;
@@ -987,10 +1012,12 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
           this.skills = detail;
           this.addSkillsOpen = false;
           this.editSkillOpen = false;
+          this.simpanKeTracer({ keahlian: this.skills.map((s) => s.name).join(", ") });
           break;
         case "skill-delete":
           this.skills = this.skills.filter((s) => s.id !== detail);
           this.editSkillOpen = false;
+          this.simpanKeTracer({ keahlian: this.skills.map((s) => s.name).join(", ") });
           break;
         case "honors-save":
           this.honors = detail;

@@ -7,7 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="../alumni/assets/js/data.js?v=6"></script>
+  <script src="../alumni/assets/js/data.js?v=8"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
@@ -38,16 +38,25 @@
     return t ? DB.tracer.karir(t).ringkas : 'Belum mengisi data';
   };
 
+  // Angkatan dan keahlian, sama seperti ringkasan di header Profil Saya
+  const chipAlumni = a => {
+    const t = DB.tracer.milik(a.id);
+    if (!t) return '';
+    const chip = (teks, kelas) => `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${kelas}">${esc(teks)}</span>`;
+    return `<div class="flex flex-wrap gap-1.5 pt-1">${chip(`Alumni ${t.tahun_lulus}`, 'bg-[#1E3A8A] text-white')}${t.keahlian.slice(0, 3).map(k => chip(k, 'bg-gray-100 text-gray-700 border border-gray-200/90')).join('')}</div>`;
+  };
+
   function render() {
     const kata = document.getElementById('cari').value.trim().toLowerCase();
     const list = DB.akun.alumni().filter(a => `${a.nama} ${a.email} ${ringkasAlumni(a)}`.toLowerCase().includes(kata));
     document.getElementById('daftar').innerHTML = potong(list, halaman, PER_HALAMAN).map(a => `
-      <a href="profil-alumni.html?id=${a.id}" class="card !p-4 flex items-start gap-3 hover:border-primary4 hover:-translate-y-0.5 transition-all min-w-0">
-        ${fotoBulat(a)}
-        <div class="min-w-0">
-          <p class="!text-sm font-semibold text-neutral1 truncate">${esc(a.nama)}</p>
-          <p class="!text-xs text-neutral3 truncate">${esc(a.email)}</p>
-          <p class="!text-xs text-neutral2 mt-1 leading-snug">${esc(ringkasAlumni(a))}</p>
+      <a href="profil-alumni.html?id=${a.id}" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 flex items-start gap-4 hover:border-blue-300 hover:-translate-y-0.5 transition-all min-w-0">
+        ${fotoBulat(a, 'w-14 h-14')}
+        <div class="min-w-0 flex-1 space-y-1.5">
+          <p class="text-[17px] font-bold text-gray-900 tracking-tight truncate">${esc(a.nama)}</p>
+          <p class="text-[14px] text-gray-700 leading-snug">${esc(ringkasAlumni(a))}</p>
+          <p class="text-xs text-gray-500 truncate">${esc(a.email)}</p>
+          ${chipAlumni(a)}
         </div>
       </a>`).join('') || `<div class="sm:col-span-2 xl:col-span-3">${kartuKosong('search-x', 'Alumni tidak ditemukan')}</div>`;
     renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });

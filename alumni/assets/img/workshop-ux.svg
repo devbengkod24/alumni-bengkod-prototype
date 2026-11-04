@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" font-family="Poppins, Arial, sans-serif">
+  <!-- Ruangan -->
+  <rect width="1200" height="630" fill="#E8EDF7"/>
+  <rect y="430" width="1200" height="200" fill="#C9D3E6"/>
+  <!-- Layar presentasi -->
+  <rect x="300" y="50" width="600" height="320" rx="10" fill="#1F2937"/>
+  <rect x="314" y="64" width="572" height="292" rx="6" fill="#FFFFFF"/>
+  <rect x="314" y="64" width="572" height="70" rx="6" fill="#1E3A8A"/>
+  <text x="600" y="108" font-size="26" font-weight="700" fill="#FFFFFF" text-anchor="middle">Riset Pengguna Sederhana</text>
+  <text x="600" y="168" font-size="18" fill="#46494E" text-anchor="middle">Wawancara 5 pengguna · Affinity map · 1 jam</text>
+  <!-- Affinity map di layar -->
+  <g>
+    <rect x="350" y="196" width="110" height="64" rx="4" fill="#FEF08A"/>
+    <rect x="350" y="270" width="110" height="64" rx="4" fill="#FEF08A"/>
+    <rect x="480" y="196" width="110" height="64" rx="4" fill="#BBF7D0"/>
+    <rect x="480" y="270" width="110" height="64" rx="4" fill="#BBF7D0"/>
+    <rect x="610" y="196" width="110" height="64" rx="4" fill="#FBCFE8"/>
+    <rect x="740" y="196" width="110" height="64" rx="4" fill="#BFDBFE"/>
+    <rect x="740" y="270" width="110" height="64" rx="4" fill="#BFDBFE"/>
+  </g>
+  <g font-size="13" fill="#46494E">
+    <text x="364" y="226">Sulit cari</text><text x="364" y="244">jadwal</text>
+    <text x="494" y="226">Butuh</text><text x="494" y="244">pengingat</text>
+    <text x="624" y="226">Takut salah</text><text x="624" y="244">input</text>
+    <text x="754" y="226">Mau lihat</text><text x="754" y="244">riwayat</text>
+  </g>
+  <!-- Pemateri -->
+  <circle cx="1000" cy="250" r="34" fill="#8B5E3C"/>
+  <path d="M966 238 q34 -46 68 0 q-4 -36 -34 -38 q-30 2 -34 38z" fill="#1F2937"/>
+  <rect x="955" y="290" width="90" height="150" rx="40" fill="#2563EB"/>
+  <rect x="1040" y="300" width="60" height="16" rx="8" fill="#2563EB" transform="rotate(-30 1040 300)"/>
+  <rect x="960" y="430" width="30" height="80" rx="12" fill="#334155"/>
+  <rect x="1010" y="430" width="30" height="80" rx="12" fill="#334155"/>
+  <!-- Peserta (tampak belakang) -->
+  <g>
+    <rect x="70" y="470" width="150" height="190" rx="70" fill="#64748B"/>
+    <circle cx="145" cy="450" r="44" fill="#1F2937"/>
+    <rect x="270" y="480" width="150" height="190" rx="70" fill="#0EA5E9"/>
+    <circle cx="345" cy="458" r="44" fill="#3F2A1D"/>
+    <rect x="470" y="470" width="150" height="190" rx="70" fill="#F59E0B"/>
+    <circle cx="545" cy="450" r="44" fill="#111827"/>
+    <rect x="670" y="480" width="150" height="190" rx="70" fill="#10B981"/>
+    <circle cx="745" cy="458" r="44" fill="#4B3621"/>
+    <rect x="870" y="500" width="150" height="190" rx="70" fill="#8B5CF6"/>
+    <circle cx="945" cy="478" r="44" fill="#1F2937"/>
+  </g>
+  <!-- Label acara -->
+  <rect x="40" y="40" width="210" height="44" rx="22" fill="#FFFFFF"/>
+  <circle cx="66" cy="62" r="8" fill="#E5484D"/>
+  <text x="84" y="68" font-size="16" font-weight="600" fill="#46494E">Workshop · Kudus</text>
+</svg>

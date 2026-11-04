@@ -50,6 +50,52 @@
   // Gambar postingan contoh, relatif terhadap halaman di folder alumni/
   const GAMBAR_CONTOH = { 1: '../assets/images/register-panel.png', 4: 'assets/img/antreklinik.svg', 5: 'assets/img/kasrt.svg' };
   const postBaru = isi => ({ jenis: 'pengalaman', gambar: '', suka: [], komentar: [], tag: [], ...isi });
+
+  // Postingan tambahan agar profil alumni punya beberapa isi feed. Ditambahkan ke data yang sudah tersimpan,
+  // kunci menjaga agar tidak tercatat dua kali. id_alumni 29 Ananda Anggraini, 3 Nadia Ramadhani, 4 Fajar Saputra.
+  const POSTINGAN_TAMBAHAN = [
+    {
+      kunci: 'tambahan-29-1', gambar: 'assets/img/design-system.svg', id_alumni: 29, jenis: 'pengalaman', waktu: '2026-11-03T09:15:00', suka: [2, 3, 9],
+      isi: 'Tiga bulan terakhir saya merapikan design system di kantor. Pelajaran terbesarnya: mulai dari komponen yang paling sering dipakai seperti tombol, input, dan kartu, baru menyusul yang jarang. Dokumentasi singkat di Figma ternyata lebih sering dibaca developer daripada dokumen panjang.',
+      komentar: [
+        { id: 1, id_alumni: 2, isi: 'Setuju, tim backend kami juga lebih cepat paham kalau contohnya langsung ada di Figma.', waktu: '2026-11-03T10:02:00' },
+        { id: 2, id_alumni: 3, isi: 'Boleh minta contoh struktur halaman dokumentasinya, Kak?', waktu: '2026-11-03T11:40:00' },
+      ],
+    },
+    {
+      kunci: 'tambahan-29-2', gambar: 'assets/img/workshop-ux.svg', id_alumni: 29, jenis: 'kegiatan', waktu: '2026-10-26T14:00:00', suka: [4, 6],
+      isi: 'Akhir pekan kemarin saya mengisi sesi "Riset Pengguna Sederhana untuk Proyek Kampus" di Kudus. Pesertanya mencoba wawancara lima pengguna dalam satu jam, lalu menyusun temuan pakai affinity map. Terima kasih untuk panitia dan teman-teman yang datang.',
+      komentar: [
+        { id: 1, id_alumni: 4, isi: 'Materinya kepakai banget buat tugas akhir adik tingkat.', waktu: '2026-10-26T16:30:00' },
+      ],
+    },
+    {
+      kunci: 'tambahan-29-3', id_alumni: 29, jenis: 'pengalaman', waktu: '2026-10-12T19:45:00', suka: [3],
+      isi: 'Untuk teman-teman yang sedang menyusun portofolio UI/UX: tampilkan proses, bukan hanya hasil akhir. Cukup tiga studi kasus yang jelas masalah, riset, dan alasannya, itu jauh lebih kuat daripada sepuluh mockup tanpa cerita.',
+    },
+    {
+      kunci: 'tambahan-3-1', gambar: 'assets/img/migrasi-typescript.svg', id_alumni: 3, jenis: 'pengalaman', waktu: '2026-11-02T20:10:00', suka: [2, 29],
+      isi: 'Baru selesai migrasi dashboard internal dari JavaScript ke TypeScript. Bug karena salah tipe data turun jauh, dan review kode jadi lebih cepat karena struktur datanya kelihatan dari awal.',
+      komentar: [
+        { id: 1, id_alumni: 29, isi: 'Keren! Butuh berapa lama migrasinya?', waktu: '2026-11-02T21:00:00' },
+      ],
+    },
+    {
+      kunci: 'tambahan-3-2', gambar: 'assets/img/kelas-react.svg', id_alumni: 3, jenis: 'kegiatan', waktu: '2026-10-15T08:30:00', suka: [4],
+      isi: 'Hari ini ikut jadi mentor di kelas React untuk adik tingkat di Bengkel Koding. Senang lihat semangat mereka bikin komponen pertama dengan Tailwind CSS.',
+    },
+    {
+      kunci: 'tambahan-4-1', id_alumni: 4, jenis: 'pengalaman', waktu: '2026-10-30T18:20:00', suka: [2, 3, 29],
+      isi: 'Kuliah S2 sambil tetap mengerjakan proyek Flutter ternyata bisa, asal jadwalnya disiplin. Saya pakai pagi untuk kuliah dan tugas, malam untuk ngoding. Firebase sangat membantu karena tidak perlu urus server sendiri.',
+      komentar: [
+        { id: 1, id_alumni: 2, isi: 'Mantap, semangat studinya, Fajar.', waktu: '2026-10-30T19:00:00' },
+      ],
+    },
+    {
+      kunci: 'tambahan-4-2', gambar: 'assets/img/proposal-tesis.svg', id_alumni: 4, jenis: 'kegiatan', waktu: '2026-10-08T13:00:00', suka: [6],
+      isi: 'Presentasi proposal tesis tentang aplikasi mobile untuk UMKM sudah lewat. Masih banyak revisi, tapi arahnya sudah jelas. Doakan lancar sampai sidang ya.',
+    },
+  ];
   // Tanggal lokal dalam format YYYY-MM-DD (format bawaan locale sv-SE)
   const hariIni = () => new Date().toLocaleDateString('sv-SE');
   const nanti = hari => new Date(Date.now() + hari * 864e5).toLocaleDateString('sv-SE');
@@ -388,6 +434,28 @@
     }
     // Data yang tersimpan sebelum postingan contoh punya gambar ikut dilengkapi
     db.feed.forEach(p => { if (!p.gambar && GAMBAR_CONTOH[p.id] && p.waktu < '2026-11-01') p.gambar = GAMBAR_CONTOH[p.id]; });
+    // Postingan tambahan hanya ditambahkan sekali, dan hanya untuk akun alumni yang masih ada
+    let adaGambarBaru = false;
+    db.feed.forEach(p => {
+      const contoh = p.kunci && POSTINGAN_TAMBAHAN.find(x => x.kunci === p.kunci);
+      if (contoh?.gambar && !p.gambar) {
+        p.gambar = contoh.gambar;
+        adaGambarBaru = true;
+      }
+    });
+    if (adaGambarBaru) simpan();
+    const kunciAda = new Set(db.feed.map(p => p.kunci).filter(Boolean));
+    const tambahan = POSTINGAN_TAMBAHAN.filter(p => !kunciAda.has(p.kunci) && db.users.some(u => u.id === p.id_alumni && u.role === 'alumni'));
+    tambahan.forEach(p => {
+      const id = db.feed.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+      const pengguna = new Set(db.users.map(u => u.id));
+      db.feed.push(postBaru({
+        ...p, id,
+        suka: p.suka.filter(x => pengguna.has(x)),
+        komentar: (p.komentar || []).filter(k => pengguna.has(k.id_alumni)),
+      }));
+    });
+    if (tambahan.length) simpan();
     // Normalisasi: satukan 'Sedang studi lanjut S2' ke 'Melanjutkan Pendidikan'
     let adaNormalisasi = false;
     db.tracer.forEach(t => {
