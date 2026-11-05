@@ -703,23 +703,66 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
     ====================================================== -->
     <div class="lg:col-span-4 space-y-6">
 
-      <!-- ── CARD: SPOTLIGHT UNGGULAN (KARYA ALUMNI) ── -->
-      <div class="bg-gradient-to-br from-[#1E3A8A] to-[#1D4ED8] rounded-xl p-5 text-white shadow-sm space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/20 text-white uppercase tracking-wider backdrop-blur-xs">
-            ★ Spotlight Unggulan
-          </span>
-          <span class="text-[12px] text-white/80">Bulan Ini</span>
+      <!-- ── CARD: TOP PRODUK ALUMNI (LEADERBOARD GAYA PRODUCT HUNT) ── -->
+      <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🏆</span>
+            <h3 class="text-[15px] font-bold text-gray-900">Top Produk Alumni</h3>
+          </div>
+          <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Leaderboard</span>
         </div>
-        <div>
-          <h4 class="text-[16px] font-bold text-white leading-snug">Sentimeter AI — Sentiment Engine</h4>
-          <p class="text-[13px] text-white/80 mt-1 leading-relaxed">
-            Karya alumni Aisha Dwi (2024). Analisis opini publik multi-bahasa dengan akurasi 94% yang sudah diuji oleh komunitas.
-          </p>
-        </div>
-        <div class="pt-2 flex items-center justify-between border-t border-white/20 text-[13px]">
-          <span class="text-white/70">Python · PyTorch · Next.js</span>
-          <a href="profil.html" class="font-semibold text-white underline hover:text-blue-100">Lihat Karya →</a>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          Karya software alumni yang paling banyak didukung komunitas Bengkel Koding.
+        </p>
+
+        <!-- Daftar Ranking Produk Gaya Product Hunt -->
+        <div class="space-y-2.5 pt-1">
+          <template x-for="(prod, idx) in topProducts" :key="prod.postId">
+            <div class="flex items-start gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white">
+              <!-- Nomor Ranking -->
+              <div
+                class="w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5"
+                :class="idx === 0 ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'"
+                x-text="idx + 1"
+              ></div>
+
+              <!-- Detail Produk -->
+              <div class="flex-1 min-w-0 space-y-0.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="prod.name"></h4>
+                  <template x-if="prod.tahap === 'beta'">
+                    <span class="text-[10px] text-gray-400">· Beta</span>
+                  </template>
+                  <template x-if="prod.tahap === 'live'">
+                    <span class="text-[10px] text-[#1E3A8A] font-semibold">· Live</span>
+                  </template>
+                </div>
+                <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
+                <div class="flex items-center gap-2 pt-0.5 text-[10px]">
+                  <template x-if="prod.url">
+                    <a :href="prod.url" target="_blank" rel="noreferrer" class="font-semibold text-[#1E3A8A] hover:underline">Uji Coba ↗</a>
+                  </template>
+                  <template x-if="prod.stack.length > 0">
+                    <span class="text-gray-300">•</span>
+                  </template>
+                  <span class="text-gray-400 truncate max-w-[130px]" x-text="prod.stack.slice(0, 2).join(', ')"></span>
+                </div>
+              </div>
+
+              <!-- Product Hunt Upvote Button Ramping -->
+              <button
+                type="button"
+                @click="toggleUpvoteKarya(prod.postId)"
+                class="flex flex-col items-center justify-center min-w-[42px] px-2 py-1.5 rounded-lg border transition-all cursor-pointer shrink-0"
+                :class="prod.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-transparent text-gray-700 border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A]'"
+                title="Upvote produk ini"
+              >
+                <span class="text-[10px] leading-none">▲</span>
+                <span class="text-[11px] font-bold mt-0.5" x-text="prod.upvotes"></span>
+              </button>
+            </div>
+          </template>
         </div>
       </div>
 
@@ -1095,6 +1138,23 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
               fokus: p.karya.fokus || [],
               upvotes: p.karya.upvotes || 0,
             }));
+        },
+
+        get topProducts() {
+          return this.posts
+            .filter((p) => p.karya)
+            .map((p) => ({
+              postId: p.id,
+              name: p.karya.nama,
+              tagline: p.karya.tagline,
+              tahap: p.karya.tahap,
+              url: p.karya.url,
+              stack: p.karya.stack || [],
+              upvotes: p.karya.upvotes || 0,
+              isUpvoted: p.karya.isUpvoted || false,
+            }))
+            .sort((a, b) => (b.upvotes || 0) - (a.upvotes || 0))
+            .slice(0, 5);
         },
 
         toggleUpvoteKarya(postId) {
