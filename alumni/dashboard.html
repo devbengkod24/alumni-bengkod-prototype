@@ -208,11 +208,10 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
       </div>
     </div>
 
-    <!-- ── COMPOSER: BUAT POSTINGAN (GAYA X) ── -->
+    <!-- ── COMPOSER: BUAT POSTINGAN (MURNI GAYA X) ── -->
     <form
       id="form-buat-postingan"
       @submit.prevent="handlePostModalSubmit()"
-      @focusin="composerOpen = true"
       autocomplete="off"
       class="bg-white rounded-xl border border-gray-200/90 shadow-xs p-4 sm:p-5 flex gap-3.5"
     >
@@ -247,87 +246,23 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           </div>
         </template>
 
-        <!-- ── KARTU LAMPIRAN KARYA / SHOWCASE (WYSIWYG RICH CARD EMBED) ── -->
-        <template x-if="showKaryaAttachment">
-          <div class="rounded-xl border border-gray-200 bg-white/70 hover:border-gray-300 p-4 space-y-2 relative transition-all shadow-2xs animate-in fade-in duration-150">
-            <!-- Header Kartu Pratinjau -->
-            <div class="flex items-center justify-between pb-1 border-b border-gray-100">
-              <span class="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">Pratinjau Kartu Karya</span>
-              <button
-                type="button"
-                @click="showKaryaAttachment = false; pmKaryaName = ''; pmKaryaUrl = ''; pmKaryaTagline = ''"
-                class="w-6 h-6 rounded-full text-gray-400 hover:text-red-500 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
-                title="Hapus lampiran karya"
-              >
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <!-- Judul Produk (Borderless, Bold 16px) -->
-            <input
-              type="text"
-              x-model="pmKaryaName"
-              placeholder="Nama aplikasi atau karya software..."
-              class="w-full bg-transparent text-[16px] font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none leading-snug"
-            >
-
-            <!-- Link Demo / Live URL (Borderless, Navy Link Style) -->
-            <input
-              type="url"
-              x-model="pmKaryaUrl"
-              placeholder="https://link-demo-produk.com (opsional)"
-              class="w-full bg-transparent text-[13px] font-semibold text-[#1E3A8A] placeholder:text-gray-400 focus:outline-none"
-            >
-
-            <!-- Tagline / Ringkasan Singkat (Borderless, Gray 13px) -->
-            <input
-              type="text"
-              x-model="pmKaryaTagline"
-              placeholder="Jelaskan ringkas produk atau tech stack..."
-              class="w-full bg-transparent text-[13px] text-gray-600 placeholder:text-gray-400 focus:outline-none"
-            >
-
-            <!-- Opsi Pengujian / Tester (Minimalis & Humanis) -->
-            <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
-              <label class="inline-flex items-center gap-2 cursor-pointer select-none text-[12px] text-gray-700">
-                <input
-                  type="checkbox"
-                  x-model="pmKaryaIsTester"
-                  class="w-4 h-4 rounded border-gray-300 text-[#1E3A8A] focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                >
-                <span>Buka untuk pengujian komunitas (Butuh Tester / Feedback)</span>
-              </label>
-              <span class="text-[11px] text-gray-400" x-text="pmKaryaIsTester ? 'Masuk ke Beta Hub' : 'Showcase biasa'"></span>
-            </div>
-          </div>
-        </template>
-
-        <!-- Toolbar: aksi lampiran & pengaturan di kiri, tombol kirim di kanan -->
+        <!-- Toolbar: tombol media di kiri, tombol posting di kanan -->
         <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 flex-wrap">
-          <div class="flex items-center gap-2 flex-wrap">
-            <!-- Tombol Tambah Media Foto (Tanpa icon, transparan) -->
+          <div class="flex items-center gap-2">
+            <!-- Tombol Tambah Media Foto -->
             <button
               type="button"
               id="btn-add-post-media"
               @click="$refs.pmFileInput.click()"
               title="Tambahkan foto"
-              class="px-3 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300"
             >
-              Foto
-            </button>
-
-            <!-- Tombol Toggle Lampirkan Karya (Tanpa icon, transparan) -->
-            <button
-              type="button"
-              id="btn-toggle-karya-attachment"
-              @click="showKaryaAttachment = !showKaryaAttachment"
-              title="Lampirkan produk / showcase software"
-              class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-all cursor-pointer border bg-transparent"
-              :class="showKaryaAttachment ? 'border-[#1E3A8A] text-[#1E3A8A] font-semibold' : 'border-gray-200 text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'"
-            >
-              <span x-text="showKaryaAttachment ? 'Karya Terlampir' : 'Lampirkan Karya'"></span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+              <span>Foto</span>
             </button>
           </div>
 
@@ -971,27 +906,16 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
         activeReplyCommentId: null,
         replyInputs: {},
 
-        // PostModal state
-        showKaryaAttachment: false,
+        // Post state (Murni gaya X)
         pmContent: "",
         pmImageUrl: "",
-        pmCategory: "Semua",
-        pmVisibility: "Semua orang",
         selectedCategory: "Semua",
 
-        // Karya & Showcase state
+        // Karya & Showcase state (Untuk interaksi kartu di feed & widget samping)
         feedbackModalOpen: false,
         targetKaryaPost: null,
         fbCategory: "Bug",
         fbText: "",
-
-        pmKaryaName: "",
-        pmKaryaIsTester: true,
-        pmKaryaTahap: "beta",
-        pmKaryaTagline: "",
-        pmKaryaUrl: "",
-        pmKaryaStack: "",
-        pmKaryaFokus: ["Bug", "UI/UX"],
 
         get betaProducts() {
           return this.posts
@@ -1179,22 +1103,11 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
         },
 
         get canPost() {
-          return !!this.pmContent.trim() || !!this.pmImageUrl || (this.showKaryaAttachment && !!this.pmKaryaName.trim());
+          return !!this.pmContent.trim() || !!this.pmImageUrl;
         },
         resetComposer() {
           this.pmContent = "";
           this.pmImageUrl = "";
-          this.pmCategory = "Semua";
-          this.pmVisibility = "Semua orang";
-          this.pmKaryaName = "";
-          this.pmKaryaIsTester = true;
-          this.pmKaryaTahap = "beta";
-          this.pmKaryaTagline = "";
-          this.pmKaryaUrl = "";
-          this.pmKaryaStack = "";
-          this.pmKaryaFokus = ["Bug", "UI/UX"];
-          this.showKaryaAttachment = false;
-          this.composerOpen = false;
           if (this.$refs.postTextarea) {
             this.$refs.postTextarea.style.height = "auto";
           }
@@ -1215,38 +1128,14 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
         },
         handlePostModalSubmit() {
           if (!this.canPost) {
-            this.setToast("Tulis keterangan atau lampirkan karya terlebih dahulu.");
+            this.setToast("Tulis keterangan atau tambahkan foto terlebih dahulu.");
             return;
           }
 
-          let karyaObj = undefined;
-          if (this.showKaryaAttachment && this.pmKaryaName.trim()) {
-            const isTester = this.pmKaryaIsTester !== false;
-            karyaObj = {
-              nama: this.pmKaryaName.trim(),
-              tagline: this.pmKaryaTagline.trim() || "Karya software alumni Bengkel Koding",
-              tahap: isTester ? "beta" : "live",
-              url: this.pmKaryaUrl.trim() || undefined,
-              stack: this.pmKaryaStack ? this.pmKaryaStack.split(",").map((s) => s.trim()).filter(Boolean) : [],
-              fokus: isTester ? ["Bug", "UI/UX"] : undefined,
-              upvotes: 1,
-              isUpvoted: true,
-              feedbacks: [],
-            };
-          }
-
-          const resolvedCategory = karyaObj
-            ? "Karya & Showcase"
-            : ((this.pmContent || "").toLowerCase().includes("referral") || (this.pmContent || "").toLowerCase().includes("loker")
-                ? "Internal Referral"
-                : "Semua");
-
-          const data = {
-            content: this.pmContent.trim(),
-            imageUrl: this.pmImageUrl.trim() || undefined,
-            category: resolvedCategory,
-            visibility: this.pmVisibility,
-          };
+          const contentLower = (this.pmContent || "").toLowerCase();
+          const resolvedCategory = (contentLower.includes("referral") || contentLower.includes("loker"))
+            ? "Internal Referral"
+            : "Semua";
 
           const newPost = {
             id: Date.now(),
@@ -1254,11 +1143,10 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
             authorAvatar: this.profile.avatarUrl,
             authorHeadline: this.profile.headline,
             date: "Baru saja",
-            category: data.category,
-            content: data.content,
-            visibility: data.visibility,
-            imageUrl: data.imageUrl,
-            karya: karyaObj,
+            category: resolvedCategory,
+            content: this.pmContent.trim(),
+            visibility: "Semua orang",
+            imageUrl: this.pmImageUrl.trim() || undefined,
             likes: 0,
             isLiked: false,
             commentsCount: 0,
