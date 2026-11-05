@@ -757,7 +757,8 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
 function profilePageData(variant = "profil", extra = {}, initialData = null) {
   const profileSrc = (initialData && initialData.profile) ? initialData.profile : INITIAL_PROFILE;
   const postsSrc = (initialData && initialData.posts) ? initialData.posts : (variant === "detail" ? DETAIL_INITIAL_POSTS : INITIAL_POSTS);
-  const projectsSrc = (initialData && initialData.projects) ? initialData.projects : INITIAL_PROJECTS;
+  const storedProjects = (variant !== "detail" && typeof loadStoredProjects === "function") ? loadStoredProjects() : null;
+  const projectsSrc = (initialData && initialData.projects) ? initialData.projects : (storedProjects || INITIAL_PROJECTS);
   const orgsSrc = (initialData && initialData.organizations) ? initialData.organizations : INITIAL_ORGANIZATIONS;
   const edusSrc = (initialData && initialData.educations) ? initialData.educations : INITIAL_EDUCATIONS;
   const certsSrc = (initialData && initialData.certifications) ? initialData.certifications : INITIAL_CERTIFICATIONS;
@@ -1003,10 +1004,21 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
         case "project-add":
           this.projects = [detail, ...this.projects];
           this.addProjectOpen = false;
+          // Two-Way Sync: proyek baru otomatis terbit di Showcase Beranda
+          if (variant !== "detail" && typeof saveStoredProjects === "function") {
+            saveStoredProjects(this.projects);
+            if (typeof syncProjectToFeed === "function") {
+              syncProjectToFeed(detail, { name: this.profile.name, avatarUrl: this.profile.avatarUrl, headline: this.profile.headline });
+            }
+            this.toast = "Proyek ditambahkan & dipublikasikan ke Showcase Beranda";
+          }
           break;
         case "projects-save":
           this.projects = detail;
           this.editProjectOpen = false;
+          if (variant !== "detail" && typeof saveStoredProjects === "function") {
+            saveStoredProjects(this.projects);
+          }
           break;
         case "cert-add":
           this.certifications = [detail, ...this.certifications];

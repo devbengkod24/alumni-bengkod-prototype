@@ -235,6 +235,83 @@ function savePosts(posts) {
   }
 }
 
+// ===================== Proyek & Portofolio Storage (Two-Way Sync) =====================
+const PROJECTS_STORAGE_KEY = "bengkod_alumni_projects_v2";
+
+function loadStoredProjects() {
+  if (typeof window === "undefined") return typeof INITIAL_PROJECTS !== "undefined" ? INITIAL_PROJECTS : [];
+  try {
+    const raw = localStorage.getItem(PROJECTS_STORAGE_KEY);
+    if (!raw) {
+      if (typeof INITIAL_PROJECTS !== "undefined") {
+        localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(INITIAL_PROJECTS));
+        return INITIAL_PROJECTS;
+      }
+      return [];
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+  } catch (e) {}
+  return typeof INITIAL_PROJECTS !== "undefined" ? INITIAL_PROJECTS : [];
+}
+
+function saveStoredProjects(projects) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
+    window.dispatchEvent(new Event("bengkod_projects_updated"));
+  } catch (err) {
+    console.error("Gagal menyimpan proyek:", err);
+  }
+}
+
+function syncProjectToFeed(project, author) {
+  if (!project || !project.title) return;
+  const authorName = (author && author.name) || "Aisha Dwi Rahmawati";
+  const authorAvatar = (author && author.avatarUrl) || DEFAULT_AVATAR;
+  const authorHeadline = (author && author.headline) || "Alumni Bengkel Koding";
+
+  const posts = typeof loadPosts === "function" ? loadPosts() : [];
+  const existingIdx = posts.findIndex(p => p.karya && (p.karya.projectId === project.id || (p.karya.nama && p.karya.nama.toLowerCase() === project.title.toLowerCase())));
+
+  const karyaObj = {
+    projectId: project.id,
+    nama: project.title,
+    tagline: project.tagline || (project.desc ? project.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
+    url: project.linkUrl || undefined,
+    logo: project.logoUrl || project.imageUrl || undefined,
+    stack: project.tags || [],
+    overview: project.desc || undefined,
+    upvotes: 1,
+    isUpvoted: true,
+    feedbacks: [],
+  };
+
+  if (existingIdx >= 0) {
+    posts[existingIdx].karya = { ...posts[existingIdx].karya, ...karyaObj };
+  } else {
+    const newPost = {
+      id: Date.now(),
+      authorName: authorName,
+      authorAvatar: authorAvatar,
+      authorHeadline: authorHeadline,
+      date: "Baru saja",
+      category: "Karya & Showcase",
+      content: `🚀 Mempublikasikan karya terbaru ke Showcase Alumni: "${project.title}".\n\nSilakan coba dan berikan masukan Anda!`,
+      visibility: "Semua orang",
+      karya: karyaObj,
+      likes: 1,
+      isLiked: true,
+      commentsCount: 0,
+      repostsCount: 0,
+      impressions: 1,
+    };
+    posts.unshift(newPost);
+  }
+
+  if (typeof savePosts === "function") savePosts(posts);
+}
+
 // ===================== alumniDirectory.ts =====================
 // ============================================================
 // DIREKTORI ALUMNI — satu sumber kebenaran untuk data alumni

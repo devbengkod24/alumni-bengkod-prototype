@@ -391,42 +391,46 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
 
             <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-gray-900 font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
 
-            <!-- CARD KARYA & SHOWCASE (Hall of Fame & Beta Testing Hub) -->
+            <!-- KARTU KARYA SHOWCASE (MEMANJANG, UNIFORM & CLICKABLE) -->
             <template x-if="post.karya">
-              <div class="mt-4 p-4 rounded-xl border border-gray-200 bg-transparent transition-all">
-                <div class="flex items-start justify-between gap-3">
-                  <!-- Logo + Info Produk -->
-                  <div class="flex items-start gap-3 min-w-0 flex-1">
-                    <!-- App Logo / Monogram Squircle -->
-                    <div class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-white mt-0.5 shadow-2xs">
-                      <template x-if="post.karya.logo">
-                        <img :src="post.karya.logo" :alt="post.karya.nama" class="w-full h-full object-cover">
-                      </template>
-                      <template x-if="!post.karya.logo">
-                        <span class="text-sm font-bold text-gray-800" x-text="(post.karya.nama || '').charAt(0).toUpperCase() || 'A'"></span>
-                      </template>
-                    </div>
-
-                    <div class="space-y-1 min-w-0 flex-1">
-                      <a :href="'detail-proyek.html?id=' + post.id" class="text-[16px] font-bold text-gray-900 hover:text-[#1E3A8A] hover:underline leading-snug block truncate" x-text="post.karya.nama"></a>
-                      <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
-                    </div>
-                  </div>
-
+              <a
+                :href="'detail-proyek.html?id=' + post.id"
+                class="mt-4 flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100/70 hover:border-gray-300 transition-all group cursor-pointer w-full text-left"
+              >
+                <!-- Logo Squircle Memanjang -->
+                <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+                  <template x-if="post.karya.logo">
+                    <img :src="post.karya.logo" :alt="post.karya.nama" class="w-full h-full object-cover">
+                  </template>
+                  <template x-if="!post.karya.logo">
+                    <span class="text-xl font-black text-[#1E3A8A]" x-text="(post.karya.nama || 'A').charAt(0).toUpperCase()"></span>
+                  </template>
                 </div>
 
-                <!-- Tags: Tech Stack -->
-                <template x-if="post.karya.stack && post.karya.stack.length > 0">
-                  <div class="space-y-1.5 text-xs pt-2">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-gray-400 font-medium text-[11px]">Stack:</span>
-                      <template x-for="s in post.karya.stack" :key="s">
-                        <span class="px-2 py-0.5 rounded bg-transparent text-gray-600 border border-gray-200 text-[11px]" x-text="s"></span>
+                <!-- Detail Produk Memanjang -->
+                <div class="flex-1 min-w-0 space-y-1">
+                  <div class="flex items-center justify-between gap-2">
+                    <h4 class="text-[15px] sm:text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="post.karya.nama"></h4>
+                    <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+                      <span>Detail</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </span>
+                  </div>
+                  <p class="text-xs text-gray-600 line-clamp-1" x-text="post.karya.tagline"></p>
+
+                  <!-- Tech Stack Pills Memanjang -->
+                  <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                    <div class="flex items-center gap-1.5 pt-1 flex-wrap">
+                      <template x-for="s in post.karya.stack.slice(0, 3)" :key="s">
+                        <span class="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] font-medium" x-text="s"></span>
+                      </template>
+                      <template x-if="post.karya.stack.length > 3">
+                        <span class="text-[10px] text-gray-400" x-text="'+' + (post.karya.stack.length - 3)"></span>
                       </template>
                     </div>
-                  </div>
-                </template>
-              </div>
+                  </template>
+                </div>
+              </a>
             </template>
           </div>
 
@@ -674,33 +678,41 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           Deretan software &amp; aplikasi karya rekan alumni Bengkel Koding.
         </p>
 
-        <!-- Daftar Produk Showcase -->
+        <!-- Daftar Produk Showcase (Memanjang & Clickable) -->
         <div class="space-y-2.5 pt-1">
           <template x-for="prod in topProducts" :key="prod.postId">
-            <div class="flex items-start gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white">
+            <a
+              :href="'detail-proyek.html?id=' + prod.postId"
+              class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/60 transition-all bg-white group cursor-pointer w-full text-left"
+            >
               <!-- Logo Aplikasi / Monogram Squircle -->
-              <div class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 shrink-0">
+              <div class="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 group-hover:scale-105 transition-transform">
                 <template x-if="prod.logo">
                   <img :src="prod.logo" :alt="prod.name" class="w-full h-full object-cover">
                 </template>
                 <template x-if="!prod.logo">
-                  <span class="text-xs font-bold text-gray-700" x-text="(prod.name || '').charAt(0).toUpperCase() || 'A'"></span>
+                  <span class="text-xs font-bold text-[#1E3A8A]" x-text="(prod.name || '').charAt(0).toUpperCase() || 'A'"></span>
                 </template>
               </div>
 
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <a :href="'detail-proyek.html?id=' + prod.postId" class="text-xs font-bold text-gray-900 hover:text-[#1E3A8A] hover:underline leading-snug truncate" x-text="prod.name"></a>
+                  <h4 class="text-xs font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate" x-text="prod.name"></h4>
                   <span class="text-[10px] text-gray-300">•</span>
-                  <a :href="getAuthorLink(prod.authorName)" class="text-[11px] text-gray-500 hover:text-[#1E3A8A] hover:underline truncate" x-text="prod.authorName"></a>
+                  <span class="text-[11px] text-gray-500 truncate" x-text="prod.authorName"></span>
                 </div>
                 <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
                 <template x-if="prod.stack.length > 0">
                   <p class="text-[10px] text-gray-400 truncate pt-0.5" x-text="prod.stack.slice(0, 3).join(', ')"></p>
                 </template>
               </div>
-            </div>
+
+              <!-- Panah Detail -->
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-gray-300 group-hover:text-[#1E3A8A] group-hover:translate-x-0.5 transition-all shrink-0">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </a>
           </template>
         </div>
 
@@ -1062,6 +1074,27 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           };
           const storyText = f.story.trim() || `🚀 Baru saja meluncurkan "${f.nama.trim()}". Silakan coba dan berikan masukan Anda!`;
 
+          // Tautkan karya ke portofolio profil (Two-Way Sync)
+          const projectId = "proj-" + Date.now();
+          try {
+            const projects = typeof loadStoredProjects === "function" ? loadStoredProjects() : [];
+            const newProject = {
+              id: projectId,
+              title: f.nama.trim(),
+              period: f.period ? f.period.trim() : new Date().toLocaleDateString("id-ID", { month: "short", year: "numeric" }),
+              desc: (f.overview || f.pitch || f.tagline || "").trim(),
+              tags: toList(f.stack),
+              linkUrl: f.url.trim() || "",
+              imageUrl: f.screenshot ? f.screenshot.trim() : (f.logo ? f.logo.trim() : ""),
+              logoUrl: f.logo ? f.logo.trim() : "",
+              tagline: f.tagline.trim(),
+              stage: "SHOWCASE",
+            };
+            if (typeof saveStoredProjects === "function") saveStoredProjects([newProject, ...projects]);
+          } catch (err) {
+            console.warn("Gagal menyinkronkan proyek ke profil:", err);
+          }
+
           const newPost = {
             id: Date.now(),
             authorName: this.profile.name,
@@ -1081,7 +1114,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           this.posts = [newPost, ...this.posts];
           this.simpan();
           this.launchModalOpen = false;
-          this.setToast(`Selamat! Produk "${f.nama.trim()}" resmi di-launch ke Beranda.`);
+          this.setToast(`Selamat! "${f.nama.trim()}" resmi di-launch & tersimpan di Portofolio Anda.`);
         },
 
         get filteredPosts() {

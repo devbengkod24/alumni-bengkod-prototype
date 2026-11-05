@@ -1102,6 +1102,7 @@
           }
 
           this.publishKaryaModalOpen = false;
+          if (typeof saveStoredProjects === "function") saveStoredProjects(this.projects);
           this.toast = `Karya "${this.publishForm.nama.trim()}" berhasil dipublikasikan ke Showcase Alumni!`;
           setTimeout(() => { this.toast = ""; }, 3500);
         },
@@ -1282,6 +1283,14 @@
         init() {
           this.posts = loadPosts();
           window.addEventListener("bengkod_posts_updated", () => (this.posts = loadPosts()));
+          if (typeof loadStoredProjects === "function") {
+            this.projects = loadStoredProjects();
+          }
+          window.addEventListener("bengkod_projects_updated", () => {
+            if (typeof loadStoredProjects === "function") {
+              this.projects = loadStoredProjects();
+            }
+          });
         },
 
         readPostImage(e, field, tooBig) {
