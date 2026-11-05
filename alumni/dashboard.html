@@ -14,11 +14,11 @@
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
 <main data-route="">
-  <div x-data="feedPage" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased" @click.window="shareDropdownId = null">
+  <div x-data="feedPage" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
     <!-- Toast Notifikasi -->
     <template x-if="toast">
       <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="w-2 h-2 rounded-full bg-gray-400"></span>
         <span x-text="toast"></span>
       </div>
     </template>
@@ -31,36 +31,11 @@
     <!-- Header Beranda Feed Alumni -->
     <div class="flex items-center justify-between pb-3 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
+<h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
         <p class="text-sm text-gray-500 mt-0.5">
           Linimasa pameran produk software, beta testing hub, dan internal referral alumni Bengkel Koding
         </p>
       </div>
-      <button
-        id="btn-create-post-feed"
-        @click="openPostModal()"
-        class="px-5 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
-      >
-        <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" />
-          </svg>
-        </div>
-        <span>Buat Post</span>
-      </button>
-    </div>
-
-    <!-- ── TAB KATEGORI FEED ── -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
-      <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
-        <button
-          type="button"
-          @click="selectedCategory = cat"
-          class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
-          :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
-          x-text="cat"
-        ></button>
-      </template>
     </div>
 
     <!-- ── SEARCH BAR PENCARIAN ALUMNI ── -->
@@ -120,7 +95,7 @@
           @focus="searchOpen = true"
           @input="searchOpen = true"
           placeholder="Cari alumni berdasarkan nama..."
-          class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm"
+class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm"
         >
         <button
           x-show="searchQuery.length > 0"
@@ -186,7 +161,7 @@
               <div>
                 <div class="flex items-center justify-between px-4 pt-3 pb-1.5">
                   <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Terbaru</span>
-                  <button @click="recentSearches = []" class="text-[12px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Hapus semua</button>
+<button @click="recentSearches = []" class="text-[12px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Hapus semua</button>
                 </div>
                 <template x-for="item in recentSearches" :key="item.name">
                   <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
@@ -233,6 +208,174 @@
       </div>
     </div>
 
+    <!-- ── COMPOSER: BUAT POSTINGAN (GAYA X) ── -->
+    <form
+      id="form-buat-postingan"
+      @submit.prevent="handlePostModalSubmit()"
+      @focusin="composerOpen = true"
+      autocomplete="off"
+      class="bg-white rounded-xl border border-gray-200/90 shadow-xs p-4 sm:p-5 flex gap-3.5"
+    >
+      <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
+
+      <div class="flex-1 min-w-0 space-y-3">
+        <textarea
+          id="post-content"
+          rows="2"
+          x-model="pmContent"
+          placeholder="Apa yang sedang Anda kerjakan hari ini?"
+          class="w-full resize-none bg-transparent pt-2 text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"
+        ></textarea>
+
+        <!-- Pratinjau media -->
+        <template x-if="pmImageUrl">
+          <div class="relative rounded-xl overflow-hidden border border-gray-200">
+            <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[300px] object-cover">
+            <button
+              type="button"
+              @click="pmImageUrl = ''"
+              aria-label="Hapus media"
+              class="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </template>
+
+        <!-- ── KARTU LAMPIRAN KARYA / SHOWCASE (MINIMALIST & TRANSPARAN) ── -->
+        <template x-if="showKaryaAttachment">
+          <div class="rounded-xl border border-gray-200 bg-transparent p-4 space-y-3 relative animate-in fade-in duration-150">
+            <!-- Header Kartu Lampiran -->
+            <div class="flex items-center justify-between">
+              <span class="text-[13px] font-semibold text-gray-900">Lampiran Karya / Showcase Produk</span>
+              <button
+                type="button"
+                @click="showKaryaAttachment = false; pmKaryaName = ''; pmKaryaUrl = ''; pmKaryaTagline = ''"
+                class="w-6 h-6 rounded-full text-gray-400 hover:text-red-500 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
+                title="Hapus lampiran karya"
+              >
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Input Fields Clean (Nama & URL) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input
+                type="text"
+                x-model="pmKaryaName"
+                placeholder="Nama produk software..."
+                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
+              >
+              <input
+                type="url"
+                x-model="pmKaryaUrl"
+                placeholder="Link demo / live URL (https://...)..."
+                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
+              >
+            </div>
+
+            <!-- Input Tagline & Tech Stack -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <input
+                type="text"
+                x-model="pmKaryaTagline"
+                placeholder="Tagline singkat produk (1 baris)..."
+                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
+              >
+              <input
+                type="text"
+                x-model="pmKaryaStack"
+                placeholder="Tech Stack (contoh: Next.js, Python)..."
+                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
+              >
+            </div>
+
+            <!-- Opsi Pengujian / Tester (Minimalis & Humanis) -->
+            <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
+              <label class="inline-flex items-center gap-2 cursor-pointer select-none text-[12px] text-gray-700">
+                <input
+                  type="checkbox"
+                  x-model="pmKaryaIsTester"
+                  class="w-4 h-4 rounded border-gray-300 text-[#1E3A8A] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                >
+                <span>Buka untuk pengujian komunitas (Butuh Tester / Feedback)</span>
+              </label>
+              <span class="text-[11px] text-gray-400" x-text="pmKaryaIsTester ? 'Masuk ke Beta Hub' : 'Showcase biasa'"></span>
+            </div>
+          </div>
+        </template>
+
+        <!-- Toolbar: aksi lampiran & pengaturan di kiri, tombol kirim di kanan -->
+        <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 flex-wrap">
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Tombol Tambah Media Foto (Tanpa icon, transparan) -->
+            <button
+              type="button"
+              id="btn-add-post-media"
+              @click="$refs.pmFileInput.click()"
+              title="Tambahkan foto"
+              class="px-3 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300"
+            >
+              Foto
+            </button>
+
+            <!-- Tombol Toggle Lampirkan Karya (Tanpa icon, transparan) -->
+            <button
+              type="button"
+              id="btn-toggle-karya-attachment"
+              @click="showKaryaAttachment = !showKaryaAttachment"
+              title="Lampirkan produk / showcase software"
+              class="px-3 py-1.5 rounded-full text-[13px] font-medium transition-all cursor-pointer border bg-transparent"
+              :class="showKaryaAttachment ? 'border-[#1E3A8A] text-[#1E3A8A] font-semibold' : 'border-gray-200 text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'"
+            >
+              <span x-text="showKaryaAttachment ? 'Karya Terlampir' : 'Lampirkan Karya'"></span>
+            </button>
+
+            <!-- Dropdown Visibilitas (Tanpa icon, transparan) -->
+            <select
+              id="post-visibility"
+              x-model="pmVisibility"
+              title="Visibilitas"
+              class="px-3 py-1.5 rounded-full border border-gray-200 bg-transparent text-[13px] font-medium text-gray-600 focus:outline-none focus:border-[#1E3A8A] cursor-pointer"
+            >
+              <option value="Semua orang">Semua orang</option>
+              <option value="Pengikut">Pengikut</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            id="btn-save-post"
+            style="background-color: #1E3A8A; color: #ffffff;"
+            @mouseenter="$el.style.backgroundColor = '#1D4ED8'"
+            @mouseleave="$el.style.backgroundColor = '#1E3A8A'"
+            class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[15px] font-semibold shadow-sm transition-all cursor-pointer flex items-center justify-center"
+          >
+            Posting
+          </button>
+        </div>
+      </div>
+
+      <input type="file" x-ref="pmFileInput" accept="image/*" class="hidden" @change="handlePmImageFileChange($event)">
+    </form>
+
+    <!-- ── TAB KATEGORI FEED ── -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
+      <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
+        <button
+          type="button"
+          @click="selectedCategory = cat"
+          class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
+          :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
+          x-text="cat"
+        ></button>
+      </template>
+    </div>
+
     <!-- ============================================================
         FEED POSTINGAN (MURNI POSTINGAN SAJA - FYP)
     ============================================================ -->
@@ -264,7 +407,7 @@
               <div class="flex items-start gap-3.5">
                 <a :href="getAuthorLink(post.authorName)" class="shrink-0 group">
                   <template x-if="post.authorAvatar">
-                    <img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-blue-200/80 shadow-sm flex-shrink-0 group-hover:ring-2 group-hover:ring-[#1E3A8A] transition-all" :src="post.authorAvatar">
+<img :alt="post.authorName" class="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm flex-shrink-0 group-hover:ring-2 group-hover:ring-[#1E3A8A] transition-all" :src="post.authorAvatar">
                   </template>
                   <template x-if="!post.authorAvatar">
                     <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold text-base group-hover:ring-2 group-hover:ring-[#1E3A8A] transition-all"
@@ -272,9 +415,9 @@
                   </template>
                 </a>
                 <div class="flex flex-col">
-                    <a :href="getAuthorLink(post.authorName)" class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] transition-colors" x-text="post.authorName"></a>
+<a :href="getAuthorLink(post.authorName)" class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] transition-colors" x-text="post.authorName"></a>
                     <template x-if="post.authorRole && !['Alumni', 'Mitra'].includes(post.authorRole)">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200" x-text="post.authorRole"></span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200" x-text="post.authorRole"></span>
                     </template>
                   <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
                   <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
@@ -315,23 +458,22 @@
               </div>
             </template>
 
-            <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+            <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-gray-900 font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
 
             <!-- CARD KARYA & SHOWCASE (Hall of Fame & Beta Testing Hub) -->
             <template x-if="post.karya">
-              <div class="mt-4 p-4 rounded-xl border transition-all"
-                   :class="post.karya.tahap === 'beta' ? 'border-amber-200 bg-amber-50/40' : 'border-emerald-200 bg-emerald-50/40'">
+              <div class="mt-4 p-4 rounded-xl border border-gray-200 bg-white transition-all">
                 <div class="flex items-start justify-between gap-3">
                   <div class="space-y-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
                       <template x-if="post.karya.tahap === 'beta'">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white text-gray-700 border border-gray-300">
                           <span>🧪 Beta Tester Wanted</span>
                         </span>
                       </template>
                       <template x-if="post.karya.tahap === 'live'">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#1E3A8A] text-white border border-[#1E3A8A]">
                           <span>★ Live Product · Hall of Fame</span>
                         </span>
                       </template>
@@ -344,7 +486,7 @@
                     type="button"
                     @click="toggleUpvoteKarya(post.id)"
                     class="flex flex-col items-center justify-center min-w-[54px] px-3 py-2 rounded-xl border transition-all cursor-pointer shadow-2xs shrink-0"
-                    :class="post.karya.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white text-gray-700 hover:border-[#1E3A8A] hover:text-[#1E3A8A] border-gray-300'"
+                    :class="post.karya.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white text-[#1E3A8A] border-[#1E3A8A]/40 hover:bg-blue-50/60 hover:border-[#1E3A8A]'"
                     title="Dukung / Upvote Produk Ini"
                   >
                     <span class="text-xs leading-none">▲</span>
@@ -358,7 +500,7 @@
                     <div class="flex items-center gap-1.5 flex-wrap">
                       <span class="text-gray-500 font-semibold">Fokus Uji:</span>
                       <template x-for="f in post.karya.fokus" :key="f">
-                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-medium text-[11px]" x-text="f"></span>
+                        <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium text-[11px]" x-text="f"></span>
                       </template>
                     </div>
                   </template>
@@ -376,7 +518,7 @@
                 <!-- Action Bar -->
                 <div class="mt-3 pt-2.5 border-t border-gray-200/60 flex items-center justify-between gap-2 text-xs">
                   <template x-if="post.karya.url">
-                    <a :href="post.karya.url" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 font-bold text-[#1E3A8A] hover:underline">
+<a :href="post.karya.url" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 font-bold text-[#1E3A8A] hover:underline">
                       <span>Uji Coba Aplikasi</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
                     </a>
@@ -385,7 +527,7 @@
                   <button
                     type="button"
                     @click="openFeedbackModal(post)"
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold bg-white border border-gray-300 hover:border-[#1E3A8A] text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer shadow-2xs"
+class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold bg-white border border-gray-300 hover:border-[#1E3A8A] text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer shadow-2xs"
                   >
                     <span>💬 Beri Masukan / Feedback</span>
                     <span class="px-1.5 py-0.2 rounded-full bg-blue-50 text-[#1E3A8A] text-[10px] font-bold" x-text="(post.karya.feedbacks || []).length"></span>
@@ -408,7 +550,7 @@
               <div class="w-full bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
                 <div class="bg-[#1E3A8A] text-white px-4 py-2.5 flex items-center justify-between text-[14px] font-semibold">
                   <span>Cheatsheet Machine Learning Algorithms</span>
-                  <span class="text-[13px] font-normal bg-white/20 px-2 py-0.5 rounded">Ringkasan Materi</span>
+                  <span class="text-[13px] font-normal bg-white/15 text-white border border-white/25 px-2 py-0.5 rounded">Ringkasan Materi</span>
                 </div>
                 <table class="w-full border-collapse text-[14px]">
                   <thead class="bg-gray-50 border-b border-gray-200 text-gray-700 font-semibold">
@@ -439,7 +581,7 @@
           <!-- Baris Reaksi & Statistik Interaksi -->
           <div class="px-5 py-2.5 border-t border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
             <div class="flex items-center gap-2">
-              <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-600 text-white text-[12px]">
+              <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1E3A8A] text-white text-[12px]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
                 </svg>
@@ -448,20 +590,19 @@
             </div>
             <div class="flex items-center gap-4 text-gray-500">
               <span x-text="post.commentsCount + ' komentar'"></span>
-              <span x-text="post.repostsCount + ' dibagikan'"></span>
             </div>
           </div>
 
-          <!-- Tombol Interaksi (Like, Comment, Repost, Send) -->
-          <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold text-gray-600">
+          <!-- Tombol Interaksi (Suka & Komentar) -->
+          <div class="px-5 py-1.5 flex items-center justify-around border-b border-gray-100 text-[15px] font-semibold">
             <button
               :id="'btn-like-' + post.id"
               @click="handleToggleLike(post.id)"
-              class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-              :class="post.isLiked ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''"
+              class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer"
+              :class="post.isLiked ? 'font-bold bg-blue-50/80 shadow-2xs' : 'font-semibold'"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="post.isLiked ? '#1E3A8A' : 'none'">
-                <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" :fill="post.isLiked ? '#1E3A8A' : 'none'" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 9V5a3 3 0 00-3-3l-4 9v11h11.28a2 2 0 002-1.7l1.38-9a2 2 0 00-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
               </svg>
               <span>Suka</span>
             </button>
@@ -470,78 +611,14 @@
             <button
               :id="'btn-comment-' + post.id"
               @click="activeCommentId = activeCommentId === post.id ? null : post.id"
-              class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-              :class="activeCommentId === post.id ? 'text-[#1E3A8A]' : ''"
+              class="flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg text-gray-600 hover:text-[#1E3A8A] hover:bg-blue-50/50 transition-colors cursor-pointer"
+              :class="activeCommentId === post.id ? 'text-[#1E3A8A] font-bold bg-blue-50/50' : 'font-semibold'"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
               <span>Komentar</span>
             </button>
-
-            <!-- BAGIKAN — dropdown menu -->
-            <div class="relative">
-              <button
-                :id="'btn-share-' + post.id"
-                @click.stop="shareDropdownId = shareDropdownId === post.id ? null : post.id"
-                class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                :class="post.repostsCount > 0 && post.isRepost ? 'text-emerald-600' : ''"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                <span>Bagikan</span>
-              </button>
-
-              <!-- Dropdown menu Bagikan — Muncul rapi di bawah tombol -->
-              <template x-if="shareDropdownId === post.id">
-                <div
-                  class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[260px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-150"
-                  @click.stop
-                >
-                  <button
-                    @click="shareOpinionPost = post; shareOpinionText = ''; shareDropdownId = null"
-                    class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="text-[15px] font-semibold text-gray-900">Bagikan disertai pendapat</span>
-                  </button>
-                  <div class="border-t border-gray-100"></div>
-                  <button
-                    @click="handleInstantRepost(post)"
-                    class="w-full flex items-center gap-3 px-5 py-4 hover:bg-gray-50 transition-colors cursor-pointer text-left"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                      <path d="M17 1l4 4-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M21 13v2a4 4 0 01-4 4H3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="text-[15px] font-semibold text-gray-900">Bagikan secara instan</span>
-                  </button>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Footer Analytics -->
-          <div x-show="post.id > 0" class="px-5 py-2.5 flex items-center justify-between text-[14px] text-gray-500 bg-gray-50/70 border-t border-gray-100">
-            <div class="flex items-center gap-2 font-medium text-gray-700">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M18 20V10M12 20V4M6 20v-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-              <span x-text="post.impressions + ' impresi dilihat'"></span>
-            </div>
-            <a :href="'analitik-postingan.html?id=' + post.id" class="font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1 cursor-pointer" title="Lihat analitik postingan ini">
-              <span>Lihat analitik</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </a>
           </div>
 
           <!-- ── DROPDOWN KOMENTAR ── -->
@@ -556,7 +633,7 @@
                     placeholder="Tulis komentar..."
                     x-model="commentInputs[post.id]"
                     @keydown.enter="if ((commentInputs[post.id] || '').trim()) addComment(post.id)"
-                    class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10"
+class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-gray-900/10"
                   >
                   <button
                     type="button"
@@ -590,7 +667,7 @@
                             <button
                               type="button"
                               @click="likeComment(post.id, c.id)"
-                              class="flex items-center gap-1.5 text-[14px] font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+class="flex items-center gap-1.5 text-[14px] font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
                               title="Suka komentar"
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -601,7 +678,7 @@
                             <button
                               type="button"
                               @click="activeReplyCommentId = activeReplyCommentId === c.id ? null : c.id"
-                              class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
                               :class="activeReplyCommentId === c.id ? 'text-[#1E3A8A]' : ''"
                               title="Balas komentar ini"
                             >
@@ -625,14 +702,14 @@
                                     <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
                                       <p class="text-[13px] font-bold text-gray-900" x-text="reply.author"></p>
                                       <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed">
-                                        <span class="font-semibold text-[#1E3A8A] mr-1" x-text="'@' + c.author"></span><span x-text="reply.text"></span>
+<span class="font-semibold text-[#1E3A8A] mr-1" x-text="'@' + c.author"></span><span x-text="reply.text"></span>
                                       </p>
                                     </div>
                                     <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
                                       <button
                                         type="button"
                                         @click="likeReply(post.id, c.id, reply.id)"
-                                        class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer"
                                       >
                                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
                                           <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
@@ -653,7 +730,7 @@
                               <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
                               <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
                               <div class="flex-1 min-w-0">
-                                <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all shadow-2xs">
+<div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all shadow-2xs">
                                   <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none" x-text="c.author"></span>
                                   <input
                                     type="text"
@@ -722,22 +799,22 @@
             <span class="text-base">🧪</span>
             <h3 class="text-[15px] font-bold text-gray-900">Beta Testing Hub</h3>
           </div>
-          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200" x-text="betaProducts.length + ' MVP Butuh Tester'"></span>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-700 border border-gray-200" x-text="betaProducts.length + ' MVP Butuh Tester'"></span>
         </div>
         <p class="text-xs text-gray-500 leading-relaxed">
           Uji performa, temukan bug, dan berikan kritik UI/UX untuk prototipe rekan alumni Bengkel Koding.
         </p>
         <div class="space-y-2.5 pt-1">
           <template x-for="beta in betaProducts" :key="beta.id">
-            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200/80 space-y-1.5 hover:border-amber-300 transition-colors">
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200/80 space-y-1.5 hover:border-gray-200 transition-colors">
               <div class="flex items-start justify-between gap-2">
                 <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="beta.name"></h4>
-                <a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
+<a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
               </div>
               <p class="text-[11px] text-gray-600 line-clamp-1" x-text="beta.tagline"></p>
               <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-200/60">
                 <span x-text="'Fokus: ' + (beta.fokus || []).join(', ')"></span>
-                <span class="font-bold text-amber-800" x-text="'▲ ' + (beta.upvotes || 0)"></span>
+                <span class="font-bold text-[#1E3A8A]" x-text="'▲ ' + (beta.upvotes || 0)"></span>
               </div>
             </div>
           </template>
@@ -754,7 +831,7 @@
             </svg>
             Pengumuman
           </h3>
-          <a href="pengumuman.html" class="inline-flex items-center gap-0.5 text-[12px] font-medium text-[#1E3A8A] hover:underline">
+<a href="pengumuman.html" class="inline-flex items-center gap-0.5 text-[12px] font-medium text-[#1E3A8A] hover:underline">
             Lihat semua
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
           </a>
@@ -763,24 +840,24 @@
         <div class="divide-y divide-gray-100 border-t border-gray-100">
           <a href="pengumuman.html#pengumuman-1" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
             <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Jadwal Pelepasan Alumni Angkatan 2024</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#1E3A8A]">Informasi</span>
+<h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Jadwal Pelepasan Alumni Angkatan 2024</h4>
+              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">Informasi</span>
             </div>
             <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Rangkaian agenda wisuda dan pelepasan resmi alumni Bengkel Koding angkatan 2024 di Gedung Serbaguna UDINUS.</p>
             <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 24 Okt 2025</p>
           </a>
           <a href="pengumuman.html#pengumuman-2" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
             <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Pengisian Data Alumni Terbaru</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-red-50 text-red-600">Pemberitahuan</span>
+<h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Pengisian Data Alumni Terbaru</h4>
+              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">Pemberitahuan</span>
             </div>
             <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Perbarui profil, keahlian, dan tracer study paling lambat 10 November 2025 untuk pendataan karier lulusan.</p>
             <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 21 Okt 2025</p>
           </a>
           <a href="pengumuman.html#pengumuman-3" class="block px-5 py-3.5 hover:bg-gray-50 transition-colors group">
             <div class="flex items-start justify-between gap-3">
-              <h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Workshop UI/UX Bersama Tokopedia</h4>
-              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-blue-50 text-[#1E3A8A]">Informasi</span>
+<h4 class="text-[14px] font-semibold text-[#1E3A8A] leading-snug group-hover:underline">Workshop UI/UX Bersama Tokopedia</h4>
+              <span class="shrink-0 rounded px-2 py-0.5 text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">Informasi</span>
             </div>
             <p class="mt-1.5 text-[13px] text-gray-600 leading-relaxed line-clamp-2">Sesi berbagi wawasan seputar product design dan best practice industri teknologi. Kuota 50 peserta.</p>
             <p class="mt-2 text-[11px] text-gray-400">Oleh <span class="font-semibold text-gray-500">Dr. Ayu Lestari, M.Kom</span> <span class="mx-1">·</span> 17 Okt 2025</p>
@@ -790,415 +867,6 @@
     </div><!-- end kolom samping -->
 
 
-
-    <!-- ======================================================
-        MODAL: BUAT POSTINGAN BARU (_components/PostModals.tsx)
-    ====================================================== -->
-    <template x-if="postModalOpen">
-      <div
-        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4"
-        @mousedown.self="postModalOpen = false"
-      >
-        <form
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="add-post-title"
-          novalidate
-          autocomplete="off"
-          @submit.prevent="handlePostModalSubmit()"
-          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
-          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
-        >
-          <!-- HEADER -->
-          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-            <h2 id="add-post-title" class="text-[20px] font-bold text-gray-900 tracking-tight">Tambah postingan</h2>
-            <button
-              type="button"
-              @click="postModalOpen = false"
-              class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer"
-              aria-label="Tutup modal"
-            >
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- BODY (BERBENTUK KOTAK-KOTAK ISIAN PERSIS TAMBAH PROYEK) -->
-          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
-            <!-- KOTAK 1: VISIBILITAS -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label for="post-visibility" class="block text-[14px] font-medium text-gray-700">
-                  Visibilitas <span class="text-red-500 font-bold">*</span>
-                </label>
-              </div>
-              <div class="relative">
-                <select
-                  id="post-visibility"
-                  x-model="pmVisibility"
-                  class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer appearance-none pr-10"
-                >
-                  <option value="Semua orang">Semua orang (Bisa dilihat siapa saja)</option>
-                  <option value="Pengikut">Pengikut (Hanya pengikut Anda)</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400">
-                  <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <!-- KOTAK 1.5: KATEGORI POSTINGAN -->
-            <div class="space-y-1.5">
-              <label for="post-category" class="block text-[14px] font-medium text-gray-700">
-                Kategori Postingan <span class="text-red-500 font-bold">*</span>
-              </label>
-              <select
-                id="post-category"
-                x-model="pmCategory"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer"
-              >
-                <option value="Karya & Showcase">Karya &amp; Showcase (Produk / MVP / Portofolio)</option>
-                <option value="Internal Referral">Internal Referral (Rekomendasi Loker Kantor)</option>
-              </select>
-            </div>
-
-            <!-- FORM TAMBAHAN KHUSUS KARYA & SHOWCASE -->
-            <template x-if="pmCategory === 'Karya & Showcase'">
-              <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3.5 text-xs">
-                <span class="font-bold text-[#1E3A8A] text-xs uppercase tracking-wider block">🚀 Detail Produk / Karya Alumni</span>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label class="block font-semibold text-gray-800 mb-1">Nama Produk Software <span class="text-red-500">*</span></label>
-                    <input type="text" x-model="pmKaryaName" placeholder="Contoh: Sentimeter AI" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div>
-                    <label class="block font-semibold text-gray-800 mb-1">Tahap Rilis Produk <span class="text-red-500">*</span></label>
-                    <select x-model="pmKaryaTahap" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                      <option value="beta">BETA / TESTING (Butuh Masukan &amp; Penguji)</option>
-                      <option value="live">LAUNCHED / LIVE (Etalase Hall of Fame)</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block font-semibold text-gray-800 mb-1">Tagline Ringkas (1 Baris) <span class="text-red-500">*</span></label>
-                  <input type="text" x-model="pmKaryaTagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label class="block font-semibold text-gray-800 mb-1">Tautan Demo / Staging / Live URL</label>
-                    <input type="url" x-model="pmKaryaUrl" placeholder="https://demo-app.com" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div>
-                    <label class="block font-semibold text-gray-800 mb-1">Tech Stack</label>
-                    <input type="text" x-model="pmKaryaStack" placeholder="React, Python, Docker" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                </div>
-
-                <template x-if="pmKaryaTahap === 'beta'">
-                  <div>
-                    <label class="block font-semibold text-gray-800 mb-1">Fokus Review dari Komunitas Alumni:</label>
-                    <div class="flex items-center gap-3 flex-wrap">
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" value="Bug" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                        <span>🐛 Laporan Bug</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" value="UI/UX" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                        <span>🎨 Kritik UI/UX</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" value="Beban Server" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                        <span>⚡ Beban Server</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" value="Otentikasi / Security" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                        <span>🔒 Keamanan / Auth</span>
-                      </label>
-                    </div>
-                  </div>
-                </template>
-              </div>
-            </template>
-
-            <!-- KOTAK 2: KETERANGAN (DESKRIPSI) -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label for="post-content" class="block text-[14px] font-medium text-gray-700">
-                  Keterangan <span class="text-red-500 font-bold">*</span>
-                </label>
-              </div>
-              <textarea
-                id="post-content"
-                rows="4"
-                x-model="pmContent"
-                placeholder="Jelaskan detail postingan, cerita, atau pencapaian Anda..."
-                style="resize: none"
-                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"
-              ></textarea>
-            </div>
-
-            <!-- KOTAK 3: MEDIA (UPLOAD GAMBAR) -->
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between">
-                <label class="block text-[14px] font-medium text-gray-700">Media</label>
-                <span class="text-[12px] text-gray-400 tabular-nums" x-text="pmImageUrl ? '1/10' : '0/10'"></span>
-              </div>
-
-              <template x-if="pmImageUrl">
-                <div class="rounded-xl border border-gray-200 bg-gray-50/50 p-4">
-                  <div class="relative max-w-md mx-auto rounded-lg overflow-hidden border border-gray-200 bg-white shadow-2xs">
-                    <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[260px] object-contain">
-                  </div>
-                  <div class="mt-3 flex items-center justify-end gap-2">
-                    <button
-                      type="button"
-                      @click="$refs.pmFileInput.click()"
-                      class="px-4 py-1.5 rounded-full border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 transition-colors cursor-pointer"
-                    >
-                      Ganti media
-                    </button>
-                    <button
-                      type="button"
-                      @click="pmImageUrl = ''"
-                      class="px-4 py-1.5 rounded-full bg-red-600 hover:bg-red-700 text-white text-[13px] font-semibold transition-colors cursor-pointer"
-                    >
-                      Hapus media
-                    </button>
-                  </div>
-                </div>
-              </template>
-              <template x-if="!pmImageUrl">
-                <div>
-                  <button
-                    type="button"
-                    id="btn-add-post-media"
-                    @click="$refs.pmFileInput.click()"
-                    class="px-4 py-2 rounded-full border border-gray-300 hover:border-gray-400 bg-white hover:bg-gray-50 text-[14px] font-semibold text-gray-700 transition-colors flex items-center gap-2 cursor-pointer shadow-2xs"
-                  >
-                    <span class="text-lg leading-none">+</span>
-                    <span>Tambahkan media</span>
-                  </button>
-                  <p class="text-[12px] text-gray-400 mt-2">
-                    Belum ada media. Tambahkan tautan atau gambar untuk postingan Anda.
-                  </p>
-                </div>
-              </template>
-
-              <input type="file" x-ref="pmFileInput" accept="image/*" class="hidden" @change="handlePmImageFileChange($event)">
-            </div>
-          </div>
-
-          <!-- FOOTER -->
-          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
-            <button
-              type="button"
-              @click="postModalOpen = false"
-              class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
-            >
-              Batal
-            </button>
-            <button
-              type="submit"
-              id="btn-save-post"
-              :disabled="!pmContent.trim() && !pmImageUrl"
-              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer"
-            >
-              Simpan
-            </button>
-          </div>
-        </form>
-      </div>
-    </template>
-
-    <!-- ======================================================
-        MODAL: BAGIKAN DISERTAI PENDAPAT
-    ====================================================== -->
-    <template x-if="shareOpinionPost">
-      <div
-        id="modal-share-opinion-dashboard"
-        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150"
-        @mousedown.self="shareOpinionPost = null"
-      >
-        <div
-          style="width: 95vw; max-width: 620px"
-          class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl flex flex-col max-h-[90vh] overflow-hidden"
-        >
-          <!-- Header Modal -->
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-12 h-12 rounded-full object-cover border border-gray-200 ring-2 ring-blue-50">
-              <div>
-                <h4 class="font-bold text-gray-900 text-[15px]" x-text="profile.name"></h4>
-                <div class="relative mt-0.5" @click.outside="showVisibilityDropdown = false">
-                  <button
-                    type="button"
-                    @click="showVisibilityDropdown = !showVisibilityDropdown"
-                    class="inline-flex items-center gap-1.5 text-[12px] font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full border border-gray-200 transition-colors cursor-pointer"
-                  >
-                    <template x-if="shareVisibility === 'public'">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                        <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
-                        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
-                      </svg>
-                    </template>
-                    <template x-if="shareVisibility === 'private'">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                        <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
-                      </svg>
-                    </template>
-                    <span x-text="shareVisibility === 'public' ? 'Posting ke Semua orang' : 'Posting ke Private'"></span>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" class="transition-transform duration-150" :class="showVisibilityDropdown ? 'rotate-180' : ''">
-                      <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </button>
-
-                  <div
-                    x-show="showVisibilityDropdown"
-                    x-transition:enter="transition ease-out duration-100"
-                    x-transition:enter-start="opacity-0 scale-95"
-                    x-transition:enter-end="opacity-100 scale-100"
-                    x-transition:leave="transition ease-in duration-75"
-                    x-transition:leave-start="opacity-100 scale-100"
-                    x-transition:leave-end="opacity-0 scale-95"
-                    class="absolute left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-gray-200/90 py-1.5 z-50 overflow-hidden"
-                    style="display: none;"
-                  >
-                    <button
-                      type="button"
-                      @click="shareVisibility = 'public'; showVisibilityDropdown = false"
-                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                            <line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2" />
-                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" stroke="currentColor" stroke-width="2" />
-                          </svg>
-                        </div>
-                        <div>
-                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Semua orang</p>
-                          <p class="text-[11px] text-gray-500">Dapat dilihat oleh publik</p>
-                        </div>
-                      </div>
-                      <template x-if="shareVisibility === 'public'">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
-                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </template>
-                    </button>
-
-                    <button
-                      type="button"
-                      @click="shareVisibility = 'private'; showVisibilityDropdown = false"
-                      class="w-full px-3.5 py-2.5 flex items-center justify-between text-left hover:bg-gray-50 transition-colors cursor-pointer"
-                    >
-                      <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
-                            <path d="M7 11V7a5 5 0 0110 0v4" stroke="currentColor" stroke-width="2"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <p class="text-[13px] font-semibold text-gray-900 leading-tight">Private</p>
-                          <p class="text-[11px] text-gray-500">Hanya dapat dilihat oleh Anda</p>
-                        </div>
-                      </div>
-                      <template x-if="shareVisibility === 'private'">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="text-[#1E3A8A]">
-                          <polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </template>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <button
-              type="button"
-              @click="shareOpinionPost = null"
-              class="text-gray-400 hover:text-gray-700 w-9 h-9 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer"
-              aria-label="Tutup"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Input Pemikiran & Preview Post -->
-          <div class="p-6 overflow-y-auto space-y-4 flex-1">
-            <textarea
-              x-init="$nextTick(() => $el.focus())"
-              rows="3"
-              x-model="shareOpinionText"
-              placeholder="Tambahkan pemikiran Anda (Opsional)"
-              class="w-full resize-none text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"
-            ></textarea>
-
-            <!-- Preview Box dari Post Asli -->
-            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50/60 space-y-3">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <img :src="shareOpinionPost.authorAvatar || 'assets/img/user.png'" :alt="shareOpinionPost.authorName" class="w-10 h-10 rounded-full object-cover border border-gray-200">
-                  <div>
-                    <p class="font-bold text-[14px] text-gray-900" x-text="shareOpinionPost.authorName"></p>
-                    <p class="text-[12px] text-gray-500 truncate max-w-[320px]" x-text="shareOpinionPost.authorHeadline || 'Alumni Bengkel Koding'"></p>
-                  </div>
-              </div>
-              <p class="text-[13px] text-gray-800 leading-relaxed line-clamp-3" x-text="shareOpinionPost.content"></p>
-              <template x-if="shareOpinionPost.imageUrl">
-                <div class="rounded-lg overflow-hidden border border-gray-200 max-h-48 bg-gray-100 flex items-center justify-center">
-                  <img :src="shareOpinionPost.imageUrl" alt="Pratinjau Media" class="w-full h-full object-cover">
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Footer Modal -->
-          <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-white">
-            <div class="flex items-center gap-3 text-gray-500">
-              <button
-                type="button"
-                title="Tambahkan emoji"
-                class="p-2 hover:bg-gray-100 hover:text-gray-700 rounded-full transition-colors cursor-pointer"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
-                  <path d="M8 14s1.5 2 4 2 4-2 4-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                  <line x1="9" y1="9" x2="9.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                  <line x1="15" y1="9" x2="15.01" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                </svg>
-              </button>
-            </div>
-            <div class="flex items-center gap-2.5">
-              <button
-                type="button"
-                @click="shareOpinionPost = null"
-                class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer"
-              >
-                Batal
-              </button>
-              <button
-                type="button"
-                @click="handleShareWithOpinion()"
-                class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors"
-              >
-                Bagikan
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
 
     <!-- ======================================================
         MODAL: BERI MASUKAN / FEEDBACK KARYA (BETA & LIVE)
@@ -1217,7 +885,7 @@
           <form @submit.prevent="submitFeedback()" class="p-6 space-y-4 text-sm overflow-y-auto">
             <!-- Kategori Feedback -->
             <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1.5">Kategori Masukan <span class="text-red-500">*</span></label>
+              <label class="block font-semibold text-gray-800 text-xs mb-1.5">Kategori Masukan <span class="text-gray-500">*</span></label>
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <template x-for="cat in ['Bug', 'UI/UX', 'Arsitektur/Performa', 'Apresiasi']" :key="cat">
                   <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-colors"
@@ -1231,13 +899,13 @@
 
             <!-- Isi Feedback -->
             <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Deskripsi Masukan / Temuan <span class="text-red-500">*</span></label>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Deskripsi Masukan / Temuan <span class="text-gray-500">*</span></label>
               <textarea
                 rows="4"
                 x-model="fbText"
                 required
                 placeholder="Jelaskan langkah menemukan bug, saran perbaikan layout, atau respon performa saat Anda uji coba..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"
+class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"
               ></textarea>
             </div>
 
@@ -1285,7 +953,7 @@
           avatarUrl: currentAlumni.avatarUrl || DEFAULT_AVATAR,
         },
         posts: [],
-        postModalOpen: false,
+        composerOpen: false,
         toast: "",
         toastTimer: null,
 
@@ -1319,16 +987,11 @@
         activeReplyCommentId: null,
         replyInputs: {},
 
-        shareDropdownId: null,
-        shareOpinionPost: null,
-        shareOpinionText: "",
-        shareVisibility: "public",
-        showVisibilityDropdown: false,
-
         // PostModal state
+        showKaryaAttachment: false,
         pmContent: "",
         pmImageUrl: "",
-        pmCategory: "Karya & Showcase",
+        pmCategory: "Semua",
         pmVisibility: "Semua orang",
         selectedCategory: "Semua",
 
@@ -1339,6 +1002,7 @@
         fbText: "",
 
         pmKaryaName: "",
+        pmKaryaIsTester: true,
         pmKaryaTahap: "beta",
         pmKaryaTagline: "",
         pmKaryaUrl: "",
@@ -1530,18 +1194,23 @@
           this.simpan();
         },
 
-        openPostModal() {
+        get canPost() {
+          return !!this.pmContent.trim() || !!this.pmImageUrl || (this.showKaryaAttachment && !!this.pmKaryaName.trim());
+        },
+        resetComposer() {
           this.pmContent = "";
           this.pmImageUrl = "";
-          this.pmCategory = "Karya & Showcase";
+          this.pmCategory = "Semua";
           this.pmVisibility = "Semua orang";
           this.pmKaryaName = "";
+          this.pmKaryaIsTester = true;
           this.pmKaryaTahap = "beta";
           this.pmKaryaTagline = "";
           this.pmKaryaUrl = "";
           this.pmKaryaStack = "";
           this.pmKaryaFokus = ["Bug", "UI/UX"];
-          this.postModalOpen = true;
+          this.showKaryaAttachment = false;
+          this.composerOpen = false;
         },
         handlePmImageFileChange(e) {
           const file = e.target.files && e.target.files[0];
@@ -1558,28 +1227,39 @@
           e.target.value = "";
         },
         handlePostModalSubmit() {
-          if (!this.pmContent.trim() && !this.pmImageUrl && !this.pmKaryaName.trim()) return;
-          const data = {
-            content: this.pmContent.trim(),
-            imageUrl: this.pmImageUrl.trim() || undefined,
-            category: this.pmCategory,
-            visibility: this.pmVisibility,
-          };
+          if (!this.canPost) {
+            this.setToast("Tulis keterangan atau lampirkan karya terlebih dahulu.");
+            return;
+          }
 
           let karyaObj = undefined;
-          if (this.pmCategory === "Karya & Showcase" && this.pmKaryaName.trim()) {
+          if (this.showKaryaAttachment && this.pmKaryaName.trim()) {
+            const isTester = this.pmKaryaIsTester !== false;
             karyaObj = {
               nama: this.pmKaryaName.trim(),
               tagline: this.pmKaryaTagline.trim() || "Karya software alumni Bengkel Koding",
-              tahap: this.pmKaryaTahap,
+              tahap: isTester ? "beta" : "live",
               url: this.pmKaryaUrl.trim() || undefined,
-              stack: this.pmKaryaStack.split(",").map((s) => s.trim()).filter(Boolean),
-              fokus: this.pmKaryaTahap === "beta" ? this.pmKaryaFokus : undefined,
+              stack: this.pmKaryaStack ? this.pmKaryaStack.split(",").map((s) => s.trim()).filter(Boolean) : [],
+              fokus: isTester ? ["Bug", "UI/UX"] : undefined,
               upvotes: 1,
               isUpvoted: true,
               feedbacks: [],
             };
           }
+
+          const resolvedCategory = karyaObj
+            ? "Karya & Showcase"
+            : ((this.pmContent || "").toLowerCase().includes("referral") || (this.pmContent || "").toLowerCase().includes("loker")
+                ? "Internal Referral"
+                : "Semua");
+
+          const data = {
+            content: this.pmContent.trim(),
+            imageUrl: this.pmImageUrl.trim() || undefined,
+            category: resolvedCategory,
+            visibility: this.pmVisibility,
+          };
 
           const newPost = {
             id: Date.now(),
@@ -1602,56 +1282,7 @@
           this.posts = updated;
           this.simpan();
           this.setToast("Postingan berhasil diterbitkan");
-          this.postModalOpen = false;
-        },
-
-        handleInstantRepost(post) {
-          const reposted = {
-            ...post,
-            id: Date.now(),
-            komentarForum: undefined, // repost punya komentar sendiri, jangan berbagi array dengan post asli
-            isRepost: true,
-            repostedBy: this.profile.name,
-            date: "Baru saja",
-            likes: 0,
-            isLiked: false,
-            commentsCount: 0,
-            repostsCount: 0,
-            impressions: 1,
-          };
-          const updated = [reposted, ...this.posts];
-          this.posts = updated;
-          this.simpan();
-          this.setToast("Postingan berhasil dibagikan ulang");
-          this.shareDropdownId = null;
-        },
-
-        handleShareWithOpinion() {
-          const src = this.shareOpinionPost;
-          const newRepost = {
-            id: Date.now(),
-            authorName: this.profile.name,
-            authorHeadline: this.profile.headline,
-            authorAvatar: this.profile.avatarUrl || "assets/img/user.png",
-            date: "Baru saja",
-            content: this.shareOpinionText.trim()
-              ? `${this.shareOpinionText.trim()}\n\n---\nRepost dari @${src.authorName}:\n${src.content}`
-              : src.content,
-            imageUrl: src.imageUrl,
-            likes: 0,
-            isLiked: false,
-            commentsCount: 0,
-            repostsCount: 0,
-            impressions: 1,
-            isRepost: true,
-            repostedBy: this.profile.name,
-          };
-          const updated = [newRepost, ...this.posts];
-          this.posts = updated;
-          this.simpan();
-          this.shareOpinionPost = null;
-          this.shareOpinionText = "";
-          this.setToast("Postingan berhasil dibagikan dengan pemikiran Anda");
+          this.resetComposer();
         },
 
         addComment(postId) {
