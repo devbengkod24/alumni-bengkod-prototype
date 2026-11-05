@@ -247,12 +247,12 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           </div>
         </template>
 
-        <!-- ── KARTU LAMPIRAN KARYA / SHOWCASE (MINIMALIST & TRANSPARAN) ── -->
+        <!-- ── KARTU LAMPIRAN KARYA / SHOWCASE (WYSIWYG RICH CARD EMBED) ── -->
         <template x-if="showKaryaAttachment">
-          <div class="rounded-xl border border-gray-200 bg-transparent p-4 space-y-3 relative animate-in fade-in duration-150">
-            <!-- Header Kartu Lampiran -->
-            <div class="flex items-center justify-between">
-              <span class="text-[13px] font-semibold text-gray-900">Lampiran Karya / Showcase Produk</span>
+          <div class="rounded-xl border border-gray-200 bg-white/70 hover:border-gray-300 p-4 space-y-2 relative transition-all shadow-2xs animate-in fade-in duration-150">
+            <!-- Header Kartu Pratinjau -->
+            <div class="flex items-center justify-between pb-1 border-b border-gray-100">
+              <span class="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">Pratinjau Kartu Karya</span>
               <button
                 type="button"
                 @click="showKaryaAttachment = false; pmKaryaName = ''; pmKaryaUrl = ''; pmKaryaTagline = ''"
@@ -265,28 +265,28 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
               </button>
             </div>
 
-            <!-- 2 Input Utama (Nama & URL) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <input
-                type="text"
-                x-model="pmKaryaName"
-                placeholder="Nama produk software (wajib)..."
-                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
-              >
-              <input
-                type="url"
-                x-model="pmKaryaUrl"
-                placeholder="Link demo / live URL (https://...)..."
-                class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
-              >
-            </div>
+            <!-- Judul Produk (Borderless, Bold 16px) -->
+            <input
+              type="text"
+              x-model="pmKaryaName"
+              placeholder="Nama aplikasi atau karya software..."
+              class="w-full bg-transparent text-[16px] font-bold text-gray-900 placeholder:text-gray-400 focus:outline-none leading-snug"
+            >
 
-            <!-- Input Tagline Singkat -->
+            <!-- Link Demo / Live URL (Borderless, Navy Link Style) -->
+            <input
+              type="url"
+              x-model="pmKaryaUrl"
+              placeholder="https://link-demo-produk.com (opsional)"
+              class="w-full bg-transparent text-[13px] font-semibold text-[#1E3A8A] placeholder:text-gray-400 focus:outline-none"
+            >
+
+            <!-- Tagline / Ringkasan Singkat (Borderless, Gray 13px) -->
             <input
               type="text"
               x-model="pmKaryaTagline"
-              placeholder="Tagline singkat atau tech stack (opsional)..."
-              class="w-full px-3 py-2 rounded-lg border border-gray-200 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A]/20 transition-all"
+              placeholder="Jelaskan ringkas produk atau tech stack..."
+              class="w-full bg-transparent text-[13px] text-gray-600 placeholder:text-gray-400 focus:outline-none"
             >
 
             <!-- Opsi Pengujian / Tester (Minimalis & Humanis) -->
