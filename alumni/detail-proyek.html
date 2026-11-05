@@ -54,24 +54,10 @@
             </template>
           </div>
 
-          <!-- Judul, Tagline, Rating, dan Kategori -->
-          <div class="space-y-1.5 min-w-0">
+          <!-- Judul, Tagline, dan Kategori -->
+          <div class="space-y-2 min-w-0">
             <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight" x-text="product.nama"></h1>
             <p class="text-base sm:text-[17px] text-gray-600 font-normal leading-snug" x-text="product.tagline"></p>
-
-            <!-- Rating & Social Proof Row (Persis Bintang Emas + Ulasan Product Hunt) -->
-            <div class="flex items-center gap-2 pt-0.5 text-xs text-gray-500 flex-wrap">
-              <div class="flex items-center text-amber-500 font-bold gap-1">
-                <span>★★★★★</span>
-                <span class="text-gray-900 font-extrabold ml-0.5" x-text="(product.rating || 5.0).toFixed(1)"></span>
-              </div>
-              <span class="text-gray-300">•</span>
-              <a href="#reviews-section" @click="activeTab = 'reviews'" class="hover:underline hover:text-gray-900 font-medium" x-text="(product.feedbacks || []).length + ' ulasan'"></a>
-              <span class="text-gray-300">•</span>
-              <span x-text="(product.followersCount || '1.2K') + ' pendukung'"></span>
-              <span class="text-gray-300">•</span>
-              <span>oleh <a :href="getAuthorLink(product.authorName)" class="font-semibold text-gray-800 hover:text-[#1E3A8A] hover:underline" x-text="product.authorName"></a></span>
-            </div>
 
             <!-- Category / Tags Row with Grid Icon -->
             <div class="flex items-center gap-2 pt-1 text-xs text-gray-600 flex-wrap">
@@ -93,42 +79,21 @@
           </div>
         </div>
 
-        <!-- Sisi Kanan: Laurel Award Badge + Visit Website CTA + Upvote -->
-        <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3 shrink-0">
-          <div class="flex items-center gap-3">
-            <!-- Laurel Wreath Award Badge (Product Hunt Style) -->
-            <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700 text-lg shadow-2xs" title="#1 Showcase Minggu Ini di Bengkel Koding">
-              🏆
-            </div>
-
-            <!-- Tombol "Visit website" (Persis Gaya Product Hunt) -->
-            <template x-if="product.url">
-              <a
-                :href="product.url"
-                target="_blank"
-                rel="noreferrer"
-                class="px-5 py-2.5 rounded-full border border-gray-300 hover:border-gray-900 bg-white hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
-              >
-                <span>Visit website</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
-                </svg>
-              </a>
-            </template>
-
-            <!-- Tombol Upvote Produk -->
-            <button
-              type="button"
-              @click="toggleUpvote(product.postId)"
-              class="px-5 py-2.5 rounded-full border transition-all cursor-pointer shadow-xs flex items-center gap-2 font-bold text-sm"
-              :class="product.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-transparent text-[#1E3A8A] border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/50'"
+        <!-- Sisi Kanan: Visit Website CTA -->
+        <div class="shrink-0 pt-1">
+          <template x-if="product.url">
+            <a
+              :href="product.url"
+              target="_blank"
+              rel="noreferrer"
+              class="px-5 py-2.5 rounded-full border border-gray-300 hover:border-gray-900 bg-white hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
             >
-              <span class="text-xs">▲</span>
-              <span x-text="product.isUpvoted ? 'Dukung (' + product.upvotes + ')' : 'Upvote (' + product.upvotes + ')'"></span>
-            </button>
-          </div>
-
-          <span class="text-[11px] text-gray-400">Terdaftar di Showcase Bengkel Koding</span>
+              <span>Visit website</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+              </svg>
+            </a>
+          </template>
         </div>
       </div>
 
