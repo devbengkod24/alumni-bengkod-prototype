@@ -317,6 +317,8 @@
   const cvPanel = document.getElementById('cv-split-panel');
   const kelolaDrawer = document.getElementById('kelola-drawer');
   const kelolaInner = kelolaDrawer.querySelector(':scope > div');
+  // Di desktop drawer selebar 45vw sejak awal, sama dengan lebarnya saat split screen
+  kelolaInner.classList.add('lg:max-w-none', 'lg:w-[45vw]');
   const modeSplit = () => window.innerWidth >= 1024;
   const cvTerbuka = () => !cvPanel.classList.contains('hidden');
 

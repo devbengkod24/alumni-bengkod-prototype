@@ -772,6 +772,8 @@
   const cvSplitPanel = document.getElementById('cv-split-panel');
   const drawerEl = document.getElementById('pengajuan-drawer');
   const drawerInner = drawerEl ? drawerEl.querySelector(':scope > div') : null;
+  // Di desktop drawer selebar 45vw sejak awal, sama dengan lebarnya saat split screen
+  drawerInner?.classList.add('lg:max-w-none', 'lg:w-[45vw]');
 
   // Breakpoint di mana split screen aktif (desktop >=1024px)
   const isSplitMode = () => window.innerWidth >= 1024;
