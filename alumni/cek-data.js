@@ -388,11 +388,12 @@ assert.equal(gigs.lamar(g.id, FAJAR, { pesan: ' ', portofolio: [6] }).field, 'pe
 assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'x'.repeat(251), portofolio: [6] }).field, 'pesan');
 assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Siap', portofolio: [] }).field, 'portofolio');
 assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Siap', portofolio: [1] }).field, 'portofolio'); // milik Rizky
-assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Siap', portofolio: ['6', '7', '6'] }).ok, true);
+assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Siap', portofolio: ['6', '7'] }).field, 'format'); // belum pilih versi CV
+assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Siap', portofolio: ['6', '7', '6'], format: 'ats' }).ok, true);
 assert.equal(gigs.lamar(g.id, FAJAR, { pesan: 'Lagi', portofolio: [6] }).ok, false);
 assert.equal(gigs.lamar(g.id, NADIA, { pesan: 'Siap', portofolio: [] }).field, 'portofolio'); // belum punya portofolio
-assert.equal(gigs.lamar(g.id, YOGA, { pesan: 'Saya bisa backend', portofolio: [4] }).ok, true);
-assert.equal(gigs.lamar(g.id, INTAN, { pesan: 'Saya bisa deploy', portofolio: [5] }).ok, true);
+assert.equal(gigs.lamar(g.id, YOGA, { pesan: 'Saya bisa backend', portofolio: [4], format: 'modern' }).ok, true);
+assert.equal(gigs.lamar(g.id, INTAN, { pesan: 'Saya bisa deploy', portofolio: [5], format: 'ats' }).ok, true);
 assert.match(notifikasi.milik(RIZKY)[0].pesan, /mengajukan minat/);
 const pelamar = u => g.pelamar.find(a => a.id_user === u);
 assert.equal(gigs.putuskan(g.id, pelamar(FAJAR).id, FAJAR, true).ok, false);

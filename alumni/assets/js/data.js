@@ -376,29 +376,29 @@
         id: 1, id_owner: 12, judul: 'Website Company Profile Klinik Gigi', peran: ['Frontend', 'UI/UX'], stack: ['React', 'Tailwind CSS'],
         deskripsi: 'Klinik gigi kenalan saya butuh website profil dengan jadwal dokter dan formulir reservasi.\n\nDeliverables: desain Figma tiga halaman, website responsif, dan panduan singkat mengubah jadwal.',
         budget: 'Rp 1 Juta - Rp 3 Juta', deadline: nanti(30), kuota: 2, status: 'open', waktu: '2026-10-29T10:00:00', endorsement: '', selesai_pada: '',
-        pelamar: [{ id: 1, id_user: 2, pesan: 'Saya pernah membuat dashboard UMKM dan bisa mengerjakan bagian reservasi sampai terhubung ke WhatsApp.', portofolio: [2], status: 'menunggu', waktu: '2026-10-30T08:00:00' }],
+        pelamar: [{ id: 1, id_user: 2, format: 'modern', pesan: 'Saya pernah membuat dashboard UMKM dan bisa mengerjakan bagian reservasi sampai terhubung ke WhatsApp.', portofolio: [2], status: 'menunggu', waktu: '2026-10-30T08:00:00' }],
       },
       {
         id: 2, id_owner: 2, judul: 'Aplikasi Mobile Absensi Karyawan', peran: ['Mobile', 'Backend'], stack: ['Flutter', 'Laravel'],
         deskripsi: 'Side-project untuk kantor cabang kecil: absensi dengan lokasi dan foto, lalu rekap bulanan untuk HRD.\n\nDeliverables: aplikasi Flutter, API Laravel, dan dokumentasi API.',
         budget: 'Rp 3 Juta - Rp 5 Juta', deadline: nanti(45), kuota: 2, status: 'open', waktu: '2026-11-01T19:00:00', endorsement: '', selesai_pada: '',
         pelamar: [
-          { id: 1, id_user: 4, pesan: 'Saya sudah dua kali mengerjakan aplikasi Flutter dengan Firebase, termasuk lewat Bengkod Gigs. Siap mulai minggu ini.', portofolio: [6, 7], status: 'menunggu', waktu: '2026-11-02T08:00:00' },
-          { id: 2, id_user: 10, pesan: 'Saya bisa mengerjakan API Laravel dan dokumentasinya. Contoh proyeknya terlampir.', portofolio: [4], status: 'menunggu', waktu: '2026-11-02T10:30:00' },
+          { id: 1, id_user: 4, format: 'ats', pesan: 'Saya sudah dua kali mengerjakan aplikasi Flutter dengan Firebase, termasuk lewat Bengkod Gigs. Siap mulai minggu ini.', portofolio: [6, 7], status: 'menunggu', waktu: '2026-11-02T08:00:00' },
+          { id: 2, id_user: 10, format: 'modern', pesan: 'Saya bisa mengerjakan API Laravel dan dokumentasinya. Contoh proyeknya terlampir.', portofolio: [4], status: 'menunggu', waktu: '2026-11-02T10:30:00' },
         ],
       },
       {
         id: 3, id_owner: 5, judul: 'Toko Online Usaha Maharani Digital', peran: ['Backend'], stack: ['Laravel', 'Docker'],
         deskripsi: 'Toko online untuk produk usaha saya, termasuk pembayaran transfer dan deploy ke VPS.\n\nDeliverables: website toko, panel admin, dan skrip deploy Docker.',
         budget: 'Bagi Hasil / Equity', deadline: nanti(20), kuota: 1, status: 'progress', waktu: '2026-10-15T09:00:00', endorsement: '', selesai_pada: '',
-        pelamar: [{ id: 1, id_user: 7, pesan: 'Saya terbiasa menyiapkan Docker dan deploy otomatis, bisa sekalian merapikan servernya.', portofolio: [5], status: 'diterima', waktu: '2026-10-16T10:00:00' }],
+        pelamar: [{ id: 1, id_user: 7, format: 'ats', pesan: 'Saya terbiasa menyiapkan Docker dan deploy otomatis, bisa sekalian merapikan servernya.', portofolio: [5], status: 'diterima', waktu: '2026-10-16T10:00:00' }],
       },
       {
         id: 4, id_owner: 14, judul: 'Aplikasi Inventaris Gudang', peran: ['Mobile'], stack: ['Flutter', 'Firebase'],
         deskripsi: 'Aplikasi pencatatan barang masuk dan keluar untuk gudang usaha saya.\n\nDeliverables: aplikasi Android dan pelatihan singkat untuk staf gudang.',
         budget: 'Rp 3 Juta - Rp 5 Juta', deadline: '2026-10-18', kuota: 1, status: 'selesai', waktu: '2026-09-20T09:00:00',
         endorsement: 'Fajar disiplin, komunikatif, dan menyerahkan aplikasi lebih cepat dari jadwal.', selesai_pada: '2026-10-20T15:00:00',
-        pelamar: [{ id: 1, id_user: 4, pesan: 'Saya sudah membuat aplikasi keuangan dengan Flutter dan siap mengerjakan versi Android.', portofolio: [7], status: 'diterima', waktu: '2026-09-21T10:00:00' }],
+        pelamar: [{ id: 1, id_user: 4, format: 'modern', pesan: 'Saya sudah membuat aplikasi keuangan dengan Flutter dan siap mengerjakan versi Android.', portofolio: [7], status: 'diterima', waktu: '2026-09-21T10:00:00' }],
       },
     ];
 
@@ -466,6 +466,20 @@
       }
     });
     if (adaNormalisasi) simpan();
+    // Pelamar gig yang tersimpan sebelum ada pilihan versi CV: format diambil dari data contoh (hanya menambah field yang kosong)
+    const tanpaFormat = (db.gigs || []).flatMap(g => g.pelamar.filter(a => !a.format).map(a => [g, a]));
+    if (tanpaFormat.length) {
+      const contohGig = buatDataAwal().gigs;
+      let adaFormat = false;
+      tanpaFormat.forEach(([g, a]) => {
+        const c = contohGig.find(x => x.id === g.id && x.judul === g.judul)?.pelamar.find(x => x.id === a.id && x.id_user === a.id_user);
+        if (c?.format) {
+          a.format = c.format;
+          adaFormat = true;
+        }
+      });
+      if (adaFormat) simpan();
+    }
     return db;
   }
 
@@ -989,7 +1003,7 @@
       return { ok: true, id: baru.id };
     },
 
-    lamar(id, idUser, { pesan, portofolio = [] }) {
+    lamar(id, idUser, { pesan, portofolio = [], format }) {
       const g = gigs.cari(id);
       const teks = bersih(pesan);
       const milik = cv.milik('projects', idUser).map(r => r.id);
@@ -1000,7 +1014,8 @@
       if (!teks) return gagal('Tulis pitching singkat.', 'pesan');
       if (teks.length > 250) return gagal('Pitching maksimal 250 karakter.', 'pesan');
       if (lampiran.length < 1 || lampiran.length > 2 || !lampiran.every(x => milik.includes(x))) return gagal('Lampirkan 1 sampai 2 proyek dari portofolio Anda.', 'portofolio');
-      g.pelamar.push({ id: idBaru(g.pelamar), id_user: idUser, pesan: teks, portofolio: lampiran, status: 'menunggu', waktu: kini() });
+      if (!OPSI.format_cv.includes(format)) return gagal('Pilih versi CV yang dilampirkan.', 'format');
+      g.pelamar.push({ id: idBaru(g.pelamar), id_user: idUser, format, pesan: teks, portofolio: lampiran, status: 'menunggu', waktu: kini() });
       beritahu(g.id_owner, 'hand', `${akun.cari(idUser).nama} mengajukan minat di "${g.judul}".`, `gigs.html?id=${g.id}`);
       simpan();
       return { ok: true };
