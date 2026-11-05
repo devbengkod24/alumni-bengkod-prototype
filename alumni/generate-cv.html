@@ -70,7 +70,7 @@
   </style>
 </head>
 <body>
-<main data-route="/dashboard/alumni/generate-cv">
+<main data-route="generate-cv">
   <div x-data="generateCvComponent()" class="w-full pb-16 antialiased space-y-6">
 
     <!-- Toast Notifikasi -->
@@ -86,9 +86,9 @@
     ============================================================ -->
     <div id="cv-page-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">CV Saya</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Generate CV</h1>
         <p class="text-sm text-gray-500 mt-0.5">
-          Buat dan unduh Curriculum Vitae standar industri siap kirim langsung dari data profil Anda
+          Pembuat CV otomatis berbasis data profil dan portofolio proyek alumni Bengkel Koding
         </p>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap shrink-0">
@@ -250,6 +250,19 @@
                   <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
                     :class="sections.certifications ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
                     <template x-if="sections.certifications">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Proyek Kolaborasi Gigs -->
+                <button type="button" @click="includeGigs = !includeGigs"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer border-t border-gray-100"
+                  :class="includeGigs ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Sertakan Proyek Kolaborasi Gigs</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="includeGigs ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="includeGigs">
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </template>
                   </div>
@@ -541,6 +554,7 @@ function generateCvComponent() {
     projects: INITIAL_PROJECTS,
     skills: INITIAL_SKILLS,
     certifications: INITIAL_CERTIFICATIONS,
+    includeGigs: true,
     sections: {
       about: true,
       education: true,

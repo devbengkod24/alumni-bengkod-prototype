@@ -23,17 +23,88 @@ const INITIAL_POSTS = [
     authorName: "Aisha Dwi Rahmawati",
     authorAvatar: DEFAULT_AVATAR,
     authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
-    date: "Feb 12, 2026",
-    content:
-      "Dengan gembira, saya membagikan proyek Sentiment Analysis System for OVO App yang saya kerjakan. Lihat di sini: https://lnkd.in/eVbna2d3",
-    category: "Pencapaian Proyek / Capstone",
+    date: "03 Nov 2026",
+    content: "Alhamdulillah! Sentimeter AI resmi meluncur ke publik setelah uji performa bersama rekan-rekan laboratorium. Engine ini siap menganalisis opini dan sentimen pelanggan dengan akurasi 94%.\n\nSilakan coba versi live-nya dan bagikan masukan Anda!",
+    category: "Karya & Showcase",
     visibility: "Semua orang",
     imageUrl: DEFAULT_AVATAR,
-    likes: 3,
+    likes: 24,
     isLiked: false,
-    commentsCount: 36,
-    repostsCount: 541,
-    impressions: 502,
+    commentsCount: 12,
+    repostsCount: 18,
+    impressions: 740,
+    karya: {
+      nama: "Sentimeter AI — Multi-Language Sentiment Engine",
+      tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan akurasi 94% dan inferensi ultra-cepat",
+      tahap: "live", // beta | live
+      url: "https://sentimeter.bengkelkoding.com",
+      stack: ["Python", "PyTorch", "Next.js", "Docker", "FastAPI"],
+      upvotes: 28,
+      isUpvoted: false,
+      feedbacks: [
+        { id: "fb-1", author: "Dimas Aryo", category: "Apresiasi", text: "Latency inferensi sangat stabil di bawah 120ms, keren banget!", status: "Diterapkan", date: "02 Nov 2026" },
+        { id: "fb-2", author: "Clarista", category: "UI/UX", text: "Visualisasi confusion matrix di dashboard sangat informatif.", status: "Diterapkan", date: "03 Nov 2026" }
+      ]
+    }
+  },
+  {
+    id: 3,
+    authorName: "Dimas Aryo",
+    authorAvatar: "https://i.pravatar.cc/150?img=15",
+    authorHeadline: "Backend Engineer | Golang, Node.js & Cloud Infrastructure · Batch 2023",
+    date: "02 Nov 2026",
+    content: "Halo rekan-rekan alumni Bengkel Koding! Saya baru saja merilis MVP Bengkod Git Slicer ke server staging. Alat ini otomatis mengonversi design token Figma langsung menjadi konfigurasi Tailwind CSS v4.\n\nButuh bantuan rekan-rekan untuk uji coba dan laporan bug di bawah!",
+    category: "Karya & Showcase",
+    visibility: "Semua orang",
+    imageUrl: "",
+    likes: 15,
+    isLiked: false,
+    commentsCount: 8,
+    repostsCount: 9,
+    impressions: 430,
+    karya: {
+      nama: "Bengkod Git Slicer — Figma to Tailwind Generator",
+      tagline: "Alat CLI dan antarmuka web untuk generate token desain Figma ke Tailwind config",
+      tahap: "beta",
+      url: "https://staging-slicer.bengkelkoding.dev",
+      fokus: ["Bug", "UI/UX", "Beban Server"],
+      stack: ["TypeScript", "Node.js", "Tailwind CSS", "Figma API"],
+      upvotes: 14,
+      isUpvoted: false,
+      feedbacks: [
+        { id: "fb-3", author: "Intan Permata", category: "UI/UX", text: "Dropdown export font family terpotong di resolusi tablet.", status: "Diperbaiki", date: "02 Nov 2026" },
+        { id: "fb-4", author: "Fajar Nugroho", category: "Bug", text: "Hex color 8-digit alpha kadang parsing error saat di-export.", status: "Pending", date: "03 Nov 2026" }
+      ]
+    }
+  },
+  {
+    id: 4,
+    authorName: "Intan Permata",
+    authorAvatar: "https://i.pravatar.cc/150?img=48",
+    authorHeadline: "Frontend Engineer | React, Vue & Design Systems · Batch 2024",
+    date: "01 Nov 2026",
+    content: "Sedang mengembangkan CoopDesk ERP, prototipe sistem kasir dan pencatatan inventaris koperasi digital. Mohon masukan terkait alur checkout kasirnya ya rekan-rekan!",
+    category: "Karya & Showcase",
+    visibility: "Semua orang",
+    imageUrl: "",
+    likes: 9,
+    isLiked: false,
+    commentsCount: 5,
+    repostsCount: 4,
+    impressions: 310,
+    karya: {
+      nama: "CoopDesk ERP — Sistem Kasir Koperasi Digital",
+      tagline: "Point of Sale berbasis web responsif untuk koperasi dan UMKM retail",
+      tahap: "beta",
+      url: "https://coopdesk-demo.bengkelkoding.dev",
+      fokus: ["UI/UX", "Otentikasi / Security"],
+      stack: ["React", "Tailwind CSS", "SQLite", "PWA"],
+      upvotes: 9,
+      isUpvoted: false,
+      feedbacks: [
+        { id: "fb-5", author: "Maulidya Ayu", category: "UI/UX", text: "Shortcut keyboard tombol F2 untuk cari barang sudah pas dan responsif.", status: "Diterapkan", date: "02 Nov 2026" }
+      ]
+    }
   },
   {
     id: 2,
@@ -94,15 +165,28 @@ const INITIAL_POSTS = [
   },
 ];
 
-const STORAGE_KEY = "bengkod_alumni_posts_v1";
+const STORAGE_KEY = "bengkod_alumni_posts_v2";
 
 function loadPosts() {
   if (typeof window === "undefined") return INITIAL_POSTS;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return INITIAL_POSTS;
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_POSTS));
+      return INITIAL_POSTS;
+    }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Auto-merge if new seed posts are not present
+      const existingIds = new Set(parsed.map(p => p.id));
+      const missing = INITIAL_POSTS.filter(p => !existingIds.has(p.id));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    }
     return INITIAL_POSTS;
   } catch {
     return INITIAL_POSTS;
@@ -2348,4 +2432,472 @@ function mediaToProjectFields(value) {
   const items = itemsFromValue(value);
   const v = valueFromItems(items);
   return { linkUrl: v.linkUrl, imageUrl: v.imageUrl, media: items };
+}
+
+// ============================================================
+// BENGKOD GIGS & SIDE-PROJECT EXCHANGE (Data & Helper)
+// Model Transparan: Budget Range tanpa tracking transaksi uang
+// ============================================================
+
+const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v3";
+const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v3";
+
+const GIGS_BUDGET_RANGES = [
+  "< Rp 1.000.000",
+  "Rp 1.000.000 - Rp 3.000.000",
+  "Rp 3.000.000 - Rp 5.000.000",
+  "> Rp 5.000.000",
+  "Bagi Hasil / Equity",
+];
+
+const INITIAL_GIGS = [
+  {
+    id: "gig-1",
+    title: "Sistem Presensi QR Code Mobile App untuk Event Komunitas",
+    ownerId: "aisha-dwi-rahmawati",
+    ownerName: "Aisha Dwi Rahmawati",
+    ownerAvatar: DEFAULT_AVATAR,
+    ownerRole: "Alumni 2024 · Lab Bengkel Koding",
+    ownerPhone: "081234567890",
+    category: "Mobile App",
+    rolesNeeded: ["Flutter Developer", "Backend Laravel"],
+    techStack: ["Flutter", "Laravel", "MySQL", "QR Scanner"],
+    budgetRange: "Rp 3.000.000 - Rp 5.000.000",
+    deadline: "2026-12-10",
+    quota: 1,
+    status: "Terbuka", // Terbuka | Sedang Dikerjakan | Selesai | Batal
+    postedDate: "2026-11-01",
+    description: "Membangun aplikasi presensi peserta seminar berbasis scan dynamic QR code dengan dashboard analitik kehadiran real-time serta mode offline sync.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-101",
+        applicantId: "dimas-aryo",
+        applicantName: "Dimas Aryo",
+        applicantAvatar: "https://i.pravatar.cc/150?img=15",
+        applicantBatch: "2023",
+        applicantPhone: "081298765432",
+        skills: ["Golang", "Laravel", "REST API", "Docker"],
+        pitchMessage: "Halo Mbak Aisha! Saya sudah terbiasa membangun backend scanner & database offline sync Laravel. Siap bantu sprint 2 minggu penuh.",
+        portfolioItems: [
+          { title: "High-Throughput QR Ticket Engine", linkUrl: "https://github.com/dimasaryo", stack: "Laravel · Redis" }
+        ],
+        appliedDate: "02 Nov 2026",
+        status: "PENDING"
+      },
+      {
+        id: "app-102",
+        applicantId: "kirana-maheswari",
+        applicantName: "Kirana Maheswari",
+        applicantAvatar: "https://i.pravatar.cc/150?img=44",
+        applicantBatch: "2024",
+        applicantPhone: "081345678901",
+        skills: ["Flutter", "Firebase", "UI Slicing"],
+        pitchMessage: "Tertarik handle UI Flutter mobile-nya. Portofolio app kampus saya sudah include dynamic QR code scanner.",
+        portfolioItems: [
+          { title: "EventPass Mobile App", linkUrl: "https://github.com/kiranam", stack: "Flutter · BLoC" }
+        ],
+        appliedDate: "03 Nov 2026",
+        status: "PENDING"
+      }
+    ]
+  },
+  {
+    id: "gig-2",
+    title: "Revamp Landing Page & Design System Studio Kreatif",
+    ownerId: "nadjwa-salsabila",
+    ownerName: "Nadjwa Salsabila",
+    ownerAvatar: "https://i.pravatar.cc/150?img=25",
+    ownerRole: "Alumni 2023 · Product Designer",
+    ownerPhone: "081122334455",
+    category: "UI/UX & Web",
+    rolesNeeded: ["Frontend Developer (React/Tailwind)"],
+    techStack: ["React", "Next.js", "Tailwind CSS", "Figma"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-11-25",
+    quota: 1,
+    status: "Terbuka",
+    postedDate: "2026-11-02",
+    description: "Menerjemahkan komponen Figma yang sudah matang menjadi implementasi React responsif yang aksesibel, cepat, dan micro-interaction halus.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-201",
+        applicantId: "intan-permata",
+        applicantName: "Intan Permata",
+        applicantAvatar: "https://i.pravatar.cc/150?img=48",
+        applicantBatch: "2024",
+        applicantPhone: "081987654321",
+        skills: ["React", "Tailwind CSS", "Design Token"],
+        pitchMessage: "Sangat familiar dengan token design system dan Tailwind CSS v4. Siap selesaikan dalam 5 hari.",
+        portfolioItems: [
+          { title: "Clean Design System UI Kit", linkUrl: "https://github.com/intanpermata", stack: "React · Storybook" }
+        ],
+        appliedDate: "03 Nov 2026",
+        status: "PENDING"
+      }
+    ]
+  },
+  {
+    id: "gig-3",
+    title: "Pipeline Data ETL & Dashboard Visualisasi Penjualan UMKM",
+    ownerId: "clarista",
+    ownerName: "Clarista",
+    ownerAvatar: "https://i.pravatar.cc/150?img=45",
+    ownerRole: "Alumni 2024 · Machine Learning Engineer",
+    ownerPhone: "081555667788",
+    category: "Data Science",
+    rolesNeeded: ["Python Data Analyst"],
+    techStack: ["Python", "PostgreSQL", "Metabase", "Docker"],
+    budgetRange: "> Rp 5.000.000",
+    deadline: "2026-12-20",
+    quota: 1,
+    status: "Sedang Dikerjakan",
+    postedDate: "2026-10-28",
+    description: "Otomatisasi penarikan data transaksi dari beberapa marketplace ke PostgreSQL lalu disajikan ke dashboard Metabase.",
+    assignedContributor: {
+      id: "aisha-dwi-rahmawati",
+      name: "Aisha Dwi Rahmawati",
+      avatar: DEFAULT_AVATAR,
+      role: "Alumni 2024 · Data Scientist",
+      phone: "081234567890",
+      assignedDate: "30 Okt 2026"
+    },
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-301",
+        applicantId: "aisha-dwi-rahmawati",
+        applicantName: "Aisha Dwi Rahmawati",
+        applicantAvatar: DEFAULT_AVATAR,
+        applicantBatch: "2024",
+        applicantPhone: "081234567890",
+        skills: ["Python", "Pandas", "PostgreSQL", "Metabase"],
+        pitchMessage: "Halo Clarista, saya tertarik membantu pipeline data ETL ini. Sebelumnya sudah membuat engine probabilitas UMKM serupa.",
+        portfolioItems: [
+          { title: "UMKM Success Probability Prediction", linkUrl: "https://github.com/aishaadr", stack: "Python · PostgreSQL" }
+        ],
+        appliedDate: "29 Okt 2026",
+        status: "ACCEPTED"
+      }
+    ]
+  },
+  {
+    id: "gig-4",
+    title: "Audit Keamanan & Penetrasi Aplikasi Internal Laboratorium",
+    ownerId: "fajar-nugroho",
+    ownerName: "Fajar Nugroho",
+    ownerAvatar: "https://i.pravatar.cc/150?img=33",
+    ownerRole: "Alumni 2022 · Cybersecurity Specialist",
+    ownerPhone: "081777889900",
+    category: "Keamanan Siber",
+    rolesNeeded: ["Security Researcher / Pentester"],
+    techStack: ["OWASP Top 10", "Burp Suite", "Linux Hardening"],
+    budgetRange: "Rp 3.000.000 - Rp 5.000.000",
+    deadline: "2026-10-30",
+    quota: 1,
+    status: "Selesai",
+    postedDate: "2026-10-15",
+    description: "Pengujian penetrasi grey-box untuk 3 sistem informasi internal lab sebelum peluncuran resmi tahun depan.",
+    assignedContributor: {
+      id: "aisha-dwi-rahmawati",
+      name: "Aisha Dwi Rahmawati",
+      avatar: DEFAULT_AVATAR,
+      role: "Alumni 2024 · Data Scientist",
+      phone: "081234567890",
+      assignedDate: "18 Okt 2026"
+    },
+    endorsement: "Aisha bekerja dengan sangat terstruktur. Dokumentasi temuan dan data-driven vulnerability assessment diserahkan tepat waktu.",
+    completedDate: "30 Okt 2026",
+    applicants: []
+  },
+  {
+    id: "gig-5",
+    title: "Slicing Desain UI/UX ke React & Tailwind CSS untuk Dashboard Koperasi",
+    ownerId: "maulidya-ayu-pratiwi",
+    ownerName: "Maulidya Ayu Pratiwi",
+    ownerAvatar: "https://i.pravatar.cc/150?img=26",
+    ownerRole: "Alumni 2024 · Frontend Developer @ Gojek",
+    ownerPhone: "081234567801",
+    category: "Frontend",
+    rolesNeeded: ["Frontend Developer (React/Tailwind)", "Component Slicer"],
+    techStack: ["React", "Next.js", "Tailwind CSS", "TypeScript", "Figma"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-12-05",
+    quota: 2,
+    status: "Terbuka",
+    postedDate: "03 Nov 2026",
+    description: "Mencari 2 orang rekan alumni untuk membantu slicing 8 halaman dashboard admin koperasi digital dari Figma ke React + Tailwind CSS. Komponen atomik sudah terstruktur rapi.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-501",
+        applicantId: "dimas-aryo",
+        applicantName: "Dimas Aryo",
+        applicantAvatar: "https://i.pravatar.cc/150?img=15",
+        applicantBatch: "2023",
+        applicantPhone: "081298765432",
+        skills: ["React", "TypeScript", "Tailwind CSS"],
+        pitchMessage: "Halo Mbak Maulidya, saya siap bantu slicing 4 halaman pertama dalam 3 hari.",
+        portfolioItems: [
+          { title: "Admin Portal Dashboard", linkUrl: "https://github.com/dimasaryo", stack: "React · Tailwind" }
+        ],
+        appliedDate: "03 Nov 2026",
+        status: "PENDING"
+      }
+    ]
+  },
+  {
+    id: "gig-6",
+    title: "Microservice Payment Gateway Webhook & Invoicing (Golang / Fiber)",
+    ownerId: "sindu-aditya-putra",
+    ownerName: "Sindu Aditya Putra",
+    ownerAvatar: "https://i.pravatar.cc/150?img=59",
+    ownerRole: "Alumni 2023 · Backend Engineer @ Shopee",
+    ownerPhone: "081234567802",
+    category: "Backend",
+    rolesNeeded: ["Backend Golang", "Database Specialist"],
+    techStack: ["Golang", "Fiber", "PostgreSQL", "Docker", "Redis"],
+    budgetRange: "Rp 3.000.000 - Rp 5.000.000",
+    deadline: "2026-12-15",
+    quota: 1,
+    status: "Terbuka",
+    postedDate: "02 Nov 2026",
+    description: "Membangun service invoicing dan webhook gateway pembayaran untuk platform kursus coding internal. Endpoint terdokumentasi via Swagger dan butuh unit test coverage minimal 80%.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: []
+  },
+  {
+    id: "gig-7",
+    title: "Automated End-to-End Regression Testing dengan Playwright / TypeScript",
+    ownerId: "fajar-nugroho",
+    ownerName: "Fajar Nugroho",
+    ownerAvatar: "https://i.pravatar.cc/150?img=33",
+    ownerRole: "Alumni 2022 · Cybersecurity Specialist",
+    ownerPhone: "081777889900",
+    category: "QA / Testing",
+    rolesNeeded: ["QA Automation Engineer"],
+    techStack: ["Playwright", "TypeScript", "GitHub Actions", "Jest"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-11-28",
+    quota: 1,
+    status: "Terbuka",
+    postedDate: "01 Nov 2026",
+    description: "Menyusun skenario automated smoke test & regression test untuk alur checkout sertifikasi dan otentikasi portal laboratorium Bengkel Koding.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: []
+  },
+  {
+    id: "gig-8",
+    title: "Aplikasi POS Kasir Offline-First & Bluetooth Thermal Printer",
+    ownerId: "andi-pratama",
+    ownerName: "Andi Pratama",
+    ownerAvatar: "https://i.pravatar.cc/150?img=18",
+    ownerRole: "Alumni 2024 · Mobile Developer @ Bukalapak",
+    ownerPhone: "081234567803",
+    category: "Mobile App",
+    rolesNeeded: ["Flutter Developer", "Mobile Engineer"],
+    techStack: ["Flutter", "Dart", "SQLite", "Bluetooth ESC/POS"],
+    budgetRange: "> Rp 5.000.000",
+    deadline: "2026-12-25",
+    quota: 2,
+    status: "Terbuka",
+    postedDate: "03 Nov 2026",
+    description: "Mencari 2 orang rekan asisten/alumni untuk modul cetak struk kasir bluetooth thermal printer dan sinkronisasi background transaksi toko retail.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: []
+  },
+  {
+    id: "gig-9",
+    title: "Model Rekomendasi Silabus Belajar Mahasiswa (FastAPI & Scikit-Learn)",
+    ownerId: "siti-nuraini",
+    ownerName: "Siti Nuraini",
+    ownerAvatar: "https://i.pravatar.cc/150?img=41",
+    ownerRole: "Alumni 2023 · Data Scientist @ Grab",
+    ownerPhone: "081234567804",
+    category: "Data Science",
+    rolesNeeded: ["Python Data Scientist"],
+    techStack: ["Python", "FastAPI", "Scikit-Learn", "Pandas", "PostgreSQL"],
+    budgetRange: "Rp 3.000.000 - Rp 5.000.000",
+    deadline: "2026-12-18",
+    quota: 1,
+    status: "Terbuka",
+    postedDate: "02 Nov 2026",
+    description: "Membangun algoritma rekomendasi silabus praktikum dan jalur belajar mahasiswa Bengkel Koding berdasarkan minat karier dan histori capaian mata kuliah.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: []
+  },
+  {
+    id: "gig-10",
+    title: "Desain Ulang UI/UX Mobile App Ekosistem Komunitas Lab",
+    ownerId: "intan-permata",
+    ownerName: "Intan Permata",
+    ownerAvatar: "https://i.pravatar.cc/150?img=48",
+    ownerRole: "Alumni 2024 · Frontend Engineer & UI",
+    ownerPhone: "081987654321",
+    category: "UI/UX & Web",
+    rolesNeeded: ["UI/UX Designer", "Product Designer"],
+    techStack: ["Figma", "Design Token", "Prototyping", "User Testing"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-11-30",
+    quota: 1,
+    status: "Terbuka",
+    postedDate: "03 Nov 2026",
+    description: "Revamp antarmuka aplikasi mobile komunitas alumni Bengkel Koding agar lebih modern, clean, dan memiliki visual token serta design system yang konsisten.",
+    assignedContributor: null,
+    endorsement: "",
+    completedDate: null,
+    applicants: []
+  }
+];
+
+function loadGigs() {
+  if (typeof window === "undefined") return INITIAL_GIGS;
+  try {
+    const raw = localStorage.getItem(GIGS_STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(GIGS_STORAGE_KEY, JSON.stringify(INITIAL_GIGS));
+      return INITIAL_GIGS;
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      // Pastikan gig baru di INITIAL_GIGS tetap masuk jika belum ada di localStorage
+      const existingIds = new Set(parsed.map(g => g.id));
+      const missing = INITIAL_GIGS.filter(g => !existingIds.has(g.id));
+      if (missing.length > 0) {
+        const merged = [...parsed, ...missing];
+        localStorage.setItem(GIGS_STORAGE_KEY, JSON.stringify(merged));
+        return merged;
+      }
+      return parsed;
+    }
+    return INITIAL_GIGS;
+  } catch {
+    return INITIAL_GIGS;
+  }
+}
+
+function saveGigs(gigs) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(GIGS_STORAGE_KEY, JSON.stringify(gigs));
+    window.dispatchEvent(new Event("bengkod_gigs_updated"));
+  } catch (err) {
+    console.error("Gagal menyimpan gigs:", err);
+  }
+}
+
+function loadMyApplications() {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(GIGS_APPLY_KEY);
+    if (!raw) {
+      // Seed aplikasi bawaan untuk akun Aisha (1 aktif, 1 selesai)
+      const seedApps = [
+        {
+          id: "app-301",
+          gigId: "gig-3",
+          gigTitle: "Pipeline Data ETL & Dashboard Visualisasi Penjualan UMKM",
+          ownerName: "Clarista",
+          ownerPhone: "081555667788",
+          message: "Halo Clarista, saya tertarik membantu pipeline data ETL ini. Sebelumnya sudah membuat engine probabilitas UMKM serupa.",
+          portfolioItems: [
+            { title: "UMKM Success Probability Prediction", linkUrl: "https://github.com/aishaadr", stack: "Python · PostgreSQL" }
+          ],
+          appliedDate: "29 Okt 2026",
+          status: "ACCEPTED", // PENDING | ACCEPTED | REJECTED | COMPLETED
+          budgetRange: "> Rp 5.000.000"
+        },
+        {
+          id: "app-401",
+          gigId: "gig-4",
+          gigTitle: "Audit Keamanan & Penetrasi Aplikasi Internal Laboratorium",
+          ownerName: "Fajar Nugroho",
+          ownerPhone: "081777889900",
+          message: "Saya siap membantu penyusunan laporan temuan dan data pentest.",
+          portfolioItems: [],
+          appliedDate: "16 Okt 2026",
+          status: "COMPLETED",
+          budgetRange: "Rp 3.000.000 - Rp 5.000.000",
+          endorsement: "Aisha bekerja dengan sangat terstruktur. Dokumentasi temuan dan data-driven vulnerability assessment diserahkan tepat waktu."
+        }
+      ];
+      localStorage.setItem(GIGS_APPLY_KEY, JSON.stringify(seedApps));
+      return seedApps;
+    }
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveMyApplications(apps) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(GIGS_APPLY_KEY, JSON.stringify(apps));
+    window.dispatchEvent(new Event("bengkod_gigs_apply_updated"));
+  } catch (err) {
+    console.error("Gagal menyimpan lamaran:", err);
+  }
+}
+
+/** Format URL WhatsApp dengan teks pesan siap kirim */
+function formatWaUrl(phone, text) {
+  const cleanPhone = (phone || "").replace(/[^0-9]/g, "").replace(/^0/, "62");
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text || "")}`;
+}
+
+/** Auto-publish gig yang selesai ke Feed Beranda */
+function publishGigCompletionToFeed(gig, endorsement) {
+  try {
+    const posts = typeof loadPosts === "function" ? loadPosts() : [];
+    const contributorName = (gig.assignedContributor && gig.assignedContributor.name) || "Rekan Kontributor";
+    const newPost = {
+      id: Date.now(),
+      authorName: gig.ownerName,
+      authorAvatar: gig.ownerAvatar,
+      authorHeadline: gig.ownerRole,
+      date: "Baru saja",
+      category: "Karya & Showcase",
+      visibility: "Semua orang",
+      content: `🎉 Kolaborasi Bengkod Gigs Selesai!\n\nProyek "${gig.title}" telah rampung dikerjakan bersama @${contributorName}.\n\n⭐ Catatan Rekomendasi:\n"${endorsement || 'Pengerjaan berkualitas, komunikasi profesional, dan serah terima tepat waktu.'}"\n\n#BengkodGigs #KolaborasiAlumni`,
+      likes: 1,
+      isLiked: false,
+      commentsCount: 0,
+      repostsCount: 0,
+      impressions: 1,
+    };
+    if (typeof savePosts === "function") {
+      savePosts([newPost, ...posts]);
+    }
+  } catch (err) {
+    console.warn("Gagal auto-publish ke feed:", err);
+  }
+}
+
+// Expose globals for Alpine.js & pages
+if (typeof window !== "undefined") {
+  window.GIGS_BUDGET_RANGES = GIGS_BUDGET_RANGES;
+  window.INITIAL_GIGS = INITIAL_GIGS;
+  window.loadGigs = loadGigs;
+  window.saveGigs = saveGigs;
+  window.loadMyApplications = loadMyApplications;
+  window.saveMyApplications = saveMyApplications;
+  window.formatWaUrl = formatWaUrl;
+  window.publishGigCompletionToFeed = publishGigCompletionToFeed;
 }

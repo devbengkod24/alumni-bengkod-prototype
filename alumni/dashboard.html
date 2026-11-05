@@ -28,12 +28,12 @@
     ====================================================== -->
     <div class="lg:col-span-8 flex flex-col gap-6">
 
-    <!-- Header FYP Feed Alumni -->
+    <!-- Header Beranda Feed Alumni -->
     <div class="flex items-center justify-between pb-3 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Feed Aktivitas Alumni</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
         <p class="text-sm text-gray-500 mt-0.5">
-          Linimasa interaktif kegiatan dan postingan seluruh alumni Bengkel Koding
+          Linimasa pameran produk software, beta testing hub, dan internal referral alumni Bengkel Koding
         </p>
       </div>
       <button
@@ -48,6 +48,19 @@
         </div>
         <span>Buat Post</span>
       </button>
+    </div>
+
+    <!-- ── TAB KATEGORI FEED ── -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
+      <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
+        <button
+          type="button"
+          @click="selectedCategory = cat"
+          class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
+          :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
+          x-text="cat"
+        ></button>
+      </template>
     </div>
 
     <!-- ── SEARCH BAR PENCARIAN ALUMNI ── -->
@@ -225,12 +238,12 @@
     ============================================================ -->
 
     <div class="space-y-6">
-      <template x-if="posts.length === 0">
+      <template x-if="filteredPosts.length === 0">
         <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-[15px]">
-          Belum ada postingan di linimasa. Klik tombol &quot;Buat Post&quot; untuk mempublikasikan aktivitas pertama Anda!
+          Belum ada postingan untuk kategori ini. Klik tombol &quot;Buat Post&quot; untuk mempublikasikan aktivitas pertama Anda!
         </div>
       </template>
-      <template x-for="post in posts" :key="post.id">
+      <template x-for="post in filteredPosts" :key="post.id">
         <div
           :id="'activity-card-' + post.id"
           class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white"
@@ -303,6 +316,83 @@
             </template>
 
             <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+
+            <!-- CARD KARYA & SHOWCASE (Hall of Fame & Beta Testing Hub) -->
+            <template x-if="post.karya">
+              <div class="mt-4 p-4 rounded-xl border transition-all"
+                   :class="post.karya.tahap === 'beta' ? 'border-amber-200 bg-amber-50/40' : 'border-emerald-200 bg-emerald-50/40'">
+                <div class="flex items-start justify-between gap-3">
+                  <div class="space-y-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
+                      <template x-if="post.karya.tahap === 'beta'">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                          <span>🧪 Beta Tester Wanted</span>
+                        </span>
+                      </template>
+                      <template x-if="post.karya.tahap === 'live'">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <span>★ Live Product · Hall of Fame</span>
+                        </span>
+                      </template>
+                    </div>
+                    <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
+                  </div>
+
+                  <!-- ProductHunt Style Upvote Button -->
+                  <button
+                    type="button"
+                    @click="toggleUpvoteKarya(post.id)"
+                    class="flex flex-col items-center justify-center min-w-[54px] px-3 py-2 rounded-xl border transition-all cursor-pointer shadow-2xs shrink-0"
+                    :class="post.karya.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white text-gray-700 hover:border-[#1E3A8A] hover:text-[#1E3A8A] border-gray-300'"
+                    title="Dukung / Upvote Produk Ini"
+                  >
+                    <span class="text-xs leading-none">▲</span>
+                    <span class="text-xs font-extrabold mt-0.5" x-text="post.karya.upvotes || 0"></span>
+                  </button>
+                </div>
+
+                <!-- Tags: Tech Stack & Fokus Uji Coba -->
+                <div class="space-y-1.5 text-xs pt-2">
+                  <template x-if="post.karya.fokus && post.karya.fokus.length > 0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-gray-500 font-semibold">Fokus Uji:</span>
+                      <template x-for="f in post.karya.fokus" :key="f">
+                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 font-medium text-[11px]" x-text="f"></span>
+                      </template>
+                    </div>
+                  </template>
+
+                  <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="text-gray-500 font-semibold">Tech Stack:</span>
+                      <template x-for="s in post.karya.stack" :key="s">
+                        <span class="px-2 py-0.5 rounded bg-white text-gray-700 border border-gray-200 text-[11px]" x-text="s"></span>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+
+                <!-- Action Bar -->
+                <div class="mt-3 pt-2.5 border-t border-gray-200/60 flex items-center justify-between gap-2 text-xs">
+                  <template x-if="post.karya.url">
+                    <a :href="post.karya.url" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 font-bold text-[#1E3A8A] hover:underline">
+                      <span>Uji Coba Aplikasi</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                    </a>
+                  </template>
+
+                  <button
+                    type="button"
+                    @click="openFeedbackModal(post)"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold bg-white border border-gray-300 hover:border-[#1E3A8A] text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer shadow-2xs"
+                  >
+                    <span>💬 Beri Masukan / Feedback</span>
+                    <span class="px-1.5 py-0.2 rounded-full bg-blue-50 text-[#1E3A8A] text-[10px] font-bold" x-text="(post.karya.feedbacks || []).length"></span>
+                  </button>
+                </div>
+              </div>
+            </template>
           </div>
 
           <!-- GAMBAR POSTINGAN -->
@@ -601,9 +691,58 @@
     </div><!-- end kolom utama -->
 
     <!-- ======================================================
-        KOLOM SAMPING (KANAN) — PENGUMUMAN (LinkedIn News Style)
+        KOLOM SAMPING (KANAN) — PENGUMUMAN & WIDGET
     ====================================================== -->
     <div class="lg:col-span-4 space-y-6">
+
+      <!-- ── CARD: SPOTLIGHT UNGGULAN (KARYA ALUMNI) ── -->
+      <div class="bg-gradient-to-br from-[#1E3A8A] to-[#1D4ED8] rounded-xl p-5 text-white shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-white/20 text-white uppercase tracking-wider backdrop-blur-xs">
+            ★ Spotlight Unggulan
+          </span>
+          <span class="text-[12px] text-white/80">Bulan Ini</span>
+        </div>
+        <div>
+          <h4 class="text-[16px] font-bold text-white leading-snug">Sentimeter AI — Sentiment Engine</h4>
+          <p class="text-[13px] text-white/80 mt-1 leading-relaxed">
+            Karya alumni Aisha Dwi (2024). Analisis opini publik multi-bahasa dengan akurasi 94% yang sudah diuji oleh komunitas.
+          </p>
+        </div>
+        <div class="pt-2 flex items-center justify-between border-t border-white/20 text-[13px]">
+          <span class="text-white/70">Python · PyTorch · Next.js</span>
+          <a href="profil.html" class="font-semibold text-white underline hover:text-blue-100">Lihat Karya →</a>
+        </div>
+      </div>
+
+      <!-- ── CARD: BETA TESTING HUB (UJI COBA MVP ALUMNI) ── -->
+      <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+          <div class="flex items-center gap-2">
+            <span class="text-base">🧪</span>
+            <h3 class="text-[15px] font-bold text-gray-900">Beta Testing Hub</h3>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200" x-text="betaProducts.length + ' MVP Butuh Tester'"></span>
+        </div>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          Uji performa, temukan bug, dan berikan kritik UI/UX untuk prototipe rekan alumni Bengkel Koding.
+        </p>
+        <div class="space-y-2.5 pt-1">
+          <template x-for="beta in betaProducts" :key="beta.id">
+            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200/80 space-y-1.5 hover:border-amber-300 transition-colors">
+              <div class="flex items-start justify-between gap-2">
+                <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="beta.name"></h4>
+                <a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
+              </div>
+              <p class="text-[11px] text-gray-600 line-clamp-1" x-text="beta.tagline"></p>
+              <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-200/60">
+                <span x-text="'Fokus: ' + (beta.fokus || []).join(', ')"></span>
+                <span class="font-bold text-amber-800" x-text="'▲ ' + (beta.upvotes || 0)"></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
 
       <!-- ── CARD: PENGUMUMAN DARI KOORDINATOR ── -->
       <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm">
@@ -710,6 +849,81 @@
                 </div>
               </div>
             </div>
+
+            <!-- KOTAK 1.5: KATEGORI POSTINGAN -->
+            <div class="space-y-1.5">
+              <label for="post-category" class="block text-[14px] font-medium text-gray-700">
+                Kategori Postingan <span class="text-red-500 font-bold">*</span>
+              </label>
+              <select
+                id="post-category"
+                x-model="pmCategory"
+                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-[14px] text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer"
+              >
+                <option value="Karya & Showcase">Karya &amp; Showcase (Produk / MVP / Portofolio)</option>
+                <option value="Internal Referral">Internal Referral (Rekomendasi Loker Kantor)</option>
+              </select>
+            </div>
+
+            <!-- FORM TAMBAHAN KHUSUS KARYA & SHOWCASE -->
+            <template x-if="pmCategory === 'Karya & Showcase'">
+              <div class="p-4 rounded-xl border border-blue-200 bg-blue-50/40 space-y-3.5 text-xs">
+                <span class="font-bold text-[#1E3A8A] text-xs uppercase tracking-wider block">🚀 Detail Produk / Karya Alumni</span>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-semibold text-gray-800 mb-1">Nama Produk Software <span class="text-red-500">*</span></label>
+                    <input type="text" x-model="pmKaryaName" placeholder="Contoh: Sentimeter AI" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-gray-800 mb-1">Tahap Rilis Produk <span class="text-red-500">*</span></label>
+                    <select x-model="pmKaryaTahap" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
+                      <option value="beta">BETA / TESTING (Butuh Masukan &amp; Penguji)</option>
+                      <option value="live">LAUNCHED / LIVE (Etalase Hall of Fame)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block font-semibold text-gray-800 mb-1">Tagline Ringkas (1 Baris) <span class="text-red-500">*</span></label>
+                  <input type="text" x-model="pmKaryaTagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block font-semibold text-gray-800 mb-1">Tautan Demo / Staging / Live URL</label>
+                    <input type="url" x-model="pmKaryaUrl" placeholder="https://demo-app.com" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block font-semibold text-gray-800 mb-1">Tech Stack</label>
+                    <input type="text" x-model="pmKaryaStack" placeholder="React, Python, Docker" class="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                </div>
+
+                <template x-if="pmKaryaTahap === 'beta'">
+                  <div>
+                    <label class="block font-semibold text-gray-800 mb-1">Fokus Review dari Komunitas Alumni:</label>
+                    <div class="flex items-center gap-3 flex-wrap">
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" value="Bug" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
+                        <span>🐛 Laporan Bug</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" value="UI/UX" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
+                        <span>🎨 Kritik UI/UX</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" value="Beban Server" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
+                        <span>⚡ Beban Server</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" value="Otentikasi / Security" x-model="pmKaryaFokus" class="w-4 h-4 rounded text-[#1E3A8A]">
+                        <span>🔒 Keamanan / Auth</span>
+                      </label>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </template>
 
             <!-- KOTAK 2: KETERANGAN (DESKRIPSI) -->
             <div class="space-y-1.5">
@@ -986,6 +1200,76 @@
       </div>
     </template>
 
+    <!-- ======================================================
+        MODAL: BERI MASUKAN / FEEDBACK KARYA (BETA & LIVE)
+    ====================================================== -->
+    <template x-if="feedbackModalOpen && targetKaryaPost">
+      <div class="fixed inset-0 z-[120] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="feedbackModalOpen = false">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
+            <div>
+              <h3 class="text-base font-bold text-gray-900">Beri Masukan / Ulasan Penguji</h3>
+              <p class="text-xs text-gray-500 mt-0.5 truncate max-w-xs" x-text="targetKaryaPost.karya.nama"></p>
+            </div>
+            <button type="button" @click="feedbackModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center">✕</button>
+          </div>
+
+          <form @submit.prevent="submitFeedback()" class="p-6 space-y-4 text-sm overflow-y-auto">
+            <!-- Kategori Feedback -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1.5">Kategori Masukan <span class="text-red-500">*</span></label>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <template x-for="cat in ['Bug', 'UI/UX', 'Arsitektur/Performa', 'Apresiasi']" :key="cat">
+                  <label class="flex items-center gap-2 p-2.5 rounded-xl border cursor-pointer transition-colors"
+                         :class="fbCategory === cat ? 'border-[#1E3A8A] bg-blue-50/60 text-[#1E3A8A] font-bold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
+                    <input type="radio" name="fbCategory" :value="cat" x-model="fbCategory" class="sr-only">
+                    <span x-text="cat === 'Bug' ? '🐛 Laporan Bug' : cat === 'UI/UX' ? '🎨 Kritik UI/UX' : cat === 'Arsitektur/Performa' ? '⚡ Arsitektur/Performa' : '⭐ Apresiasi'"></span>
+                  </label>
+                </template>
+              </div>
+            </div>
+
+            <!-- Isi Feedback -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Deskripsi Masukan / Temuan <span class="text-red-500">*</span></label>
+              <textarea
+                rows="4"
+                x-model="fbText"
+                required
+                placeholder="Jelaskan langkah menemukan bug, saran perbaikan layout, atau respon performa saat Anda uji coba..."
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Daftar feedback terdahulu jika ada -->
+            <template x-if="targetKaryaPost.karya.feedbacks && targetKaryaPost.karya.feedbacks.length > 0">
+              <div class="space-y-2 pt-2 border-t border-gray-100">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Masukan dari Komunitas (Terbaru):</span>
+                <div class="max-h-36 overflow-y-auto space-y-2 pr-1 text-xs">
+                  <template x-for="item in targetKaryaPost.karya.feedbacks" :key="item.id || item.text">
+                    <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 space-y-1">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-gray-900" x-text="item.author"></span>
+                        <span class="px-2 py-0.2 rounded text-[10px] font-semibold"
+                              :class="item.category === 'Bug' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-[#1E3A8A]'"
+                              x-text="item.category"></span>
+                      </div>
+                      <p class="text-gray-700 leading-relaxed" x-text="item.text"></p>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </template>
+
+            <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2.5">
+              <button type="button" @click="feedbackModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50">Batal</button>
+              <button type="submit" class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm">Kirim Masukan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </template>
+
   </div>
 </main>
 
@@ -1044,7 +1328,102 @@
         // PostModal state
         pmContent: "",
         pmImageUrl: "",
+        pmCategory: "Karya & Showcase",
         pmVisibility: "Semua orang",
+        selectedCategory: "Semua",
+
+        // Karya & Showcase state
+        feedbackModalOpen: false,
+        targetKaryaPost: null,
+        fbCategory: "Bug",
+        fbText: "",
+
+        pmKaryaName: "",
+        pmKaryaTahap: "beta",
+        pmKaryaTagline: "",
+        pmKaryaUrl: "",
+        pmKaryaStack: "",
+        pmKaryaFokus: ["Bug", "UI/UX"],
+
+        get betaProducts() {
+          return this.posts
+            .filter((p) => p.karya && p.karya.tahap === "beta")
+            .map((p) => ({
+              id: p.id,
+              name: p.karya.nama,
+              tagline: p.karya.tagline,
+              url: p.karya.url,
+              fokus: p.karya.fokus || [],
+              upvotes: p.karya.upvotes || 0,
+            }));
+        },
+
+        toggleUpvoteKarya(postId) {
+          this.posts = this.posts.map((p) => {
+            if (p.id === postId && p.karya) {
+              const wasUpvoted = p.karya.isUpvoted || false;
+              const nextUpvotes = wasUpvoted ? Math.max(0, (p.karya.upvotes || 1) - 1) : (p.karya.upvotes || 0) + 1;
+              return {
+                ...p,
+                karya: {
+                  ...p.karya,
+                  isUpvoted: !wasUpvoted,
+                  upvotes: nextUpvotes,
+                },
+              };
+            }
+            return p;
+          });
+          this.simpan();
+          this.setToast("Dukungan / Upvote berhasil dicatat!");
+        },
+
+        openFeedbackModal(post) {
+          this.targetKaryaPost = post;
+          this.fbCategory = "Bug";
+          this.fbText = "";
+          this.feedbackModalOpen = true;
+        },
+
+        submitFeedback() {
+          if (!this.targetKaryaPost || !this.fbText.trim()) return;
+          const newFb = {
+            id: "fb-" + Date.now(),
+            author: this.profile.name,
+            category: this.fbCategory,
+            text: this.fbText.trim(),
+            status: "Pending",
+            date: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+          };
+
+          this.posts = this.posts.map((p) => {
+            if (p.id === this.targetKaryaPost.id && p.karya) {
+              return {
+                ...p,
+                karya: {
+                  ...p.karya,
+                  feedbacks: [newFb, ...(p.karya.feedbacks || [])],
+                },
+              };
+            }
+            return p;
+          });
+          this.simpan();
+          this.targetKaryaPost = this.posts.find((p) => p.id === this.targetKaryaPost.id);
+          this.feedbackModalOpen = false;
+          this.setToast("Terima kasih! Masukan Anda berhasil dikirimkan ke kreator produk.");
+        },
+
+        get filteredPosts() {
+          if (!this.selectedCategory || this.selectedCategory === "Semua") return this.posts;
+          return this.posts.filter((p) => {
+            const c = (p.category || "").toLowerCase();
+            const target = this.selectedCategory.toLowerCase();
+            if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
+            if (target === "internal referral") return c.includes("referral") || c.includes("loker") || (p.content || "").toLowerCase().includes("referral");
+            return true;
+          });
+        },
 
         init() {
           this.muat();
@@ -1154,7 +1533,14 @@
         openPostModal() {
           this.pmContent = "";
           this.pmImageUrl = "";
+          this.pmCategory = "Karya & Showcase";
           this.pmVisibility = "Semua orang";
+          this.pmKaryaName = "";
+          this.pmKaryaTahap = "beta";
+          this.pmKaryaTagline = "";
+          this.pmKaryaUrl = "";
+          this.pmKaryaStack = "";
+          this.pmKaryaFokus = ["Bug", "UI/UX"];
           this.postModalOpen = true;
         },
         handlePmImageFileChange(e) {
@@ -1172,21 +1558,40 @@
           e.target.value = "";
         },
         handlePostModalSubmit() {
-          if (!this.pmContent.trim() && !this.pmImageUrl) return;
+          if (!this.pmContent.trim() && !this.pmImageUrl && !this.pmKaryaName.trim()) return;
           const data = {
             content: this.pmContent.trim(),
             imageUrl: this.pmImageUrl.trim() || undefined,
+            category: this.pmCategory,
             visibility: this.pmVisibility,
           };
+
+          let karyaObj = undefined;
+          if (this.pmCategory === "Karya & Showcase" && this.pmKaryaName.trim()) {
+            karyaObj = {
+              nama: this.pmKaryaName.trim(),
+              tagline: this.pmKaryaTagline.trim() || "Karya software alumni Bengkel Koding",
+              tahap: this.pmKaryaTahap,
+              url: this.pmKaryaUrl.trim() || undefined,
+              stack: this.pmKaryaStack.split(",").map((s) => s.trim()).filter(Boolean),
+              fokus: this.pmKaryaTahap === "beta" ? this.pmKaryaFokus : undefined,
+              upvotes: 1,
+              isUpvoted: true,
+              feedbacks: [],
+            };
+          }
+
           const newPost = {
             id: Date.now(),
             authorName: this.profile.name,
             authorAvatar: this.profile.avatarUrl,
             authorHeadline: this.profile.headline,
             date: "Baru saja",
+            category: data.category,
             content: data.content,
             visibility: data.visibility,
             imageUrl: data.imageUrl,
+            karya: karyaObj,
             likes: 0,
             isLiked: false,
             commentsCount: 0,
