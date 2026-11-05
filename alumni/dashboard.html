@@ -743,13 +743,9 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="prod.name"></h4>
-                  <template x-if="prod.tahap === 'beta'">
-                    <span class="text-[10px] text-gray-400">· Beta</span>
-                  </template>
-                  <template x-if="prod.tahap === 'live'">
-                    <span class="text-[10px] text-[#1E3A8A] font-semibold">· Live</span>
-                  </template>
+                  <h4 class="text-xs font-bold text-gray-900 leading-snug truncate max-w-[130px]" x-text="prod.name"></h4>
+                  <span class="text-[10px] text-gray-300">•</span>
+                  <a :href="getAuthorLink(prod.authorName)" class="text-[11px] text-gray-500 hover:text-[#1E3A8A] hover:underline truncate max-w-[120px]" x-text="prod.authorName"></a>
                 </div>
                 <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
                 <div class="flex items-center gap-2 pt-0.5 text-[10px]">
@@ -1187,6 +1183,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
               name: p.karya.nama,
               tagline: p.karya.tagline,
               tahap: p.karya.tahap,
+              authorName: p.authorName || "Alumni",
               url: p.karya.url,
               logo: p.karya.logo || "",
               stack: p.karya.stack || [],
