@@ -296,15 +296,14 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
         </template>
       </div>
 
-      <!-- Tombol Launch Produk Gaya Product Hunt -->
+      <!-- Tombol Launch Produk Gaya Product Hunt (Clean & Transparan) -->
       <button
         type="button"
         @click="openLaunchModal()"
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#1E3A8A] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 shrink-0 transition-colors cursor-pointer shadow-2xs"
-        title="Pamerkan produk software atau daftarkan MVP Anda gaya Product Hunt"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-gray-700 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 shrink-0 transition-colors cursor-pointer"
+        title="Pamerkan produk software atau daftarkan MVP Anda"
       >
-        <span>🚀</span>
-        <span>Launch Karya</span>
+        <span>+ Launch Karya</span>
       </button>
     </div>
 
@@ -394,35 +393,35 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
 
             <!-- CARD KARYA & SHOWCASE (Hall of Fame & Beta Testing Hub) -->
             <template x-if="post.karya">
-              <div class="mt-4 p-4 rounded-xl border border-gray-200 bg-white transition-all">
+              <div class="mt-4 p-4 rounded-xl border border-gray-200 bg-transparent transition-all">
                 <div class="flex items-start justify-between gap-3">
                   <div class="space-y-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
                       <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
                       <template x-if="post.karya.tahap === 'beta'">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white text-gray-700 border border-gray-300">
-                          <span>🧪 Beta Tester Wanted</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-gray-700 border border-gray-300">
+                          Beta Tester Wanted
                         </span>
                       </template>
                       <template x-if="post.karya.tahap === 'live'">
-                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#1E3A8A] text-white border border-[#1E3A8A]">
-                          <span>★ Live Product · Hall of Fame</span>
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-[#1E3A8A] border border-[#1E3A8A]">
+                          Live Product · Hall of Fame
                         </span>
                       </template>
                     </div>
                     <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
                   </div>
 
-                  <!-- ProductHunt Style Upvote Button -->
+                  <!-- ProductHunt Style Upvote Button (Clean & Transparan) -->
                   <button
                     type="button"
                     @click="toggleUpvoteKarya(post.id)"
-                    class="flex flex-col items-center justify-center min-w-[54px] px-3 py-2 rounded-xl border transition-all cursor-pointer shadow-2xs shrink-0"
-                    :class="post.karya.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white text-[#1E3A8A] border-[#1E3A8A]/40 hover:bg-blue-50/60 hover:border-[#1E3A8A]'"
+                    class="flex flex-col items-center justify-center min-w-[50px] px-3 py-1.5 rounded-xl border transition-all cursor-pointer shrink-0"
+                    :class="post.karya.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-transparent text-[#1E3A8A] border-gray-300 hover:border-[#1E3A8A] hover:bg-gray-50/50'"
                     title="Dukung / Upvote Produk Ini"
                   >
                     <span class="text-xs leading-none">▲</span>
-                    <span class="text-xs font-extrabold mt-0.5" x-text="post.karya.upvotes || 0"></span>
+                    <span class="text-xs font-bold mt-0.5" x-text="post.karya.upvotes || 0"></span>
                   </button>
                 </div>
 
@@ -430,39 +429,39 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
                 <div class="space-y-1.5 text-xs pt-2">
                   <template x-if="post.karya.fokus && post.karya.fokus.length > 0">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-gray-500 font-semibold">Fokus Uji:</span>
+                      <span class="text-gray-400 font-medium text-[11px]">Fokus:</span>
                       <template x-for="f in post.karya.fokus" :key="f">
-                        <span class="px-2 py-0.5 rounded-full bg-gray-100 text-gray-700 font-medium text-[11px]" x-text="f"></span>
+                        <span class="px-2 py-0.5 rounded-full bg-transparent border border-gray-200 text-gray-600 text-[11px]" x-text="f"></span>
                       </template>
                     </div>
                   </template>
 
                   <template x-if="post.karya.stack && post.karya.stack.length > 0">
                     <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-gray-500 font-semibold">Tech Stack:</span>
+                      <span class="text-gray-400 font-medium text-[11px]">Stack:</span>
                       <template x-for="s in post.karya.stack" :key="s">
-                        <span class="px-2 py-0.5 rounded bg-white text-gray-700 border border-gray-200 text-[11px]" x-text="s"></span>
+                        <span class="px-2 py-0.5 rounded bg-transparent text-gray-600 border border-gray-200 text-[11px]" x-text="s"></span>
                       </template>
                     </div>
                   </template>
                 </div>
 
                 <!-- Action Bar -->
-                <div class="mt-3 pt-2.5 border-t border-gray-200/60 flex items-center justify-between gap-2 text-xs">
+                <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2 text-xs">
                   <template x-if="post.karya.url">
-<a :href="post.karya.url" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 font-bold text-[#1E3A8A] hover:underline">
+                    <a :href="post.karya.url" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 font-semibold text-[#1E3A8A] hover:underline">
                       <span>Uji Coba Aplikasi</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/></svg>
                     </a>
                   </template>
 
                   <button
                     type="button"
                     @click="openFeedbackModal(post)"
-class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-semibold bg-white border border-gray-300 hover:border-[#1E3A8A] text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer shadow-2xs"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full font-medium bg-transparent border border-gray-200 hover:border-gray-300 text-gray-700 transition-colors cursor-pointer"
                   >
-                    <span>💬 Beri Masukan / Feedback</span>
-                    <span class="px-1.5 py-0.2 rounded-full bg-blue-50 text-[#1E3A8A] text-[10px] font-bold" x-text="(post.karya.feedbacks || []).length"></span>
+                    <span>💬 Beri Masukan</span>
+                    <span class="px-1.5 py-0.2 rounded-full border border-gray-200 text-gray-600 text-[10px]" x-text="(post.karya.feedbacks || []).length"></span>
                   </button>
                 </div>
               </div>
@@ -752,15 +751,14 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           </template>
         </div>
 
-        <!-- Tombol CTA Launch Product Hunt Style -->
+        <!-- Tombol CTA Launch Product Hunt Style (Clean & Transparan) -->
         <div class="pt-2 border-t border-gray-100">
           <button
             type="button"
             @click="openLaunchModal()"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-[#1E3A8A] bg-blue-50/70 hover:bg-blue-100/80 border border-blue-200 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs group"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-800 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>🚀</span>
-            <span>Launch Produk / MVP Anda</span>
+            <span>+ Launch Produk / MVP Anda</span>
           </button>
         </div>
       </div>
@@ -821,16 +819,11 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         @click.self="launchModalOpen = false"
       >
         <div class="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
-          <!-- Header Modal -->
+          <!-- Header Modal (Clean & Human) -->
           <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#1D4ED8] text-white flex items-center justify-center text-lg font-bold shadow-xs">
-                🚀
-              </div>
-              <div>
-                <h3 class="text-[17px] font-bold text-gray-900 leading-tight">Launch Produk / Karya Alumni</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Pamerkan software Anda ke komunitas atau cari beta tester pertama</p>
-              </div>
+            <div>
+              <h3 class="text-[17px] font-bold text-gray-900 leading-tight">Launch Produk / Karya Alumni</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Pamerkan software Anda ke komunitas atau cari beta tester pertama</p>
             </div>
             <button
               type="button"
@@ -851,7 +844,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                 x-model="launchForm.nama"
                 required
                 placeholder="Contoh: Sentimeter AI, Kasir Pintar, Bengkod Tools..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
               >
             </div>
 
@@ -863,7 +856,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                 x-model="launchForm.tagline"
                 required
                 placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
               >
             </div>
 
@@ -876,7 +869,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                   x-model="launchForm.url"
                   required
                   placeholder="https://aplikasi-anda.com"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
                 >
               </div>
               <div>
@@ -885,7 +878,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                   type="text"
                   x-model="launchForm.stack"
                   placeholder="Next.js, Python, PostgreSQL..."
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
                 >
               </div>
             </div>
@@ -895,23 +888,23 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               <label class="block font-semibold text-gray-800 text-xs mb-1.5">Pilih Panggung Peluncuran <span class="text-red-500 font-bold">*</span></label>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                 <label
-                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
-                  :class="launchForm.tahap === 'beta' ? 'border-[#1E3A8A] bg-blue-50/50 text-gray-900 ring-2 ring-[#1E3A8A]/10' : 'border-gray-200 hover:bg-gray-50 text-gray-700'"
+                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-transparent"
+                  :class="launchForm.tahap === 'beta' ? 'border-[#1E3A8A] text-gray-900' : 'border-gray-200 hover:border-gray-300 text-gray-600'"
                 >
                   <input type="radio" name="launchTahap" value="beta" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
                   <div>
-                    <span class="font-bold text-[#1E3A8A] block">🧪 Beta Testing Hub</span>
+                    <span class="font-bold text-[#1E3A8A] block">Beta Testing Hub</span>
                     <span class="text-gray-500 text-[11px] mt-0.5 block">Mencari laporan bug, kritik UI/UX, dan uji coba komunitas alumni.</span>
                   </div>
                 </label>
 
                 <label
-                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
-                  :class="launchForm.tahap === 'live' ? 'border-[#1E3A8A] bg-blue-50/50 text-gray-900 ring-2 ring-[#1E3A8A]/10' : 'border-gray-200 hover:bg-gray-50 text-gray-700'"
+                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-transparent"
+                  :class="launchForm.tahap === 'live' ? 'border-[#1E3A8A] text-gray-900' : 'border-gray-200 hover:border-gray-300 text-gray-600'"
                 >
                   <input type="radio" name="launchTahap" value="live" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
                   <div>
-                    <span class="font-bold text-emerald-800 block">★ Hall of Fame (Live)</span>
+                    <span class="font-bold text-gray-900 block">Hall of Fame (Live)</span>
                     <span class="text-gray-500 text-[11px] mt-0.5 block">Etalase produk jadi yang siap dinikmati publik dan recruiter.</span>
                   </div>
                 </label>
@@ -925,7 +918,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                 rows="3"
                 x-model="launchForm.story"
                 placeholder="Ceritakan mengapa Anda membuat software ini, tantangan teknisnya, atau masukan apa yang Anda harapkan..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] leading-relaxed transition-all"
               ></textarea>
             </div>
 
@@ -934,16 +927,15 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               <button
                 type="button"
                 @click="launchModalOpen = false"
-                class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer"
+                class="px-5 py-2 rounded-full border border-gray-200 bg-transparent text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer transition-colors"
               >
                 Batal
               </button>
               <button
                 type="submit"
-                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-xs shadow-sm transition-all cursor-pointer"
               >
-                <span>🚀</span>
-                <span>Launch ke Beranda</span>
+                Publikasikan Produk
               </button>
             </div>
           </form>
