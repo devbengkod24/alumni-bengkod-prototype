@@ -35,6 +35,7 @@ const INITIAL_POSTS = [
     impressions: 740,
     karya: {
       nama: "Sentimeter AI — Multi-Language Sentiment Engine",
+      logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
       tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan akurasi 94% dan inferensi ultra-cepat",
       tahap: "live", // beta | live
       url: "https://sentimeter.bengkelkoding.com",
@@ -64,6 +65,7 @@ const INITIAL_POSTS = [
     impressions: 430,
     karya: {
       nama: "Bengkod Git Slicer — Figma to Tailwind Generator",
+      logo: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=120&auto=format&fit=crop&q=80",
       tagline: "Alat CLI dan antarmuka web untuk generate token desain Figma ke Tailwind config",
       tahap: "beta",
       url: "https://staging-slicer.bengkelkoding.dev",
@@ -94,6 +96,7 @@ const INITIAL_POSTS = [
     impressions: 310,
     karya: {
       nama: "CoopDesk ERP — Sistem Kasir Koperasi Digital",
+      logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&auto=format&fit=crop&q=80",
       tagline: "Point of Sale berbasis web responsif untuk koperasi dan UMKM retail",
       tahap: "beta",
       url: "https://coopdesk-demo.bengkelkoding.dev",

@@ -395,21 +395,34 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
             <template x-if="post.karya">
               <div class="mt-4 p-4 rounded-xl border border-gray-200 bg-transparent transition-all">
                 <div class="flex items-start justify-between gap-3">
-                  <div class="space-y-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
-                      <template x-if="post.karya.tahap === 'beta'">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-gray-700 border border-gray-300">
-                          Beta Tester Wanted
-                        </span>
+                  <!-- Logo + Info Produk -->
+                  <div class="flex items-start gap-3 min-w-0 flex-1">
+                    <!-- App Logo / Monogram Squircle -->
+                    <div class="w-11 h-11 rounded-xl border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-white mt-0.5 shadow-2xs">
+                      <template x-if="post.karya.logo">
+                        <img :src="post.karya.logo" :alt="post.karya.nama" class="w-full h-full object-cover">
                       </template>
-                      <template x-if="post.karya.tahap === 'live'">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-[#1E3A8A] border border-[#1E3A8A]">
-                          Live Product · Hall of Fame
-                        </span>
+                      <template x-if="!post.karya.logo">
+                        <span class="text-sm font-bold text-gray-800" x-text="(post.karya.nama || '').charAt(0).toUpperCase() || 'A'"></span>
                       </template>
                     </div>
-                    <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
+
+                    <div class="space-y-1 min-w-0 flex-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
+                        <template x-if="post.karya.tahap === 'beta'">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-gray-700 border border-gray-300">
+                            Beta Tester Wanted
+                          </span>
+                        </template>
+                        <template x-if="post.karya.tahap === 'live'">
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-[#1E3A8A] border border-[#1E3A8A]">
+                            Live Product · Hall of Fame
+                          </span>
+                        </template>
+                      </div>
+                      <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
+                    </div>
                   </div>
 
                   <!-- ProductHunt Style Upvote Button (Clean & Transparan) -->
@@ -719,10 +732,20 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             <div class="flex items-start gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white">
               <!-- Nomor Ranking -->
               <div
-                class="w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5"
+                class="w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 mt-2"
                 :class="idx === 0 ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'"
                 x-text="idx + 1"
               ></div>
+
+              <!-- Logo Aplikasi / Monogram Squircle -->
+              <div class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 mt-0.5">
+                <template x-if="prod.logo">
+                  <img :src="prod.logo" :alt="prod.name" class="w-full h-full object-cover">
+                </template>
+                <template x-if="!prod.logo">
+                  <span class="text-xs font-bold text-gray-700" x-text="(prod.name || '').charAt(0).toUpperCase() || 'A'"></span>
+                </template>
+              </div>
 
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
@@ -778,11 +801,24 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         <div class="space-y-2.5 pt-1">
           <template x-for="beta in betaProducts" :key="beta.id">
             <div class="p-3 rounded-xl bg-gray-50 border border-gray-200/80 space-y-1.5 hover:border-gray-200 transition-colors">
-              <div class="flex items-start justify-between gap-2">
-                <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="beta.name"></h4>
-<a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
+              <div class="flex items-start gap-2.5">
+                <!-- Mini Logo Squircle -->
+                <div class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden text-[11px] font-bold text-gray-700">
+                  <template x-if="beta.logo">
+                    <img :src="beta.logo" :alt="beta.name" class="w-full h-full object-cover">
+                  </template>
+                  <template x-if="!beta.logo">
+                    <span x-text="(beta.name || '').charAt(0).toUpperCase() || 'A'"></span>
+                  </template>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2">
+                    <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="beta.name"></h4>
+                    <a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
+                  </div>
+                  <p class="text-[11px] text-gray-600 line-clamp-1 mt-0.5" x-text="beta.tagline"></p>
+                </div>
               </div>
-              <p class="text-[11px] text-gray-600 line-clamp-1" x-text="beta.tagline"></p>
               <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-200/60">
                 <span x-text="'Fokus: ' + (beta.fokus || []).join(', ')"></span>
                 <span class="font-bold text-[#1E3A8A]" x-text="'▲ ' + (beta.upvotes || 0)"></span>
@@ -921,6 +957,17 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
                   class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
                 >
               </div>
+            </div>
+
+            <!-- 3.5 Logo / Icon Aplikasi (Opsional) -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Logo / Ikon Aplikasi (URL Gambar)</label>
+              <input
+                type="url"
+                x-model="launchForm.logo"
+                placeholder="https://... (opsional, jika kosong dibuatkan inisial otomatis)"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
+              >
             </div>
 
             <!-- 4. Tahap Peluncuran Produk (Product Stage) -->
@@ -1113,6 +1160,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
           nama: "",
           tagline: "",
           url: "",
+          logo: "",
           stack: "",
           tahap: "beta",
           story: "",
@@ -1132,6 +1180,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
               name: p.karya.nama,
               tagline: p.karya.tagline,
               url: p.karya.url,
+              logo: p.karya.logo || "",
               fokus: p.karya.fokus || [],
               upvotes: p.karya.upvotes || 0,
             }));
@@ -1146,6 +1195,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
               tagline: p.karya.tagline,
               tahap: p.karya.tahap,
               url: p.karya.url,
+              logo: p.karya.logo || "",
               stack: p.karya.stack || [],
               upvotes: p.karya.upvotes || 0,
               isUpvoted: p.karya.isUpvoted || false,
@@ -1215,6 +1265,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
             nama: "",
             tagline: "",
             url: "",
+            logo: "",
             stack: "",
             tahap: "beta",
             story: "",
@@ -1229,6 +1280,7 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
             tagline: f.tagline.trim(),
             tahap: f.tahap,
             url: f.url.trim() || undefined,
+            logo: f.logo ? f.logo.trim() : undefined,
             stack: f.stack ? f.stack.split(",").map((s) => s.trim()).filter(Boolean) : [],
             fokus: f.tahap === "beta" ? ["Bug", "UI/UX"] : undefined,
             upvotes: 1,
