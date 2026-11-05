@@ -104,7 +104,7 @@
       </template>
 
       <!-- Baris 3: Pill Tabs Sub-Navigasi (Overview, Reviews, Tech Stack, Maker) -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-t border-gray-100 pt-4 text-sm font-semibold">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-t border-gray-100 pt-5 text-sm font-semibold">
         <button
           type="button"
           @click="activeTab = 'overview'"
@@ -143,133 +143,133 @@
         </button>
       </div>
 
-    </div>
+      <!-- ====================================================================
+          TAB CONTENT AREA (MENYATU LANGSUNG DI DALAM KARTU YANG SAMA)
+      ==================================================================== -->
+      <div class="pt-2">
 
-    <!-- ====================================================================
-        TAB CONTENT: OVERVIEW, REVIEWS, TECH STACK & MAKER
-    ==================================================================== -->
-    <div class="bg-white rounded-2xl border border-gray-200/90 p-6 sm:p-8 shadow-xs">
-
-      <!-- TAB 1: OVERVIEW (MENYATU DENGAN CERITA & MAKER'S CONTEXT) -->
-      <template x-if="activeTab === 'overview'">
-        <div class="space-y-6">
-          <!-- Cerita Utama / Overview -->
-          <div class="space-y-3">
-            <h3 class="text-lg font-bold text-gray-900">Tentang Karya Ini</h3>
-            <p class="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line" x-text="product.overview || product.content || product.tagline"></p>
-          </div>
-
-          <!-- Maker's Note / Catatan Pembuat Terintegrasi -->
-          <template x-if="product.content && product.content !== product.overview && !product.overview.includes(product.content)">
-            <div class="p-5 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
-              <div class="flex items-center gap-3">
-                <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-10 h-10 rounded-full object-cover border border-gray-200">
-                <div>
-                  <h4 class="font-bold text-gray-900 text-sm" x-text="product.authorName"></h4>
-                  <p class="text-xs text-gray-500" x-text="product.authorHeadline || 'Alumni Bengkel Koding'"></p>
-                </div>
-              </div>
-              <p class="text-sm text-gray-700 leading-relaxed italic" x-text="'&ldquo;' + product.content + '&rdquo;'"></p>
+        <!-- TAB 1: OVERVIEW (MENYATU DENGAN CERITA & MAKER'S CONTEXT) -->
+        <template x-if="activeTab === 'overview'">
+          <div class="space-y-6">
+            <!-- Cerita Utama / Overview -->
+            <div class="space-y-3">
+              <h3 class="text-lg font-bold text-gray-900">Tentang Karya Ini</h3>
+              <p class="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line" x-text="product.overview || product.content || product.tagline"></p>
             </div>
-          </template>
-        </div>
-      </template>
 
-      <!-- TAB 2: REVIEWS & FEEDBACK -->
-      <template x-if="activeTab === 'reviews'">
-        <div id="reviews-section" class="space-y-6">
-          <div class="flex items-center justify-between pb-3 border-b border-gray-100 flex-wrap gap-3">
-            <div>
-              <h3 class="text-lg font-bold text-gray-900">Ulasan &amp; Masukan Komunitas</h3>
-              <p class="text-xs text-gray-500 mt-0.5">Diskusikan fitur, berikan apresiasi, atau laporkan kendala teknis langsung ke pembuat</p>
-            </div>
-            <button
-              type="button"
-              @click="showFeedbackForm = !showFeedbackForm"
-              class="px-4 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
-            >
-              + Beri Masukan / Review
-            </button>
-          </div>
-
-          <!-- Inline Form Tambah Masukan -->
-          <template x-if="showFeedbackForm">
-            <form @submit.prevent="submitFeedback()" class="p-4 rounded-xl border border-gray-200 bg-gray-50/60 space-y-3 animate-in fade-in duration-150">
-              <div class="grid grid-cols-2 gap-2 text-xs">
-                <template x-for="cat in ['Apresiasi', 'UI/UX', 'Bug', 'Arsitektur/Performa']" :key="cat">
-                  <label class="flex items-center gap-2 p-2 rounded-lg border cursor-pointer bg-white text-gray-700 hover:border-gray-300"
-                         :class="newFbCategory === cat ? 'border-[#1E3A8A] font-bold text-[#1E3A8A]' : 'border-gray-200'">
-                    <input type="radio" name="newFbCat" :value="cat" x-model="newFbCategory" class="sr-only">
-                    <span x-text="cat"></span>
-                  </label>
-                </template>
-              </div>
-              <textarea
-                rows="3"
-                x-model="newFbText"
-                required
-                placeholder="Bagikan pengalaman Anda saat mencoba aplikasi ini..."
-                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#1E3A8A]"
-              ></textarea>
-              <div class="flex items-center justify-end gap-2">
-                <button type="button" @click="showFeedbackForm = false" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs text-gray-600 hover:bg-gray-100">Batal</button>
-                <button type="submit" class="px-5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs">Kirim Ulasan</button>
-              </div>
-            </form>
-          </template>
-
-          <!-- Daftar Ulasan -->
-          <div class="space-y-3">
-            <template x-if="!product.feedbacks || product.feedbacks.length === 0">
-              <p class="text-sm text-gray-400 italic py-6 text-center">Belum ada ulasan untuk karya ini. Jadilah yang pertama memberikan masukan!</p>
-            </template>
-            <template x-for="fb in (product.feedbacks || [])" :key="fb.id">
-              <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/40 space-y-1.5 hover:border-gray-200 transition-colors">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <span class="font-bold text-sm text-gray-900" x-text="fb.author"></span>
-                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-gray-200 bg-white text-gray-600" x-text="fb.category"></span>
+            <!-- Maker's Note / Catatan Pembuat Terintegrasi -->
+            <template x-if="product.content && product.content !== product.overview && !product.overview.includes(product.content)">
+              <div class="p-5 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
+                <div class="flex items-center gap-3">
+                  <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                  <div>
+                    <h4 class="font-bold text-gray-900 text-sm" x-text="product.authorName"></h4>
+                    <p class="text-xs text-gray-500" x-text="product.authorHeadline || 'Alumni Bengkel Koding'"></p>
                   </div>
-                  <span class="text-[11px] text-gray-400" x-text="fb.date || 'Baru saja'"></span>
                 </div>
-                <p class="text-sm text-gray-700 leading-relaxed" x-text="fb.text"></p>
+                <p class="text-sm text-gray-700 leading-relaxed italic" x-text="'&ldquo;' + product.content + '&rdquo;'"></p>
               </div>
             </template>
           </div>
-        </div>
-      </template>
+        </template>
 
-      <!-- TAB 3: TECH STACK -->
-      <template x-if="activeTab === 'stack'">
-        <div class="space-y-4">
-          <h3 class="text-lg font-bold text-gray-900">Teknologi &amp; Arsitektur</h3>
-          <p class="text-sm text-gray-600 leading-relaxed">Daftar pustaka, framework, dan infrastruktur yang digunakan dalam membangun software ini:</p>
-          <div class="flex items-center gap-2 flex-wrap pt-2">
-            <template x-for="tech in (product.stack || [])" :key="tech">
-              <span class="px-3.5 py-1.5 rounded-xl border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-800" x-text="tech"></span>
+        <!-- TAB 2: REVIEWS & FEEDBACK -->
+        <template x-if="activeTab === 'reviews'">
+          <div id="reviews-section" class="space-y-6">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100 flex-wrap gap-3">
+              <div>
+                <h3 class="text-lg font-bold text-gray-900">Ulasan &amp; Masukan Komunitas</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Diskusikan fitur, berikan apresiasi, atau laporkan kendala teknis langsung ke pembuat</p>
+              </div>
+              <button
+                type="button"
+                @click="showFeedbackForm = !showFeedbackForm"
+                class="px-4 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+              >
+                + Beri Masukan / Review
+              </button>
+            </div>
+
+            <!-- Inline Form Tambah Masukan -->
+            <template x-if="showFeedbackForm">
+              <form @submit.prevent="submitFeedback()" class="p-4 rounded-xl border border-gray-200 bg-gray-50/60 space-y-3 animate-in fade-in duration-150">
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                  <template x-for="cat in ['Apresiasi', 'UI/UX', 'Bug', 'Arsitektur/Performa']" :key="cat">
+                    <label class="flex items-center gap-2 p-2 rounded-lg border cursor-pointer bg-white text-gray-700 hover:border-gray-300"
+                           :class="newFbCategory === cat ? 'border-[#1E3A8A] font-bold text-[#1E3A8A]' : 'border-gray-200'">
+                      <input type="radio" name="newFbCat" :value="cat" x-model="newFbCategory" class="sr-only">
+                      <span x-text="cat"></span>
+                    </label>
+                  </template>
+                </div>
+                <textarea
+                  rows="3"
+                  x-model="newFbText"
+                  required
+                  placeholder="Bagikan pengalaman Anda saat mencoba aplikasi ini..."
+                  class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#1E3A8A]"
+                ></textarea>
+                <div class="flex items-center justify-end gap-2">
+                  <button type="button" @click="showFeedbackForm = false" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs text-gray-600 hover:bg-gray-100">Batal</button>
+                  <button type="submit" class="px-5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs">Kirim Ulasan</button>
+                </div>
+              </form>
             </template>
-          </div>
-        </div>
-      </template>
 
-      <!-- TAB 4: MAKER / PEMBUAT -->
-      <template x-if="activeTab === 'maker'">
-        <div class="space-y-4">
-          <h3 class="text-lg font-bold text-gray-900">Tentang Pembuat Karya</h3>
-          <div class="p-5 rounded-2xl border border-gray-200 flex items-start gap-4">
-            <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-14 h-14 rounded-full object-cover border border-gray-200 shrink-0">
-            <div class="space-y-1 flex-1">
-              <h4 class="text-base font-bold text-gray-900" x-text="product.authorName"></h4>
-              <p class="text-xs text-gray-500 leading-relaxed" x-text="product.authorHeadline || 'Alumni Bengkel Koding UDINUS'"></p>
-              <div class="pt-3">
-                <a :href="getAuthorLink(product.authorName)" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A8A] hover:underline">
-                  <span>Lihat Profil Lengkap &amp; Portofolio →</span>
-                </a>
+            <!-- Daftar Ulasan -->
+            <div class="space-y-3">
+              <template x-if="!product.feedbacks || product.feedbacks.length === 0">
+                <p class="text-sm text-gray-400 italic py-6 text-center">Belum ada ulasan untuk karya ini. Jadilah yang pertama memberikan masukan!</p>
+              </template>
+              <template x-for="fb in (product.feedbacks || [])" :key="fb.id">
+                <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/40 space-y-1.5 hover:border-gray-200 transition-colors">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="font-bold text-sm text-gray-900" x-text="fb.author"></span>
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-gray-200 bg-white text-gray-600" x-text="fb.category"></span>
+                    </div>
+                    <span class="text-[11px] text-gray-400" x-text="fb.date || 'Baru saja'"></span>
+                  </div>
+                  <p class="text-sm text-gray-700 leading-relaxed" x-text="fb.text"></p>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- TAB 3: TECH STACK -->
+        <template x-if="activeTab === 'stack'">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-gray-900">Teknologi &amp; Arsitektur</h3>
+            <p class="text-sm text-gray-600 leading-relaxed">Daftar pustaka, framework, dan infrastruktur yang digunakan dalam membangun software ini:</p>
+            <div class="flex items-center gap-2 flex-wrap pt-2">
+              <template x-for="tech in (product.stack || [])" :key="tech">
+                <span class="px-3.5 py-1.5 rounded-xl border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-800" x-text="tech"></span>
+              </template>
+            </div>
+          </div>
+        </template>
+
+        <!-- TAB 4: MAKER / PEMBUAT -->
+        <template x-if="activeTab === 'maker'">
+          <div class="space-y-4">
+            <h3 class="text-lg font-bold text-gray-900">Tentang Pembuat Karya</h3>
+            <div class="p-5 rounded-2xl border border-gray-200 flex items-start gap-4">
+              <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-14 h-14 rounded-full object-cover border border-gray-200 shrink-0">
+              <div class="space-y-1 flex-1">
+                <h4 class="text-base font-bold text-gray-900" x-text="product.authorName"></h4>
+                <p class="text-xs text-gray-500 leading-relaxed" x-text="product.authorHeadline || 'Alumni Bengkel Koding UDINUS'"></p>
+                <div class="pt-3">
+                  <a :href="getAuthorLink(product.authorName)" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A8A] hover:underline">
+                    <span>Lihat Profil Lengkap &amp; Portofolio →</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </template>
+        </template>
+
+      </div>
 
     </div>
 
