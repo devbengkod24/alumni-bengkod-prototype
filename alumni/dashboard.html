@@ -773,57 +773,15 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             </div>
           </template>
         </div>
-      </div>
-
-      <!-- ── CARD: BETA TESTING HUB (UJI COBA MVP ALUMNI) ── -->
-      <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
-          <div class="flex items-center gap-2">
-            <span class="text-base">🧪</span>
-            <h3 class="text-[15px] font-bold text-gray-900">Beta Testing Hub</h3>
-          </div>
-          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-100 text-gray-700 border border-gray-200" x-text="betaProducts.length + ' MVP Butuh Tester'"></span>
-        </div>
-        <p class="text-xs text-gray-500 leading-relaxed">
-          Uji performa, temukan bug, dan berikan kritik UI/UX untuk prototipe rekan alumni Bengkel Koding.
-        </p>
-        <div class="space-y-2.5 pt-1">
-          <template x-for="beta in betaProducts" :key="beta.id">
-            <div class="p-3 rounded-xl bg-gray-50 border border-gray-200/80 space-y-1.5 hover:border-gray-200 transition-colors">
-              <div class="flex items-start gap-2.5">
-                <!-- Mini Logo Squircle -->
-                <div class="w-8 h-8 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden text-[11px] font-bold text-gray-700">
-                  <template x-if="beta.logo">
-                    <img :src="beta.logo" :alt="beta.name" class="w-full h-full object-cover">
-                  </template>
-                  <template x-if="!beta.logo">
-                    <span x-text="(beta.name || '').charAt(0).toUpperCase() || 'A'"></span>
-                  </template>
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center justify-between gap-2">
-                    <h4 class="text-xs font-bold text-gray-900 leading-snug truncate" x-text="beta.name"></h4>
-                    <a :href="beta.url" target="_blank" rel="noreferrer" class="text-[11px] text-[#1E3A8A] font-bold hover:underline shrink-0">Uji Coba ↗</a>
-                  </div>
-                  <p class="text-[11px] text-gray-600 line-clamp-1 mt-0.5" x-text="beta.tagline"></p>
-                </div>
-              </div>
-              <div class="flex items-center justify-between text-[10px] text-gray-400 pt-1 border-t border-gray-200/60">
-                <span x-text="'Fokus: ' + (beta.fokus || []).join(', ')"></span>
-                <span class="font-bold text-[#1E3A8A]" x-text="'▲ ' + (beta.upvotes || 0)"></span>
-              </div>
-            </div>
-          </template>
-        </div>
 
         <!-- Tombol CTA Launch Product Hunt Style (Clean & Transparan) -->
         <div class="pt-2 border-t border-gray-100">
           <button
             type="button"
             @click="openLaunchModal()"
-            class="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-gray-800 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 transition-all flex items-center justify-center gap-2 cursor-pointer"
+            class="w-full py-2 px-3 rounded-lg text-xs font-semibold text-gray-700 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <span>+ Launch Produk / MVP Anda</span>
+            <span>+ Launch Karya / MVP Anda</span>
           </button>
         </div>
       </div>
@@ -1160,20 +1118,6 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
         targetKaryaPost: null,
         fbCategory: "Bug",
         fbText: "",
-
-        get betaProducts() {
-          return this.posts
-            .filter((p) => p.karya && p.karya.tahap === "beta")
-            .map((p) => ({
-              id: p.id,
-              name: p.karya.nama,
-              tagline: p.karya.tagline,
-              url: p.karya.url,
-              logo: p.karya.logo || "",
-              fokus: p.karya.fokus || [],
-              upvotes: p.karya.upvotes || 0,
-            }));
-        },
 
         get topProducts() {
           return this.posts
