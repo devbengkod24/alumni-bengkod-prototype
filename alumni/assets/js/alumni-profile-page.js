@@ -525,29 +525,19 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                   ${detail ? "" : `
                     <div class="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-between gap-3 text-xs flex-wrap">
                       <div class="flex items-center gap-2">
-                        <template x-if="proj.stage === 'BETA'">
-                          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50 text-amber-800 border border-amber-300">
-                            <span>🧪 Beta Tester Wanted</span>
-                          </span>
-                        </template>
-                        <template x-if="proj.stage === 'LIVE'">
-                          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
-                            <span>★ Hall of Fame (Live Product)</span>
+                        <template x-if="proj.stage">
+                          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-200">
+                            <span>🚀 Showcase Alumni</span>
                           </span>
                         </template>
                         <template x-if="!proj.stage">
-                          <span class="text-gray-400 font-medium">Belum dipublikasikan ke Beranda</span>
+                          <span class="text-gray-400 font-medium text-[11px]">Belum dipublikasikan ke Showcase</span>
                         </template>
                       </div>
 
                       <div class="flex items-center gap-2">
-                        <template x-if="proj.stage === 'BETA'">
-                          <button type="button" @click="promoteProjectToLive(proj)" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer" title="Naikkan karya stabil ke etalase utama Hall of Fame">
-                            ✓ Ubah Status ke Live
-                          </button>
-                        </template>
                         <button type="button" @click="openPublishKaryaModal(proj)" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-[#1E3A8A] bg-white hover:bg-blue-50 border border-blue-200 transition-colors cursor-pointer shadow-2xs">
-                          <span x-text="proj.stage ? 'Kelola Publikasi' : '🚀 Publish ke Beranda'"></span>
+                          <span x-text="proj.stage ? 'Kelola Showcase' : '🚀 Publish ke Showcase'"></span>
                         </button>
                       </div>
                     </div>

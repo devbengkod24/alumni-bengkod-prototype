@@ -540,8 +540,8 @@
           <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
               <div>
-                <h3 class="text-[17px] font-bold text-gray-900">Publikasikan Karya ke Beranda</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Pilih panggung Hall of Fame (Live) atau Beta Testing Hub (Uji Coba)</p>
+                <h3 class="text-[17px] font-bold text-gray-900">Publikasikan Karya ke Showcase Beranda</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Pamerkan karya software Anda ke linimasa dan leaderboard Showcase Alumni</p>
               </div>
               <button type="button" @click="publishKaryaModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
                 ✕
@@ -552,29 +552,6 @@
               <div>
                 <label class="block font-semibold text-gray-800 text-xs mb-1">Nama Produk Software <span class="text-red-500">*</span></label>
                 <input type="text" x-model="publishForm.nama" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 text-xs mb-1.5">Pilih Tahap Siklus Produk <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <label class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                         :class="publishForm.tahap === 'beta' ? 'border-[#1E3A8A] bg-amber-50/60' : 'border-gray-200 hover:bg-gray-50'">
-                    <input type="radio" name="publishTahap" value="beta" x-model="publishForm.tahap" class="mt-0.5 text-[#1E3A8A]">
-                    <div>
-                      <span class="font-bold text-amber-900 block">🧪 BETA / TESTING</span>
-                      <span class="text-gray-500 text-[11px] mt-0.5 block">Mencari laporan bug, kritik UI/UX, dan uji performa server.</span>
-                    </div>
-                  </label>
-
-                  <label class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                         :class="publishForm.tahap === 'live' ? 'border-[#1E3A8A] bg-emerald-50/60' : 'border-gray-200 hover:bg-gray-50'">
-                    <input type="radio" name="publishTahap" value="live" x-model="publishForm.tahap" class="mt-0.5 text-[#1E3A8A]">
-                    <div>
-                      <span class="font-bold text-emerald-900 block">★ LAUNCHED / LIVE</span>
-                      <span class="text-gray-500 text-[11px] mt-0.5 block">Etalase Hall of Fame, produk stabil siap pakai publik.</span>
-                    </div>
-                  </label>
-                </div>
               </div>
 
               <div>
@@ -592,30 +569,6 @@
                   <input type="text" x-model="publishForm.stack" placeholder="Next.js, Python, PostgreSQL" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
                 </div>
               </div>
-
-              <template x-if="publishForm.tahap === 'beta'">
-                <div class="p-3.5 rounded-xl bg-amber-50/50 border border-amber-200 text-xs space-y-1.5">
-                  <span class="font-bold text-amber-900 block">Checklist Fokus Review Penguji:</span>
-                  <div class="flex items-center gap-3 flex-wrap">
-                    <label class="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" value="Bug" x-model="publishForm.fokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                      <span>🐛 Bug</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" value="UI/UX" x-model="publishForm.fokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                      <span>🎨 UI/UX</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" value="Beban Server" x-model="publishForm.fokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                      <span>⚡ Beban Server</span>
-                    </label>
-                    <label class="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" value="Otentikasi / Security" x-model="publishForm.fokus" class="w-4 h-4 rounded text-[#1E3A8A]">
-                      <span>🔒 Keamanan</span>
-                    </label>
-                  </div>
-                </div>
-              </template>
 
               <!-- Tab Feedback Monitoring jika sudah ada masukan -->
               <template x-if="targetPublishProj.feedbacks && targetPublishProj.feedbacks.length > 0">
@@ -1077,35 +1030,30 @@
         targetPublishProj: null,
         publishForm: {
           nama: "",
-          tahap: "beta",
           tagline: "",
           url: "",
           stack: "",
-          fokus: ["Bug", "UI/UX"],
         },
         openPublishKaryaModal(proj) {
           this.targetPublishProj = proj;
           this.publishForm = {
             nama: proj.title || "",
-            tahap: (proj.stage || "beta").toLowerCase(),
             tagline: proj.tagline || (proj.desc ? proj.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
             url: proj.linkUrl || "",
             stack: (proj.tags || []).join(", "),
-            fokus: ["Bug", "UI/UX"],
           };
           this.publishKaryaModalOpen = true;
         },
         submitPublishKarya() {
           if (!this.targetPublishProj || !this.publishForm.nama.trim()) return;
           const pId = this.targetPublishProj.id;
-          const newStage = this.publishForm.tahap.toUpperCase();
 
           this.projects = this.projects.map(p => {
             if (p.id === pId) {
               return {
                 ...p,
                 title: this.publishForm.nama.trim(),
-                stage: newStage,
+                stage: "SHOWCASE",
                 tagline: this.publishForm.tagline.trim(),
                 linkUrl: this.publishForm.url.trim() || p.linkUrl,
               };
@@ -1119,11 +1067,9 @@
             const karyaData = {
               projectId: pId,
               nama: this.publishForm.nama.trim(),
-              tahap: this.publishForm.tahap.toLowerCase(),
               tagline: this.publishForm.tagline.trim(),
               url: this.publishForm.url.trim() || undefined,
               stack: this.publishForm.stack.split(",").map(s => s.trim()).filter(Boolean),
-              fokus: this.publishForm.tahap === "beta" ? this.publishForm.fokus : undefined,
               upvotes: 1,
               isUpvoted: true,
               feedbacks: this.targetPublishProj.feedbacks || []
@@ -1140,7 +1086,7 @@
                 date: "Baru saja",
                 category: "Karya & Showcase",
                 visibility: "Semua orang",
-                content: `🚀 Mempublikasikan karya terbaru ke ${newStage === 'LIVE' ? 'Hall of Fame' : 'Beta Testing Hub'}: "${karyaData.nama}".\n\nSilakan coba dan berikan masukan Anda!`,
+                content: `🚀 Mempublikasikan karya terbaru ke Showcase Alumni: "${karyaData.nama}".\n\nSilakan coba dan berikan masukan Anda!`,
                 karya: karyaData,
                 likes: 0,
                 isLiked: false,
@@ -1156,7 +1102,7 @@
           }
 
           this.publishKaryaModalOpen = false;
-          this.toast = `Karya berhasil dipublikasikan ke Beranda (${newStage === 'LIVE' ? 'Hall of Fame' : 'Beta Testing Hub'})!`;
+          this.toast = `Karya "${this.publishForm.nama.trim()}" berhasil dipublikasikan ke Showcase Alumni!`;
           setTimeout(() => { this.toast = ""; }, 3500);
         },
         promoteProjectToLive(proj) {

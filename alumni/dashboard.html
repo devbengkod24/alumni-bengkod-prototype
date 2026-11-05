@@ -33,7 +33,7 @@
       <div>
 <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
         <p class="text-sm text-gray-500 mt-0.5">
-          Linimasa pameran produk software, beta testing hub, dan internal referral alumni Bengkel Koding
+          Linimasa showcase software, diskusi proyek, dan internal referral alumni Bengkel Koding
         </p>
       </div>
     </div>
@@ -408,19 +408,7 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
                     </div>
 
                     <div class="space-y-1 min-w-0 flex-1">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
-                        <template x-if="post.karya.tahap === 'beta'">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-gray-700 border border-gray-300">
-                            Beta Tester Wanted
-                          </span>
-                        </template>
-                        <template x-if="post.karya.tahap === 'live'">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-transparent text-[#1E3A8A] border border-[#1E3A8A]">
-                            Live Product · Hall of Fame
-                          </span>
-                        </template>
-                      </div>
+                      <h4 class="text-[16px] font-bold text-gray-900 leading-snug" x-text="post.karya.nama"></h4>
                       <p class="text-xs text-gray-700 leading-relaxed font-medium" x-text="post.karya.tagline"></p>
                     </div>
                   </div>
@@ -438,26 +426,17 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
                   </button>
                 </div>
 
-                <!-- Tags: Tech Stack & Fokus Uji Coba -->
-                <div class="space-y-1.5 text-xs pt-2">
-                  <template x-if="post.karya.fokus && post.karya.fokus.length > 0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="text-gray-400 font-medium text-[11px]">Fokus:</span>
-                      <template x-for="f in post.karya.fokus" :key="f">
-                        <span class="px-2 py-0.5 rounded-full bg-transparent border border-gray-200 text-gray-600 text-[11px]" x-text="f"></span>
-                      </template>
-                    </div>
-                  </template>
-
-                  <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                <!-- Tags: Tech Stack -->
+                <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                  <div class="space-y-1.5 text-xs pt-2">
                     <div class="flex items-center gap-1.5 flex-wrap">
                       <span class="text-gray-400 font-medium text-[11px]">Stack:</span>
                       <template x-for="s in post.karya.stack" :key="s">
                         <span class="px-2 py-0.5 rounded bg-transparent text-gray-600 border border-gray-200 text-[11px]" x-text="s"></span>
                       </template>
                     </div>
-                  </template>
-                </div>
+                  </div>
+                </template>
 
                 <!-- Action Bar -->
                 <div class="mt-3 pt-2.5 border-t border-gray-100 flex items-center justify-between gap-2 text-xs">
@@ -917,35 +896,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               >
             </div>
 
-            <!-- 4. Tahap Peluncuran Produk (Product Stage) -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1.5">Pilih Panggung Peluncuran <span class="text-red-500 font-bold">*</span></label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <label
-                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-transparent"
-                  :class="launchForm.tahap === 'beta' ? 'border-[#1E3A8A] text-gray-900' : 'border-gray-200 hover:border-gray-300 text-gray-600'"
-                >
-                  <input type="radio" name="launchTahap" value="beta" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
-                  <div>
-                    <span class="font-bold text-[#1E3A8A] block">Beta Testing Hub</span>
-                    <span class="text-gray-500 text-[11px] mt-0.5 block">Mencari laporan bug, kritik UI/UX, dan uji coba komunitas alumni.</span>
-                  </div>
-                </label>
-
-                <label
-                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all bg-transparent"
-                  :class="launchForm.tahap === 'live' ? 'border-[#1E3A8A] text-gray-900' : 'border-gray-200 hover:border-gray-300 text-gray-600'"
-                >
-                  <input type="radio" name="launchTahap" value="live" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
-                  <div>
-                    <span class="font-bold text-gray-900 block">Hall of Fame (Live)</span>
-                    <span class="text-gray-500 text-[11px] mt-0.5 block">Etalase produk jadi yang siap dinikmati publik dan recruiter.</span>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            <!-- 5. Maker's Note / Cerita Pembuat -->
+            <!-- 4. Maker's Note / Cerita Pembuat -->
             <div>
               <label class="block font-semibold text-gray-800 text-xs mb-1">Cerita dari Pembuat (Maker's Comment)</label>
               <textarea
@@ -1109,7 +1060,6 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
           url: "",
           logo: "",
           stack: "",
-          tahap: "beta",
           story: "",
         },
 
@@ -1126,7 +1076,6 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
               postId: p.id,
               name: p.karya.nama,
               tagline: p.karya.tagline,
-              tahap: p.karya.tahap,
               authorName: p.authorName || "Alumni",
               url: p.karya.url,
               logo: p.karya.logo || "",
@@ -1201,7 +1150,6 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
             url: "",
             logo: "",
             stack: "",
-            tahap: "beta",
             story: "",
           };
           this.launchModalOpen = true;
@@ -1212,18 +1160,14 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
           const karyaObj = {
             nama: f.nama.trim(),
             tagline: f.tagline.trim(),
-            tahap: f.tahap,
             url: f.url.trim() || undefined,
             logo: f.logo ? f.logo.trim() : undefined,
             stack: f.stack ? f.stack.split(",").map((s) => s.trim()).filter(Boolean) : [],
-            fokus: f.tahap === "beta" ? ["Bug", "UI/UX"] : undefined,
             upvotes: 1,
             isUpvoted: true,
             feedbacks: [],
           };
-          const storyText = f.story.trim() || (f.tahap === "beta"
-            ? `🚀 Baru saja merilis MVP "${f.nama.trim()}". Mohon bantuan rekan alumni untuk menguji coba dan memberikan masukan ya!`
-            : `★ Resmi meluncurkan produk "${f.nama.trim()}". Silakan coba dan bagikan kesan Anda!`);
+          const storyText = f.story.trim() || `🚀 Baru saja meluncurkan "${f.nama.trim()}". Silakan coba dan berikan masukan Anda!`;
 
           const newPost = {
             id: Date.now(),
