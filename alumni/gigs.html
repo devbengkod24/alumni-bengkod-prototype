@@ -7,8 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="assets/js/data.js?v=8"></script>
+  <script src="assets/js/data.js?v=9"></script>
   <script src="assets/js/app.js?v=6"></script>
+  <script src="assets/js/cv.js?v=5"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
@@ -42,6 +43,15 @@
 
 <div id="detail-modal" data-modal-backdrop class="modal-backdrop">
   <div id="detail-isi" class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="detail-judul"></div>
+</div>
+
+<!-- Panel split screen CV: muncul dari kiri saat preview CV di drawer Kelola Pelamar -->
+<div id="cv-split-panel" class="fixed inset-y-0 left-0 h-full max-h-screen z-50 hidden flex-col bg-white border-r border-neutral4 elevation5" style="width:0;transition:width 0.25s ease" aria-label="Preview CV">
+  <div class="sticky top-0 z-10 bg-white border-b border-neutral4 px-5 py-4 flex items-center justify-between gap-3 shrink-0">
+    <h3 id="cv-split-judul" class="font-semibold text-base text-neutral1 truncate">Preview CV</h3>
+    <button type="button" id="cv-split-close" class="btn-icon shrink-0" aria-label="Tutup Preview CV"><i data-lucide="x" class="w-5 h-5"></i></button>
+  </div>
+  <div id="cv-isi" class="flex-1 overflow-y-auto min-h-0 p-6 sm:p-10"></div>
 </div>
 
 <script>
@@ -169,6 +179,10 @@
               <span class="min-w-0"><span class="block !text-sm font-medium text-neutral1">${esc(r.nama_proyek)}</span><span class="block !text-xs text-neutral3">${esc(r.peran_proyek)} · ${esc(r.stack_proyek)}</span></span>
             </label>`).join('')}</div>
         </fieldset>
+        <fieldset><legend class="label">Versi CV dari Generate CV</legend>
+          <div class="grid grid-cols-2 gap-2">${pilihanPil('radio', 'format', 'ats', 'ATS Standar', 'file-text').replace('type="radio"', 'type="radio" checked')}${pilihanPil('radio', 'format', 'modern', 'Modern Clean', 'layout-template')}</div>
+          <a href="generate-cv.html" target="_blank" class="inline-block mt-1.5 text-xs font-semibold text-primary2 hover:underline">Lihat CV saya</a>
+        </fieldset>
         <p data-error class="hidden !text-sm text-red1" role="alert"></p>
         <div class="flex justify-end"><button type="submit" class="btn-primary"><i data-lucide="hand" class="w-4 h-4"></i> Ajukan Minat</button></div>
       </form>`;
@@ -223,7 +237,7 @@
     e.preventDefault();
     const form = e.target;
     const fd = new FormData(form);
-    const hasil = DB.gigs.lamar(form.dataset.gig, SAYA.id, { pesan: fd.get('pesan'), portofolio: fd.getAll('portofolio') });
+    const hasil = DB.gigs.lamar(form.dataset.gig, SAYA.id, { pesan: fd.get('pesan'), portofolio: fd.getAll('portofolio'), format: fd.get('format') });
     if (!hasil.ok) return tampilGagal(form, hasil);
     renderDetail(form.dataset.gig);
     render();
@@ -237,6 +251,8 @@
     const lampiran = DB.cv.milik('projects', a.id_user).filter(r => a.portofolio.includes(r.id));
     const status = { menunggu: badge('Menunggu', 'yellow'), diterima: badge('Diterima', 'green'), ditolak: badge('Tidak diterima', 'gray') }[a.status];
     const wa = tautanWa(t.no_hp, `Halo ${u.nama}, saya ${SAYA.nama}. Pengajuan Anda untuk "${g.judul}" di Bengkod Gigs saya terima. Yuk atur waktu untuk membahas pembagian tugas.`);
+    // Pelamar lama yang tersimpan sebelum ada pilihan versi CV dianggap ATS (data di localStorage tidak diubah)
+    const format = a.format === 'modern' ? 'modern' : 'ats';
     return `
       <article class="rounded-xl border border-neutral4 p-4 space-y-3">
         <div class="flex items-start gap-3">
@@ -248,16 +264,20 @@
         </div>
         ${t.keahlian.length ? `<div class="flex flex-wrap gap-1.5">${t.keahlian.map(chip).join('')}</div>` : ''}
         <p class="!text-sm text-neutral1 leading-relaxed bg-neutral5/70 rounded-lg px-3 py-2 border border-neutral4/60">${esc(a.pesan)}</p>
-        <div class="space-y-1.5">${lampiran.map(r => `
+        ${lampiran.length ? `<div class="space-y-1.5">${lampiran.map(r => `
           <div class="flex items-start gap-2 !text-xs text-neutral2"><i data-lucide="folder-git-2" class="w-3.5 h-3.5 mt-0.5 shrink-0"></i>
             <span class="min-w-0"><span class="font-semibold text-neutral1">${esc(r.nama_proyek)}</span> · ${esc(r.stack_proyek)}${tautanAman(r.link_proyek) ? ` · <a href="${esc(tautanAman(r.link_proyek))}" target="_blank" rel="noreferrer" class="text-primary2 hover:underline">Lihat</a>` : ''}</span>
-          </div>`).join('')}</div>
+          </div>`).join('')}</div>` : ''}
+        <div class="flex flex-wrap gap-2">
+          <button type="button" data-cv="${u.id}" data-format="${format}" class="btn-outline !px-3 !py-1.5 !text-xs"><i data-lucide="file-text" class="w-3.5 h-3.5"></i> Preview CV ${format === 'ats' ? 'ATS' : 'Modern'}</button>
+          ${a.status === 'diterima' && ['open', 'progress'].includes(g.status) ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" class="btn-success !px-3 !py-1.5 !text-xs"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi via WhatsApp</a>` : ''}
+          ${t.linkedin ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="btn-outline !px-3 !py-1.5 !text-xs !text-blue1 hover:!bg-blue3/30"><i data-lucide="linkedin" class="w-3.5 h-3.5"></i> LinkedIn</a>` : ''}
+        </div>
         ${a.status === 'menunggu' && g.status === 'open' ? `
-          <div class="flex gap-2">
+          <div class="flex gap-2 border-t border-neutral4 pt-3">
             <button type="button" data-terima="${a.id}" class="btn-success !px-3 !py-1.5 !text-xs">Terima</button>
             <button type="button" data-tolak="${a.id}" class="btn-outline !px-3 !py-1.5 !text-xs">Tolak</button>
           </div>` : ''}
-        ${a.status === 'diterima' && ['open', 'progress'].includes(g.status) ? `<a href="${esc(wa)}" target="_blank" rel="noreferrer" class="btn-success !px-3 !py-1.5 !text-xs w-fit"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Hubungi via WhatsApp</a>` : ''}
       </article>`;
   }
 
@@ -292,7 +312,61 @@
     openModal('kelola-drawer');
   }
 
+  // ===================== SPLIT SCREEN: Panel CV + Drawer Kelola Pelamar =====================
+  // Tampilan sama dengan pengajuan referral di Beranda. Hanya membaca data, tidak menulis ke localStorage.
+  const cvPanel = document.getElementById('cv-split-panel');
+  const kelolaDrawer = document.getElementById('kelola-drawer');
+  const kelolaInner = kelolaDrawer.querySelector(':scope > div');
+  const modeSplit = () => window.innerWidth >= 1024;
+  const cvTerbuka = () => !cvPanel.classList.contains('hidden');
+
+  function aturTataLetakCv() {
+    const split = modeSplit();
+    // Desktop: CV 55vw di kiri, drawer 45vw di kanan tanpa backdrop. Mobile: CV menutup layar penuh di atas drawer.
+    cvPanel.style.width = split ? '55vw' : '100vw';
+    cvPanel.style.zIndex = split ? '50' : '60';
+    kelolaDrawer.classList.toggle('bg-neutral1/60', !split);
+    kelolaDrawer.classList.toggle('backdrop-blur-sm', !split);
+    kelolaDrawer.style.left = split ? '55vw' : '';
+    kelolaDrawer.style.width = split ? '45vw' : '';
+    kelolaDrawer.style.transition = 'left 0.25s ease, width 0.25s ease';
+    kelolaInner.style.maxWidth = split ? '100%' : '';
+    kelolaInner.style.width = split ? '100%' : '';
+  }
+
+  // Versi CV mengikuti pilihan pelamar saat mengajukan minat
+  function bukaCvSplit(idAlumni, format) {
+    const u = DB.akun.cari(Number(idAlumni));
+    document.getElementById('cv-split-judul').textContent = `CV ${format === 'ats' ? 'ATS' : 'Modern'} · ${u.nama}`;
+    document.getElementById('cv-isi').innerHTML = dokumenCv(u.id, format);
+    refreshIcons();
+    aturTataLetakCv();
+    cvPanel.classList.remove('hidden');
+    cvPanel.classList.add('flex');
+  }
+
+  function tutupCvSplit() {
+    cvPanel.classList.add('hidden');
+    cvPanel.classList.remove('flex');
+    cvPanel.style.width = '0';
+    cvPanel.style.zIndex = '';
+    kelolaDrawer.classList.add('bg-neutral1/60', 'backdrop-blur-sm');
+    kelolaDrawer.style.left = kelolaDrawer.style.width = kelolaDrawer.style.transition = '';
+    kelolaInner.style.maxWidth = kelolaInner.style.width = '';
+  }
+
+  document.getElementById('cv-split-close').addEventListener('click', tutupCvSplit);
+  cvPanel.addEventListener('click', e => e.stopPropagation());
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && cvTerbuka()) tutupCvSplit(); });
+  window.addEventListener('resize', () => { if (cvTerbuka()) aturTataLetakCv(); });
+  // Drawer tertutup lewat cara apa pun (tombol X, backdrop, Escape) ikut menutup panel CV
+  new MutationObserver(() => {
+    if (kelolaDrawer.classList.contains('hidden') && cvTerbuka()) tutupCvSplit();
+  }).observe(kelolaDrawer, { attributes: true, attributeFilter: ['class'] });
+
   document.getElementById('kelola-drawer-isi').addEventListener('click', e => {
+    const tombolCv = e.target.closest('[data-cv]');
+    if (tombolCv) return bukaCvSplit(tombolCv.dataset.cv, tombolCv.dataset.format);
     const t = e.target.closest('[data-terima], [data-tolak], [data-kelola]');
     if (!t) return;
     if (t.dataset.kelola === 'selesai') return bukaModalForm('selesai-modal', { id: gigAktif });
