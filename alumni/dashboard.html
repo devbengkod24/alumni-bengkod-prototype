@@ -728,17 +728,10 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
 
         <!-- Daftar Ranking Produk Gaya Product Hunt -->
         <div class="space-y-2.5 pt-1">
-          <template x-for="(prod, idx) in topProducts" :key="prod.postId">
+          <template x-for="prod in topProducts" :key="prod.postId">
             <div class="flex items-start gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white">
-              <!-- Nomor Ranking -->
-              <div
-                class="w-5 h-5 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 mt-2"
-                :class="idx === 0 ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-500'"
-                x-text="idx + 1"
-              ></div>
-
               <!-- Logo Aplikasi / Monogram Squircle -->
-              <div class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 mt-0.5">
+              <div class="w-9 h-9 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 shrink-0">
                 <template x-if="prod.logo">
                   <img :src="prod.logo" :alt="prod.name" class="w-full h-full object-cover">
                 </template>
