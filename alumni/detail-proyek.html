@@ -173,66 +173,185 @@
           </div>
         </template>
 
-        <!-- TAB 2: REVIEWS & FEEDBACK -->
+        <!-- TAB 2: REVIEWS & FEEDBACK (BERBENTUK KOMENTAR THREADED) -->
         <template x-if="activeTab === 'reviews'">
-          <div id="reviews-section" class="space-y-6">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100 flex-wrap gap-3">
-              <div>
-                <h3 class="text-lg font-bold text-gray-900">Ulasan &amp; Masukan Komunitas</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Diskusikan fitur, berikan apresiasi, atau laporkan kendala teknis langsung ke pembuat</p>
-              </div>
-              <button
-                type="button"
-                @click="showFeedbackForm = !showFeedbackForm"
-                class="px-4 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
-              >
-                + Beri Masukan / Review
-              </button>
+          <div id="reviews-section" class="space-y-5">
+
+            <!-- Heading -->
+            <div class="pb-3 border-b border-gray-100">
+              <h3 class="text-lg font-bold text-gray-900">Ulasan &amp; Masukan Komunitas</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Diskusikan fitur, berikan apresiasi, atau laporkan kendala teknis langsung ke pembuat</p>
             </div>
 
-            <!-- Inline Form Tambah Masukan -->
-            <template x-if="showFeedbackForm">
-              <form @submit.prevent="submitFeedback()" class="p-4 rounded-xl border border-gray-200 bg-gray-50/60 space-y-3 animate-in fade-in duration-150">
-                <div class="grid grid-cols-2 gap-2 text-xs">
+            <!-- Kolom Tulis Komentar Baru -->
+            <div class="flex items-start gap-3">
+              <img :src="currentUser.avatar || 'assets/img/user.png'" :alt="currentUser.name" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+              <div class="flex-1 min-w-0 space-y-2">
+                <div class="relative">
+                  <input
+                    type="text"
+                    placeholder="Tulis komentar atau masukan untuk karya ini..."
+                    x-model="newCommentText"
+                    @keydown.enter.prevent="if (newCommentText.trim()) addComment()"
+                    class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                  >
+                  <button
+                    type="button"
+                    @click="if (newCommentText.trim()) addComment()"
+                    class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold transition-colors cursor-pointer"
+                    :class="newCommentText.trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'"
+                  >
+                    Kirim
+                  </button>
+                </div>
+
+                <!-- Pilihan Kategori Masukan (opsional, ringkas) -->
+                <div class="flex items-center gap-1.5 flex-wrap pl-1 text-[11px]">
+                  <span class="text-gray-400 mr-0.5">Kategori:</span>
                   <template x-for="cat in ['Apresiasi', 'UI/UX', 'Bug', 'Arsitektur/Performa']" :key="cat">
-                    <label class="flex items-center gap-2 p-2 rounded-lg border cursor-pointer bg-white text-gray-700 hover:border-gray-300"
-                           :class="newFbCategory === cat ? 'border-[#1E3A8A] font-bold text-[#1E3A8A]' : 'border-gray-200'">
-                      <input type="radio" name="newFbCat" :value="cat" x-model="newFbCategory" class="sr-only">
-                      <span x-text="cat"></span>
-                    </label>
+                    <button
+                      type="button"
+                      @click="newFbCategory = cat"
+                      class="px-2.5 py-0.5 rounded-full border transition-colors cursor-pointer"
+                      :class="newFbCategory === cat ? 'border-[#1E3A8A] text-[#1E3A8A] font-semibold bg-blue-50/50' : 'border-gray-200 text-gray-500 hover:border-gray-300'"
+                      x-text="cat"
+                    ></button>
                   </template>
                 </div>
-                <textarea
-                  rows="3"
-                  x-model="newFbText"
-                  required
-                  placeholder="Bagikan pengalaman Anda saat mencoba aplikasi ini..."
-                  class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#1E3A8A]"
-                ></textarea>
-                <div class="flex items-center justify-end gap-2">
-                  <button type="button" @click="showFeedbackForm = false" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs text-gray-600 hover:bg-gray-100">Batal</button>
-                  <button type="submit" class="px-5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs">Kirim Ulasan</button>
-                </div>
-              </form>
-            </template>
+              </div>
+            </div>
 
-            <!-- Daftar Ulasan -->
-            <div class="space-y-3">
-              <template x-if="!product.feedbacks || product.feedbacks.length === 0">
-                <p class="text-sm text-gray-400 italic py-6 text-center">Belum ada ulasan untuk karya ini. Jadilah yang pertama memberikan masukan!</p>
-              </template>
-              <template x-for="fb in (product.feedbacks || [])" :key="fb.id">
-                <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/40 space-y-1.5 hover:border-gray-200 transition-colors">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                      <span class="font-bold text-sm text-gray-900" x-text="fb.author"></span>
-                      <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-gray-200 bg-white text-gray-600" x-text="fb.category"></span>
-                    </div>
-                    <span class="text-[11px] text-gray-400" x-text="fb.date || 'Baru saja'"></span>
-                  </div>
-                  <p class="text-sm text-gray-700 leading-relaxed" x-text="fb.text"></p>
+            <!-- Daftar Komentar Threaded -->
+            <div class="pt-2 border-t border-gray-100">
+              <template x-if="(product.feedbacks || []).length === 0">
+                <div class="py-10 text-center space-y-1">
+                  <p class="text-sm text-gray-500 font-medium">Belum ada komentar</p>
+                  <p class="text-xs text-gray-400">Jadilah yang pertama memberikan masukan untuk karya ini.</p>
                 </div>
               </template>
+
+              <template x-if="(product.feedbacks || []).length > 0">
+                <div class="flex items-center gap-1 mb-4 text-[13px] font-semibold text-gray-700">
+                  <span>Paling relevan</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+              </template>
+
+              <div class="space-y-5">
+                <template x-for="fb in (product.feedbacks || [])" :key="fb.id">
+                  <div class="flex items-start gap-3">
+
+                    <!-- Avatar Komentator -->
+                    <img :src="fb.avatar || 'assets/img/user.png'" :alt="fb.author" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+
+                    <div class="flex-1 min-w-0">
+                      <!-- Bubble Komentar -->
+                      <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <p class="text-[14px] font-semibold text-gray-900" x-text="fb.author"></p>
+                          <span class="px-2 py-0.5 rounded-full text-[10px] font-medium border border-gray-200 bg-white text-gray-600" x-text="fb.category"></span>
+                          <span class="text-[11px] text-gray-400 font-normal" x-text="fb.date || 'Baru saja'"></span>
+                        </div>
+                        <p class="text-[14px] text-gray-700 mt-1 leading-relaxed" x-text="fb.text"></p>
+                      </div>
+
+                      <!-- Baris Aksi Komentar -->
+                      <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
+                        <button
+                          type="button"
+                          @click="likeComment(fb.id)"
+                          class="flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                          :class="(fb.likes || 0) > 0 ? 'text-[#1E3A8A]' : ''"
+                          title="Suka komentar"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                          </svg>
+                          <span x-text="(fb.likes || 0) > 0 ? fb.likes : 'Suka'"></span>
+                        </button>
+
+                        <button
+                          type="button"
+                          @click="activeReplyId = activeReplyId === fb.id ? null : fb.id"
+                          class="flex items-center gap-1.5 text-[13px] font-semibold transition-colors cursor-pointer"
+                          :class="activeReplyId === fb.id ? 'text-[#1E3A8A]' : 'text-gray-700 hover:text-[#1E3A8A]'"
+                          title="Balas komentar ini"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                          </svg>
+                          <span>Balas</span>
+                        </button>
+                      </div>
+
+                      <!-- Daftar Balasan -->
+                      <template x-if="fb.replies && fb.replies.length > 0">
+                        <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
+                          <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+                          <template x-for="reply in fb.replies" :key="reply.id">
+                            <div class="flex items-start gap-2.5 relative">
+                              <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
+                              <img :src="reply.avatar || 'assets/img/user.png'" :alt="reply.author" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                              <div class="flex-1 min-w-0">
+                                <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
+                                  <p class="text-[13px] font-bold text-gray-900" x-text="reply.author"></p>
+                                  <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed">
+                                    <span class="font-semibold text-[#1E3A8A] mr-1" x-text="'@' + fb.author"></span><span x-text="reply.text"></span>
+                                  </p>
+                                </div>
+                                <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
+                                  <button
+                                    type="button"
+                                    @click="likeReply(fb.id, reply.id)"
+                                    class="flex items-center gap-1 text-[12px] font-semibold hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                                    :class="(reply.likes || 0) > 0 ? 'text-[#1E3A8A]' : 'text-gray-600'"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                                    </svg>
+                                    <span x-text="(reply.likes || 0) > 0 ? reply.likes : 'Suka'"></span>
+                                  </button>
+                                  <span class="text-[12px] text-gray-400" x-text="reply.time || ''"></span>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+                      </template>
+
+                      <!-- Kolom Balas Inline -->
+                      <template x-if="activeReplyId === fb.id">
+                        <div class="flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative animate-in fade-in duration-150">
+                          <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
+                          <img :src="currentUser.avatar || 'assets/img/user.png'" :alt="currentUser.name" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
+                          <div class="flex-1 min-w-0">
+                            <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all">
+                              <span class="font-semibold text-[13px] text-[#1E3A8A] mr-1.5 flex-shrink-0 select-none" x-text="'@' + fb.author"></span>
+                              <input
+                                type="text"
+                                x-init="$nextTick(() => $el.focus())"
+                                placeholder="Tulis balasan..."
+                                x-model="replyInputs[fb.id]"
+                                @keydown.enter.prevent="if ((replyInputs[fb.id] || '').trim()) addReply(fb.id)"
+                                class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0"
+                              >
+                              <button
+                                type="button"
+                                @click="if ((replyInputs[fb.id] || '').trim()) addReply(fb.id)"
+                                class="ml-2 text-[13px] font-semibold transition-colors cursor-pointer flex-shrink-0"
+                                :class="(replyInputs[fb.id] || '').trim() ? 'text-[#1E3A8A] hover:text-[#1D4ED8]' : 'text-gray-400 hover:text-gray-500'"
+                              >
+                                Kirim
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+
+                    </div>
+                  </div>
+                </template>
+              </div>
             </div>
           </div>
         </template>
@@ -287,9 +406,15 @@
         activeTab: "overview",
         toast: "",
         toastTimer: null,
-        showFeedbackForm: false,
+        currentUser: {
+          name: currentAlumni.name || "Aisha Dwi Rahmawati",
+          avatar: currentAlumni.avatarUrl || "assets/img/user.png",
+        },
+        newCommentText: "",
         newFbCategory: "Apresiasi",
-        newFbText: "",
+        activeReplyId: null,
+        replyInputs: {},
+
         product: {
           postId: 1,
           nama: "Sentimeter AI",
@@ -314,12 +439,47 @@
           upvotes: 28,
           isUpvoted: false,
           feedbacks: [
-            { id: "fb-1", author: "Dimas Aryo", category: "Apresiasi", text: "Latency inferensi sangat stabil di bawah 120ms, keren banget!", status: "Diterapkan", date: "02 Nov 2026" },
-            { id: "fb-2", author: "Clarista", category: "UI/UX", text: "Visualisasi confusion matrix di dashboard sangat informatif.", status: "Diterapkan", date: "03 Nov 2026" }
+            {
+              id: "fb-1",
+              author: "Dimas Aryo",
+              avatar: "https://i.pravatar.cc/150?img=15",
+              category: "Apresiasi",
+              text: "Latency inferensi sangat stabil di bawah 120ms, keren banget!",
+              date: "02 Nov 2026",
+              likes: 3,
+              replies: [
+                {
+                  id: "r-1",
+                  author: "Aisha Dwi Rahmawati",
+                  avatar: "assets/img/user.png",
+                  text: "Terima kasih banyak Dimas! Modelnya kami kuantisasi dengan ONNX Runtime sehingga inferensinya bisa secepat itu.",
+                  time: "1h yang lalu",
+                  likes: 2
+                }
+              ]
+            },
+            {
+              id: "fb-2",
+              author: "Clarista",
+              avatar: "https://i.pravatar.cc/150?img=47",
+              category: "UI/UX",
+              text: "Visualisasi confusion matrix di dashboard sangat informatif dan responsif di layar tablet.",
+              date: "03 Nov 2026",
+              likes: 2,
+              replies: []
+            }
           ]
         },
 
         init() {
+          try {
+            const savedProfile = localStorage.getItem("bengkod_alumni_profile");
+            if (savedProfile) {
+              const p = JSON.parse(savedProfile);
+              this.currentUser.name = p.name || this.currentUser.name;
+              this.currentUser.avatar = p.avatarUrl || this.currentUser.avatar;
+            }
+          } catch (e) {}
           this.loadProductData();
         },
 
@@ -335,6 +495,10 @@
             }
 
             if (matched && matched.karya) {
+              const existingFeedbacks = (matched.karya.feedbacks && matched.karya.feedbacks.length > 0)
+                ? matched.karya.feedbacks
+                : this.product.feedbacks;
+
               this.product = {
                 postId: matched.id,
                 nama: matched.karya.nama,
@@ -357,7 +521,7 @@
                 content: matched.content,
                 upvotes: matched.karya.upvotes || 0,
                 isUpvoted: matched.karya.isUpvoted || false,
-                feedbacks: matched.karya.feedbacks || []
+                feedbacks: existingFeedbacks
               };
             }
           } catch (e) {
@@ -365,36 +529,80 @@
           }
         },
 
-        toggleUpvote(postId) {
-          const wasUpvoted = this.product.isUpvoted;
-          this.product.isUpvoted = !wasUpvoted;
-          this.product.upvotes = wasUpvoted ? Math.max(0, this.product.upvotes - 1) : this.product.upvotes + 1;
+        addComment() {
+          const text = (this.newCommentText || "").trim();
+          if (!text) return;
 
-          try {
-            const posts = typeof loadPosts === "function" ? loadPosts() : [];
-            const idx = posts.findIndex(p => p.id === postId);
-            if (idx >= 0 && posts[idx].karya) {
-              posts[idx].karya.isUpvoted = this.product.isUpvoted;
-              posts[idx].karya.upvotes = this.product.upvotes;
-              if (typeof savePosts === "function") savePosts(posts);
-            }
-          } catch (err) {}
-
-          this.setToast(this.product.isUpvoted ? "Upvote berhasil ditambahkan!" : "Upvote dibatalkan.");
-        },
-
-        submitFeedback() {
-          if (!this.newFbText.trim()) return;
           const newFb = {
             id: "fb-" + Date.now(),
-            author: currentAlumni.name || "Alumni",
+            author: this.currentUser.name || "Alumni",
+            avatar: this.currentUser.avatar || "assets/img/user.png",
             category: this.newFbCategory,
-            text: this.newFbText.trim(),
-            date: "Baru saja"
+            text: text,
+            date: "Baru saja",
+            likes: 0,
+            replies: []
           };
 
           this.product.feedbacks = [newFb, ...(this.product.feedbacks || [])];
+          this.newCommentText = "";
+          this.syncFeedbacks();
+          this.setToast("Komentar berhasil dikirim!");
+        },
 
+        likeComment(commentId) {
+          this.product.feedbacks = (this.product.feedbacks || []).map(f => {
+            if (f.id === commentId) {
+              return { ...f, likes: (f.likes || 0) + 1 };
+            }
+            return f;
+          });
+          this.syncFeedbacks();
+        },
+
+        addReply(commentId) {
+          const replyText = (this.replyInputs[commentId] || "").trim();
+          if (!replyText) return;
+
+          const newReply = {
+            id: "r-" + Date.now(),
+            author: this.currentUser.name || "Alumni",
+            avatar: this.currentUser.avatar || "assets/img/user.png",
+            text: replyText,
+            time: "Baru saja",
+            likes: 0
+          };
+
+          this.product.feedbacks = (this.product.feedbacks || []).map(f => {
+            if (f.id === commentId) {
+              return {
+                ...f,
+                replies: [...(f.replies || []), newReply]
+              };
+            }
+            return f;
+          });
+
+          this.replyInputs = { ...this.replyInputs, [commentId]: "" };
+          this.activeReplyId = null;
+          this.syncFeedbacks();
+          this.setToast("Balasan terkirim!");
+        },
+
+        likeReply(commentId, replyId) {
+          this.product.feedbacks = (this.product.feedbacks || []).map(f => {
+            if (f.id === commentId) {
+              return {
+                ...f,
+                replies: (f.replies || []).map(r => r.id === replyId ? { ...r, likes: (r.likes || 0) + 1 } : r)
+              };
+            }
+            return f;
+          });
+          this.syncFeedbacks();
+        },
+
+        syncFeedbacks() {
           try {
             const posts = typeof loadPosts === "function" ? loadPosts() : [];
             const idx = posts.findIndex(p => p.id === this.product.postId);
@@ -403,10 +611,6 @@
               if (typeof savePosts === "function") savePosts(posts);
             }
           } catch (err) {}
-
-          this.newFbText = "";
-          this.showFeedbackForm = false;
-          this.setToast("Terima kasih! Ulasan Anda berhasil diterbitkan.");
         },
 
         setToast(msg) {
