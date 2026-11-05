@@ -283,16 +283,29 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
     </form>
 
     <!-- ── TAB KATEGORI FEED ── -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-sm">
-      <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
-        <button
-          type="button"
-          @click="selectedCategory = cat"
-          class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
-          :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
-          x-text="cat"
-        ></button>
-      </template>
+    <div class="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar text-sm">
+      <div class="flex items-center gap-2 shrink-0">
+        <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
+          <button
+            type="button"
+            @click="selectedCategory = cat"
+            class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
+            :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'"
+            x-text="cat"
+          ></button>
+        </template>
+      </div>
+
+      <!-- Tombol Launch Produk Gaya Product Hunt -->
+      <button
+        type="button"
+        @click="openLaunchModal()"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold text-[#1E3A8A] bg-blue-50 hover:bg-blue-100/80 border border-blue-200 shrink-0 transition-colors cursor-pointer shadow-2xs"
+        title="Pamerkan produk software atau daftarkan MVP Anda gaya Product Hunt"
+      >
+        <span>🚀</span>
+        <span>Launch Karya</span>
+      </button>
     </div>
 
     <!-- ============================================================
@@ -738,6 +751,18 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             </div>
           </template>
         </div>
+
+        <!-- Tombol CTA Launch Product Hunt Style -->
+        <div class="pt-2 border-t border-gray-100">
+          <button
+            type="button"
+            @click="openLaunchModal()"
+            class="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-[#1E3A8A] bg-blue-50/70 hover:bg-blue-100/80 border border-blue-200 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs group"
+          >
+            <span>🚀</span>
+            <span>Launch Produk / MVP Anda</span>
+          </button>
+        </div>
       </div>
 
       <!-- ── CARD: PENGUMUMAN DARI KOORDINATOR ── -->
@@ -786,6 +811,145 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
     </div><!-- end kolom samping -->
 
 
+
+    <!-- ======================================================
+        MODAL: LAUNCH PRODUK / MVP (GAYA PRODUCT HUNT)
+    ====================================================== -->
+    <template x-if="launchModalOpen">
+      <div
+        class="fixed inset-0 z-[120] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150"
+        @click.self="launchModalOpen = false"
+      >
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+          <!-- Header Modal -->
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1E3A8A] to-[#1D4ED8] text-white flex items-center justify-center text-lg font-bold shadow-xs">
+                🚀
+              </div>
+              <div>
+                <h3 class="text-[17px] font-bold text-gray-900 leading-tight">Launch Produk / Karya Alumni</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Pamerkan software Anda ke komunitas atau cari beta tester pertama</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="launchModalOpen = false"
+              class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Form Peluncuran Produk -->
+          <form @submit.prevent="submitLaunchProduct()" class="p-6 space-y-4 text-sm overflow-y-auto flex-1">
+            <!-- 1. Nama Produk Software -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Nama Produk Software <span class="text-red-500 font-bold">*</span></label>
+              <input
+                type="text"
+                x-model="launchForm.nama"
+                required
+                placeholder="Contoh: Sentimeter AI, Kasir Pintar, Bengkod Tools..."
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+              >
+            </div>
+
+            <!-- 2. Tagline 1 Baris (Product Hunt Pitch) -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Tagline Ringkas (1 Baris) <span class="text-red-500 font-bold">*</span></label>
+              <input
+                type="text"
+                x-model="launchForm.tagline"
+                required
+                placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+              >
+            </div>
+
+            <!-- 3. Tautan Demo / Live URL & Tech Stack -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block font-semibold text-gray-800 text-xs mb-1">Tautan Demo / Live URL <span class="text-red-500 font-bold">*</span></label>
+                <input
+                  type="url"
+                  x-model="launchForm.url"
+                  required
+                  placeholder="https://aplikasi-anda.com"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                >
+              </div>
+              <div>
+                <label class="block font-semibold text-gray-800 text-xs mb-1">Tech Stack</label>
+                <input
+                  type="text"
+                  x-model="launchForm.stack"
+                  placeholder="Next.js, Python, PostgreSQL..."
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-all"
+                >
+              </div>
+            </div>
+
+            <!-- 4. Tahap Peluncuran Produk (Product Stage) -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1.5">Pilih Panggung Peluncuran <span class="text-red-500 font-bold">*</span></label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <label
+                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
+                  :class="launchForm.tahap === 'beta' ? 'border-[#1E3A8A] bg-blue-50/50 text-gray-900 ring-2 ring-[#1E3A8A]/10' : 'border-gray-200 hover:bg-gray-50 text-gray-700'"
+                >
+                  <input type="radio" name="launchTahap" value="beta" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
+                  <div>
+                    <span class="font-bold text-[#1E3A8A] block">🧪 Beta Testing Hub</span>
+                    <span class="text-gray-500 text-[11px] mt-0.5 block">Mencari laporan bug, kritik UI/UX, dan uji coba komunitas alumni.</span>
+                  </div>
+                </label>
+
+                <label
+                  class="flex items-start gap-2.5 p-3 rounded-xl border cursor-pointer transition-all"
+                  :class="launchForm.tahap === 'live' ? 'border-[#1E3A8A] bg-blue-50/50 text-gray-900 ring-2 ring-[#1E3A8A]/10' : 'border-gray-200 hover:bg-gray-50 text-gray-700'"
+                >
+                  <input type="radio" name="launchTahap" value="live" x-model="launchForm.tahap" class="mt-0.5 text-[#1E3A8A]">
+                  <div>
+                    <span class="font-bold text-emerald-800 block">★ Hall of Fame (Live)</span>
+                    <span class="text-gray-500 text-[11px] mt-0.5 block">Etalase produk jadi yang siap dinikmati publik dan recruiter.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- 5. Maker's Note / Cerita Pembuat -->
+            <div>
+              <label class="block font-semibold text-gray-800 text-xs mb-1">Cerita dari Pembuat (Maker's Comment)</label>
+              <textarea
+                rows="3"
+                x-model="launchForm.story"
+                placeholder="Ceritakan mengapa Anda membuat software ini, tantangan teknisnya, atau masukan apa yang Anda harapkan..."
+                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
+              <button
+                type="button"
+                @click="launchModalOpen = false"
+                class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <span>🚀</span>
+                <span>Launch ke Beranda</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </template>
 
     <!-- ======================================================
         MODAL: BERI MASUKAN / FEEDBACK KARYA (BETA & LIVE)
@@ -911,6 +1075,17 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
         pmImageUrl: "",
         selectedCategory: "Semua",
 
+        // Product Hunt Launch Modal State
+        launchModalOpen: false,
+        launchForm: {
+          nama: "",
+          tagline: "",
+          url: "",
+          stack: "",
+          tahap: "beta",
+          story: "",
+        },
+
         // Karya & Showcase state (Untuk interaksi kartu di feed & widget samping)
         feedbackModalOpen: false,
         targetKaryaPost: null,
@@ -984,6 +1159,57 @@ class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outl
           this.targetKaryaPost = this.posts.find((p) => p.id === this.targetKaryaPost.id);
           this.feedbackModalOpen = false;
           this.setToast("Terima kasih! Masukan Anda berhasil dikirimkan ke kreator produk.");
+        },
+
+        openLaunchModal() {
+          this.launchForm = {
+            nama: "",
+            tagline: "",
+            url: "",
+            stack: "",
+            tahap: "beta",
+            story: "",
+          };
+          this.launchModalOpen = true;
+        },
+        submitLaunchProduct() {
+          if (!this.launchForm.nama.trim() || !this.launchForm.tagline.trim()) return;
+          const f = this.launchForm;
+          const karyaObj = {
+            nama: f.nama.trim(),
+            tagline: f.tagline.trim(),
+            tahap: f.tahap,
+            url: f.url.trim() || undefined,
+            stack: f.stack ? f.stack.split(",").map((s) => s.trim()).filter(Boolean) : [],
+            fokus: f.tahap === "beta" ? ["Bug", "UI/UX"] : undefined,
+            upvotes: 1,
+            isUpvoted: true,
+            feedbacks: [],
+          };
+          const storyText = f.story.trim() || (f.tahap === "beta"
+            ? `🚀 Baru saja merilis MVP "${f.nama.trim()}". Mohon bantuan rekan alumni untuk menguji coba dan memberikan masukan ya!`
+            : `★ Resmi meluncurkan produk "${f.nama.trim()}". Silakan coba dan bagikan kesan Anda!`);
+
+          const newPost = {
+            id: Date.now(),
+            authorName: this.profile.name,
+            authorAvatar: this.profile.avatarUrl,
+            authorHeadline: this.profile.headline,
+            date: "Baru saja",
+            category: "Karya & Showcase",
+            content: storyText,
+            visibility: "Semua orang",
+            karya: karyaObj,
+            likes: 1,
+            isLiked: true,
+            commentsCount: 0,
+            repostsCount: 0,
+            impressions: 1,
+          };
+          this.posts = [newPost, ...this.posts];
+          this.simpan();
+          this.launchModalOpen = false;
+          this.setToast(`Selamat! Produk "${f.nama.trim()}" resmi di-launch ke Beranda.`);
         },
 
         get filteredPosts() {
