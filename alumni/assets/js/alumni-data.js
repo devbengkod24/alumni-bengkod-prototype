@@ -34,12 +34,23 @@ const INITIAL_POSTS = [
     repostsCount: 18,
     impressions: 740,
     karya: {
-      nama: "Sentimeter AI — Multi-Language Sentiment Engine",
+      nama: "Sentimeter AI",
+      tagline: "Engine analisis sentimen ulasan publik multi-bahasa",
+      pitch: "Sentimeter AI is the fastest way to understand customer sentiment and public opinion across languages.",
       logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
-      tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan akurasi 94% dan inferensi ultra-cepat",
-      tahap: "live", // beta | live
+      rating: 5.0,
+      reviewsCount: 28,
+      followersCount: "1.4K",
+      categoryTags: ["AI Analytics", "NLP Tools", "Sentiment Intelligence"],
+      tahap: "live",
       url: "https://sentimeter.bengkelkoding.com",
       stack: ["Python", "PyTorch", "Next.js", "Docker", "FastAPI"],
+      screenshots: [
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80"
+      ],
+      overview: "Sentimeter AI dikembangkan untuk memecahkan problem analisis ulasan pelanggan berskala besar di Indonesia yang menggunakan bahasa gaul, sarkasme, dan percampuran multi-bahasa (code-switching). Dengan model deep learning transformer yang di-fine-tune khusus, platform ini mampu mendeteksi polaritas emosi teks secara real-time dengan latensi di bawah 120ms.",
       upvotes: 28,
       isUpvoted: false,
       feedbacks: [
@@ -64,13 +75,22 @@ const INITIAL_POSTS = [
     repostsCount: 9,
     impressions: 430,
     karya: {
-      nama: "Bengkod Git Slicer — Figma to Tailwind Generator",
+      nama: "Bengkod Git Slicer",
+      tagline: "Figma to Tailwind CSS v4 design token generator",
+      pitch: "Bengkod Git Slicer bridges design systems and production code by converting Figma tokens into Tailwind configs.",
       logo: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=120&auto=format&fit=crop&q=80",
-      tagline: "Alat CLI dan antarmuka web untuk generate token desain Figma ke Tailwind config",
+      rating: 4.9,
+      reviewsCount: 14,
+      followersCount: "820",
+      categoryTags: ["Developer Tools", "Design Systems", "CLI Utilities"],
       tahap: "beta",
       url: "https://staging-slicer.bengkelkoding.dev",
-      fokus: ["Bug", "UI/UX", "Beban Server"],
       stack: ["TypeScript", "Node.js", "Tailwind CSS", "Figma API"],
+      screenshots: [
+        "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=1000&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80"
+      ],
+      overview: "Alat open-source untuk developer yang ingin memangkas waktu slicing UI dari Figma. Mendukung ekstraksi color styles, typography tokens, border radii, dan flex layout spacing secara otomatis menjadi Tailwind theme extend JSON.",
       upvotes: 14,
       isUpvoted: false,
       feedbacks: [
@@ -95,13 +115,22 @@ const INITIAL_POSTS = [
     repostsCount: 4,
     impressions: 310,
     karya: {
-      nama: "CoopDesk ERP — Sistem Kasir Koperasi Digital",
+      nama: "CoopDesk ERP",
+      tagline: "Point of Sale & inventory digital koperasi UMKM",
+      pitch: "CoopDesk ERP is a lightweight, responsive point-of-sale system tailored for campus cooperatives and retail micro-businesses.",
       logo: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=120&auto=format&fit=crop&q=80",
-      tagline: "Point of Sale berbasis web responsif untuk koperasi dan UMKM retail",
+      rating: 4.8,
+      reviewsCount: 9,
+      followersCount: "430",
+      categoryTags: ["Point of Sale", "Retail ERP", "Offline-First PWA"],
       tahap: "beta",
       url: "https://coopdesk-demo.bengkelkoding.dev",
-      fokus: ["UI/UX", "Otentikasi / Security"],
       stack: ["React", "Tailwind CSS", "SQLite", "PWA"],
+      screenshots: [
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1000&auto=format&fit=crop&q=80",
+        "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&auto=format&fit=crop&q=80"
+      ],
+      overview: "Sistem kasir web offline-first yang dirancang untuk kebutuhan koperasi mahasiswa dan unit usaha kecil. Dilengkapi fitur pencatatan stok otomatis, barcode scanning via webcam, dan laporan laba rugi harian yang dapat diakses dari browser maupun smartphone.",
       upvotes: 9,
       isUpvoted: false,
       feedbacks: [

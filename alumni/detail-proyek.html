@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Karya Showcase | Bengkel Koding</title>
+  <meta name="description" content="Detail karya software dan produk aplikasi alumni Bengkel Koding UDINUS">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="../assets/js/store.js"></script>
+</head>
+<body>
+<main data-route="detail-proyek">
+  <div x-data="projectDetailPage()" class="w-full max-w-5xl mx-auto py-4 antialiased space-y-6">
+
+    <!-- Toast Notifikasi -->
+    <template x-if="toast">
+      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span x-text="toast"></span>
+      </div>
+    </template>
+
+    <!-- Tombol Navigasi Kembali -->
+    <div class="flex items-center justify-between">
+      <a href="dashboard.html" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#1E3A8A] transition-colors group">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:-translate-x-1 transition-transform">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        <span>Kembali ke Showcase Beranda</span>
+      </a>
+      <span class="text-xs text-gray-400">Bengkel Koding Showcase</span>
+    </div>
+
+    <!-- ====================================================================
+        HERO SECTION: PRODUCT HUNT STYLE (PERSIS 1:1 DENGAN TAMPILAN CURSOR)
+    ==================================================================== -->
+    <div class="bg-white rounded-2xl border border-gray-200/90 p-6 sm:p-8 shadow-xs space-y-6">
+
+      <!-- Baris 1: Header Produk + Aksi Kanan -->
+      <div class="flex items-start justify-between gap-6 flex-wrap lg:flex-nowrap">
+
+        <!-- Sisi Kiri: Logo + Info Utama -->
+        <div class="flex items-start gap-4 sm:gap-5 min-w-0">
+          <!-- Logo Squircle Besar (Persis Product Hunt) -->
+          <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 shadow-xs">
+            <template x-if="product.logo">
+              <img :src="product.logo" :alt="product.nama" class="w-full h-full object-cover">
+            </template>
+            <template x-if="!product.logo">
+              <span class="text-2xl font-black text-gray-800" x-text="(product.nama || '').charAt(0).toUpperCase() || 'P'"></span>
+            </template>
+          </div>
+
+          <!-- Judul, Tagline, Rating, dan Kategori -->
+          <div class="space-y-1.5 min-w-0">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight leading-tight" x-text="product.nama"></h1>
+            <p class="text-base sm:text-[17px] text-gray-600 font-normal leading-snug" x-text="product.tagline"></p>
+
+            <!-- Rating & Social Proof Row (Persis Bintang Emas + Ulasan Product Hunt) -->
+            <div class="flex items-center gap-2 pt-0.5 text-xs text-gray-500 flex-wrap">
+              <div class="flex items-center text-amber-500 font-bold gap-1">
+                <span>★★★★★</span>
+                <span class="text-gray-900 font-extrabold ml-0.5" x-text="(product.rating || 5.0).toFixed(1)"></span>
+              </div>
+              <span class="text-gray-300">•</span>
+              <a href="#reviews-section" @click="activeTab = 'reviews'" class="hover:underline hover:text-gray-900 font-medium" x-text="(product.feedbacks || []).length + ' ulasan'"></a>
+              <span class="text-gray-300">•</span>
+              <span x-text="(product.followersCount || '1.2K') + ' pendukung'"></span>
+              <span class="text-gray-300">•</span>
+              <span>oleh <a :href="getAuthorLink(product.authorName)" class="font-semibold text-gray-800 hover:text-[#1E3A8A] hover:underline" x-text="product.authorName"></a></span>
+            </div>
+
+            <!-- Category / Tags Row with Grid Icon -->
+            <div class="flex items-center gap-2 pt-1 text-xs text-gray-600 flex-wrap">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <template x-for="(cat, idx) in (product.categoryTags || product.stack || ['Software'])" :key="idx">
+                <span class="inline-flex items-center gap-1.5 font-medium hover:text-[#1E3A8A] cursor-pointer">
+                  <span x-text="cat"></span>
+                  <template x-if="idx < (product.categoryTags || product.stack || []).length - 1">
+                    <span class="text-gray-300">·</span>
+                  </template>
+                </span>
+              </template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sisi Kanan: Laurel Award Badge + Visit Website CTA + Upvote -->
+        <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3 shrink-0">
+          <div class="flex items-center gap-3">
+            <!-- Laurel Wreath Award Badge (Product Hunt Style) -->
+            <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/80 flex items-center justify-center text-amber-700 text-lg shadow-2xs" title="#1 Showcase Minggu Ini di Bengkel Koding">
+              🏆
+            </div>
+
+            <!-- Tombol "Visit website" (Persis Gaya Product Hunt) -->
+            <template x-if="product.url">
+              <a
+                :href="product.url"
+                target="_blank"
+                rel="noreferrer"
+                class="px-5 py-2.5 rounded-full border border-gray-300 hover:border-gray-900 bg-white hover:bg-gray-50 text-gray-900 text-sm font-semibold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+              >
+                <span>Visit website</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+                </svg>
+              </a>
+            </template>
+
+            <!-- Tombol Upvote Produk -->
+            <button
+              type="button"
+              @click="toggleUpvote(product.postId)"
+              class="px-5 py-2.5 rounded-full border transition-all cursor-pointer shadow-xs flex items-center gap-2 font-bold text-sm"
+              :class="product.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-transparent text-[#1E3A8A] border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/50'"
+            >
+              <span class="text-xs">▲</span>
+              <span x-text="product.isUpvoted ? 'Dukung (' + product.upvotes + ')' : 'Upvote (' + product.upvotes + ')'"></span>
+            </button>
+          </div>
+
+          <span class="text-[11px] text-gray-400">Terdaftar di Showcase Bengkel Koding</span>
+        </div>
+      </div>
+
+      <!-- Baris 2: Pitch Statement (Pernyataan Utama) -->
+      <div class="pt-2">
+        <p class="text-base sm:text-lg text-gray-800 font-medium leading-relaxed" x-text="product.pitch || product.tagline"></p>
+      </div>
+
+      <!-- Baris 3: Pill Tabs Sub-Navigasi (Overview, Launches, Reviews, Alternatives, dll.) -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-t border-gray-100 pt-4 text-sm font-semibold">
+        <button
+          type="button"
+          @click="activeTab = 'overview'"
+          class="px-4 py-2 rounded-full transition-all shrink-0 cursor-pointer"
+          :class="activeTab === 'overview' ? 'bg-gray-200 text-gray-900 font-bold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+        >
+          Overview
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'reviews'"
+          class="px-4 py-2 rounded-full transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+          :class="activeTab === 'reviews' ? 'bg-gray-200 text-gray-900 font-bold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+        >
+          <span>Reviews &amp; Feedback</span>
+          <span class="px-2 py-0.5 rounded-full text-[11px] bg-gray-100 border border-gray-200 text-gray-700" x-text="(product.feedbacks || []).length"></span>
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'stack'"
+          class="px-4 py-2 rounded-full transition-all shrink-0 cursor-pointer"
+          :class="activeTab === 'stack' ? 'bg-gray-200 text-gray-900 font-bold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+        >
+          Tech Stack
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'maker'"
+          class="px-4 py-2 rounded-full transition-all shrink-0 cursor-pointer"
+          :class="activeTab === 'maker' ? 'bg-gray-200 text-gray-900 font-bold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'"
+        >
+          Maker / Pembuat
+        </button>
+      </div>
+
+      <!-- Baris 4: Interactive Media Carousel / Screenshots Showcase (Persis Tampilan Gambar Cursor) -->
+      <div class="space-y-3 pt-2">
+        <div class="relative grid grid-cols-1 md:grid-cols-12 gap-4 items-stretch">
+
+          <!-- Screenshot 1 (Utama): Tampilan Software / UI App dengan Play Video Overlay -->
+          <div class="md:col-span-7 rounded-2xl border border-gray-200 overflow-hidden bg-gray-100 relative group aspect-[16/10] shadow-sm flex items-center justify-center">
+            <img
+              :src="(product.screenshots && product.screenshots[0]) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80'"
+              alt="Screenshot Utama Produk"
+              class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+            >
+
+            <!-- Video Play Overlay Icon Frosted Glass (Persis Gambar) -->
+            <div class="absolute inset-0 bg-black/10 flex items-center justify-center">
+              <div class="w-14 h-14 rounded-full bg-white/80 backdrop-blur-md shadow-lg flex items-center justify-center text-gray-900 hover:scale-110 transition-transform cursor-pointer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Screenshot 2 (Sekunder): Close-Up Fitur / Selector Panel (Persis Kotak Composer di Gambar) -->
+          <div class="md:col-span-5 rounded-2xl border border-gray-200 overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 relative shadow-sm flex flex-col justify-center p-6 aspect-[16/10]">
+            <img
+              :src="(product.screenshots && product.screenshots[1]) || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80'"
+              alt="Screenshot Fitur"
+              class="w-full h-full object-cover rounded-xl border border-gray-200/80 shadow-2xs"
+            >
+          </div>
+
+          <!-- Floating Next Carousel Arrow Button (Persis Gambar) -->
+          <button
+            type="button"
+            class="absolute -right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-lg text-gray-700 hover:text-[#1E3A8A] flex items-center justify-center transition-all hover:scale-105 cursor-pointer z-10"
+            title="Lihat screenshot berikutnya"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Carousel Pagination Dots (Persis Titik Oranye/Abu-abu di Gambar) -->
+        <div class="flex items-center justify-center gap-1.5 pt-1">
+          <span class="w-2 h-2 rounded-full bg-[#1E3A8A]"></span>
+          <span class="w-2 h-2 rounded-full bg-gray-300"></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ====================================================================
+        TAB CONTENT: OVERVIEW, REVIEWS, TECH STACK & MAKER
+    ==================================================================== -->
+    <div class="bg-white rounded-2xl border border-gray-200/90 p-6 sm:p-8 shadow-xs">
+
+      <!-- TAB 1: OVERVIEW -->
+      <template x-if="activeTab === 'overview'">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Tentang Karya Ini</h3>
+            <p class="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line" x-text="product.overview || product.content || product.tagline"></p>
+          </div>
+
+          <!-- Maker's Note -->
+          <div class="p-5 rounded-xl border border-gray-200 bg-gray-50/50 space-y-3">
+            <div class="flex items-center gap-3">
+              <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+              <div>
+                <h4 class="font-bold text-gray-900 text-sm" x-text="product.authorName"></h4>
+                <p class="text-xs text-gray-500" x-text="product.authorHeadline || 'Alumni Bengkel Koding'"></p>
+              </div>
+            </div>
+            <p class="text-sm text-gray-700 leading-relaxed italic" x-text="'&ldquo;' + (product.content || 'Terima kasih telah mencoba dan mendukung karya saya!') + '&rdquo;'"></p>
+          </div>
+        </div>
+      </template>
+
+      <!-- TAB 2: REVIEWS & FEEDBACK -->
+      <template x-if="activeTab === 'reviews'">
+        <div id="reviews-section" class="space-y-6">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-100 flex-wrap gap-3">
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">Ulasan &amp; Masukan Komunitas</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Diskusikan fitur, berikan apresiasi, atau laporkan kendala teknis langsung ke pembuat</p>
+            </div>
+            <button
+              type="button"
+              @click="showFeedbackForm = !showFeedbackForm"
+              class="px-4 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs transition-colors cursor-pointer"
+            >
+              + Beri Masukan / Review
+            </button>
+          </div>
+
+          <!-- Inline Form Tambah Masukan -->
+          <template x-if="showFeedbackForm">
+            <form @submit.prevent="submitFeedback()" class="p-4 rounded-xl border border-gray-200 bg-gray-50/60 space-y-3 animate-in fade-in duration-150">
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <template x-for="cat in ['Apresiasi', 'UI/UX', 'Bug', 'Arsitektur/Performa']" :key="cat">
+                  <label class="flex items-center gap-2 p-2 rounded-lg border cursor-pointer bg-white text-gray-700 hover:border-gray-300"
+                         :class="newFbCategory === cat ? 'border-[#1E3A8A] font-bold text-[#1E3A8A]' : 'border-gray-200'">
+                    <input type="radio" name="newFbCat" :value="cat" x-model="newFbCategory" class="sr-only">
+                    <span x-text="cat"></span>
+                  </label>
+                </template>
+              </div>
+              <textarea
+                rows="3"
+                x-model="newFbText"
+                required
+                placeholder="Bagikan pengalaman Anda saat mencoba aplikasi ini..."
+                class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:border-[#1E3A8A]"
+              ></textarea>
+              <div class="flex items-center justify-end gap-2">
+                <button type="button" @click="showFeedbackForm = false" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs text-gray-600 hover:bg-gray-100">Batal</button>
+                <button type="submit" class="px-5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold shadow-xs">Kirim Ulasan</button>
+              </div>
+            </form>
+          </template>
+
+          <!-- Daftar Ulasan -->
+          <div class="space-y-3">
+            <template x-if="!product.feedbacks || product.feedbacks.length === 0">
+              <p class="text-sm text-gray-400 italic py-6 text-center">Belum ada ulasan untuk karya ini. Jadilah yang pertama memberikan masukan!</p>
+            </template>
+            <template x-for="fb in (product.feedbacks || [])" :key="fb.id">
+              <div class="p-4 rounded-xl border border-gray-100 bg-gray-50/40 space-y-1.5 hover:border-gray-200 transition-colors">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-sm text-gray-900" x-text="fb.author"></span>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold border border-gray-200 bg-white text-gray-600" x-text="fb.category"></span>
+                  </div>
+                  <span class="text-[11px] text-gray-400" x-text="fb.date || 'Baru saja'"></span>
+                </div>
+                <p class="text-sm text-gray-700 leading-relaxed" x-text="fb.text"></p>
+              </div>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <!-- TAB 3: TECH STACK -->
+      <template x-if="activeTab === 'stack'">
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-gray-900">Teknologi &amp; Arsitektur</h3>
+          <p class="text-sm text-gray-600 leading-relaxed">Daftar pustaka, framework, dan infrastruktur yang digunakan dalam membangun software ini:</p>
+          <div class="flex items-center gap-2 flex-wrap pt-2">
+            <template x-for="tech in (product.stack || [])" :key="tech">
+              <span class="px-3.5 py-1.5 rounded-xl border border-gray-200 bg-gray-50 text-xs font-semibold text-gray-800" x-text="tech"></span>
+            </template>
+          </div>
+        </div>
+      </template>
+
+      <!-- TAB 4: MAKER / PEMBUAT -->
+      <template x-if="activeTab === 'maker'">
+        <div class="space-y-4">
+          <h3 class="text-lg font-bold text-gray-900">Tentang Pembuat Karya</h3>
+          <div class="p-5 rounded-2xl border border-gray-200 flex items-start gap-4">
+            <img :src="product.authorAvatar || 'assets/img/user.png'" :alt="product.authorName" class="w-14 h-14 rounded-full object-cover border border-gray-200 shrink-0">
+            <div class="space-y-1 flex-1">
+              <h4 class="text-base font-bold text-gray-900" x-text="product.authorName"></h4>
+              <p class="text-xs text-gray-500 leading-relaxed" x-text="product.authorHeadline || 'Alumni Bengkel Koding UDINUS'"></p>
+              <div class="pt-3">
+                <a :href="getAuthorLink(product.authorName)" class="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E3A8A] hover:underline">
+                  <span>Lihat Profil Lengkap &amp; Portofolio →</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
+    </div>
+
+  </div>
+</main>
+
+<script>
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("projectDetailPage", () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get("id");
+      const currentAlumni = (typeof ALUMNI_DIRECTORY !== "undefined" && ALUMNI_DIRECTORY[0]) ? ALUMNI_DIRECTORY[0] : { name: "Alumni" };
+
+      return {
+        activeTab: "overview",
+        toast: "",
+        toastTimer: null,
+        showFeedbackForm: false,
+        newFbCategory: "Apresiasi",
+        newFbText: "",
+        product: {
+          postId: 1,
+          nama: "Sentimeter AI",
+          tagline: "Engine analisis sentimen ulasan publik multi-bahasa",
+          pitch: "Sentimeter AI is the fastest way to understand customer sentiment and public opinion across languages.",
+          logo: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=80",
+          rating: 5.0,
+          reviewsCount: 28,
+          followersCount: "1.4K",
+          categoryTags: ["AI Analytics", "NLP Tools", "Sentiment Intelligence"],
+          url: "https://sentimeter.bengkelkoding.com",
+          stack: ["Python", "PyTorch", "Next.js", "Docker", "FastAPI"],
+          screenshots: [
+            "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
+            "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80"
+          ],
+          overview: "Sentimeter AI dikembangkan untuk memecahkan problem analisis ulasan pelanggan berskala besar di Indonesia yang menggunakan bahasa gaul, sarkasme, dan percampuran multi-bahasa (code-switching). Dengan model deep learning transformer yang di-fine-tune khusus, platform ini mampu mendeteksi polaritas emosi teks secara real-time dengan latensi di bawah 120ms.",
+          authorName: "Aisha Dwi Rahmawati",
+          authorAvatar: "assets/img/user.png",
+          authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
+          content: "Alhamdulillah! Sentimeter AI resmi meluncur ke publik setelah uji performa bersama rekan-rekan laboratorium. Engine ini siap menganalisis opini dan sentimen pelanggan dengan akurasi 94%.",
+          upvotes: 28,
+          isUpvoted: false,
+          feedbacks: [
+            { id: "fb-1", author: "Dimas Aryo", category: "Apresiasi", text: "Latency inferensi sangat stabil di bawah 120ms, keren banget!", status: "Diterapkan", date: "02 Nov 2026" },
+            { id: "fb-2", author: "Clarista", category: "UI/UX", text: "Visualisasi confusion matrix di dashboard sangat informatif.", status: "Diterapkan", date: "03 Nov 2026" }
+          ]
+        },
+
+        init() {
+          this.loadProductData();
+        },
+
+        loadProductData() {
+          try {
+            const posts = typeof loadPosts === "function" ? loadPosts() : [];
+            let matched = null;
+            if (targetId) {
+              matched = posts.find(p => p.id == targetId && p.karya) || posts.find(p => p.karya && p.karya.nama.toLowerCase().includes(targetId.toLowerCase()));
+            }
+            if (!matched) {
+              matched = posts.find(p => p.karya);
+            }
+
+            if (matched && matched.karya) {
+              this.product = {
+                postId: matched.id,
+                nama: matched.karya.nama,
+                tagline: matched.karya.tagline,
+                pitch: matched.karya.pitch || matched.karya.tagline,
+                logo: matched.karya.logo || "",
+                rating: matched.karya.rating || 5.0,
+                followersCount: matched.karya.followersCount || "1.2K",
+                categoryTags: matched.karya.categoryTags || matched.karya.stack || ["Software"],
+                url: matched.karya.url || "",
+                stack: matched.karya.stack || [],
+                screenshots: matched.karya.screenshots || [
+                  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80",
+                  "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80"
+                ],
+                overview: matched.karya.overview || matched.content,
+                authorName: matched.authorName || currentAlumni.name,
+                authorAvatar: matched.authorAvatar || currentAlumni.avatarUrl,
+                authorHeadline: matched.authorHeadline || currentAlumni.headline,
+                content: matched.content,
+                upvotes: matched.karya.upvotes || 0,
+                isUpvoted: matched.karya.isUpvoted || false,
+                feedbacks: matched.karya.feedbacks || []
+              };
+            }
+          } catch (e) {
+            console.warn("Gagal memuat detail karya:", e);
+          }
+        },
+
+        toggleUpvote(postId) {
+          const wasUpvoted = this.product.isUpvoted;
+          this.product.isUpvoted = !wasUpvoted;
+          this.product.upvotes = wasUpvoted ? Math.max(0, this.product.upvotes - 1) : this.product.upvotes + 1;
+
+          try {
+            const posts = typeof loadPosts === "function" ? loadPosts() : [];
+            const idx = posts.findIndex(p => p.id === postId);
+            if (idx >= 0 && posts[idx].karya) {
+              posts[idx].karya.isUpvoted = this.product.isUpvoted;
+              posts[idx].karya.upvotes = this.product.upvotes;
+              if (typeof savePosts === "function") savePosts(posts);
+            }
+          } catch (err) {}
+
+          this.setToast(this.product.isUpvoted ? "Upvote berhasil ditambahkan!" : "Upvote dibatalkan.");
+        },
+
+        submitFeedback() {
+          if (!this.newFbText.trim()) return;
+          const newFb = {
+            id: "fb-" + Date.now(),
+            author: currentAlumni.name || "Alumni",
+            category: this.newFbCategory,
+            text: this.newFbText.trim(),
+            date: "Baru saja"
+          };
+
+          this.product.feedbacks = [newFb, ...(this.product.feedbacks || [])];
+
+          try {
+            const posts = typeof loadPosts === "function" ? loadPosts() : [];
+            const idx = posts.findIndex(p => p.id === this.product.postId);
+            if (idx >= 0 && posts[idx].karya) {
+              posts[idx].karya.feedbacks = this.product.feedbacks;
+              if (typeof savePosts === "function") savePosts(posts);
+            }
+          } catch (err) {}
+
+          this.newFbText = "";
+          this.showFeedbackForm = false;
+          this.setToast("Terima kasih! Ulasan Anda berhasil diterbitkan.");
+        },
+
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ""; }, 2600);
+        },
+
+        getAuthorLink(name) {
+          if (!name) return "profil.html";
+          const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+            a => a.name.toLowerCase() === name.toLowerCase()
+          );
+          if (found) return "detail.html?id=" + encodeURIComponent(found.id);
+          return "detail.html?id=" + encodeURIComponent(name.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+        }
+      };
+    });
+  });
+</script>
+</body>
+</html>

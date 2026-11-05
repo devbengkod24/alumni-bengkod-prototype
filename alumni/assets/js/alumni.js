@@ -122,6 +122,7 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
+  if (link === "/dashboard/alumni/detail-proyek" || link === "/dashboard/alumni/proyek") return `${base}detail-proyek.html`;
 
   // Fallback rute lama
   if (link === "/dashboard/alumni/lowongan") return `${base}lowongan.html`;
