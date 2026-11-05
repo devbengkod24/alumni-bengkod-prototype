@@ -702,15 +702,14 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
 
       <!-- ── CARD: SHOWCASE ALUMNI (LEADERBOARD KARYA GAYA PRODUCT HUNT) ── -->
       <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
-        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+        <div class="pb-2 border-b border-gray-100">
           <h3 class="text-[15px] font-bold text-gray-900">Showcase Alumni</h3>
-          <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Leaderboard</span>
         </div>
         <p class="text-xs text-gray-500 leading-relaxed">
           Deretan software &amp; aplikasi karya rekan alumni Bengkel Koding.
         </p>
 
-        <!-- Daftar Ranking Produk Gaya Product Hunt -->
+        <!-- Daftar Produk Showcase -->
         <div class="space-y-2.5 pt-1">
           <template x-for="prod in topProducts" :key="prod.postId">
             <div class="flex items-start gap-2.5 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 transition-colors bg-white">
@@ -727,27 +726,15 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <a :href="'detail-proyek.html?id=' + prod.postId" class="text-xs font-bold text-gray-900 hover:text-[#1E3A8A] hover:underline leading-snug truncate max-w-[130px]" x-text="prod.name"></a>
+                  <a :href="'detail-proyek.html?id=' + prod.postId" class="text-xs font-bold text-gray-900 hover:text-[#1E3A8A] hover:underline leading-snug truncate" x-text="prod.name"></a>
                   <span class="text-[10px] text-gray-300">•</span>
-                  <a :href="getAuthorLink(prod.authorName)" class="text-[11px] text-gray-500 hover:text-[#1E3A8A] hover:underline truncate max-w-[120px]" x-text="prod.authorName"></a>
+                  <a :href="getAuthorLink(prod.authorName)" class="text-[11px] text-gray-500 hover:text-[#1E3A8A] hover:underline truncate" x-text="prod.authorName"></a>
                 </div>
                 <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
                 <template x-if="prod.stack.length > 0">
                   <p class="text-[10px] text-gray-400 truncate pt-0.5" x-text="prod.stack.slice(0, 3).join(', ')"></p>
                 </template>
               </div>
-
-              <!-- Product Hunt Upvote Button Ramping -->
-              <button
-                type="button"
-                @click="toggleUpvoteKarya(prod.postId)"
-                class="flex flex-col items-center justify-center min-w-[42px] px-2 py-1.5 rounded-lg border transition-all cursor-pointer shrink-0"
-                :class="prod.isUpvoted ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-transparent text-gray-700 border-gray-200 hover:border-[#1E3A8A] hover:text-[#1E3A8A]'"
-                title="Upvote produk ini"
-              >
-                <span class="text-[10px] leading-none">▲</span>
-                <span class="text-[11px] font-bold mt-0.5" x-text="prod.upvotes"></span>
-              </button>
             </div>
           </template>
         </div>

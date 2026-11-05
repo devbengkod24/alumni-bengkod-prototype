@@ -351,17 +351,6 @@
             </a>
           </template>
 
-          <!-- Upvote Action Card Button -->
-          <button
-            type="button"
-            @click="toggleUpvote(product.postId)"
-            class="w-full py-2.5 px-4 rounded-xl border text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer"
-            :class="product.isUpvoted ? 'bg-blue-50 text-[#1E3A8A] border-[#1E3A8A] font-bold' : 'bg-transparent text-gray-700 border-gray-300 hover:border-[#1E3A8A] hover:text-[#1E3A8A]'"
-          >
-            <span class="text-xs">▲</span>
-            <span x-text="product.isUpvoted ? 'Didukung (' + (product.upvotes || 0) + ')' : 'Upvote Produk (' + (product.upvotes || 0) + ')'"></span>
-          </button>
-
           <!-- Quick Metadata List -->
           <div class="space-y-2.5 pt-3 border-t border-gray-100 text-xs">
             <div class="flex items-center justify-between">
@@ -535,24 +524,6 @@
           } catch (e) {
             console.warn("Gagal memuat detail karya:", e);
           }
-        },
-
-        toggleUpvote(postId) {
-          const wasUpvoted = this.product.isUpvoted;
-          this.product.isUpvoted = !wasUpvoted;
-          this.product.upvotes = wasUpvoted ? Math.max(0, this.product.upvotes - 1) : this.product.upvotes + 1;
-
-          try {
-            const posts = typeof loadPosts === "function" ? loadPosts() : [];
-            const idx = posts.findIndex(p => p.id === postId);
-            if (idx >= 0 && posts[idx].karya) {
-              posts[idx].karya.isUpvoted = this.product.isUpvoted;
-              posts[idx].karya.upvotes = this.product.upvotes;
-              if (typeof savePosts === "function") savePosts(posts);
-            }
-          } catch (err) {}
-
-          this.setToast(this.product.isUpvoted ? "Upvote berhasil ditambahkan!" : "Upvote dibatalkan.");
         },
 
         addComment() {
