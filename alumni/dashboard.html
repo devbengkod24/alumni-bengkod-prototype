@@ -722,20 +722,19 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs font-bold text-gray-900 leading-snug truncate max-w-[130px]" x-text="prod.name"></h4>
+                  <template x-if="prod.url">
+                    <a :href="prod.url" target="_blank" rel="noreferrer" class="text-xs font-bold text-gray-900 hover:text-[#1E3A8A] hover:underline leading-snug truncate max-w-[130px]" x-text="prod.name"></a>
+                  </template>
+                  <template x-if="!prod.url">
+                    <h4 class="text-xs font-bold text-gray-900 leading-snug truncate max-w-[130px]" x-text="prod.name"></h4>
+                  </template>
                   <span class="text-[10px] text-gray-300">•</span>
                   <a :href="getAuthorLink(prod.authorName)" class="text-[11px] text-gray-500 hover:text-[#1E3A8A] hover:underline truncate max-w-[120px]" x-text="prod.authorName"></a>
                 </div>
                 <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
-                <div class="flex items-center gap-2 pt-0.5 text-[10px]">
-                  <template x-if="prod.url">
-                    <a :href="prod.url" target="_blank" rel="noreferrer" class="font-semibold text-[#1E3A8A] hover:underline">Uji Coba ↗</a>
-                  </template>
-                  <template x-if="prod.stack.length > 0">
-                    <span class="text-gray-300">•</span>
-                  </template>
-                  <span class="text-gray-400 truncate max-w-[130px]" x-text="prod.stack.slice(0, 2).join(', ')"></span>
-                </div>
+                <template x-if="prod.stack.length > 0">
+                  <p class="text-[10px] text-gray-400 truncate pt-0.5" x-text="prod.stack.slice(0, 3).join(', ')"></p>
+                </template>
               </div>
 
               <!-- Product Hunt Upvote Button Ramping -->
