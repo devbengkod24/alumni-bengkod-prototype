@@ -309,7 +309,7 @@ function syncProjectToFeed(project, author) {
       authorHeadline: authorHeadline,
       date: "Baru saja",
       category: "Karya & Showcase",
-      content: `🚀 Mempublikasikan karya terbaru ke Showcase Alumni: "${project.title}".\n\nSilakan coba dan berikan masukan Anda!`,
+      content: "", // Postingan karya tampil sebagai kartu saja, tanpa teks pengantar
       visibility: "Semua orang",
       karya: karyaObj,
       likes: 1,

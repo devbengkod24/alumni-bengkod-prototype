@@ -16,7 +16,7 @@
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
 <main data-route="">
-  <div x-data="feedPage" @project-add="handleProjectAdd($event.detail)" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
+  <div x-data="feedPage" @project-add.window="handleProjectAdd($event.detail)" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
     <!-- Toast Notifikasi -->
     <template x-if="toast">
       <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
@@ -35,178 +35,8 @@
       <div>
 <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
         <p class="text-sm text-gray-500 mt-0.5">
-          Linimasa showcase software, diskusi proyek, dan internal referral alumni Bengkel Koding
+          Kabar, karya, dan info loker dari rekan alumni Bengkel Koding
         </p>
-      </div>
-    </div>
-
-    <!-- ── SEARCH BAR PENCARIAN ALUMNI ── -->
-    <div
-      x-data="{
-        searchQuery: '',
-        searchOpen: false,
-        recentSearches: [
-          { name: 'Andi Pratama', id: 'andi-pratama' },
-          { name: 'Siti Nuraini', id: 'siti-nuraini' },
-          { name: 'Budi Santoso', id: 'budi-santoso' }
-        ],
-        suggestAlumni: [
-          { id: 'nadjwa-salsabila', name: 'Nadjwa Salsabila' },
-          { id: 'maulidya-ayu-pratiwi', name: 'Maulidya Ayu Pratiwi' },
-          { id: 'alvyan-anantama', name: 'Alvyan Anantama' },
-          { id: 'sindu-aditya-putra', name: 'Sindu Aditya Putra' },
-          { id: 'taliya-maharani', name: 'Taliya Maharani' }
-        ],
-        get filteredResults() {
-          const q = this.searchQuery.trim().toLowerCase();
-          if (!q) return [];
-          return (typeof searchAlumni === 'function' ? searchAlumni(q) : []).map(a => ({
-            id: a.id,
-            name: a.name,
-            link: 'detail.html?id=' + encodeURIComponent(a.id)
-          })).slice(0, 8);
-        },
-        goToResult(name, id, link) {
-          this.addRecent(name, id);
-          window.location.href = link;
-        },
-        addRecent(name, id) {
-          this.recentSearches = this.recentSearches.filter(r => r.name !== name);
-          this.recentSearches.unshift({ name, id: id || name.toLowerCase().replace(/\s+/g, '-') });
-          if (this.recentSearches.length > 5) this.recentSearches.pop();
-        },
-        clearRecent(name) {
-          this.recentSearches = this.recentSearches.filter(r => r.name !== name);
-        }
-      }"
-      class="relative"
-      @click.outside="searchOpen = false"
-    >
-      <!-- Input Search Bar -->
-      <div class="relative">
-        <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <input
-          id="alumni-search-input"
-          type="text"
-          x-model="searchQuery"
-          @focus="searchOpen = true"
-          @input="searchOpen = true"
-          placeholder="Cari alumni berdasarkan nama..."
-class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm"
-        >
-        <button
-          x-show="searchQuery.length > 0"
-          @click="searchQuery = \'\'; searchOpen = false"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1 cursor-pointer"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Dropdown -->
-      <div
-        x-show="searchOpen"
-        x-transition:enter="transition ease-out duration-150"
-        x-transition:enter-start="opacity-0 translate-y-1"
-        x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-100"
-        x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 translate-y-1"
-        class="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-white rounded-xl border border-gray-200 shadow-xl overflow-hidden"
-      >
-
-        <!-- Saat ada query: tampilkan hasil pencarian -->
-        <template x-if="searchQuery.trim().length > 0">
-          <div>
-            <template x-if="filteredResults.length > 0">
-              <div>
-                <template x-for="item in filteredResults" :key="item.id">
-                  <div
-                    @click="goToResult(item.name, item.id, item.link)"
-                    class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
-                  >
-                    <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      </svg>
-                    </div>
-                    <span class="text-[14px] text-gray-800" x-text="item.name"></span>
-                  </div>
-                </template>
-              </div>
-            </template>
-            <template x-if="filteredResults.length === 0">
-              <div class="px-4 py-8 text-center text-[14px] text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 mx-auto text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                Tidak ada alumni ditemukan untuk "<span class="font-semibold text-gray-600" x-text="searchQuery"></span>"
-              </div>
-            </template>
-          </div>
-        </template>
-
-        <!-- Saat input kosong: tampilkan riwayat & saran -->
-        <template x-if="searchQuery.trim().length === 0">
-          <div>
-
-            <!-- Riwayat Pencarian Terbaru -->
-            <template x-if="recentSearches.length > 0">
-              <div>
-                <div class="flex items-center justify-between px-4 pt-3 pb-1.5">
-                  <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Terbaru</span>
-<button @click="recentSearches = []" class="text-[12px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Hapus semua</button>
-                </div>
-                <template x-for="item in recentSearches" :key="item.name">
-                  <div class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group"
-                       @click="window.location.href = 'detail.html?id=' + item.id">
-                    <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
-                        <path d="M12 6v6l4 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      </svg>
-                    </div>
-                    <span class="flex-1 text-[14px] text-gray-800 group-hover:text-gray-900" x-text="item.name"></span>
-                    <button @click.stop="clearRecent(item.name)" class="text-gray-300 hover:text-gray-500 transition-colors cursor-pointer p-1 rounded">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                </template>
-              </div>
-            </template>
-
-            <!-- Saran Pencarian -->
-            <div :class="recentSearches.length > 0 ? \'border-t border-gray-100\' : \'\' ">
-              <div class="px-4 pt-3 pb-1.5">
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Coba Cari</span>
-              </div>
-              <template x-for="a in suggestAlumni" :key="a.id">
-                <a :href="\'detail.html?id=\' + a.id"
-                   class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group">
-                  <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center shrink-0 text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
-                      <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                    </svg>
-                  </div>
-                  <span class="text-[14px] text-gray-800 group-hover:text-gray-900" x-text="a.name"></span>
-                </a>
-              </template>
-            </div>
-
-          </div>
-        </template>
-
       </div>
     </div>
 
@@ -226,7 +56,7 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           rows="2"
           x-model="pmContent"
           @input="$el.style.height = 'auto'; $el.style.height = Math.max(56, $el.scrollHeight) + 'px'"
-          placeholder="Bagikan update proyek, info loker kantor, atau diskusikan ide..."
+          :placeholder="pmIsLoker ? 'Tulis info loker: posisi, perusahaan, kualifikasi, dan cara mendaftar atau minta referral...' : 'Bagikan kabar, pertanyaan, atau ide ke rekan alumni...'"
           class="w-full resize-none bg-transparent pt-2 text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed overflow-hidden"
           style="min-height: 56px;"
         ></textarea>
@@ -248,9 +78,16 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           </div>
         </template>
 
+        <!-- Petunjuk mode loker -->
+        <template x-if="pmIsLoker">
+          <p class="text-[12px] text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
+            Postingan ini akan masuk tab <span class="font-semibold">Internal Referral</span>.
+          </p>
+        </template>
+
         <!-- Toolbar: tombol media di kiri, tombol posting di kanan -->
         <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 flex-wrap">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <!-- Tombol Tambah Media Foto -->
             <button
               type="button"
@@ -265,6 +102,40 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
                 <polyline points="21 15 16 10 5 21" />
               </svg>
               <span>Foto</span>
+            </button>
+
+            <!-- Tombol Luncurkan Karya: hasilnya kartu karya, bukan postingan teks -->
+            <button
+              type="button"
+              id="btn-composer-karya"
+              @click="openLaunchModal()"
+              title="Luncurkan karya sebagai kartu showcase"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+              </svg>
+              <span>Karya</span>
+            </button>
+
+            <!-- Tombol Loker: menandai postingan sebagai Internal Referral -->
+            <button
+              type="button"
+              id="btn-composer-loker"
+              @click="pmIsLoker = !pmIsLoker; $refs.postTextarea.focus()"
+              :aria-pressed="pmIsLoker.toString()"
+              title="Tandai sebagai info loker / referral"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border"
+              :class="pmIsLoker ? 'bg-blue-50 border-blue-200 text-[#1E3A8A]' : 'border-gray-200 bg-transparent text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+              </svg>
+              <span>Loker</span>
             </button>
           </div>
 
@@ -381,7 +252,18 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
               </div>
             </template>
 
-            <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-gray-900 font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+            <!-- Label postingan loker / referral -->
+            <template x-if="(post.category || '').toLowerCase().includes('referral')">
+              <span class="inline-flex items-center gap-1 mt-3.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+                Loker / Referral
+              </span>
+            </template>
+
+            <!-- Postingan karya: tanpa teks pengantar, langsung kartu karya -->
+            <template x-if="!post.karya">
+              <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-gray-900 font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+            </template>
 
             <!-- KARTU KARYA SHOWCASE (MEMANJANG, UNIFORM & CLICKABLE) -->
             <template x-if="post.karya">
@@ -427,7 +309,7 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           </div>
 
           <!-- GAMBAR POSTINGAN -->
-          <template x-if="post.imageUrl">
+          <template x-if="post.imageUrl && !post.karya">
             <div class="px-5 pb-5">
               <img :src="post.imageUrl" alt="Gambar postingan" class="w-full max-h-[220px] object-cover rounded-xl border border-gray-200/80">
             </div>
@@ -663,10 +545,14 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
 
       <!-- ── CARD: SHOWCASE ALUMNI (LEADERBOARD KARYA GAYA PRODUCT HUNT) ── -->
       <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
-        <div class="pb-2 border-b border-gray-100">
-          <h3 class="text-[15px] font-bold text-gray-900">Showcase Alumni</h3>
+        <div class="pb-2 border-b border-gray-100 flex items-center justify-between gap-2">
+          <h3 class="text-[16px] font-semibold text-gray-900">Showcase Alumni</h3>
+          <a href="showcase.html" class="inline-flex items-center gap-0.5 text-[12px] font-medium text-[#1E3A8A] hover:underline shrink-0">
+            Lihat semua
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          </a>
         </div>
-        <p class="text-xs text-gray-500 leading-relaxed">
+        <p class="text-[13px] text-gray-500 leading-relaxed">
           Deretan software &amp; aplikasi karya rekan alumni Bengkel Koding.
         </p>
 
@@ -678,25 +564,25 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
               class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/60 transition-all bg-white group cursor-pointer w-full text-left"
             >
               <!-- Logo Aplikasi / Monogram Squircle -->
-              <div class="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 group-hover:scale-105 transition-transform">
+              <div class="w-11 h-11 rounded-lg border border-gray-200 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 group-hover:scale-105 transition-transform">
                 <template x-if="prod.logo">
                   <img :src="prod.logo" :alt="prod.name" class="w-full h-full object-cover">
                 </template>
                 <template x-if="!prod.logo">
-                  <span class="text-xs font-bold text-[#1E3A8A]" x-text="(prod.name || '').charAt(0).toUpperCase() || 'A'"></span>
+                  <span class="text-sm font-bold text-[#1E3A8A]" x-text="(prod.name || '').charAt(0).toUpperCase() || 'A'"></span>
                 </template>
               </div>
 
               <!-- Detail Produk -->
               <div class="flex-1 min-w-0 space-y-0.5">
                 <div class="flex items-center gap-1.5 flex-wrap">
-                  <h4 class="text-xs font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate" x-text="prod.name"></h4>
-                  <span class="text-[10px] text-gray-300">•</span>
-                  <span class="text-[11px] text-gray-500 truncate" x-text="prod.authorName"></span>
+                  <h4 class="text-[14px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug truncate" x-text="prod.name"></h4>
+                  <span class="text-[11px] text-gray-300">•</span>
+                  <span class="text-[12px] text-gray-500 truncate" x-text="prod.authorName"></span>
                 </div>
-                <p class="text-[11px] text-gray-500 line-clamp-1" x-text="prod.tagline"></p>
+                <p class="text-[13px] text-gray-600 line-clamp-1" x-text="prod.tagline"></p>
                 <template x-if="prod.stack.length > 0">
-                  <p class="text-[10px] text-gray-400 truncate pt-0.5" x-text="prod.stack.slice(0, 3).join(', ')"></p>
+                  <p class="text-[12px] text-gray-400 truncate pt-0.5" x-text="prod.stack.slice(0, 3).join(', ')"></p>
                 </template>
               </div>
 
@@ -708,16 +594,6 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           </template>
         </div>
 
-        <!-- Tombol CTA Launch Product Hunt Style (Clean & Transparan) -->
-        <div class="pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            @click="openLaunchModal()"
-            class="w-full py-2 px-3 rounded-lg text-xs font-semibold text-gray-700 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span>+ Launch Karya</span>
-          </button>
-        </div>
       </div>
 
       <!-- ── CARD: PENGUMUMAN DARI KOORDINATOR ── -->
@@ -824,6 +700,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         // Post state (Murni gaya X)
         pmContent: "",
         pmImageUrl: "",
+        pmIsLoker: false,
         selectedCategory: "Semua",
 
         // Modal Tambah Proyek / Launch Karya (State selaras form proyek profil)
@@ -877,7 +754,8 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             const c = (p.category || "").toLowerCase();
             const target = this.selectedCategory.toLowerCase();
             if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
-            if (target === "internal referral") return c.includes("referral") || c.includes("loker") || (p.content || "").toLowerCase().includes("referral");
+            // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
+            if (target === "internal referral") return c.includes("referral") || c.includes("loker") || (!p.category && (p.content || "").toLowerCase().includes("referral"));
             return true;
           });
         },
@@ -993,6 +871,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         resetComposer() {
           this.pmContent = "";
           this.pmImageUrl = "";
+          this.pmIsLoker = false;
           if (this.$refs.postTextarea) {
             this.$refs.postTextarea.style.height = "auto";
           }
@@ -1017,10 +896,8 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             return;
           }
 
-          const contentLower = (this.pmContent || "").toLowerCase();
-          const resolvedCategory = (contentLower.includes("referral") || contentLower.includes("loker"))
-            ? "Internal Referral"
-            : "Semua";
+          // Kategori dipilih penulis lewat tombol Loker, tidak ditebak dari isi teks
+          const resolvedCategory = this.pmIsLoker ? "Internal Referral" : "Umum";
 
           const newPost = {
             id: Date.now(),

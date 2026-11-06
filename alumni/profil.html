@@ -24,19 +24,11 @@
       <div class="lg:col-span-8 space-y-6">
         <!-- ── SEKSI 1: BIODATA & KONTAK ── -->
         <div class="space-y-2">
-          <div class="flex items-center gap-2.5 px-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Seksi 1: Biodata &amp; Kontak</h2>
-          </div>
           <div data-partial="profile-top" data-variant="profil"></div>
         </div>
 
         <!-- ── SEKSI 2: STATUS KARIR & STUDI LANJUT S2 ── -->
         <div class="space-y-2">
-          <div class="flex items-center gap-2.5 px-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Seksi 2: Status Karir &amp; Studi Lanjut S2</h2>
-          </div>
           <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
             <div class="flex items-center justify-between pb-3 border-b border-gray-100">
               <div>
@@ -73,10 +65,6 @@
 
         <!-- ── SEKSI 3: PORTOFOLIO & BANK KARYA ── -->
         <div class="space-y-2">
-          <div class="flex items-center gap-2.5 px-1">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-            <h2 class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Seksi 3: Portofolio &amp; Bank Karya</h2>
-          </div>
           <div data-partial="profile-bottom" data-variant="profil"></div>
         </div>
 
@@ -170,10 +158,49 @@
                   <h5 class="text-[17px] font-semibold text-gray-900">Machine Learning Algorithms Cheatsheet</h5>
                 </div>
               </template>
-              <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+              <template x-if="!post.karya">
+                <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+              </template>
+
+              <!-- KARTU KARYA SHOWCASE (selaras dengan feed dashboard) -->
+              <template x-if="post.karya">
+                <a
+                  :href="'detail-proyek.html?id=' + post.id"
+                  class="mt-4 flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100/70 hover:border-gray-300 transition-all group cursor-pointer w-full text-left"
+                >
+                  <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+                    <template x-if="post.karya.logo">
+                      <img :src="post.karya.logo" :alt="post.karya.nama" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!post.karya.logo">
+                      <span class="text-xl font-black text-[#1E3A8A]" x-text="(post.karya.nama || 'A').charAt(0).toUpperCase()"></span>
+                    </template>
+                  </div>
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <h4 class="text-[15px] sm:text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="post.karya.nama"></h4>
+                      <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+                        <span>Detail</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-600 line-clamp-1" x-text="post.karya.tagline"></p>
+                    <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                      <div class="flex items-center gap-1.5 pt-1 flex-wrap">
+                        <template x-for="s in post.karya.stack.slice(0, 3)" :key="s">
+                          <span class="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] font-medium" x-text="s"></span>
+                        </template>
+                        <template x-if="post.karya.stack.length > 3">
+                          <span class="text-[10px] text-gray-400" x-text="'+' + (post.karya.stack.length - 3)"></span>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </a>
+              </template>
             </div>
 
-            <template x-if="post.imageUrl">
+            <template x-if="post.imageUrl && !post.karya">
               <div class="px-5 pb-5">
                 <img :src="post.imageUrl" alt="Gambar postingan" class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80">
               </div>
@@ -1086,7 +1113,7 @@
                 date: "Baru saja",
                 category: "Karya & Showcase",
                 visibility: "Semua orang",
-                content: `🚀 Mempublikasikan karya terbaru ke Showcase Alumni: "${karyaData.nama}".\n\nSilakan coba dan berikan masukan Anda!`,
+                content: "",
                 karya: karyaData,
                 likes: 0,
                 isLiked: false,

@@ -444,7 +444,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
           </div>`;
 
   const projects = `<div id="section-projects" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-        ${sectionHead("Proyek &amp; Portofolio", "projects.length", SECTION_ADD_BTN("btn-add-project", "addProjectOpen", "Tambah proyek") + SECTION_EDIT_BTN("btn-edit-project", "editProjectOpen", "Edit proyek"))}
+        ${sectionHead("Proyek &amp; Portofolio", "projects.length", SECTION_ADD_BTN("btn-add-project", "addProjectOpen", "Tambah proyek"))}
         <div class="space-y-4 pt-4">
           <template x-if="projects.length === 0">
             <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada proyek yang dipublikasikan.' : 'Belum ada proyek. Klik tanda + untuk menambahkan.'}</p>
@@ -523,23 +523,16 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                     </template>
                   </div>
                   ${detail ? "" : `
-                    <div class="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-between gap-3 text-xs flex-wrap">
-                      <div class="flex items-center gap-2">
-                        <template x-if="proj.stage">
-                          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-200">
-                            <span>🚀 Showcase Alumni</span>
-                          </span>
-                        </template>
-                        <template x-if="!proj.stage">
-                          <span class="text-gray-400 font-medium text-[11px]">Belum dipublikasikan ke Showcase</span>
-                        </template>
-                      </div>
-
-                      <div class="flex items-center gap-2">
-                        <button type="button" @click="openPublishKaryaModal(proj)" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-[#1E3A8A] bg-white hover:bg-blue-50 border border-blue-200 transition-colors cursor-pointer shadow-2xs">
-                          <span x-text="proj.stage ? 'Kelola Showcase' : '🚀 Publish ke Showcase'"></span>
+                    <div class="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-end gap-2 text-xs flex-wrap">
+                      <template x-if="!proj.stage">
+                        <button type="button" @click="openPublishKaryaModal(proj)" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 transition-colors cursor-pointer">
+                          Publish ke Showcase
                         </button>
-                      </div>
+                      </template>
+                      <button type="button" @click="openEditProject(proj)" :aria-label="'Edit proyek ' + proj.title" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-[#1E3A8A] bg-white hover:bg-blue-50 border border-blue-200 transition-colors cursor-pointer shadow-2xs">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Edit
+                      </button>
                     </div>
                   `}
                 </div>
@@ -802,6 +795,7 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     addHonorOpen: false,
     addProjectOpen: false,
     editProjectOpen: false,
+    editProjectId: null,
     showAllProjects: false,
     showAllPosts: false,
     expandedProjIds: {},
@@ -842,6 +836,10 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     },
     get visibleSkills() {
       return this.showAllSkills ? this.skills : this.skills.slice(0, SKILLS_PREVIEW);
+    },
+    openEditProject(proj) {
+      this.editProjectId = proj.id;
+      this.editProjectOpen = true;
     },
     get visibleProjects() {
       return this.showAllProjects ? this.projects : this.projects.slice(0, PROJECTS_PREVIEW);
@@ -1048,9 +1046,10 @@ document.addEventListener("alpine:init", () => {
 // Event dari modal (alumni-profile-modals.js) → handler profilePage
 const PROFILE_MODAL_EVENTS = ["about-save", "skills-save", "skill-delete", "honors-save", "honor-add", "org-add", "orgs-save", "edu-add", "edus-save", "project-add", "projects-save", "cert-add", "certs-save"];
 
+// Modal di-teleport ke <body>, jadi event-nya tidak melewati elemen halaman; tangkap di window
 function bindProfileModalEvents(el, data) {
   if (!el || typeof el.addEventListener !== "function") return;
-  el.addEventListener("profile-save", (e) => data.handleSaveProfile && data.handleSaveProfile(e.detail));
-  PROFILE_MODAL_EVENTS.forEach((name) => el.addEventListener(name, (e) => data.handleModalEvent && data.handleModalEvent(name, e.detail)));
+  window.addEventListener("profile-save", (e) => data.handleSaveProfile && data.handleSaveProfile(e.detail));
+  PROFILE_MODAL_EVENTS.forEach((name) => window.addEventListener(name, (e) => data.handleModalEvent && data.handleModalEvent(name, e.detail)));
 }
 

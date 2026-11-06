@@ -1151,9 +1151,9 @@ document.addEventListener("alpine:init", () => {
     init() {
       const projects = JSON.parse(JSON.stringify(this.$data.projects));
       this.draftList = projects;
-      const first = projects[0] ? projects[0].id : null;
-      this.selectedId = first;
-      const found = projects.find((p) => p.id === first) || null;
+      const target = projects.find((p) => p.id === this.$data.editProjectId) || projects[0] || null;
+      this.selectedId = target ? target.id : null;
+      const found = target;
       this.form = found ? projectToDraft(found) : null;
       this._lock();
     },
@@ -1205,6 +1205,11 @@ document.addEventListener("alpine:init", () => {
       this.touched = {};
       this.submitted = false;
       setTimeout(() => this.$refs.projectEditTitle && this.$refs.projectEditTitle.focus(), 30);
+    },
+    removeSelected() {
+      if (this.selectedId === null) return;
+      if (!confirm("Hapus proyek ini dari profil Anda?")) return;
+      this.$dispatch("projects-save", this.draftList.filter((p) => p.id !== this.selectedId));
     },
     removeProject(id) {
       const next = this.draftList.filter((p) => p.id !== id);
@@ -1835,19 +1840,19 @@ function projectFieldsHTML(edit) {
   return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
     <!-- Judul / Nama Karya -->
     <div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Nama karya / Judul proyek", required: true, star, err: "showErr('title')" })}
-      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" ${edit ? "" : 'placeholder="Contoh: Sentimeter AI"'} ${inputCls("title")}>
+      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Nama karya", required: true, star, err: "showErr('title')" })}
+      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" placeholder="Contoh: Sentimeter AI" ${inputCls("title")}>
     </div>
     <!-- Periode -->
     <div class="space-y-1.5">
       ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode pengerjaan", required: true, star, err: "showErr('period')" })}
-      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" ${edit ? "" : 'placeholder="Contoh: Jun 2026 – Sekarang"'} ${inputCls("period")}>
+      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" placeholder="Contoh: Jun 2026 – Sekarang" ${inputCls("period")}>
     </div>
 
     <!-- Tagline 1 Baris (Showcase & Feed) -->
     <div class="space-y-1.5 sm:col-span-2">
       <div class="flex items-center justify-between">
-        <label for="${p("tagline")}" class="block text-[14px] font-medium text-gray-700">Tagline ringkas (1 baris)</label>
+        <label for="${p("tagline")}" class="block text-[14px] font-medium text-gray-700">Tagline</label>
         <span class="text-[11px] text-gray-400">Tampil di kartu feed &amp; widget Showcase</span>
       </div>
       <input id="${p("tagline")}" type="text" autocomplete="off" x-model="form.tagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" ${plainInputCls}>
@@ -1855,7 +1860,7 @@ function projectFieldsHTML(edit) {
 
     <!-- Demo URL & Kategori Software -->
     <div class="space-y-1.5">
-      <label for="${p("demo-url")}" class="block text-[14px] font-medium text-gray-700">Tautan demo / Live URL</label>
+      <label for="${p("demo-url")}" class="block text-[14px] font-medium text-gray-700">URL Website</label>
       <input id="${p("demo-url")}" type="url" autocomplete="off" x-model="form.demoUrl" placeholder="https://aplikasi-anda.com" ${plainInputCls}>
     </div>
     <div class="space-y-1.5">
@@ -1865,8 +1870,8 @@ function projectFieldsHTML(edit) {
 
     <!-- Deskripsi Lengkap -->
     <div class="space-y-1.5 sm:col-span-2">
-      ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi lengkap / Tentang karya", required: true, star, err: "showErr('desc')" })}
-      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" ${edit ? "" : 'placeholder="Jelaskan problem yang dipecahkan, fitur utama, dan hasil dari karya ini..."'} style="resize: none" ${textareaCls}></textarea>
+      ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi", required: true, star, err: "showErr('desc')" })}
+      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" placeholder="Jelaskan problem yang dipecahkan, fitur utama, dan hasil dari karya ini..." style="resize: none" ${textareaCls}></textarea>
     </div>
 
     <!-- Kontributor -->
@@ -1882,7 +1887,7 @@ function projectFieldsHTML(edit) {
     <!-- 1. Logo / Ikon Aplikasi (Rasio 1:1 Squircle - Murni Unggah Berkas) -->
     <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
       <div class="flex items-center justify-between">
-        <label class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi (Rasio 1:1)</label>
+        <label class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi</label>
         <span class="text-[11px] text-gray-500">Ikon di kartu feed &amp; sidebar showcase</span>
       </div>
       <div class="flex items-center gap-4">
@@ -1941,7 +1946,7 @@ function projectFieldsHTML(edit) {
     <!-- 2. Banner / Screenshot UI Aplikasi (Rasio 16:9 Memanjang - Murni Unggah Berkas) -->
     <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
       <div class="flex items-center justify-between">
-        <label class="block text-[14px] font-semibold text-gray-800">Banner / Screenshot UI Aplikasi (Rasio 16:9)</label>
+        <label class="block text-[14px] font-semibold text-gray-800">Banner</label>
         <span class="text-[11px] text-gray-500">Tampilan utama di halaman detail proyek</span>
       </div>
 
@@ -2017,9 +2022,9 @@ ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
 
 ALUMNI_PARTIALS["modal-edit-project"] = () => {
   const close = "editProjectOpen = false";
-  const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
-    Pilih proyek yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus proyek dari daftar.
-  </p><template x-if="draftList.length === 0"><p class="text-[14px] text-gray-500 italic">Belum ada proyek untuk diedit.</p></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Proyek Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(p, idx) in draftList" :key="p.id"><div class="${PC.listRow}" :class="p.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectProject(p)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="p.title"></p><p class="text-[12px] text-gray-500 truncate" x-text="p.period"></p></div><template x-if="p.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeProject(p.id)" class="${PC.listTrash}" title="Hapus proyek">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail proyek terpilih</h3>${projectFieldsHTML(true)}</div></template></div></template>`;
+  // Edit satu proyek dari tombol Edit di kartunya; form sama dengan Tambah Proyek / Karya
+  const body = `<template x-if="form">${projectFieldsHTML(true)}</template>`;
+  const footer = `<button type="button" @click="removeSelected()" class="mr-auto px-4 py-2.5 rounded-full text-red-600 font-semibold text-[14.5px] hover:bg-red-50 transition-colors cursor-pointer">Hapus proyek</button>${defaultFooter(close)}`;
 
   return formModalHTML({
     open: "editProjectOpen",
@@ -2027,12 +2032,12 @@ ALUMNI_PARTIALS["modal-edit-project"] = () => {
     formId: "modalEditProjectForm",
     labelledby: "edit-project-title",
     xdata: "editProjectModal",
-    title: "Edit proyek",
+    title: "Edit Proyek / Karya",
     titleId: "edit-project-title",
     headerShrink: false,
     footerShrink: false,
     body,
-    footer: defaultFooter(close, "draftList.length === 0"),
+    footer,
   });
 };
 
