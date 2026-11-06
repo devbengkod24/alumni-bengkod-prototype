@@ -36,6 +36,8 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
   .label { @apply block text-sm font-medium text-neutral2 mb-1.5; }
   .input { @apply block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all duration-150; }
   .error-msg { @apply text-xs text-red2 mt-1; }
+  .modal-backdrop { @apply fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4; }
+  .modal { @apply bg-white rounded-2xl w-full p-6 max-h-[90vh] overflow-y-auto; box-shadow: 0 12px 16px rgba(0, 0, 0, 0.1); }
 }
 </style>`);
 
@@ -209,6 +211,52 @@ const MITRA_DEFAULT = {
     { id: 3, judul: 'Job Fair Bengkel Koding 2026', isi: 'Bengkel Koding UDINUS akan menyelenggarakan Job Fair pada Desember 2026. Mitra yang ingin berpartisipasi dapat menghubungi koordinator melalui portal atau email resmi.', target: 'Alumni & Mitra', published_at: '2026-10-05', oleh: 'Koordinator Alumni' },
     { id: 4, judul: 'Pembaruan Kebijakan Posting Lowongan', isi: 'Mulai 1 November 2026, setiap lowongan yang diajukan mitra wajib mencantumkan rentang gaji. Lowongan tanpa informasi gaji tidak akan diverifikasi oleh koordinator.', target: 'Mitra', published_at: '2026-09-28', oleh: 'Koordinator Alumni' },
   ],
+  pelamar: [
+    { id: 1, nim: 'A11.2019.11823', lowongan_id: 1, lowongan_posisi: 'Backend Developer (Laravel)', telepon: '0812-1111-2222',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-16T09:30:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-18T10:15:00', catatan: 'Portofolio backend dan pemahaman REST API dinilai sangat baik.' },
+        { status: 'interview', waktu: '2026-10-21T14:00:00', catatan: 'Interview teknis dan live coding via Google Meet 28 Okt 2026 14:00 WIB.' },
+      ] },
+    { id: 2, nim: 'A11.2020.12011', lowongan_id: 1, lowongan_posisi: 'Backend Developer (Laravel)', telepon: '0814-3333-4444',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-17T11:20:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-19T09:00:00', catatan: 'Berkas lengkap, sedang dalam tahap penilaian tim engineering.' },
+      ] },
+    { id: 3, nim: 'A11.2018.10544', lowongan_id: 1, lowongan_posisi: 'Backend Developer (Laravel)', telepon: '0816-5555-6666',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-15T14:10:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-16T11:00:00', catatan: 'Lolos review berkas dan pengalaman.' },
+        { status: 'interview', waktu: '2026-10-19T13:30:00', catatan: 'Interview HR dan user berjalan lancar.' },
+        { status: 'diterima', waktu: '2026-10-24T16:00:00', catatan: 'Kandidat diterima untuk posisi Backend Developer. Offering letter telah dikirim.' },
+      ] },
+    { id: 4, nim: 'A11.2021.13301', lowongan_id: 2, lowongan_posisi: 'Frontend Developer (React)', telepon: '0815-4444-5555',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-19T08:45:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-20T10:00:00', catatan: 'Portofolio Next.js dan Tailwind sangat impresif.' },
+        { status: 'interview', waktu: '2026-10-23T11:00:00', catatan: 'Jadwal interview frontend 29 Okt 2026 pukul 10:00 WIB.' },
+      ] },
+    { id: 5, nim: 'A11.2019.11902', lowongan_id: 2, lowongan_posisi: 'Frontend Developer (React)', telepon: '0813-2222-3333',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-22T15:20:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+      ] },
+    { id: 6, nim: 'A11.2021.13120', lowongan_id: 4, lowongan_posisi: 'Data Analyst Intern', telepon: '0817-6666-7777',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-18T16:30:00', catatan: 'Lamaran magang dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-20T09:30:00', catatan: 'Kemampuan Python dan SQL sesuai dengan kebutuhan proyek AI.' },
+      ] },
+    { id: 7, nim: 'A11.2019.11902', lowongan_id: 3, lowongan_posisi: 'UI/UX Designer', telepon: '0813-2222-3333',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-20T13:15:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-21T10:45:00', catatan: 'Studi kasus Figma dan wireframing sedang dievaluasi tim desain.' },
+      ] },
+    { id: 8, nim: 'A11.2018.10544', lowongan_id: 5, lowongan_posisi: 'Mobile Developer (Flutter)', telepon: '0816-5555-6666',
+      riwayat: [
+        { status: 'applied', waktu: '2026-10-17T10:00:00', catatan: 'Lamaran dikirim melalui portal alumni.' },
+        { status: 'review', waktu: '2026-10-18T14:20:00', catatan: 'Kualifikasi pengalaman fokus di native Android, sedangkan lowongan membutuhkan keahlian Flutter production.' },
+        { status: 'ditolak', waktu: '2026-10-20T15:00:00', catatan: 'Belum memenuhi kualifikasi pengalaman Flutter minimal 2 tahun.' },
+      ] },
+  ],
 };
 
 function getMitraLowongan() {
@@ -241,6 +289,12 @@ const MITRA = {
   },
   get pengumuman() {
     return window.BengkodStore ? window.BengkodStore.getPengumuman('Mitra') : MITRA_DEFAULT.pengumuman;
+  },
+  get pelamar() {
+    return getPelamar();
+  },
+  set pelamar(val) {
+    savePelamar(val);
   },
 };
 
@@ -281,6 +335,7 @@ const BADGE_COLOR_MAP = {
   'Melanjutkan Pendidikan': 'blue', 'Menikah / Mengurus Keluarga': 'blue', 'Magang': 'blue',
   'Jarak Jauh': 'blue', 'Remote': 'blue', 'Koordinator': 'blue', 'Laki-laki': 'blue', 'Perempuan': 'blue',
   'SuperAdmin': 'purple', 'Melihat CV': 'blue',
+  'Applied': 'blue', 'Review': 'yellow', 'Interview': 'purple', 'Diterima': 'green',
 };
 
 function badge(status) {
@@ -346,6 +401,33 @@ function logCvAccess(alumniId, alumniNama, aktivitas = 'Melihat CV', extra = {})
   return entry;
 }
 
+function getAlumniCvAccessInfo(alumniId) {
+  const allLogs = getCvAudit();
+  const logs = allLogs.filter(l => Number(l.alumniId) === Number(alumniId));
+  if (!logs.length) {
+    return {
+      hasViewed: false,
+      lastViewed: null,
+      lastActivity: null,
+      totalAccess: 0,
+      totalViews: 0,
+      totalDownloads: 0,
+      logs: []
+    };
+  }
+  const sorted = [...logs].sort((a, b) => new Date(b.waktu) - new Date(a.waktu));
+  const latest = sorted[0];
+  return {
+    hasViewed: true,
+    lastViewed: latest.waktu,
+    lastActivity: latest.aktivitas,
+    totalAccess: sorted.length,
+    totalViews: sorted.filter(l => l.aktivitas === 'Melihat CV').length,
+    totalDownloads: sorted.filter(l => l.aktivitas === 'Mengunduh CV (PDF)').length,
+    logs: sorted
+  };
+}
+
 function clearCvAudit() {
   lsSet(CV_AUDIT_KEY, []);
 }
@@ -368,6 +450,60 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
 
 function nextLowonganId() { return MITRA.lowongan.reduce((m, l) => Math.max(m, l.id), 0) + 1; }
 
+// ===================== PELAMAR (manajemen-pelamar.html & detail-pelamar.html) =====================
+const STATUS_PELAMAR = { applied: 'Applied', review: 'Review', interview: 'Interview', diterima: 'Diterima', ditolak: 'Ditolak' };
+const PELAMAR_KEY = 'mitra-pelamar-v1';
+
+function getPelamar() {
+  return lsGet(PELAMAR_KEY, MITRA_DEFAULT.pelamar);
+}
+
+function savePelamar(list) {
+  lsSet(PELAMAR_KEY, list);
+}
+
+function lowonganPelamarMitra() {
+  return MITRA.lowongan;
+}
+
+function gabungPelamar(list) {
+  const alumni = MITRA.alumni;
+  const lowongan = lowonganPelamarMitra();
+  return (list || []).map(p => {
+    const l = lowongan.find(x => x.id === p.lowongan_id)
+      || lowongan.find(x => p.lowongan_posisi && x.posisi.toLowerCase() === p.lowongan_posisi.toLowerCase())
+      || lowongan[0]
+      || { id: p.lowongan_id, posisi: p.lowongan_posisi || 'Lowongan Mitra', pengalaman: 'Fresh Graduate', tipe_kerja: 'Full Time', nama_perusahaan: (MITRA.profil && MITRA.profil.nama_perusahaan) || 'PT Solusi Digital Jateng' };
+    const a = alumni.find(x => x.nim === p.nim)
+      || alumni.find(x => x.id === p.alumniId)
+      || { nama: 'Alumni Bengkel Koding', nim: p.nim, tahun_lulus: 2024, divisi: 'Web Development', skill: [], email: 'alumni@bengkod.id' };
+    const riwayat = p.riwayat || [];
+    const lastRiwayat = riwayat.length ? riwayat[riwayat.length - 1] : { status: 'applied', waktu: new Date().toISOString() };
+    const firstRiwayat = riwayat.length ? riwayat[0] : { waktu: new Date().toISOString() };
+    return {
+      ...p,
+      alumni: a,
+      lowongan: l,
+      status: lastRiwayat.status,
+      tanggal: firstRiwayat.waktu,
+    };
+  }).sort((a, b) => b.tanggal.localeCompare(a.tanggal));
+}
+
+function fmtWaktu(iso) {
+  return new Date(iso).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB';
+}
+
+function inisial(nama) {
+  return (nama || '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
+}
+
+function audit(aksi, target) {
+  if (window.BengkodStore) {
+    window.BengkodStore.logActivity('Mitra', aksi, target);
+  }
+}
+
 // ===================== DYNAMIC PATH DETECTION =====================
 // Detect depth: mitra/*.html = depth 1, mitra/lowongan/*.html = depth 2
 const _pathParts = location.pathname.split('/').filter(Boolean);
@@ -380,7 +516,7 @@ const _rootBase = _depth >= 2 ? '../../' : '../';
 const MITRA_NAV = [
   { href: _base + 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   { href: _base + 'data-alumni.html', icon: 'users', label: 'Data Alumni', match: 'data-alumni.html' },
-  { href: _base + 'log-riwayat-cv.html', icon: 'history', label: 'Log Riwayat CV', match: 'log-riwayat-cv.html' },
+  { href: _base + 'manajemen-pelamar.html', icon: 'user-check', label: 'Manajemen Pelamar', match: 'manajemen-pelamar.html' },
   { href: _base + 'profil-perusahaan.html', icon: 'building-2', label: 'Profil Perusahaan', match: 'profil-perusahaan.html' },
   { href: _base + 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman', match: 'pengumuman.html' },
   { href: _base + 'forum.html', icon: 'messages-square', label: 'Forum', match: 'forum.html' },
@@ -397,12 +533,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const main = document.querySelector('main[data-title]');
   if (!main) return;
   const current = location.pathname.split('/').pop() || 'index.html';
+  const navTarget = main.dataset.nav || current;
 
   const navItems = MITRA_NAV.map(n => {
     if (n.submenu) {
-      const subActive = n.submenu.some(s => s.match === current);
+      const subActive = n.submenu.some(s => s.match === navTarget);
       const subItems = n.submenu.map(s => {
-        const active = s.match === current;
+        const active = s.match === navTarget;
         return `<a href="${s.href}" ${active ? 'aria-current="page"' : ''}
           class="flex items-center gap-2.5 w-full pl-9 pr-2.5 py-2 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral2 hover:bg-primary5 hover:text-primary1'}">
           <i data-lucide="${s.icon}" class="w-4 h-4 shrink-0"></i><span>${s.label}</span></a>`;
@@ -415,7 +552,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="space-y-0.5 ${subActive ? '' : 'hidden'}" data-submenu>${subItems}</div>
       </div>`;
     }
-    const active = n.match === current;
+    const active = n.match === navTarget;
     return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
       class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
       <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span>${n.label}</span></a>`;
@@ -440,15 +577,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const isDashboard = current === 'index.html' || main.dataset.title === 'Dashboard';
   const pageTitle = esc(main.dataset.title);
 
-  const breadcrumbHTML = isDashboard
-    ? `<a href="${_base}index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
+  let breadcrumbHTML;
+  if (isDashboard) {
+    breadcrumbHTML = `<a href="${_base}index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">Mitra</span>`
-    : `<a href="${_base}index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
+       <span class="font-medium text-neutral1">Mitra</span>`;
+  } else if (main.dataset.nav === 'manajemen-pelamar.html') {
+    breadcrumbHTML = `<a href="${_base}index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <a href="${_base}manajemen-pelamar.html" class="text-neutral2 hover:text-primary1 transition-colors">Manajemen Pelamar</a>
+       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+  } else {
+    breadcrumbHTML = `<a href="${_base}index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <a href="${_base}index.html" class="text-neutral2 hover:text-primary1 transition-colors">Mitra</a>
        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
        <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+  }
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
