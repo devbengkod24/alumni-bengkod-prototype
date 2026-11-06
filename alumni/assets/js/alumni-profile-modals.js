@@ -1879,66 +1879,117 @@ function projectFieldsHTML(edit) {
       ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
     </div>
 
-    <!-- 1. Logo / Ikon Aplikasi (Terpisah, Rasio 1:1 Squircle) -->
+    <!-- 1. Logo / Ikon Aplikasi (Rasio 1:1 Squircle - Murni Unggah Berkas) -->
     <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
       <div class="flex items-center justify-between">
-        <label for="${p("logo-url")}" class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi (Rasio 1:1)</label>
+        <label class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi (Rasio 1:1)</label>
         <span class="text-[11px] text-gray-500">Ikon di kartu feed &amp; sidebar showcase</span>
       </div>
-      <div class="flex items-center gap-3">
-        <!-- Squircle Preview -->
-        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+      <div class="flex items-center gap-4">
+        <!-- Squircle Preview Box (Bisa Diklik Langsung) -->
+        <div
+          @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
+          class="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs cursor-pointer transition-colors group relative"
+          title="Klik untuk memilih logo"
+        >
           <template x-if="form.logoUrl">
             <img :src="form.logoUrl" alt="Logo preview" class="w-full h-full object-cover">
           </template>
           <template x-if="!form.logoUrl">
-            <span class="text-lg font-bold text-[#1E3A8A]" x-text="(form.title || 'A').charAt(0).toUpperCase()"></span>
+            <div class="flex flex-col items-center justify-center text-gray-400 group-hover:text-[#1E3A8A] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span class="text-[10px] font-bold mt-0.5">Logo</span>
+            </div>
           </template>
         </div>
+
         <div class="flex-1 min-w-0 space-y-1.5">
           <div class="flex items-center gap-2">
-            <input id="${p("logo-url")}" type="text" autocomplete="off" x-model="form.logoUrl" placeholder="Tempel URL logo gambar (https://...)" ${plainInputCls}>
-            <button type="button" @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()" class="h-[44px] px-4 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] shrink-0 transition-colors cursor-pointer">
-              Unggah
+            <button
+              type="button"
+              @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
+              class="h-[38px] px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span x-text="form.logoUrl ? 'Ganti Logo' : 'Pilih Logo Aplikasi'"></span>
             </button>
+
+            <template x-if="form.logoUrl">
+              <button
+                type="button"
+                @click="form.logoUrl = ''"
+                class="h-[38px] px-3 rounded-lg text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                Hapus
+              </button>
+            </template>
           </div>
-          <template x-if="form.logoUrl">
-            <button type="button" @click="form.logoUrl = ''" class="text-[11px] font-semibold text-red-500 hover:underline cursor-pointer">
-              Hapus logo
-            </button>
-          </template>
+          <p class="text-[12px] text-gray-500">Format PNG, JPG, atau WEBP. Otomatis menggunakan monogram inisial jika tidak diunggah.</p>
         </div>
       </div>
       <input x-ref="${edit ? "editLogoFile" : "logoFile"}" type="file" accept="image/*" class="hidden" @change="onPickLogo($event)">
-      <p class="text-[11px] text-gray-400">Tampil sebagai ikon aplikasi di feed dan sidebar. Kosongkan untuk inisial otomatis.</p>
     </div>
 
-    <!-- 2. Banner / Screenshot UI Aplikasi (Terpisah, Rasio 16:9 Memanjang) -->
+    <!-- 2. Banner / Screenshot UI Aplikasi (Rasio 16:9 Memanjang - Murni Unggah Berkas) -->
     <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
       <div class="flex items-center justify-between">
-        <label for="${p("banner-url")}" class="block text-[14px] font-semibold text-gray-800">Banner / Screenshot UI Aplikasi (Rasio 16:9)</label>
+        <label class="block text-[14px] font-semibold text-gray-800">Banner / Screenshot UI Aplikasi (Rasio 16:9)</label>
         <span class="text-[11px] text-gray-500">Tampilan utama di halaman detail proyek</span>
       </div>
-      <div class="space-y-2.5">
-        <div class="flex items-center gap-2">
-          <input id="${p("banner-url")}" type="text" autocomplete="off" x-model="form.bannerUrl" placeholder="Tempel URL screenshot UI (https://...)" ${plainInputCls}>
-          <button type="button" @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()" class="h-[44px] px-4 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] shrink-0 transition-colors cursor-pointer">
-            Unggah
-          </button>
-        </div>
-        <!-- Pratinjau Banner 16:9 Memanjang -->
-        <template x-if="form.bannerUrl">
-          <div class="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] max-h-48 group">
-            <img :src="form.bannerUrl" alt="Banner preview" class="w-full h-full object-cover">
-            <button type="button" @click="form.bannerUrl = ''" class="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white text-[11px] font-semibold transition-colors cursor-pointer" title="Hapus banner">
-              Hapus banner
+
+      <!-- Jika sudah ada banner terunggah -->
+      <template x-if="form.bannerUrl">
+        <div class="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] max-h-56 group shadow-2xs">
+          <img :src="form.bannerUrl" alt="Banner preview" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+            <button
+              type="button"
+              @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
+              class="px-3.5 py-1.5 rounded-lg bg-white/95 text-gray-900 text-xs font-semibold hover:bg-white transition-colors cursor-pointer shadow-sm"
+            >
+              Ganti Gambar
+            </button>
+            <button
+              type="button"
+              @click="form.bannerUrl = ''"
+              class="px-3.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
+            >
+              Hapus
             </button>
           </div>
-        </template>
-        <template x-if="!form.bannerUrl">
-          <p class="text-[12px] text-gray-500">Unggah tangkapan layar antarmuka aplikasi atau tempel tautan gambar banner.</p>
-        </template>
-      </div>
+        </div>
+      </template>
+
+      <!-- Jika belum ada banner: Area Upload Bersih -->
+      <template x-if="!form.bannerUrl">
+        <div
+          @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
+          class="border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] rounded-xl p-6 text-center cursor-pointer transition-colors bg-white hover:bg-blue-50/20 group space-y-2"
+        >
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-[13px] font-semibold text-gray-800 group-hover:text-[#1E3A8A] transition-colors">
+              Klik untuk mengunggah tangkapan layar antarmuka aplikasi
+            </p>
+            <p class="text-[11px] text-gray-400 mt-0.5">Mendukung format PNG, JPG, atau WEBP (Rasio 16:9 disarankan)</p>
+          </div>
+        </div>
+      </template>
+
       <input x-ref="${edit ? "editBannerFile" : "bannerFile"}" type="file" accept="image/*" class="hidden" @change="onPickBanner($event)">
       <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium mt-1" x-text="showErr('media')"></p></template>
     </div>
