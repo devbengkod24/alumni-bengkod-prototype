@@ -1025,6 +1025,8 @@ document.addEventListener("alpine:init", () => {
     category: "",
     period: "",
     demoUrl: "",
+    logoUrl: "",
+    bannerUrl: "",
     desc: "",
     contributors: [],
     skills: [],
@@ -1036,6 +1038,8 @@ document.addEventListener("alpine:init", () => {
     category: p.category || (p.categoryTags && p.categoryTags[0]) || "",
     period: p.period || "",
     demoUrl: p.demoUrl || p.linkUrl || "",
+    logoUrl: p.logoUrl || "",
+    bannerUrl: p.bannerUrl || p.imageUrl || "",
     desc: p.desc || "",
     contributors: contributorsFromProject(p),
     skills: p.tags || [],
@@ -1043,9 +1047,16 @@ document.addEventListener("alpine:init", () => {
   });
   const projectFields = (f) => {
     const demo = (f.demoUrl || "").trim();
+    const logo = (f.logoUrl || "").trim();
+    const banner = (f.bannerUrl || "").trim();
     const mediaObj = { ...f.media };
     if (demo && !mediaObj.linkUrl) {
       mediaObj.linkUrl = demo;
+    }
+    if (banner && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = banner;
+    } else if (logo && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = logo;
     }
     const mediaRes = mediaToProjectFields(mediaObj);
     return {
@@ -1054,6 +1065,8 @@ document.addEventListener("alpine:init", () => {
       category: (f.category || "").trim(),
       period: f.period.trim(),
       demoUrl: demo || mediaRes.linkUrl || "",
+      logoUrl: logo || "",
+      bannerUrl: banner || mediaRes.imageUrl || "",
       desc: f.desc.trim(),
       tags: f.skills.length ? f.skills : ["Umum"],
       contributor: f.contributors[0] ? f.contributors[0].name : undefined,
@@ -1062,7 +1075,7 @@ document.addEventListener("alpine:init", () => {
       contributors: f.contributors,
       ...mediaRes,
       linkUrl: demo || mediaRes.linkUrl || "",
-      imageUrl: mediaRes.imageUrl || "",
+      imageUrl: banner || mediaRes.imageUrl || logo || "",
     };
   };
 
@@ -1075,13 +1088,43 @@ document.addEventListener("alpine:init", () => {
       this._lock();
       setTimeout(() => this.$refs.projectTitle && this.$refs.projectTitle.focus(), 50);
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
-      const mediaFilled = Boolean(normalizeUrl(this.form.demoUrl) || normalizeUrl(this.form.media.linkUrl) || this.form.media.imageUrl);
+      const mediaFilled = Boolean(
+        normalizeUrl(this.form.demoUrl) ||
+        normalizeUrl(this.form.media.linkUrl) ||
+        this.form.bannerUrl ||
+        this.form.logoUrl ||
+        this.form.media.imageUrl
+      );
       return {
         title: this.form.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
         period: this.form.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
         desc: this.form.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
-        media: mediaFilled ? "" : "Isi tautan demo / live URL atau unggah media.",
+        media: mediaFilled ? "" : "Tambahkan tautan demo / live URL atau unggah banner/logo aplikasi.",
       };
     },
     showErr(key) {
@@ -1114,14 +1157,40 @@ document.addEventListener("alpine:init", () => {
       this.form = found ? projectToDraft(found) : null;
       this._lock();
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
       const f = this.form;
-      const mediaFilled = Boolean(f && (f.media.linkUrl || f.media.imageUrl));
+      const mediaFilled = Boolean(
+        f && (normalizeUrl(f.demoUrl) || normalizeUrl(f.media.linkUrl) || f.bannerUrl || f.logoUrl || f.media.imageUrl)
+      );
       return {
-        title: f && f.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: f && f.period.trim() ? "" : "Periode wajib diisi.",
-        desc: f && f.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Tambahkan minimal satu media (link atau gambar).",
+        title: f && f.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: f && f.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: f && f.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Tambahkan minimal satu media (link demo, banner, atau logo).",
       };
     },
     showErr(key) {
@@ -1810,10 +1879,68 @@ function projectFieldsHTML(edit) {
       ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
     </div>
 
-    <!-- Media (Screenshot & Logo) -->
-    <div class="sm:col-span-2 space-y-1.5">
-      ${mediaPickerHTML({ model: "form.media", label: "Media (Screenshot Banner &amp; Logo Aplikasi)" })}
-      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template>
+    <!-- 1. Logo / Ikon Aplikasi (Terpisah, Rasio 1:1 Squircle) -->
+    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
+      <div class="flex items-center justify-between">
+        <label for="${p("logo-url")}" class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi (Rasio 1:1)</label>
+        <span class="text-[11px] text-gray-500">Ikon di kartu feed &amp; sidebar showcase</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Squircle Preview -->
+        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs">
+          <template x-if="form.logoUrl">
+            <img :src="form.logoUrl" alt="Logo preview" class="w-full h-full object-cover">
+          </template>
+          <template x-if="!form.logoUrl">
+            <span class="text-lg font-bold text-[#1E3A8A]" x-text="(form.title || 'A').charAt(0).toUpperCase()"></span>
+          </template>
+        </div>
+        <div class="flex-1 min-w-0 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <input id="${p("logo-url")}" type="text" autocomplete="off" x-model="form.logoUrl" placeholder="Tempel URL logo gambar (https://...)" ${plainInputCls}>
+            <button type="button" @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()" class="h-[44px] px-4 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] shrink-0 transition-colors cursor-pointer">
+              Unggah
+            </button>
+          </div>
+          <template x-if="form.logoUrl">
+            <button type="button" @click="form.logoUrl = ''" class="text-[11px] font-semibold text-red-500 hover:underline cursor-pointer">
+              Hapus logo
+            </button>
+          </template>
+        </div>
+      </div>
+      <input x-ref="${edit ? "editLogoFile" : "logoFile"}" type="file" accept="image/*" class="hidden" @change="onPickLogo($event)">
+      <p class="text-[11px] text-gray-400">Tampil sebagai ikon aplikasi di feed dan sidebar. Kosongkan untuk inisial otomatis.</p>
+    </div>
+
+    <!-- 2. Banner / Screenshot UI Aplikasi (Terpisah, Rasio 16:9 Memanjang) -->
+    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
+      <div class="flex items-center justify-between">
+        <label for="${p("banner-url")}" class="block text-[14px] font-semibold text-gray-800">Banner / Screenshot UI Aplikasi (Rasio 16:9)</label>
+        <span class="text-[11px] text-gray-500">Tampilan utama di halaman detail proyek</span>
+      </div>
+      <div class="space-y-2.5">
+        <div class="flex items-center gap-2">
+          <input id="${p("banner-url")}" type="text" autocomplete="off" x-model="form.bannerUrl" placeholder="Tempel URL screenshot UI (https://...)" ${plainInputCls}>
+          <button type="button" @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()" class="h-[44px] px-4 rounded-md border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] shrink-0 transition-colors cursor-pointer">
+            Unggah
+          </button>
+        </div>
+        <!-- Pratinjau Banner 16:9 Memanjang -->
+        <template x-if="form.bannerUrl">
+          <div class="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] max-h-48 group">
+            <img :src="form.bannerUrl" alt="Banner preview" class="w-full h-full object-cover">
+            <button type="button" @click="form.bannerUrl = ''" class="absolute top-2 right-2 px-2.5 py-1 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white text-[11px] font-semibold transition-colors cursor-pointer" title="Hapus banner">
+              Hapus banner
+            </button>
+          </div>
+        </template>
+        <template x-if="!form.bannerUrl">
+          <p class="text-[12px] text-gray-500">Unggah tangkapan layar antarmuka aplikasi atau tempel tautan gambar banner.</p>
+        </template>
+      </div>
+      <input x-ref="${edit ? "editBannerFile" : "bannerFile"}" type="file" accept="image/*" class="hidden" @change="onPickBanner($event)">
+      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium mt-1" x-text="showErr('media')"></p></template>
     </div>
   </div>`;
 }

@@ -277,7 +277,9 @@ function syncProjectToFeed(project, author) {
   const toList = (v) => (Array.isArray(v) ? v : (typeof v === "string" ? v.split(",").map(s => s.trim()).filter(Boolean) : []));
   const categoryTags = project.category ? toList(project.category) : (project.categoryTags || ["Software"]);
   const demoUrl = project.linkUrl || project.demoUrl || undefined;
-  const logoOrImg = project.logoUrl || project.imageUrl || undefined;
+  const logoUrl = project.logoUrl || undefined;
+  const bannerUrl = project.bannerUrl || project.imageUrl || undefined;
+  const screenshots = bannerUrl ? [bannerUrl] : (project.screenshots || []);
 
   const karyaObj = {
     projectId: project.id,
@@ -286,8 +288,9 @@ function syncProjectToFeed(project, author) {
     pitch: project.pitch || project.tagline || project.desc || undefined,
     categoryTags: categoryTags.length > 0 ? categoryTags : ["Software"],
     url: demoUrl,
-    logo: logoOrImg,
-    screenshots: logoOrImg ? [logoOrImg] : [],
+    logo: logoUrl || bannerUrl,
+    bannerUrl: bannerUrl,
+    screenshots: screenshots,
     stack: project.tags || [],
     overview: project.desc || undefined,
     contributors: project.contributors || [],
