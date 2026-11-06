@@ -1019,26 +1019,52 @@ document.addEventListener("alpine:init", () => {
   }));
 
   // Proyek
-  const EMPTY_PROJECT = () => ({ title: "", period: "", desc: "", contributors: [], skills: [], media: { linkUrl: "", imageUrl: "" } });
+  const EMPTY_PROJECT = () => ({
+    title: "",
+    tagline: "",
+    category: "",
+    period: "",
+    demoUrl: "",
+    desc: "",
+    contributors: [],
+    skills: [],
+    media: { linkUrl: "", imageUrl: "" },
+  });
   const projectToDraft = (p) => ({
-    title: p.title,
-    period: p.period,
-    desc: p.desc,
+    title: p.title || "",
+    tagline: p.tagline || (p.desc ? p.desc.slice(0, 100) : ""),
+    category: p.category || (p.categoryTags && p.categoryTags[0]) || "",
+    period: p.period || "",
+    demoUrl: p.demoUrl || p.linkUrl || "",
+    desc: p.desc || "",
     contributors: contributorsFromProject(p),
     skills: p.tags || [],
     media: projectToMediaValue(p),
   });
-  const projectFields = (f) => ({
-    title: f.title.trim(),
-    period: f.period.trim(),
-    desc: f.desc.trim(),
-    tags: f.skills.length ? f.skills : ["Umum"],
-    contributor: f.contributors[0] ? f.contributors[0].name : undefined,
-    contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
-    contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
-    contributors: f.contributors,
-    ...mediaToProjectFields(f.media),
-  });
+  const projectFields = (f) => {
+    const demo = (f.demoUrl || "").trim();
+    const mediaObj = { ...f.media };
+    if (demo && !mediaObj.linkUrl) {
+      mediaObj.linkUrl = demo;
+    }
+    const mediaRes = mediaToProjectFields(mediaObj);
+    return {
+      title: f.title.trim(),
+      tagline: (f.tagline || "").trim() || (f.desc ? f.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
+      category: (f.category || "").trim(),
+      period: f.period.trim(),
+      demoUrl: demo || mediaRes.linkUrl || "",
+      desc: f.desc.trim(),
+      tags: f.skills.length ? f.skills : ["Umum"],
+      contributor: f.contributors[0] ? f.contributors[0].name : undefined,
+      contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
+      contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
+      contributors: f.contributors,
+      ...mediaRes,
+      linkUrl: demo || mediaRes.linkUrl || "",
+      imageUrl: mediaRes.imageUrl || "",
+    };
+  };
 
   Alpine.data("addProjectModal", () => ({
     ...modalLifecycle(true),
@@ -1050,12 +1076,12 @@ document.addEventListener("alpine:init", () => {
       setTimeout(() => this.$refs.projectTitle && this.$refs.projectTitle.focus(), 50);
     },
     get errors() {
-      const mediaFilled = Boolean(normalizeUrl(this.form.media.linkUrl) || this.form.media.imageUrl);
+      const mediaFilled = Boolean(normalizeUrl(this.form.demoUrl) || normalizeUrl(this.form.media.linkUrl) || this.form.media.imageUrl);
       return {
-        title: this.form.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: this.form.period.trim() ? "" : "Periode wajib diisi.",
-        desc: this.form.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Isi tautan proyek atau unggah gambar.",
+        title: this.form.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: this.form.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: this.form.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Isi tautan demo / live URL atau unggah media.",
       };
     },
     showErr(key) {
@@ -1732,20 +1758,64 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
 
 // Form Proyek
 function projectFieldsHTML(edit) {
+  const p = (k) => (edit ? `edit-project-${k}` : `project-${k}`);
   const inputCls = (k) => `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" :class="${errInputClass(`showErr('${k}')`)}"`;
+  const plainInputCls = `class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"`;
   const textareaCls = `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed" :class="${errInputClass(`showErr('desc')`)}"`;
   const star = '<span class="text-red-500 font-bold">*</span>';
-  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Judul proyek", required: true, star, err: "showErr('title')" })}
-      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" ${edit ? "" : 'placeholder="Contoh: Sistem Prediksi UMKM"'} ${inputCls("title")}></div><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode", required: true, star, err: "showErr('period')" })}
-      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" ${edit ? "" : 'placeholder="Contoh: Jun 2026 – Jun 2026"'} ${inputCls("period")}></div><div class="space-y-1.5 sm:col-span-2">
-      ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi", required: true, star, err: "showErr('desc')" })}
-      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" ${edit ? "" : 'placeholder="Jelaskan tujuan, teknologi, dan hasil dari proyek ini..."'} style="resize: none" ${textareaCls}></textarea></div><div class="sm:col-span-2">${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}</div><div class="sm:col-span-2">
-      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills" })}
-    </div><div class="sm:col-span-2 space-y-1.5">
-      ${mediaPickerHTML({ model: "form.media" })}
-      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template></div></div>`;
+  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Judul / Nama Karya -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Nama karya / Judul proyek", required: true, star, err: "showErr('title')" })}
+      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" ${edit ? "" : 'placeholder="Contoh: Sentimeter AI"'} ${inputCls("title")}>
+    </div>
+    <!-- Periode -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode pengerjaan", required: true, star, err: "showErr('period')" })}
+      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" ${edit ? "" : 'placeholder="Contoh: Jun 2026 – Sekarang"'} ${inputCls("period")}>
+    </div>
+
+    <!-- Tagline 1 Baris (Showcase & Feed) -->
+    <div class="space-y-1.5 sm:col-span-2">
+      <div class="flex items-center justify-between">
+        <label for="${p("tagline")}" class="block text-[14px] font-medium text-gray-700">Tagline ringkas (1 baris)</label>
+        <span class="text-[11px] text-gray-400">Tampil di kartu feed &amp; widget Showcase</span>
+      </div>
+      <input id="${p("tagline")}" type="text" autocomplete="off" x-model="form.tagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" ${plainInputCls}>
+    </div>
+
+    <!-- Demo URL & Kategori Software -->
+    <div class="space-y-1.5">
+      <label for="${p("demo-url")}" class="block text-[14px] font-medium text-gray-700">Tautan demo / Live URL</label>
+      <input id="${p("demo-url")}" type="url" autocomplete="off" x-model="form.demoUrl" placeholder="https://aplikasi-anda.com" ${plainInputCls}>
+    </div>
+    <div class="space-y-1.5">
+      <label for="${p("category")}" class="block text-[14px] font-medium text-gray-700">Kategori software</label>
+      <input id="${p("category")}" type="text" autocomplete="off" x-model="form.category" placeholder="Contoh: AI Analytics, Developer Tools, POS" ${plainInputCls}>
+    </div>
+
+    <!-- Deskripsi Lengkap -->
+    <div class="space-y-1.5 sm:col-span-2">
+      ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi lengkap / Tentang karya", required: true, star, err: "showErr('desc')" })}
+      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" ${edit ? "" : 'placeholder="Jelaskan problem yang dipecahkan, fitur utama, dan hasil dari karya ini..."'} style="resize: none" ${textareaCls}></textarea>
+    </div>
+
+    <!-- Kontributor -->
+    <div class="sm:col-span-2">
+      ${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}
+    </div>
+
+    <!-- Keahlian / Tech Stack -->
+    <div class="sm:col-span-2">
+      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
+    </div>
+
+    <!-- Media (Screenshot & Logo) -->
+    <div class="sm:col-span-2 space-y-1.5">
+      ${mediaPickerHTML({ model: "form.media", label: "Media (Screenshot Banner &amp; Logo Aplikasi)" })}
+      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template>
+    </div>
+  </div>`;
 }
 
 // Modal: Tambah & Edit Proyek

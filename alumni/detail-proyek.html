@@ -508,9 +508,11 @@
                 categoryTags: matched.karya.categoryTags || matched.karya.stack || ["Software"],
                 url: matched.karya.url || "",
                 stack: matched.karya.stack || [],
-                screenshots: matched.karya.screenshots || [
-                  "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80"
-                ],
+                screenshots: (matched.karya.screenshots && matched.karya.screenshots.length > 0)
+                  ? matched.karya.screenshots
+                  : (matched.karya.imageUrl ? [matched.karya.imageUrl] : (matched.karya.logo ? [matched.karya.logo] : [
+                      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80"
+                    ])),
                 overview: matched.karya.overview || matched.content,
                 authorName: matched.authorName || currentAlumni.name,
                 authorAvatar: matched.authorAvatar || currentAlumni.avatarUrl,

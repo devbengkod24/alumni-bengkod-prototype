@@ -274,14 +274,23 @@ function syncProjectToFeed(project, author) {
   const posts = typeof loadPosts === "function" ? loadPosts() : [];
   const existingIdx = posts.findIndex(p => p.karya && (p.karya.projectId === project.id || (p.karya.nama && p.karya.nama.toLowerCase() === project.title.toLowerCase())));
 
+  const toList = (v) => (Array.isArray(v) ? v : (typeof v === "string" ? v.split(",").map(s => s.trim()).filter(Boolean) : []));
+  const categoryTags = project.category ? toList(project.category) : (project.categoryTags || ["Software"]);
+  const demoUrl = project.linkUrl || project.demoUrl || undefined;
+  const logoOrImg = project.logoUrl || project.imageUrl || undefined;
+
   const karyaObj = {
     projectId: project.id,
     nama: project.title,
     tagline: project.tagline || (project.desc ? project.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
-    url: project.linkUrl || undefined,
-    logo: project.logoUrl || project.imageUrl || undefined,
+    pitch: project.pitch || project.tagline || project.desc || undefined,
+    categoryTags: categoryTags.length > 0 ? categoryTags : ["Software"],
+    url: demoUrl,
+    logo: logoOrImg,
+    screenshots: logoOrImg ? [logoOrImg] : [],
     stack: project.tags || [],
     overview: project.desc || undefined,
+    contributors: project.contributors || [],
     upvotes: 1,
     isUpvoted: true,
     feedbacks: [],
