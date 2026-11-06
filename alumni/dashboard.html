@@ -9,12 +9,14 @@
   <script src="../assets/js/page-skeleton.js"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
+  <script src="assets/js/alumni-profile-data.js"></script>
+  <script src="assets/js/alumni-profile-modals.js"></script>
   <script src="../assets/js/store.js"></script>
 </head>
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
 <main data-route="">
-  <div x-data="feedPage" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
+  <div x-data="feedPage" @project-add="handleProjectAdd($event.detail)" class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
     <!-- Toast Notifikasi -->
     <template x-if="toast">
       <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
@@ -295,16 +297,6 @@ class="w-full pl-11 pr-10 py-3 rounded-xl border border-gray-200 bg-white text-[
           ></button>
         </template>
       </div>
-
-      <!-- Tombol Launch Produk Gaya Product Hunt (Clean & Transparan) -->
-      <button
-        type="button"
-        @click="openLaunchModal()"
-        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-gray-700 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 shrink-0 transition-colors cursor-pointer"
-        title="Pamerkan produk software atau daftarkan MVP Anda"
-      >
-        <span>+ Launch Karya</span>
-      </button>
     </div>
 
     <!-- ============================================================
@@ -723,7 +715,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             @click="openLaunchModal()"
             class="w-full py-2 px-3 rounded-lg text-xs font-semibold text-gray-700 hover:text-[#1E3A8A] bg-transparent hover:bg-gray-50 border border-gray-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
           >
-            <span>+ Launch Karya / MVP Anda</span>
+            <span>+ Launch Karya</span>
           </button>
         </div>
       </div>
@@ -776,181 +768,9 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
 
 
     <!-- ======================================================
-        MODAL: LAUNCH PRODUK / MVP (GAYA PRODUCT HUNT)
+        MODAL: TAMBAH PROYEK / LAUNCH KARYA (SELARAS FORM PROFIL)
     ====================================================== -->
-    <template x-if="launchModalOpen">
-      <div
-        class="fixed inset-0 z-[120] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-150"
-        @click.self="launchModalOpen = false"
-      >
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
-          <!-- Header Modal (Clean & Human) -->
-          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
-            <div>
-              <h3 class="text-[17px] font-bold text-gray-900 leading-tight">Launch Produk / Karya Alumni</h3>
-              <p class="text-xs text-gray-500 mt-0.5">Pamerkan software Anda ke komunitas atau cari beta tester pertama</p>
-            </div>
-            <button
-              type="button"
-              @click="launchModalOpen = false"
-              class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
-
-          <!-- Form Peluncuran Produk (Field Selaras dengan Halaman Detail Karya) -->
-          <form @submit.prevent="submitLaunchProduct()" class="p-6 space-y-4 text-sm overflow-y-auto flex-1">
-
-            <!-- 1. Identitas Produk: Nama + Logo -->
-            <div class="flex items-start gap-3">
-              <!-- Preview Logo -->
-              <div class="w-14 h-14 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
-                <template x-if="launchForm.logo">
-                  <img :src="launchForm.logo" alt="Logo produk" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!launchForm.logo">
-                  <span class="text-lg font-black text-[#1E3A8A]" x-text="(launchForm.nama || 'A').charAt(0).toUpperCase()"></span>
-                </template>
-              </div>
-              <div class="flex-1 min-w-0 space-y-2">
-                <div>
-                  <label class="block font-semibold text-gray-800 text-xs mb-1">Nama Produk <span class="text-red-500 font-bold">*</span></label>
-                  <input
-                    type="text"
-                    x-model="launchForm.nama"
-                    required
-                    placeholder="Contoh: Sentimeter AI"
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-                  >
-                </div>
-                <div>
-                  <label class="block font-semibold text-gray-800 text-xs mb-1">Logo / Ikon Aplikasi (URL Gambar)</label>
-                  <input
-                    type="url"
-                    x-model="launchForm.logo"
-                    placeholder="https://... (kosongkan untuk inisial otomatis)"
-                    class="w-full px-3.5 py-2 rounded-lg border border-gray-200 bg-transparent text-xs text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-                  >
-                </div>
-              </div>
-            </div>
-
-            <!-- 2. Tagline + Kategori -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Tagline Ringkas (1 Baris) <span class="text-red-500 font-bold">*</span></label>
-              <input
-                type="text"
-                x-model="launchForm.tagline"
-                required
-                placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-              >
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Kategori (pisahkan dengan koma)</label>
-              <input
-                type="text"
-                x-model="launchForm.categoryTags"
-                placeholder="AI Analytics, NLP Tools, Developer Tools"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-              >
-              <p class="text-[11px] text-gray-400 mt-1">Muncul sebagai chip kategori di bawah judul halaman detail.</p>
-            </div>
-
-            <!-- 3. Pitch Statement (Deskripsi Utama di Halaman Detail) -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Pitch / Deskripsi Utama</label>
-              <textarea
-                rows="2"
-                x-model="launchForm.pitch"
-                placeholder="Satu-dua kalimat yang langsung menjelaskan nilai jual produk Anda..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] leading-relaxed transition-all"
-              ></textarea>
-            </div>
-
-            <!-- 4. Tautan Demo & Tech Stack -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 text-xs mb-1">Tautan Demo / Live URL <span class="text-red-500 font-bold">*</span></label>
-                <input
-                  type="url"
-                  x-model="launchForm.url"
-                  required
-                  placeholder="https://aplikasi-anda.com"
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-                >
-              </div>
-              <div>
-                <label class="block font-semibold text-gray-800 text-xs mb-1">Tech Stack</label>
-                <input
-                  type="text"
-                  x-model="launchForm.stack"
-                  placeholder="Next.js, Python, PostgreSQL..."
-                  class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-                >
-              </div>
-            </div>
-
-            <!-- 5. Screenshot Preview UI -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Screenshot / Preview UI (URL Gambar)</label>
-              <input
-                type="url"
-                x-model="launchForm.screenshot"
-                placeholder="https://... (tampil sebagai banner di halaman detail)"
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] transition-all"
-              >
-              <template x-if="launchForm.screenshot">
-                <div class="mt-2 rounded-lg border border-gray-200 overflow-hidden aspect-[16/9] bg-gray-100">
-                  <img :src="launchForm.screenshot" alt="Preview UI" class="w-full h-full object-cover">
-                </div>
-              </template>
-            </div>
-
-            <!-- 6. Tentang Karya (Overview) -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Tentang Karya Ini</label>
-              <textarea
-                rows="3"
-                x-model="launchForm.overview"
-                placeholder="Ceritakan problem yang dipecahkan, cara kerja produk, dan hal teknis menarik di baliknya..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] leading-relaxed transition-all"
-              ></textarea>
-            </div>
-
-            <!-- 7. Maker's Note / Cerita Pembuat -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Cerita dari Pembuat (Maker's Comment)</label>
-              <textarea
-                rows="2"
-                x-model="launchForm.story"
-                placeholder="Ceritakan mengapa Anda membuat software ini atau masukan apa yang Anda harapkan..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 bg-transparent text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] leading-relaxed transition-all"
-              ></textarea>
-            </div>
-
-            <!-- Footer Action -->
-            <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
-              <button
-                type="button"
-                @click="launchModalOpen = false"
-                class="px-5 py-2 rounded-full border border-gray-200 bg-transparent text-gray-700 font-semibold text-xs hover:bg-gray-50 cursor-pointer transition-colors"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-xs shadow-sm transition-all cursor-pointer"
-              >
-                Publikasikan Produk
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </template>
+    <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya"></div>
 
   </div>
 </main>
@@ -1006,20 +826,8 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         pmImageUrl: "",
         selectedCategory: "Semua",
 
-        // Launch Karya Modal State (field selaras dengan halaman detail)
-        launchModalOpen: false,
-        launchForm: {
-          nama: "",
-          logo: "",
-          tagline: "",
-          categoryTags: "",
-          pitch: "",
-          url: "",
-          stack: "",
-          screenshot: "",
-          overview: "",
-          story: "",
-        },
+        // Modal Tambah Proyek / Launch Karya (State selaras form proyek profil)
+        addProjectOpen: false,
 
         get topProducts() {
           return this.posts
@@ -1040,81 +848,27 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         },
 
         openLaunchModal() {
-          this.launchForm = {
-            nama: "",
-            logo: "",
-            tagline: "",
-            categoryTags: "",
-            pitch: "",
-            url: "",
-            stack: "",
-            screenshot: "",
-            overview: "",
-            story: "",
-          };
-          this.launchModalOpen = true;
+          this.addProjectOpen = true;
         },
-        submitLaunchProduct() {
-          if (!this.launchForm.nama.trim() || !this.launchForm.tagline.trim()) return;
-          const f = this.launchForm;
-          const toList = (v) => (v ? v.split(",").map((s) => s.trim()).filter(Boolean) : []);
-          const karyaObj = {
-            nama: f.nama.trim(),
-            tagline: f.tagline.trim(),
-            logo: f.logo ? f.logo.trim() : undefined,
-            categoryTags: toList(f.categoryTags),
-            pitch: f.pitch ? f.pitch.trim() : undefined,
-            url: f.url.trim() || undefined,
-            stack: toList(f.stack),
-            screenshots: f.screenshot ? [f.screenshot.trim()] : undefined,
-            overview: f.overview ? f.overview.trim() : undefined,
-            upvotes: 1,
-            isUpvoted: true,
-            feedbacks: [],
-          };
-          const storyText = f.story.trim() || `🚀 Baru saja meluncurkan "${f.nama.trim()}". Silakan coba dan berikan masukan Anda!`;
 
-          // Tautkan karya ke portofolio profil (Two-Way Sync)
-          const projectId = "proj-" + Date.now();
-          try {
+        handleProjectAdd(detail) {
+          if (!detail || !detail.title) return;
+          // 1. Simpan ke storage proyek profil (Two-Way Sync)
+          if (typeof saveStoredProjects === "function") {
             const projects = typeof loadStoredProjects === "function" ? loadStoredProjects() : [];
-            const newProject = {
-              id: projectId,
-              title: f.nama.trim(),
-              period: f.period ? f.period.trim() : new Date().toLocaleDateString("id-ID", { month: "short", year: "numeric" }),
-              desc: (f.overview || f.pitch || f.tagline || "").trim(),
-              tags: toList(f.stack),
-              linkUrl: f.url.trim() || "",
-              imageUrl: f.screenshot ? f.screenshot.trim() : (f.logo ? f.logo.trim() : ""),
-              logoUrl: f.logo ? f.logo.trim() : "",
-              tagline: f.tagline.trim(),
-              stage: "SHOWCASE",
-            };
-            if (typeof saveStoredProjects === "function") saveStoredProjects([newProject, ...projects]);
-          } catch (err) {
-            console.warn("Gagal menyinkronkan proyek ke profil:", err);
+            saveStoredProjects([detail, ...projects.filter((p) => p.id !== detail.id)]);
           }
-
-          const newPost = {
-            id: Date.now(),
-            authorName: this.profile.name,
-            authorAvatar: this.profile.avatarUrl,
-            authorHeadline: this.profile.headline,
-            date: "Baru saja",
-            category: "Karya & Showcase",
-            content: storyText,
-            visibility: "Semua orang",
-            karya: karyaObj,
-            likes: 1,
-            isLiked: true,
-            commentsCount: 0,
-            repostsCount: 0,
-            impressions: 1,
-          };
-          this.posts = [newPost, ...this.posts];
-          this.simpan();
-          this.launchModalOpen = false;
-          this.setToast(`Selamat! "${f.nama.trim()}" resmi di-launch & tersimpan di Portofolio Anda.`);
+          // 2. Terbitkan otomatis ke linimasa feed & showcase
+          if (typeof syncProjectToFeed === "function") {
+            syncProjectToFeed(detail, {
+              name: this.profile.name,
+              avatarUrl: this.profile.avatarUrl,
+              headline: this.profile.headline,
+            });
+          }
+          this.muat();
+          this.addProjectOpen = false;
+          this.setToast(`Karya "${detail.title}" berhasil ditambahkan & tersimpan di Profil Anda!`);
         },
 
         get filteredPosts() {

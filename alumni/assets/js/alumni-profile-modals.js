@@ -1749,15 +1749,16 @@ function projectFieldsHTML(edit) {
 }
 
 // Modal: Tambah & Edit Proyek
-ALUMNI_PARTIALS["modal-add-project"] = () => {
+ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
   const close = "addProjectOpen = false";
+  const title = (dataset && dataset.title) || "Tambah proyek";
   return formModalHTML({
     open: "addProjectOpen",
     close,
     formId: "modalAddProjectForm",
     labelledby: "add-project-title",
     xdata: "addProjectModal",
-    title: "Tambah proyek",
+    title,
     titleId: "add-project-title",
     headerShrink: false,
     footerShrink: false,
