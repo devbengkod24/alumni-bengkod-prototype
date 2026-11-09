@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laporan Forum | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=9"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/store.js?v=2"></script>
+  <script src="../alumni/assets/js/alumni-data.js"></script>
+  <script src="../assets/js/feed-bersama.js"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Laporan Forum">
+  <div class="mb-6 pb-3 border-b border-gray-200">
+    <h1 class="!text-2xl sm:!text-3xl font-bold text-[#1E3A8A] tracking-tight">Laporan Forum</h1>
+    <p class="!text-sm text-gray-500 mt-0.5">Tinjau laporan konten dari alumni. Tindakan di sini menjaga linimasa tetap aman dan nyaman.</p>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div class="p-4 border-b border-neutral4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+      <div id="tab" class="flex items-center gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Saring status laporan"></div>
+      <div class="relative lg:w-72">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="cari" type="search" class="input !pl-9" placeholder="Cari konten, penulis, atau pelapor" aria-label="Cari laporan">
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr>
+            <th class="th w-40">Pelapor</th>
+            <th class="th">Postingan yang Dilaporkan</th>
+            <th class="th w-56">Alasan</th>
+            <th class="th text-right w-44">Tindakan</th>
+          </tr>
+        </thead>
+        <tbody id="baris"></tbody>
+      </table>
+    </div>
+    <div id="pager" class="p-4 empty:hidden"></div>
+  </section>
+</main>
+
+<script>
+  const PER_HALAMAN = 8;
+  const TAB = [['menunggu', 'Menunggu'], ['selesai', 'Selesai'], ['diabaikan', 'Diabaikan']];
+  let tabAktif = 'menunggu';
+  let halaman = 1;
+
+  function semuaLaporan(status) {
+    const listBaru = (typeof BengkodStore !== 'undefined' && BengkodStore.getLaporan)
+      ? BengkodStore.getLaporan(status).map(l => ({ ...l, sumber: 'shared' }))
+      : [];
+    const listLama = (typeof DB !== 'undefined' && DB.forum?.laporan)
+      ? DB.forum.laporan(status).map(l => ({ ...l, sumber: 'legacy' }))
+      : [];
+    return [...listBaru, ...listLama];
+  }
+
+  function teksKonten(l) {
+    if (l.sumber === 'shared' || l.id_post) {
+      let isi = l.judul_post || 'Postingan feed alumni';
+      let targetId = l.id_post;
+      if (typeof FeedBersama !== 'undefined') {
+        const semuaPost = FeedBersama.semua();
+        const p = semuaPost.find(x => x.id === l.id_post || (l.judul_post && (x.isi?.includes(l.judul_post) || x.karya?.nama === l.judul_post)));
+        if (p) {
+          isi = p.isi || l.judul_post;
+          targetId = p.id;
+        }
+      }
+      return {
+        penulisNama: l.penulis_post || 'Alumni',
+        pelaporNama: l.pelapor || 'Alumni',
+        isi,
+        tautan: `forum.html#post-${targetId}`,
+        labelTautan: 'Buka di Forum Feed',
+        tipe: 'Postingan Feed'
+      };
+    }
+    const { t, b, sasaran } = DB.forum.konten(l);
+    let tautan = `forum.html`;
+    if (typeof FeedBersama !== 'undefined') {
+      const p = FeedBersama.semua().find(x => x.isi?.toLowerCase().includes('asisten ai') || (t?.judul && x.isi?.includes(t.judul)));
+      if (p) tautan = `forum.html#post-${p.id}`;
+    }
+    return {
+      t, b, sasaran,
+      penulisNama: DB.akun.cari(sasaran?.id_user)?.nama || 'Alumni',
+      pelaporNama: DB.akun.cari(l.id_pelapor)?.nama || 'Alumni',
+      isi: b ? b.isi : t?.judul || 'Diskusi',
+      tautan,
+      labelTautan: b ? `Lihat di: "${esc(t?.judul || 'diskusi')}"` : 'Buka di Forum Feed',
+      tipe: b ? 'Balasan' : 'Diskusi'
+    };
+  }
+
+  function daftar() {
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    return semuaLaporan(tabAktif).filter(l => {
+      const k = teksKonten(l);
+      return `${k.isi} ${k.penulisNama} ${k.pelaporNama} ${l.alasan || ''} ${l.catatan || ''}`.toLowerCase().includes(kata);
+    });
+  }
+
+  function tombolAksi(l) {
+    if (l.status === 'menunggu') {
+      return `
+        <div class="flex items-center justify-end gap-2">
+          <button type="button" data-aksi="abaikan" data-id="${l.id}" data-sumber="${l.sumber || ''}" class="btn-outline !px-3 !py-1.5 !text-xs font-semibold">Abaikan</button>
+          <button type="button" data-aksi="sembunyikan" data-id="${l.id}" data-sumber="${l.sumber || ''}" class="btn-danger !px-3 !py-1.5 !text-xs font-semibold">Hapus</button>
+        </div>`;
+    }
+    if (l.status === 'selesai') {
+      return `<span class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700"><i data-lucide="check" class="w-3.5 h-3.5"></i>Dihapus</span>`;
+    }
+    return `<span class="text-xs text-neutral3 font-medium">Diabaikan</span>`;
+  }
+
+  function barisLaporan(l) {
+    const k = teksKonten(l);
+    return `
+      <tr class="tr">
+        <td class="td align-top">
+          <p class="font-semibold text-neutral1 text-sm">${esc(k.pelaporNama)}</p>
+          <p class="text-xs text-neutral3 mt-0.5">${fmtDate(l.waktu)}</p>
+        </td>
+        <td class="td align-top">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="font-semibold text-neutral1 text-[13px]">${esc(k.penulisNama)}</span>
+            <span class="text-xs text-neutral4">•</span>
+            <span class="text-xs text-neutral3">${esc(k.tipe)}</span>
+            ${l.status === 'selesai' ? '<span class="text-xs font-semibold text-red2 ml-1">[Konten dihapus]</span>' : ''}
+          </div>
+          <p class="text-[14px] text-neutral1 leading-relaxed whitespace-pre-line break-words max-w-xl">${esc(k.isi)}</p>
+          <a href="${k.tautan}" target="_blank" class="inline-flex items-center gap-1 text-xs font-semibold text-primary1 hover:underline mt-2">
+            <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            <span>${esc(k.labelTautan)}</span>
+          </a>
+        </td>
+        <td class="td align-top">
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red3 text-red1 border border-red2/20">${esc(l.alasan)}</span>
+          ${l.catatan ? `<p class="text-xs text-neutral2 mt-1.5 leading-relaxed italic">"${esc(l.catatan)}"</p>` : ''}
+        </td>
+        <td class="td align-top text-right whitespace-nowrap">
+          ${tombolAksi(l)}
+        </td>
+      </tr>`;
+  }
+
+  function render() {
+    const list = daftar();
+    document.getElementById('tab').innerHTML = TAB.map(([nilai, label]) => {
+      const jumlah = semuaLaporan(nilai).length;
+      return `
+        <button
+          type="button"
+          data-tab="${nilai}"
+          aria-pressed="${tabAktif === nilai}"
+          class="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors ${tabAktif === nilai ? 'bg-primary1 border-primary1 text-white' : 'bg-white border-neutral4 text-neutral2 hover:bg-primary5 hover:text-primary1'}"
+        >
+          ${label} <span class="text-xs opacity-75">${jumlah}</span>
+        </button>`;
+    }).join('');
+
+    const tbody = document.getElementById('baris');
+    if (list.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="4" class="td text-center text-neutral3 py-12">
+            <div class="flex flex-col items-center justify-center gap-2">
+              <i data-lucide="shield-check" class="w-8 h-8 text-green2"></i>
+              <p class="font-semibold text-neutral1 text-sm">Tidak ada laporan yang menunggu tindakan.</p>
+              <p class="text-xs text-neutral3">Komunitas forum alumni berjalan tertib dan aman.</p>
+            </div>
+          </td>
+        </tr>`;
+    } else {
+      tbody.innerHTML = potong(list, halaman, PER_HALAMAN).map(barisLaporan).join('');
+    }
+
+    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+    refreshIcons();
+  }
+
+  function tinjau(id, statusBaru, pesan, sumber) {
+    if (sumber === 'shared') {
+      const l = BengkodStore.getLaporan().find(x => x.id === Number(id));
+      BengkodStore.updateLaporanStatus(id, statusBaru);
+      if (statusBaru === 'selesai' && l?.id_post) {
+        FeedBersama.hapus(l.id_post);
+      }
+      halaman = 1;
+      render();
+      showToast(pesan);
+      return;
+    }
+    const hasil = DB.forum.tinjau(id, SAYA.id, statusBaru);
+    if (!hasil.ok) return showToast(hasil.error, 'error');
+    halaman = 1;
+    render();
+    showToast(pesan);
+  }
+
+  document.getElementById('tab').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-tab]');
+    if (!tombol) return;
+    tabAktif = tombol.dataset.tab;
+    halaman = 1;
+    render();
+  });
+
+  document.getElementById('cari').addEventListener('input', () => {
+    halaman = 1;
+    render();
+  });
+
+  document.getElementById('baris').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-aksi]');
+    if (!tombol) return;
+    const { aksi, id, sumber } = tombol.dataset;
+    const l = semuaLaporan(tabAktif).find(x => x.id === Number(id));
+    if (!l) return;
+    if (aksi === 'abaikan') return tinjau(l.id, 'diabaikan', 'Laporan diabaikan, konten tetap tampil di feed.', sumber);
+    if (aksi === 'sembunyikan') {
+      return confirmAction({
+        title: 'Hapus konten postingan?',
+        message: 'Konten postingan ini akan dihapus dari linimasa forum alumni.',
+        okLabel: 'Hapus',
+        danger: true
+      }, () => tinjau(l.id, 'selesai', 'Konten berhasil dihapus dan laporan selesai.', sumber));
+    }
+  });
+
+  render();
+</script>
+</body>
+</html>

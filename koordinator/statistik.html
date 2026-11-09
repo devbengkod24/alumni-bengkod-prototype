@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistik Data Alumni | Koordinator Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="../alumni/assets/js/data.js?v=9"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Statistik Data Alumni">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <h2 class="!text-2xl font-semibold text-neutral1">Statistik Jumlah Lulusan Alumni</h2>
+      <p class="!text-sm text-neutral2 mt-1">Isi total lulusan per tahun. Alumni terdeteksi dihitung otomatis dari tracer study.</p>
+    </div>
+    <button type="button" onclick="bukaForm()" class="btn-primary no-print"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Data</button>
+  </div>
+
+  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
+    <div id="alat" class="p-4 border-b border-neutral4 flex flex-wrap gap-2 no-print"></div>
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead><tr>
+          <th class="th">Tahun Lulus</th><th class="th text-right">Total Alumni</th><th class="th text-right">Alumni Terdeteksi</th><th class="th">Cakupan</th><th class="th text-right no-print">Aksi</th>
+        </tr></thead>
+        <tbody id="baris"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-md" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
+    <input type="hidden" name="id">
+    <div class="space-y-4">
+      <div>
+        <label for="f-tahun" class="label">Tahun Lulus <span class="text-red2">*</span></label>
+        <input id="f-tahun" name="tahun_lulus" type="number" min="1990" step="1" class="input" required>
+      </div>
+      <div>
+        <label for="f-total" class="label">Total Alumni <span class="text-red2">*</span></label>
+        <input id="f-total" name="alumni_total" type="number" min="0" step="1" class="input" required>
+      </div>
+    </div>
+    <p id="form-error" class="hidden mt-4 !text-sm text-red1" role="alert"></p>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('form');
+  const cakupan = s => (s.alumni_total ? Math.round((s.alumni_terlacak / s.alumni_total) * 100) : 0);
+
+  function render() {
+    document.getElementById('baris').innerHTML = [...DB.statistik.semua()].reverse().map(s => `
+      <tr class="tr">
+        <td class="td font-medium">${s.tahun_lulus}</td>
+        <td class="td text-right tabular-nums">${s.alumni_total}</td>
+        <td class="td text-right tabular-nums">${s.alumni_terlacak}</td>
+        <td class="td">
+          <div class="flex items-center gap-2 min-w-28">
+            <div class="flex-1 h-2 bg-neutral5 rounded-full overflow-hidden"><div class="h-full bg-primary3 rounded-full" style="width:${Math.min(cakupan(s), 100)}%"></div></div>
+            <span class="text-xs text-neutral2 w-9 text-right">${cakupan(s)}%</span>
+          </div>
+        </td>
+        <td class="td text-right whitespace-nowrap no-print">
+          <button type="button" class="btn-icon" onclick="bukaForm(${s.tahun_lulus})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button type="button" class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${s.tahun_lulus})" aria-label="Hapus" title="Hapus" ${s.id === null ? 'disabled' : ''}><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="5" class="td text-center text-neutral3 py-8">Belum ada data.</td></tr>';
+    refreshIcons();
+  }
+
+  function bukaForm(tahun) {
+    const s = DB.statistik.semua().find(x => x.tahun_lulus === tahun);
+    form.reset();
+    document.getElementById('form-error').classList.add('hidden');
+    document.getElementById('form-title').textContent = s ? 'Edit Data Statistik' : 'Tambah Data Statistik';
+    form.elements.id.value = s && s.id !== null ? s.id : '';
+    if (s) {
+      form.elements.tahun_lulus.value = s.tahun_lulus;
+      form.elements.alumni_total.value = s.alumni_total;
+    }
+    openModal('form-modal');
+  }
+
+  function hapus(tahun) {
+    const s = DB.statistik.semua().find(x => x.tahun_lulus === tahun);
+    confirmAction({ title: 'Hapus data statistik?', message: `Total alumni tahun ${tahun} akan dihapus.`, okLabel: 'Hapus', danger: true }, () => {
+      DB.statistik.hapus(s.id);
+      render();
+      showToast('Data statistik berhasil dihapus.');
+    });
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const isi = Object.fromEntries(new FormData(form));
+    const hasil = DB.statistik.simpan({ ...isi, id: Number(isi.id) || null });
+    if (!hasil.ok) {
+      const pesan = document.getElementById('form-error');
+      pesan.textContent = hasil.error;
+      pesan.classList.remove('hidden');
+      return;
+    }
+    closeModal('form-modal');
+    render();
+    showToast('Data statistik berhasil disimpan.');
+  });
+
+  pasangToolsTabel('alat', 'statistik-alumni.csv', () => [
+    ['Tahun Lulus', 'Total Alumni', 'Alumni Terdeteksi'],
+    ...DB.statistik.semua().map(s => [s.tahun_lulus, s.alumni_total, s.alumni_terlacak]),
+  ]);
+  render();
+</script>
+</body>
+</html>

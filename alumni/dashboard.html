@@ -11,7 +11,7 @@
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
   <script src="assets/js/alumni-profile-modals.js"></script>
-  <script src="../assets/js/store.js"></script>
+  <script src="../assets/js/store.js?v=2"></script>
 </head>
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/page.tsx + _components/PostModals.tsx -->
@@ -33,9 +33,9 @@
     <!-- Header Beranda Feed Alumni -->
     <div class="flex items-center justify-between pb-3 border-b border-gray-200">
       <div>
-<h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
         <p class="text-sm text-gray-500 mt-0.5">
-          Kabar, karya, dan info loker dari rekan alumni Bengkel Koding
+          Linimasa forum diskusi, karya, dan info loker bersama rekan alumni &amp; koordinator
         </p>
       </div>
     </div>
@@ -49,21 +49,21 @@
     >
       <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name" class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
 
-      <div class="flex-1 min-w-0 space-y-3">
+      <div class="flex-1 min-w-0 flex flex-col">
         <textarea
           id="post-content"
           x-ref="postTextarea"
-          rows="2"
+          rows="1"
           x-model="pmContent"
-          @input="$el.style.height = 'auto'; $el.style.height = Math.max(56, $el.scrollHeight) + 'px'"
+          @input="$el.style.height = 'auto'; $el.style.height = Math.max(38, $el.scrollHeight) + 'px'"
           :placeholder="pmIsLoker ? 'Tulis info loker: posisi, perusahaan, kualifikasi, dan cara mendaftar atau minta referral...' : 'Bagikan kabar, pertanyaan, atau ide ke rekan alumni...'"
-          class="w-full resize-none bg-transparent pt-2 text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed overflow-hidden"
-          style="min-height: 56px;"
+          class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed overflow-hidden"
+          style="min-height: 38px;"
         ></textarea>
 
         <!-- Pratinjau media -->
         <template x-if="pmImageUrl">
-          <div class="relative rounded-xl overflow-hidden border border-gray-200">
+          <div class="relative mt-2.5 rounded-xl overflow-hidden border border-gray-200">
             <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[300px] object-cover">
             <button
               type="button"
@@ -80,13 +80,20 @@
 
         <!-- Petunjuk mode loker -->
         <template x-if="pmIsLoker">
-          <p class="text-[12px] text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
+          <p class="mt-2.5 text-[12px] text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
             Postingan ini akan masuk tab <span class="font-semibold">Internal Referral</span>.
           </p>
         </template>
 
+        <!-- Petunjuk mode tanya koordinator -->
+        <template x-if="pmIsTanya">
+          <p class="mt-2.5 text-[12px] text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5">
+            Pertanyaan ini masuk tab <span class="font-semibold">Tanya Koordinator</span> dan akan dijawab koordinator di kolom komentar.
+          </p>
+        </template>
+
         <!-- Toolbar: tombol media di kiri, tombol posting di kanan -->
-        <div class="flex items-center justify-between gap-3 pt-2 border-t border-gray-100 flex-wrap">
+        <div class="flex items-center justify-between gap-3 pt-2.5 mt-2.5 border-t border-gray-100 flex-wrap">
           <div class="flex items-center gap-2 flex-wrap">
             <!-- Tombol Tambah Media Foto -->
             <button
@@ -125,7 +132,7 @@
             <button
               type="button"
               id="btn-composer-loker"
-              @click="pmIsLoker = !pmIsLoker; $refs.postTextarea.focus()"
+              @click="pmIsLoker = !pmIsLoker; pmIsTanya = false; $refs.postTextarea.focus()"
               :aria-pressed="pmIsLoker.toString()"
               title="Tandai sebagai info loker / referral"
               class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border"
@@ -136,6 +143,24 @@
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
               </svg>
               <span>Loker</span>
+            </button>
+
+            <!-- Tombol Tanya Koordinator: pertanyaan administrasi untuk koordinator, dijawab di komentar -->
+            <button
+              type="button"
+              id="btn-composer-tanya"
+              @click="pmIsTanya = !pmIsTanya; pmIsLoker = false; $refs.postTextarea.focus()"
+              :aria-pressed="pmIsTanya.toString()"
+              title="Ajukan pertanyaan ke koordinator"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border"
+              :class="pmIsTanya ? 'bg-amber-50 border-amber-200 text-amber-800' : 'border-gray-200 bg-transparent text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <path d="M12 17h.01" />
+              </svg>
+              <span>Tanya Koordinator</span>
             </button>
           </div>
 
@@ -158,7 +183,7 @@
     <!-- ── TAB KATEGORI FEED ── -->
     <div class="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar text-sm">
       <div class="flex items-center gap-2 shrink-0">
-        <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']" :key="cat">
+        <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral', 'Tanya Koordinator & Survei']" :key="cat">
           <button
             type="button"
             @click="selectedCategory = cat"
@@ -185,6 +210,14 @@
           :id="'activity-card-' + post.id"
           class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white"
         >
+          <!-- Disematkan koordinator dari halaman Forum -->
+          <template x-if="post.disematkan">
+            <div class="px-5 pt-3 pb-2 border-b border-gray-100 flex items-center gap-1.5 text-[13px] text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" /></svg>
+              Disematkan oleh koordinator
+            </div>
+          </template>
+
           <!-- Repost Header jika ada -->
           <template x-if="post.isRepost && post.repostedBy">
             <div class="px-5 pt-3.5 pb-2 border-b border-gray-100 flex items-center gap-2 text-[14px] text-gray-600 bg-gray-50/50">
@@ -209,10 +242,7 @@
                   </template>
                 </a>
                 <div class="flex flex-col">
-<a :href="getAuthorLink(post.authorName)" class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] transition-colors" x-text="post.authorName"></a>
-                    <template x-if="post.authorRole && !['Alumni', 'Mitra'].includes(post.authorRole)">
-<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200" x-text="post.authorRole"></span>
-                    </template>
+                  <a :href="getAuthorLink(post.authorName)" class="text-[17px] font-semibold text-gray-900 leading-tight hover:text-[#1E3A8A] transition-colors" x-text="post.authorName"></a>
                   <p class="text-[14px] text-gray-500 leading-snug mt-1" x-text="post.authorHeadline"></p>
                   <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1">
                     <span x-text="post.date"></span>
@@ -238,6 +268,59 @@
                       </template>
                     </span>
                   </div>
+                </div>
+              </div>
+
+              <!-- Menu Opsi Postingan (Salin Tautan, Lapor, Hapus) -->
+              <div class="relative shrink-0" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+                <button
+                  type="button"
+                  @click="menuOpen = !menuOpen"
+                  aria-label="Opsi postingan"
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" />
+                  </svg>
+                </button>
+                <div
+                  x-show="menuOpen"
+                  x-transition
+                  class="absolute right-0 top-9 z-20 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 text-[14px]"
+                  style="display: none;"
+                >
+                  <button
+                    type="button"
+                    @click="copyPostLink(post.id); menuOpen = false"
+                    class="w-full flex items-center gap-2.5 px-4 py-2 text-gray-700 hover:bg-gray-50 text-left font-medium cursor-pointer"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    <span>Salin Tautan</span>
+                  </button>
+                  <template x-if="post.authorName !== profile.name">
+                    <div class="border-t border-gray-100 mt-1 pt-1">
+                      <button
+                        type="button"
+                        @click="openReportModal(post); menuOpen = false"
+                        class="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 text-left font-medium cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                        <span>Laporkan Postingan</span>
+                      </button>
+                    </div>
+                  </template>
+                  <template x-if="post.authorName === profile.name">
+                    <div class="border-t border-gray-100 mt-1 pt-1">
+                      <button
+                        type="button"
+                        @click="deleteMyPost(post.id); menuOpen = false"
+                        class="w-full flex items-center gap-2.5 px-4 py-2 text-red-600 hover:bg-red-50 text-left font-medium cursor-pointer"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+                        <span>Hapus Postingan</span>
+                      </button>
+                    </div>
+                  </template>
                 </div>
               </div>
             </div>
@@ -431,7 +514,12 @@ class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 t
                         <img :src="c.avatar" :alt="c.author" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
                         <div class="flex-1 min-w-0">
                           <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
-                            <p class="text-[14px] font-semibold text-gray-900" x-text="c.author"></p>
+                            <p class="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5">
+                              <span x-text="c.author"></span>
+                              <template x-if="c.role === 'Koordinator'">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200">Koordinator</span>
+                              </template>
+                            </p>
                             <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed" x-text="c.text"></p>
                           </div>
                           <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
@@ -648,6 +736,49 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
     ====================================================== -->
     <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya"></div>
 
+    <!-- ======================================================
+        MODAL: LAPORKAN POSTINGAN KE KOORDINATOR
+    ====================================================== -->
+    <template x-if="reportModalOpen">
+      <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="bg-white rounded-2xl max-w-md w-full border border-gray-200 shadow-xl overflow-hidden" @click.outside="reportModalOpen = false">
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-[17px] font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-600"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+              <span>Laporkan Postingan</span>
+            </h3>
+            <button type="button" @click="reportModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <form @submit.prevent="submitReport()" class="p-6 space-y-4">
+            <p class="text-[14px] text-gray-600">
+              Mengapa Anda melaporkan postingan dari <span class="font-semibold text-gray-900" x-text="reportingPost?.authorName"></span>? Laporan ini akan ditinjau langsung oleh Koordinator.
+            </p>
+            <div class="space-y-2">
+              <label class="block text-[13px] font-semibold text-gray-700">Pilih Alasan Pelanggaran</label>
+              <div class="space-y-2">
+                <template x-for="alasan in ['Spam / Iklan Berulang', 'Lowongan Tidak Valid / Mencurigakan', 'Pelecehan / Kata Kasar', 'Tidak Relevan', 'Lainnya']" :key="alasan">
+                  <label class="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 hover:bg-gray-50 cursor-pointer text-[14px] transition-colors" :class="reportReason === alasan ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'text-gray-700'">
+                    <input type="radio" name="alasan" :value="alasan" x-model="reportReason" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
+                    <span x-text="alasan"></span>
+                  </label>
+                </template>
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-[13px] font-semibold text-gray-700">Catatan Tambahan (Opsional)</label>
+              <textarea x-model="reportNotes" rows="3" placeholder="Jelaskan detail pelanggaran jika perlu..." class="w-full text-[14px] p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 resize-none"></textarea>
+            </div>
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
+              <button type="button" @click="reportModalOpen = false" class="px-4 py-2 rounded-xl border border-gray-200 text-[14px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-[14px] font-semibold shadow-xs transition-colors cursor-pointer">Kirim Laporan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </template>
+
   </div>
 </main>
 
@@ -701,10 +832,60 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         pmContent: "",
         pmImageUrl: "",
         pmIsLoker: false,
+        pmIsTanya: false,
         selectedCategory: "Semua",
 
         // Modal Tambah Proyek / Launch Karya (State selaras form proyek profil)
         addProjectOpen: false,
+
+        // State Laporan Postingan ke Koordinator
+        reportModalOpen: false,
+        reportingPost: null,
+        reportReason: "Spam / Iklan Berulang",
+        reportNotes: "",
+
+        openReportModal(post) {
+          this.reportingPost = post;
+          this.reportReason = "Spam / Iklan Berulang";
+          this.reportNotes = "";
+          this.reportModalOpen = true;
+        },
+
+        submitReport() {
+          if (!this.reportingPost) return;
+          if (typeof BengkodStore !== "undefined" && BengkodStore.addLaporan) {
+            const judul = this.reportingPost.karya?.nama || (this.reportingPost.content ? this.reportingPost.content.slice(0, 80) : "Postingan");
+            BengkodStore.addLaporan({
+              id_post: this.reportingPost.id,
+              judul_post: judul,
+              penulis_post: this.reportingPost.authorName || "Alumni",
+              pelapor: this.profile.name,
+              peran_pelapor: "Alumni",
+              alasan: this.reportReason,
+              catatan: (this.reportNotes || "").trim(),
+            });
+          }
+          this.reportModalOpen = false;
+          this.setToast("Laporan berhasil dikirim ke Koordinator untuk ditinjau.");
+        },
+
+        copyPostLink(postId) {
+          const url = new URL(`dashboard.html#activity-card-${postId}`, window.location.href).href;
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(url)
+              .then(() => this.setToast("Tautan postingan berhasil disalin!"))
+              .catch(() => this.setToast("Tautan disalin"));
+          } else {
+            this.setToast("Tautan disalin");
+          }
+        },
+
+        deleteMyPost(postId) {
+          if (!confirm("Apakah Anda yakin ingin menghapus postingan ini?")) return;
+          this.posts = this.posts.filter((p) => p.id !== postId);
+          this.simpan();
+          this.setToast("Postingan Anda berhasil dihapus.");
+        },
 
         get topProducts() {
           return this.posts
@@ -753,6 +934,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           return this.posts.filter((p) => {
             const c = (p.category || "").toLowerCase();
             const target = this.selectedCategory.toLowerCase();
+            if (target.includes("tanya")) return c === "tanya koordinator" || Boolean(p.pertanyaan);
             if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
             // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
             if (target === "internal referral") return c.includes("referral") || c.includes("loker") || (!p.category && (p.content || "").toLowerCase().includes("referral"));
@@ -763,6 +945,8 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
         init() {
           this.muat();
           window.addEventListener("bengkod_posts_updated", () => this.muat());
+          window.addEventListener("bengkod:forum-updated", () => this.muat());
+          window.addEventListener("bengkod:laporan-updated", () => this.muat());
           try {
             const saved = localStorage.getItem("bengkod_alumni_profile");
             if (saved) {
@@ -795,6 +979,10 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             date: tgl(f.waktu),
             waktu: f.waktu,
             content: [f.judul, f.isi].filter(Boolean).join("\n\n"),
+            // Field bersama yang diatur koordinator dari halaman Forum (lihat assets/js/feed-bersama.js)
+            category: f.category,
+            pertanyaan: !!f.pertanyaan,
+            disematkan: !!f.disematkan,
             visibility: "Semua orang",
             imageUrl: f.gambar,
             tablePreview: f.tabel,
@@ -808,12 +996,14 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             komentarForum: f.comments,
           });
           const waktu = (p) => (p.waktu ? Date.parse(p.waktu) : p.id > 1e12 ? p.id : Date.parse(p.date) || 0);
-          this.posts = [...loadPosts(), ...BengkodStore.getForum().map(dariForum)].sort((a, b) => waktu(b) - waktu(a));
+          // Postingan yang disematkan koordinator tampil paling atas, sama seperti di Forum koordinator
+          this.posts = [...loadPosts(), ...BengkodStore.getForum().map(dariForum)].sort((a, b) => (b.disematkan ? 1 : 0) - (a.disematkan ? 1 : 0) || waktu(b) - waktu(a));
 
           // Komentar dari forum (koor/mitra/alumni) ikut tampil di daftar komentar; dedupe by id karena muat() dipanggil ulang
           const keKomentar = (c) => ({
             id: c.id,
             author: c.penulis,
+            role: c.peran,
             avatar: "assets/img/user.png",
             text: c.isi,
             time: tgl(c.waktu),
@@ -872,6 +1062,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
           this.pmContent = "";
           this.pmImageUrl = "";
           this.pmIsLoker = false;
+          this.pmIsTanya = false;
           if (this.$refs.postTextarea) {
             this.$refs.postTextarea.style.height = "auto";
           }
@@ -896,8 +1087,8 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             return;
           }
 
-          // Kategori dipilih penulis lewat tombol Loker, tidak ditebak dari isi teks
-          const resolvedCategory = this.pmIsLoker ? "Internal Referral" : "Umum";
+          // Kategori dipilih penulis lewat tombol Loker atau Tanya Koordinator, tidak ditebak dari isi teks
+          const resolvedCategory = this.pmIsTanya ? "Tanya Koordinator" : this.pmIsLoker ? "Internal Referral" : "Umum";
 
           const newPost = {
             id: Date.now(),
