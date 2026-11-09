@@ -241,6 +241,9 @@ document.addEventListener("alpine:init", () => {
     isMobile: false,
     isHydrated: false,
     profileIsOpen: false,
+    notifIsOpen: false,
+    notifs: [],
+    notifUnreadCount: 0,
     breadcrumbDropdownOpen: false,
     navSearchQuery: "",
     navSearchOpen: false,
@@ -257,10 +260,42 @@ document.addEventListener("alpine:init", () => {
       document.addEventListener("mousedown", (event) => {
         const t = event.target;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
+        if (this.$refs.notifDropdownRef && !this.$refs.notifDropdownRef.contains(t)) this.notifIsOpen = false;
         if (this.$refs.breadcrumbRef && !this.$refs.breadcrumbRef.contains(t)) this.breadcrumbDropdownOpen = false;
         const inSearch = [this.$refs.navSearchRef, this.$refs.mobileSearchRef, this.$refs.mobileSearchToggle].some((el) => el && el.contains(t));
         if (!inSearch) this.navSearchOpen = false;
       });
+    },
+    loadNotifs() {
+      try {
+        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
+          const user = DB.akun.aktif();
+          if (user) {
+            const list = DB.notifikasi.milik(user.id).filter((n) => user.role !== "alumni" || !n.tautan.startsWith("forum"));
+            this.notifs = list;
+            this.notifUnreadCount = list.filter((n) => !n.dibaca).length;
+          }
+        }
+      } catch (e) {}
+    },
+    markNotifRead(id) {
+      try {
+        if (typeof DB !== "undefined" && DB.notifikasi) {
+          DB.notifikasi.baca(id);
+          this.loadNotifs();
+        }
+      } catch (e) {}
+    },
+    markAllNotifsRead() {
+      try {
+        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
+          const user = DB.akun.aktif();
+          if (user) {
+            DB.notifikasi.bacaSemua(user.id);
+            this.loadNotifs();
+          }
+        }
+      } catch (e) {}
     },
     // Pencarian alumni di navbar (selalu terjangkau di semua halaman, desktop & ponsel)
     get navSearchResults() {
@@ -330,7 +365,8 @@ function alumniNavSearchDropdownHTML() {
     </div>`;
 }
 
-function alumniLayoutHTML(route, breadcrumbItems) {
+function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
+  const activeRoute = alumniNormalizeRoute(route);
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
     const active = nav.link === activeRoute;
     return `
@@ -373,8 +409,9 @@ function alumniLayoutHTML(route, breadcrumbItems) {
     </template>
 
     <div class="flex-1 flex flex-col min-h-screen min-w-0 duration-300 ease-in-out" :class="!isMobile && sidebarIsOpen ? 'pl-64' : 'pl-0'" style="transition: padding-left 300ms ease-in-out">
-      <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2 min-w-0 flex-1">
+      <header class="sticky top-0 z-30 bg-white border-b border-neutral4 px-3 lg:px-6">
+        <div class="h-16 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
           <button
             id="sidebar-toggle"
             type="button"
@@ -407,81 +444,25 @@ function alumniLayoutHTML(route, breadcrumbItems) {
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               </button>
 
-              <div class="relative flex items-center" x-ref="dropdownRef">
-                <div>
-                  <button type="button" class="flex text-sm rounded-full focus:ring-4 focus:ring-primary5" :aria-expanded="profileIsOpen" @click="toggleProfile()">
-                    <span class="sr-only">Open user menu</span>
-                    <div class="mx-auto">
-                      ${alumniAvatarHTML("profile.image", "profile.name", "w-8 h-8", "text-xs")}
-                    </div>
-                  </button>
-                </div>
-
-            <!-- Dropdown Panel Notifikasi -->
-            <div
-              x-show="notifIsOpen"
-              x-cloak
-              class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-80 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
-              id="notif-panel"
-            >
-              <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
-                <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
+              <!-- User Menu Button & Dropdown -->
+              <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
                 <button
-                  x-show="notifUnreadCount > 0"
                   type="button"
-                  @click="markAllNotifsRead()"
-                  class="text-xs font-semibold text-primary2 hover:underline cursor-pointer"
+                  id="profile-menu-btn"
+                  @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
+                  class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+                  :aria-expanded="profileIsOpen"
+                  aria-label="Menu Pengguna"
                 >
-                  Tandai semua dibaca
+                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+                    <template x-if="profile.image">
+                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!profile.image">
+                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                    </template>
+                  </div>
                 </button>
-              </div>
-              <div class="max-h-80 overflow-y-auto divide-y divide-neutral4/40">
-                <template x-for="n in notifs" :key="n.id">
-                  <a
-                    :href="n.tautan || '#'"
-                    @click="markNotifRead(n.id)"
-                    class="block px-4 py-3 hover:bg-neutral5 transition-colors"
-                    :class="!n.dibaca ? 'bg-primary5/30' : ''"
-                  >
-                    <div class="flex items-start gap-2.5">
-                      <span class="w-2 h-2 rounded-full bg-primary2 mt-1.5 shrink-0" :class="n.dibaca ? 'invisible' : ''"></span>
-                      <div class="flex-1 min-w-0">
-                        <p class="text-xs text-neutral1 leading-relaxed" x-text="n.pesan"></p>
-                        <p class="text-[10px] text-neutral3 mt-1" x-text="n.waktu"></p>
-                      </div>
-                    </div>
-                  </a>
-                </template>
-                <template x-if="notifs.length === 0">
-                  <p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>
-                </template>
-              </div>
-            </div>
-          </div>
-
-          <!-- User Menu Button & Dropdown -->
-          <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
-            <button
-              type="button"
-              id="profile-menu-btn"
-              @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
-              class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
-              :aria-expanded="profileIsOpen"
-              aria-label="Menu Pengguna"
-            >
-              <div class="text-right hidden sm:block">
-                <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" x-text="profile.name"></div>
-                <div class="text-[11px] text-neutral3">Alumni Asisten Lab</div>
-              </div>
-              <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
-                <template x-if="profile.image">
-                  <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!profile.image">
-                  <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
-                </template>
-              </div>
-            </button>
 
             <!-- Dropdown Profile Menu -->
             <div
@@ -537,6 +518,8 @@ function alumniLayoutHTML(route, breadcrumbItems) {
             </div>
           </div>
         </div>
+        </div>
+
         <!-- Cari alumni: baris yang melebar di ponsel -->
         <template x-if="mobileSearchOpen">
         <form class="md:hidden px-3 pb-3" x-ref="mobileSearchRef" role="search" @submit.prevent="submitNavSearch()">
@@ -549,7 +532,7 @@ function alumniLayoutHTML(route, breadcrumbItems) {
           </div>
         </form>
         </template>
-      </nav>
+      </header>
       <div class="flex-1 px-6 lg:px-10 py-6" data-main-slot></div>
       <footer class="w-full px-2 lg:px-4 py-4">
         <div class="max-w-7xl mx-auto border-t pt-4 flex justify-between text-neutral3 items-center">
