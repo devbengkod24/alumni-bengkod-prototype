@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Bekerja | Portal Mitra Bengkel Koding</title>
+  <meta name="description" content="Daftar mahasiswa dan alumni purna tugas Bengkel Koding yang bekerja atau magang di perusahaan.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script src="../assets/js/store.js"></script>
+  <script src="assets/js/mitra.js"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="../assets/js/main.js"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Alumni Bekerja">
+
+  <!-- ── HEADER ── -->
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-3 border-b border-gray-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Alumni Bekerja</h1>
+      <p id="subtext" class="text-sm text-gray-500 mt-1">Daftar mahasiswa dan alumni purna tugas Bengkel Koding yang saat ini bekerja atau magang di perusahaan Anda.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="text-xs text-neutral3 font-medium">Total Bekerja:</span>
+      <span id="badge-total" class="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary5 text-primary1">0 Orang</span>
+    </div>
+  </div>
+
+  <!-- ── FILTER & SEARCH ── -->
+  <section class="card p-4 sm:p-5 mt-4">
+    <div class="flex flex-col sm:flex-row gap-3">
+      <div class="relative flex-1">
+        <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
+        <input id="q" type="search" oninput="renderTable()" class="input !pl-9" placeholder="Cari nama alumni, NIM, atau posisi...">
+      </div>
+      <div class="flex gap-2">
+        <select id="f-tipe" onchange="renderTable()" class="input w-44">
+          <option value="">Semua Tipe</option>
+          <option value="Penuh Waktu">Penuh Waktu</option>
+          <option value="Magang">Magang</option>
+          <option value="Paruh Waktu">Paruh Waktu</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TABEL DAFTAR ALUMNI BEKERJA ── -->
+  <div class="mt-4 bg-white rounded-xl border border-neutral4 shadow-sm overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full min-w-[760px]">
+        <thead>
+          <tr>
+            <th class="th w-16 text-center">No</th>
+            <th class="th">Mahasiswa / Alumni</th>
+            <th class="th">Posisi / Jabatan</th>
+            <th class="th">Divisi Bengkel Koding</th>
+            <th class="th">Tipe Kerja</th>
+            <th class="th w-28 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <div id="empty-state" class="hidden p-12 text-center text-neutral3">
+      <i data-lucide="users" class="w-10 h-10 mx-auto mb-3 text-neutral4"></i>
+      <p class="text-[15px] font-medium">Tidak ada data alumni bekerja yang ditemukan</p>
+    </div>
+  </div>
+
+</main>
+
+<script>
+function getCompanyName() {
+  return (MITRA && MITRA.profil && MITRA.profil.nama_perusahaan) || 'PT Solusi Digital Jateng';
+}
+
+// Data awal mahasiswa/alumni Bengkel Koding yang diterima dan bekerja di mitra ini
+const SEED_ALUMNI_BEKERJA = [
+  { id: 1, nama: 'Calvin Revianto', nim: 'A11.2021.13782', divisi: 'Divisi Developer', posisi: 'Frontend Developer', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+  { id: 2, nama: 'Dimas Wahyu Saputra', nim: 'A11.2022.14101', divisi: 'Divisi Developer', posisi: 'Junior Backend Engineer', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+  { id: 3, nama: 'Siti Nurhaliza', nim: 'A11.2022.14150', divisi: 'Divisi Developer', posisi: 'Mobile Developer (Flutter)', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' },
+  { id: 4, nama: 'Bagus Wicaksono', nim: 'A11.2022.14205', divisi: 'Divisi Data Science', posisi: 'Data Analyst Intern', tipe_kerja: 'Magang', status: 'Aktif Magang' },
+  { id: 5, nama: 'Fajar Nugroho', nim: 'A12.2022.09876', divisi: 'Divisi Data Science', posisi: 'Machine Learning Specialist', tipe_kerja: 'Penuh Waktu', status: 'Aktif Bekerja' }
+];
+
+function getAllAlumniBekerja() {
+  let list = [...SEED_ALUMNI_BEKERJA];
+  const company = getCompanyName().toLowerCase();
+
+  // 1. Ambil dari database Alumni yang nama perusahaannya sesuai
+  if (window.BengkodStore) {
+    const allAlumni = window.BengkodStore.getAlumni() || [];
+    allAlumni.forEach(a => {
+      const per = (a.nama_perusahaan || a.perusahaan || '').toLowerCase();
+      if (per.includes('solusi digital') || per.includes(company)) {
+        if (!list.some(x => x.nim === a.nim)) {
+          list.push({
+            id: a.id + 100,
+            nama: a.nama,
+            nim: a.nim,
+            divisi: a.divisi || 'Divisi Developer',
+            posisi: a.jabatan || 'Software Engineer',
+            tipe_kerja: a.jenis_pekerjaan || 'Penuh Waktu',
+            status: 'Aktif Bekerja'
+          });
+        }
+      }
+    });
+  }
+
+  // 2. Ambil dari kandidat yang berstatus 'diterima' di Manajemen Pelamar
+  try {
+    const pelamarDiterima = (typeof getPelamar === 'function' ? gabungPelamar(getPelamar()) : [])
+      .filter(p => p.status === 'diterima');
+
+    pelamarDiterima.forEach(p => {
+      if (p.alumni && !list.some(m => m.nim === p.alumni.nim)) {
+        list.push({
+          id: p.id + 200,
+          nama: p.alumni.nama,
+          nim: p.alumni.nim,
+          divisi: p.alumni.divisi || 'Divisi Developer',
+          posisi: (p.lowongan && p.lowongan.posisi) || 'Software Engineer',
+          tipe_kerja: (p.lowongan && p.lowongan.tipe_kerja) || 'Penuh Waktu',
+          status: 'Aktif Bekerja'
+        });
+      }
+    });
+  } catch {}
+
+  return list;
+}
+
+function renderTable() {
+  const query = (document.getElementById('q').value || '').toLowerCase().trim();
+  const filterTipe = document.getElementById('f-tipe').value;
+  const all = getAllAlumniBekerja();
+
+  const filtered = all.filter(item => {
+    const matchQ = !query || item.nama.toLowerCase().includes(query) || item.nim.toLowerCase().includes(query) || item.posisi.toLowerCase().includes(query);
+    const matchTipe = !filterTipe || item.tipe_kerja === filterTipe;
+    return matchQ && matchTipe;
+  });
+
+  const tbody = document.getElementById('rows');
+  const empty = document.getElementById('empty-state');
+  const badgeTotal = document.getElementById('badge-total');
+
+  badgeTotal.textContent = `${all.length} Orang`;
+  empty.classList.toggle('hidden', filtered.length > 0);
+
+  tbody.innerHTML = filtered.map((m, idx) => `
+    <tr class="tr">
+      <td class="td text-neutral3 font-medium text-center">${idx + 1}</td>
+      <td class="td">
+        <p class="font-semibold text-neutral1">${esc(m.nama)}</p>
+        <p class="text-xs text-neutral3 font-mono mt-0.5">${esc(m.nim)}</p>
+      </td>
+      <td class="td font-medium text-neutral1">${esc(m.posisi)}</td>
+      <td class="td text-neutral2">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium ${m.divisi.includes('Data') ? 'bg-purple-50 text-purple-700' : 'bg-blue-50 text-primary1'}">
+          ${esc(m.divisi)}
+        </span>
+      </td>
+      <td class="td text-neutral2 text-xs font-medium">${esc(m.tipe_kerja)}</td>
+      <td class="td text-center">
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green3 text-green1 border border-green2/30">
+          ${esc(m.status)}
+        </span>
+      </td>
+    </tr>
+  `).join('');
+
+  if (window.lucide) window.lucide.createIcons();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const company = getCompanyName();
+  const subtextEl = document.getElementById('subtext');
+  if (subtextEl) {
+    subtextEl.textContent = `Daftar mahasiswa dan alumni purna tugas Bengkel Koding yang saat ini bekerja atau magang di ${company}.`;
+  }
+  renderTable();
+});
+</script>
+</body>
+</html>

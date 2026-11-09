@@ -7,6 +7,7 @@
   <meta name="description" content="Bengkel Koding Universitas Dian Nuswantoro Semarang">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../assets/js/page-skeleton.js"></script>
+  <script src="assets/js/data.js?v=9"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
@@ -14,13 +15,9 @@
   <script src="assets/js/alumni-profile-page.js"></script>
 </head>
 <body>
-<!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/profil/page.tsx -->
-<main data-route="profil">
+<main data-title="Profil Saya" data-route="profil">
   <div x-data="profilPage" class="w-full space-y-6 pb-12 antialiased" @click.window="shareDropdownId = null">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      <!-- ======================================================
-          KOLOM UTAMA (KIRI/TENGAH)
-      ====================================================== -->
       <div class="lg:col-span-8 space-y-6">
         <!-- ── SEKSI 1: BIODATA & KONTAK ── -->
         <div class="space-y-2">
@@ -1049,7 +1046,98 @@
     </template>
 
     <div data-partial="profile-preview"></div>
-    
+
+    <!-- ======================================================
+        MODAL: UBAH STATUS KARIR & TRACER
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="editCareerOpen">
+        <div id="modal-edit-career" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editCareerOpen = false">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" style="max-height: 90vh;">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-bold">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                </span>
+                <h3 class="text-lg font-bold text-gray-900">Perbarui Status Karir &amp; Tracer</h3>
+              </div>
+              <button type="button" @click="editCareerOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="handleSaveCareer()" class="p-6 overflow-y-auto space-y-4 text-sm">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Status Aktivitas Saat Ini <span class="text-red-500">*</span></label>
+                <select x-model="careerDraft.status" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+                  <option value="Bekerja Full Time">Bekerja Full Time</option>
+                  <option value="Bekerja Part Time">Bekerja Part Time</option>
+                  <option value="Wiraswasta">Wiraswasta / Software House Mandiri</option>
+                  <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan (Studi S2)</option>
+                  <option value="Tidak Bekerja Tetapi Sedang Mencari Pekerjaan">Mencari Peluang Karir Baru</option>
+                </select>
+              </div>
+
+              <template x-if="careerDraft.status !== 'Melanjutkan Pendidikan'">
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat Bekerja / Nama Usaha</label>
+                    <input type="text" x-model="careerDraft.company" placeholder="Contoh: PT GoTo Gojek Tokopedia" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Jabatan / Posisi</label>
+                    <input type="text" x-model="careerDraft.title" placeholder="Contoh: Junior Data Scientist" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Bidang Pekerjaan</label>
+                      <select x-model="careerDraft.field" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                        <option value="Infokom">Infokom</option>
+                        <option value="Non Infokom">Non Infokom</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Lingkup Tingkat</label>
+                      <select x-model="careerDraft.scope" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                        <option value="Nasional">Nasional</option>
+                        <option value="Multinasional">Multinasional</option>
+                        <option value="Internasional">Internasional</option>
+                        <option value="Lokal">Lokal</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <template x-if="careerDraft.status === 'Melanjutkan Pendidikan'">
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Perguruan Tinggi S2</label>
+                    <input type="text" x-model="careerDraft.studyUniv" placeholder="Contoh: Universitas Dian Nuswantoro" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Program Studi S2</label>
+                    <input type="text" x-model="careerDraft.studyMajor" placeholder="Contoh: Magister Ilmu Komputer" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Sumber Biaya Studi</label>
+                    <select x-model="careerDraft.studyFunding" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                      <option value="Beasiswa">Beasiswa</option>
+                      <option value="Sendiri">Mandiri / Sendiri</option>
+                    </select>
+                  </div>
+                </div>
+              </template>
+
+              <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
+                <button type="button" @click="editCareerOpen = false" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold text-sm hover:bg-gray-50 transition cursor-pointer">Batal</button>
+                <button type="submit" class="px-5 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white rounded-lg font-semibold text-sm transition shadow-sm cursor-pointer">Simpan Status Karir</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+    </template>
   </div>
 </main>
 
@@ -1557,6 +1645,67 @@
           this.replyInputs = { ...this.replyInputs, [commentId]: "" };
           this.activeReplyCommentId = null;
         },
+
+        // Status Karir & Tracer Modal
+        editCareerOpen: false,
+        careerDraft: {
+          status: 'Bekerja Full Time',
+          company: '',
+          title: '',
+          field: 'Infokom',
+          scope: 'Nasional',
+          studyUniv: '',
+          studyMajor: '',
+          studyFunding: 'Beasiswa'
+        },
+        openCareerModal() {
+          this.careerDraft = {
+            status: this.profile.careerStatus || 'Bekerja Full Time',
+            company: this.profile.companyName || '',
+            title: this.profile.jobTitle || '',
+            field: this.profile.jobField || 'Infokom',
+            scope: this.profile.jobScope || 'Nasional',
+            studyUniv: this.profile.studyUniversity || '',
+            studyMajor: this.profile.studyMajor || '',
+            studyFunding: this.profile.studyFunding || 'Beasiswa'
+          };
+          this.editCareerOpen = true;
+        },
+        handleSaveCareer() {
+          this.profile.careerStatus = this.careerDraft.status;
+          this.profile.companyName = this.careerDraft.company;
+          this.profile.jobTitle = this.careerDraft.title;
+          this.profile.jobField = this.careerDraft.field;
+          this.profile.jobScope = this.careerDraft.scope;
+          this.profile.studyUniversity = this.careerDraft.studyUniv;
+          this.profile.studyMajor = this.careerDraft.studyMajor;
+          this.profile.studyFunding = this.careerDraft.studyFunding;
+          try {
+            localStorage.setItem("bengkod_alumni_profile", JSON.stringify(this.profile));
+            if (typeof DB !== "undefined" && DB.tracer) {
+              const u = SAYA || DB.akun.aktif();
+              if (u) {
+                const cur = DB.tracer.milik(u.id) || {};
+                DB.tracer.simpan(u.id, {
+                  ...cur,
+                  status: this.careerDraft.status,
+                  nama_job: this.careerDraft.company,
+                  jabatan_job: this.careerDraft.title,
+                  bidang_job: this.careerDraft.field,
+                  lingkup_job: this.careerDraft.scope,
+                  nama_studi: this.careerDraft.studyUniv,
+                  prodi: this.careerDraft.studyMajor,
+                  biaya_studi: this.careerDraft.studyFunding,
+                });
+              }
+            }
+          } catch (e) {}
+          this.editCareerOpen = false;
+          this.toast = "Status karir berhasil diperbarui";
+        },
+      }, {
+        profile: dynamicProfile,
+        skills: dynamicSkills
       })
     );
   });

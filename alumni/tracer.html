@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Karir | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=9"></script>
+  <script src="assets/js/app.js?v=6"></script>
+  <script src="assets/js/tracer.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Status Karir" data-nav="profil.html">
+  <div id="isi" class="space-y-6"></div>
+</main>
+
+<script>
+  const isi = document.getElementById('isi');
+
+  function tampilRingkasan() {
+    const t = DB.tracer.milik(SAYA.id);
+    isi.innerHTML = `
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h2 class="!text-2xl font-semibold text-neutral1">Status Karir (Tracer Study)</h2>
+          <p class="!text-sm text-neutral2 mt-1">Terakhir diperbarui ${fmtDate(t.updated_at)}. Data ini dibaca koordinator untuk analitik tracer.</p>
+        </div>
+        <button id="btn-edit" type="button" class="btn-primary"><i data-lucide="pencil" class="w-4 h-4"></i> Edit Jawaban</button>
+      </div>
+      ${ringkasanTracer(t)}`;
+    document.getElementById('btn-edit').addEventListener('click', () => tampilForm(t));
+    refreshIcons();
+  }
+
+  function tampilForm(t) {
+    isi.innerHTML = `
+      <div>
+        <h2 class="!text-2xl font-semibold text-neutral1">Edit Status Karir</h2>
+        <p class="!text-sm text-neutral2 mt-1">Wajib mengisi form berikut ini.</p>
+      </div>`;
+    formTracer(isi, t, () => {
+      showToast('Data berhasil disimpan.');
+      tampilRingkasan();
+      window.scrollTo({ top: 0 });
+    }, tampilRingkasan);
+  }
+
+  tampilRingkasan();
+</script>
+</body>
+</html>

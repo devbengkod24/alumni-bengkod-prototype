@@ -17,8 +17,14 @@ const INITIAL_PROFILE = {
   name: "Aisha Dwi Rahmawati",
   firstName: "Aisha Dwi",
   lastName: "Rahmawati",
-  headline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
+  nim: "A11.2020.12345",
+  gender: "Perempuan",
+  entryYear: "2020",
+  gradYear: "2024",
   batch: "2024",
+  phone: "081234567890",
+  whatsapp: "081234567890",
+  headline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
   isVerified: true,
   location: "Kota Kudus, Jawa Tengah, Indonesia",
   countryCode: "ID",
@@ -31,6 +37,19 @@ const INITIAL_PROFILE = {
   github: "https://github.com/aishaadr",
   website: "",
   email: "aisha.rahma@alumni.dinus.ac.id",
+  // Status Karir (Tracer Study)
+  careerStatus: "Bekerja Full Time",
+  jobField: "Infokom",
+  jobCategory: "Perusahaan Swasta",
+  companyName: "PT GoTo Gojek Tokopedia",
+  jobTitle: "Junior Data Scientist & Analyst",
+  jobScope: "Nasional",
+  studyFunding: "",
+  studyUniversity: "",
+  studyMajor: "",
+  studyStartDate: "",
+  sideJobCompany: "Bengkel Koding Lab",
+  sideJobRole: "Technical Curriculum Consultant",
   about: `Motivated Informatics Engineering student at Universitas Dian Nuswantoro Semarang with a strong passion for data science and business analysis. Focused on extracting meaningful insights from data through statistical analysis, data visualization, and predictive modeling to solve real-world problems and support data-driven decision-making.
 
 Selama masa studi, aktif memegang peranan krusial sebagai Koordinator Asisten Praktikum di laboratorium Bengkel Koding, memimpin sesi bimbingan teknis serta mentoring bagi lebih dari 150 mahasiswa dalam mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web. Berpengalaman mendalami arsitektur sistem Next.js, TypeScript, Python, dan Laravel.`,
@@ -399,6 +418,9 @@ function initProfileDraft(p) {
   }
   return {
     fullName: p.name || "",
+    nim: p.nim || "",
+    gradYear: String(p.gradYear || ""),
+    whatsapp: p.whatsapp || p.phone || "",
     headline: p.headline || "",
     countryCode: matchedCountry || "ID", // default Indonesia
     city: matchedCity || "",
@@ -406,6 +428,9 @@ function initProfileDraft(p) {
     github: p.github || "",
     website: p.website || "",
     email: p.email || "",
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   };
 }
 

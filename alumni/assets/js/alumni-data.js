@@ -2,6 +2,9 @@
  * Data & helper bersama role Alumni — konversi langsung dari lms-bengkod-web:
  *   _components/postsData.ts, alumniDirectory.ts, jobsData.ts, mediaUtils.ts
  * (tipe TypeScript dihapus, isi data tidak diubah).
+ *
+ * Halaman alumni sekarang memakai data.js (versi revisi). File ini tinggal dipakai
+ * forum koordinator lewat assets/js/forum-feed.js (loadPosts dan savePosts).
  */
 
 // ===================== postsData.ts =====================

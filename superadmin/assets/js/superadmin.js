@@ -265,7 +265,7 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
   openModal('confirm-modal');
 }
 
-// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Mitra, Koordinator) dan Log Aktivitas)
+// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Koordinator) dan Log Aktivitas)
 const SUPERADMIN_NAV = [
   { href: 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   {
@@ -274,7 +274,6 @@ const SUPERADMIN_NAV = [
     submenu: [
       { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator', match: 'koordinator.html' },
       { href: 'alumni.html', icon: 'user-check', label: 'Alumni', match: 'alumni.html' },
-      { href: 'mitra.html', icon: 'building-2', label: 'Mitra', match: 'mitra.html' },
     ]
   },
   { href: 'log-aktivitas.html', icon: 'history', label: 'Log Aktivitas', match: 'log-aktivitas.html' },
@@ -334,9 +333,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('afterbegin', `
     <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu SuperAdmin">
-      <a href="../index.html" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
-        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
-      </a>
+      <div class="flex items-center justify-between py-4 px-4 border-b border-neutral4">
+        <a href="../index.html" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
+          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
+        </a>
+        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors" aria-label="Tutup menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
         <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
@@ -344,29 +348,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </aside>`);
 
-  // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
-  const isDashboard = current === 'index.html' || main.dataset.title === 'Dashboard';
-  const isLogAktivitas = current === 'log-aktivitas.html' || main.dataset.title === 'Log Aktivitas';
-  const isProfil = current === 'profil.html' || main.dataset.title === 'Pengaturan Profil';
+  // Breadcrumbs Generator: Role -> Nama Halaman (SuperAdmin › [pageTitle])
   const pageTitle = esc(main.dataset.title);
-
-  const breadcrumbHTML = isDashboard
-    ? `<a href="index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">SuperAdmin</span>`
-    : isLogAktivitas
-    ? `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">${pageTitle}</span>`
-    : isProfil
-    ? `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">Pengaturan Profil</span>`
-    : `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <a href="koordinator.html" class="text-neutral2 hover:text-primary1 transition-colors">Management Users</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
+  const breadcrumbHTML = `
+    <a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">SuperAdmin</a>
+    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+    <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
@@ -539,7 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.setAttribute('aria-expanded', sidebarOpen ? 'true' : 'false');
   }
 
+  // Terapkan state awal saat DOM siap
   applySidebarState();
+  if (window.lucide) window.lucide.createIcons();
 
   toggleBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -551,6 +540,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOpen = false;
     applySidebarState();
   });
+
+  const closeBtn = document.getElementById('sidebar-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      sidebarOpen = false;
+      applySidebarState();
+    });
+  }
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !checkIsDesktop() && sidebarOpen) {

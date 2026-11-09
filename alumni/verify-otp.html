@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi Email | Portal Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=9"></script>
+  <script src="assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-neutral5 text-neutral1 antialiased font-sans">
+
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="card w-full max-w-md">
+      <a href="../index.html" class="flex justify-center mb-6">
+        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding" class="h-10 w-auto object-contain">
+      </a>
+
+      <div class="w-12 h-12 rounded-xl bg-primary5 text-primary1 flex items-center justify-center mb-4"><i data-lucide="mail-check" class="w-6 h-6"></i></div>
+      <h1 class="font-bold !text-xl text-neutral1 mb-1">Verifikasi Email</h1>
+      <p class="text-neutral3 !text-sm leading-relaxed">Masukkan kode OTP yang telah dikirim ke <strong id="email-tujuan" class="text-neutral1"></strong>.</p>
+
+      <form id="form" class="mt-5">
+        <label for="otp" class="label">Kode OTP</label>
+        <input id="otp" name="otp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" class="input tracking-[0.4em] text-center !text-lg" required>
+        <p id="error-otp" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+        <button type="submit" class="btn-primary w-full mt-5 min-h-[44px]">Verifikasi</button>
+      </form>
+
+      <!-- Khusus prototype: tidak ada email sungguhan, jadi kodenya ditampilkan -->
+      <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5">
+        <i data-lucide="info" class="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0"></i>
+        <p class="!text-xs text-blue-900 leading-relaxed">Prototype ini tidak mengirim email. Kode OTP contoh: <strong id="kode-demo"></strong></p>
+      </div>
+
+      <button id="kirim-ulang" type="button" class="mt-4 !text-sm text-primary1 font-semibold hover:underline">Kirim ulang kode</button>
+    </div>
+  </div>
+
+  <script>
+    const email = sessionStorage.getItem('otp_email');
+    const form = document.getElementById('form');
+    const user = DB.akun.cariEmail(email);
+
+    if (!user) location.replace('register.html');
+    else {
+      document.getElementById('email-tujuan').textContent = user.email;
+      document.getElementById('kode-demo').textContent = user.code;
+    }
+
+    document.getElementById('kirim-ulang').addEventListener('click', () => {
+      const hasil = DB.akun.kirimUlangOtp(email);
+      document.getElementById('kode-demo').textContent = hasil.user.code;
+      showToast('Kode baru sudah dikirim.');
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const hasil = DB.akun.verifikasiOtp(email, form.elements.otp.value);
+      if (!hasil.ok) {
+        const el = document.getElementById('error-otp');
+        el.textContent = hasil.error;
+        el.classList.remove('hidden');
+        return;
+      }
+      sessionStorage.removeItem('otp_email');
+      showToast('Verifikasi berhasil, silakan masuk.');
+      setTimeout(() => { location.href = 'login.html'; }, 900);
+    });
+  </script>
+</body>
+</html>

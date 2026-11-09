@@ -168,8 +168,9 @@ document.addEventListener("alpine:init", () => {
     draft: {},
     touched: {},
     submitted: false,
+    passwordApiError: "",
     init() {
-      this.draft = initProfileDraft(this.$data.profile);
+      this.draft = { ...initProfileDraft(this.$data.profile), skills: this.$data.skills.map((sk) => sk.name) };
       this._lock();
       this.$watch("draft.countryCode", (code, old) => {
         if (code !== old) this.draft.city = "";
@@ -177,6 +178,27 @@ document.addEventListener("alpine:init", () => {
     },
     get cityOptions() {
       return (CITIES[this.draft.countryCode] || []).map((c) => ({ value: c, label: c }));
+    },
+    // Tahun lulus tidak boleh lebih awal dari tahun masuk dan tidak melewati tahun ini
+    get gradYearOptions() {
+      const akhir = new Date().getFullYear();
+      const awal = Number(this.$data.profile.entryYear) || akhir - 15;
+      return Array.from({ length: Math.max(akhir - awal + 1, 1) }, (_, i) => String(akhir - i));
+    },
+    // Keahlian diketik lalu Enter/koma, atau dipilih dari saran
+    skillQuery: "",
+    SKILL_SUGGESTIONS: SKILL_OPTIONS.flatMap((g) => g.items),
+    addSkill() {
+      const nama = this.skillQuery.trim().replace(/,+$/, "").trim();
+      this.skillQuery = "";
+      if (!nama) return;
+      this.touch("skills");
+      if (this.draft.skills.some((sk) => sk.toLowerCase() === nama.toLowerCase())) return;
+      this.draft.skills = [...this.draft.skills, nama];
+    },
+    removeSkill(i) {
+      this.touch("skills");
+      this.draft.skills = this.draft.skills.filter((_, idx) => idx !== i);
     },
     urlError(v, domain, name) {
       if (!v.trim()) return "";
@@ -187,14 +209,24 @@ document.addEventListener("alpine:init", () => {
     },
     get errors() {
       const d = this.draft;
+      const pwdBaru = (d.newPassword || "").trim();
       return {
         fullName: d.fullName.trim() ? "" : "Nama lengkap wajib diisi.",
+        gradYear: !d.gradYear
+          ? "Tahun lulus wajib dipilih."
+          : Number(d.gradYear) < Number(this.$data.profile.entryYear || 0)
+            ? "Tahun lulus tidak boleh lebih awal dari tahun masuk."
+            : "",
+        skills: d.skills.length > 10 ? "Maksimal 10 keahlian." : d.skills.some((sk) => sk.length > 40) ? "Nama keahlian maksimal 40 karakter." : "",
         headline: d.headline.trim() ? "" : "Moto profesional tidak boleh kosong.",
         countryCode: d.countryCode ? "" : "Pilih negara atau wilayah Anda.",
         linkedin: this.urlError(d.linkedin, "linkedin.com", "LinkedIn"),
         github: this.urlError(d.github, "github.com", "GitHub"),
         website: this.urlError(d.website),
         email: !d.email.trim() || isEmail(d.email) ? "" : "Format email belum sesuai.",
+        oldPassword: pwdBaru && !d.oldPassword ? "Password lama wajib diisi." : "",
+        newPassword: pwdBaru && pwdBaru.length < 8 ? "Password baru harus minimal 8 karakter." : "",
+        confirmPassword: pwdBaru && pwdBaru !== (d.confirmPassword || "").trim() ? "Konfirmasi password tidak cocok." : "",
       };
     },
     showErr(key) {
@@ -205,8 +237,22 @@ document.addEventListener("alpine:init", () => {
     },
     submit() {
       this.submitted = true;
+      this.passwordApiError = "";
       if (Object.values(this.errors).some(Boolean)) return;
       const d = this.draft;
+      const pwdBaru = (d.newPassword || "").trim();
+
+      // Jika user mengisi password baru
+      if (pwdBaru) {
+        if (typeof DB !== "undefined" && DB.akun && typeof SAYA !== "undefined" && SAYA) {
+          const resPwd = DB.akun.gantiPassword(SAYA.id, d.oldPassword, pwdBaru);
+          if (!resPwd.ok) {
+            this.passwordApiError = resPwd.error || "Password lama tidak sesuai.";
+            return;
+          }
+        }
+      }
+
       const countryName = (COUNTRIES.find((c) => c.value === d.countryCode) || {}).label || "";
       const name = d.fullName.trim().split(/\s+/).join(" ");
       const parts = name.split(" ");
@@ -216,6 +262,12 @@ document.addEventListener("alpine:init", () => {
         firstName: parts.length > 1 ? parts.slice(0, -1).join(" ") : name,
         lastName: parts.length > 1 ? parts[parts.length - 1] : "",
         name,
+        nim: (d.nim || "").trim(),
+        gradYear: d.gradYear,
+        batch: d.gradYear,
+        skillNames: [...d.skills],
+        whatsapp: (d.whatsapp || "").trim(),
+        phone: (d.whatsapp || "").trim(),
         headline: d.headline.trim(),
         countryCode: d.countryCode,
         city,
@@ -224,6 +276,7 @@ document.addEventListener("alpine:init", () => {
         github: profileNormalizeUrl(d.github),
         website: profileNormalizeUrl(d.website),
         email: d.email.trim(),
+        passwordUpdated: Boolean(pwdBaru),
       });
     },
   }));
@@ -1517,12 +1570,122 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
     err: "''",
     hint: "draft.countryCode ? 'Daftar disesuaikan dengan negara yang dipilih. Jika kota Anda belum ada, ketik nama kota lalu pilih.' : ''",
   })}
-  <div class="border-t border-gray-200 pt-5 space-y-4"><div><h3 class="text-[16px] font-semibold text-gray-900">Informasi kontak</h3><p class="text-[13px] text-gray-500 mt-0.5">Tambahkan atau edit URL profil, email, dan lainnya.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      ${profileFieldHTML({ label: "LinkedIn", forId: "ep-linkedin", err: "showErr('linkedin')", body: iconInput("ep-linkedin", "linkedin", "text", "https://www.linkedin.com/in/username", "bg-[#0A66C2]", `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>`) })}
-      ${profileFieldHTML({ label: "GitHub", forId: "ep-github", err: "showErr('github')", body: iconInput("ep-github", "github", "text", "https://github.com/username", "bg-gray-900", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg>`) })}
-      ${profileFieldHTML({ label: "Website / Portofolio", forId: "ep-website", err: "showErr('website')", body: iconInput("ep-website", "website", "text", "portofolioanda.com", "bg-gray-700", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>`) })}
-      ${profileFieldHTML({ label: "Email", forId: "ep-email", err: "showErr('email')", body: iconInput("ep-email", "email", "email", "nama@alumni.dinus.ac.id", "bg-[#1E3A8A]", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>`, "") })}
-    </div></div>`;
+  ${profileFieldHTML({
+    label: "Keahlian",
+    forId: "ep-skills",
+    err: "showErr('skills')",
+    body: `<div class="flex flex-wrap items-center gap-1.5 rounded-md border bg-white px-2.5 py-2 cursor-text transition-all focus-within:ring-1" :class="showErr('skills') ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 hover:border-gray-400 focus-within:border-[#1E3A8A] focus-within:ring-[#1E3A8A]'" @click="$refs.skillInput.focus()">
+      <template x-for="(sk, i) in draft.skills" :key="sk">
+        <span class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#1E3A8A]">
+          <span x-text="sk"></span>
+          <button type="button" @click.stop="removeSkill(i)" class="w-5 h-5 rounded-full flex items-center justify-center text-[#1E3A8A]/70 hover:bg-blue-100 hover:text-[#1E3A8A] cursor-pointer" :aria-label="'Hapus keahlian ' + sk">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </span>
+      </template>
+      <input id="ep-skills" x-ref="skillInput" type="text" list="ep-skill-list" autocomplete="off" maxlength="40" x-model="skillQuery"
+        @keydown.enter.prevent="addSkill()" @keydown.comma.prevent="addSkill()" @blur="addSkill()"
+        @keydown.backspace="if (!skillQuery && draft.skills.length) removeSkill(draft.skills.length - 1)"
+        @input="if ($event.inputType === 'insertReplacementText' || !$event.inputType) addSkill()"
+        :placeholder="draft.skills.length ? 'Tambah keahlian lain...' : 'Contoh: Laravel, MySQL, Flutter'"
+        class="flex-1 min-w-[160px] border-0 bg-transparent px-1 py-1 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none focus:ring-0">
+      <datalist id="ep-skill-list">
+        <template x-for="opt in SKILL_SUGGESTIONS" :key="opt"><option :value="opt"></option></template>
+      </datalist>
+    </div>
+    <p class="text-[12px] text-gray-500 leading-relaxed">Tekan Enter atau koma untuk menambahkan. Keahlian tampil di halaman Alumni dan bisa dicari rekan alumni.</p>`,
+  })}
+  <div class="border-t border-gray-200 pt-6 space-y-5">
+    <div>
+      <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Pengaturan Akun &amp; Keamanan</h3>
+      <p class="text-[13px] text-gray-500 mt-0.5">Informasi kredensial profil dan pembaruan kata sandi akun alumni.</p>
+    </div>
+
+    <!-- Informasi Pribadi & Akun -->
+    <div class="p-5 rounded-xl bg-gray-50/80 border border-gray-200/80 space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-[13px] font-bold uppercase tracking-wider text-gray-700">Informasi Pribadi &amp; Akun</h4>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-200">Alumni Asisten Lab</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        ${profileFieldHTML({ label: "NIM Mahasiswa", forId: "ep-nim", err: "showErr('nim')", body: `<input id="ep-nim" type="text" autocomplete="off" x-model="draft.nim" placeholder="Contoh: A11.2020.12345" ${inputCls("nim")}>` })}
+        ${profileFieldHTML({ label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
+          <option value="">Pilih tahun lulus</option>
+          <template x-for="y in gradYearOptions" :key="y"><option :value="y" :selected="y === draft.gradYear" x-text="y"></option></template>
+        </select>` })}
+        ${profileFieldHTML({ label: "Nomor WhatsApp / HP", forId: "ep-whatsapp", err: "showErr('whatsapp')", body: iconInput("ep-whatsapp", "whatsapp", "text", "081234567890", "bg-emerald-600", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>`, "") })}
+        ${profileFieldHTML({ label: "Alamat Email", forId: "ep-email", err: "showErr('email')", body: iconInput("ep-email", "email", "email", "nama@alumni.dinus.ac.id", "bg-[#1E3A8A]", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>`, "") })}
+        <div>
+          <label class="block text-[14px] font-semibold text-gray-800 mb-1.5">Peran / Hak Akses</label>
+          <div class="px-3.5 py-2.5 rounded-md border border-gray-200 bg-gray-100/80 text-[14px] text-gray-700 font-medium flex items-center justify-between">
+            <span>Alumni Asisten Lab Bengkel Koding</span>
+            <span class="text-xs text-gray-400 font-normal">Otomatis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tautan Profesional -->
+    <div class="space-y-3">
+      <h4 class="text-[13px] font-bold uppercase tracking-wider text-gray-700">Tautan Portofolio &amp; Media</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        ${profileFieldHTML({ label: "LinkedIn", forId: "ep-linkedin", err: "showErr('linkedin')", body: iconInput("ep-linkedin", "linkedin", "text", "https://linkedin.com/in/username", "bg-[#0A66C2]", `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>`) })}
+        ${profileFieldHTML({ label: "GitHub", forId: "ep-github", err: "showErr('github')", body: iconInput("ep-github", "github", "text", "https://github.com/username", "bg-gray-900", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg>`) })}
+        ${profileFieldHTML({ label: "Website", forId: "ep-website", err: "showErr('website')", body: iconInput("ep-website", "website", "text", "https://portofolio.com", "bg-gray-700", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>`) })}
+      </div>
+    </div>
+
+    <!-- Ganti Password -->
+    <div class="p-5 rounded-xl bg-white border border-gray-200/90 shadow-2xs space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </span>
+          <h4 class="text-[14px] font-bold text-gray-900">Ganti Password</h4>
+        </div>
+        <span class="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">Minimal 8 Karakter</span>
+      </div>
+      <p class="text-[12px] text-gray-500 -mt-2">Kosongkan jika tidak ingin mengganti kata sandi akun.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Password Lama <span class="text-gray-400 font-normal">(jika ingin ganti)</span></label>
+          <input type="password" x-model="draft.oldPassword" autocomplete="current-password"
+            placeholder="Masukkan password saat ini"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+          <template x-if="showErr('oldPassword')">
+            <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('oldPassword')"></p>
+          </template>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Password Baru</label>
+            <input type="password" x-model="draft.newPassword" minlength="8" autocomplete="new-password"
+              placeholder="Minimal 8 karakter"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+            <template x-if="showErr('newPassword')">
+              <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('newPassword')"></p>
+            </template>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Konfirmasi Password Baru</label>
+            <input type="password" x-model="draft.confirmPassword" minlength="8" autocomplete="new-password"
+              placeholder="Ulangi password baru"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+            <template x-if="showErr('confirmPassword')">
+              <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('confirmPassword')"></p>
+            </template>
+          </div>
+        </div>
+
+        <template x-if="passwordApiError">
+          <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600 font-medium" x-text="passwordApiError"></div>
+        </template>
+      </div>
+    </div>
+  </div>`;
 
   return formModalHTML({
     open: "editProfileOpen",

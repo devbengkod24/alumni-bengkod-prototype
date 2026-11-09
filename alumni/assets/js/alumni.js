@@ -1,16 +1,3 @@
-/**
- * Shared JS role Alumni: config Tailwind, globals.css, layout (Aside + Nav + Footer) dan loader Alpine.
- * Konversi HTML dari lms-bengkod-web:
- *   - app/(dashboard)/dashboard/alumni/layout.tsx
- *   - features/admin/components/Aside.tsx (navigasi "alumni")
- *   - features/admin/components/Nav.tsx
- *   - features/student/components/Footer.tsx
- * Dimuat di <head> setelah Tailwind CDN. Halaman menaruh kontennya di <main data-route="...">,
- * mendaftarkan komponen lewat event "alpine:init", lalu file ini membungkus <main> dengan layout
- * dan memuat Alpine setelah layout terpasang.
- */
-
-// tailwind.config.ts lms-bengkod-web (urutan warna sama persis)
 tailwind.config = {
   theme: {
     extend: {
@@ -51,7 +38,6 @@ tailwind.config = {
   },
 };
 
-// app/globals.css (bagian yang dipakai halaman alumni)
 document.head.insertAdjacentHTML('beforeend', `
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap">
@@ -97,7 +83,6 @@ document.head.insertAdjacentHTML('beforeend', `
 }
 </style>`);
 
-// Rute Next.js → file HTML prototype
 function isAlumniSubdir() {
   const p = (typeof window !== "undefined" ? window.location.pathname || "" : "").replace(/\\/g, "/");
   return p.includes("/alumni/mitra");
@@ -128,18 +113,6 @@ function alumniHref(link) {
   // Fallback rute lama
   if (link === "/dashboard/alumni/lowongan") return `${base}lowongan.html`;
   if (link === "/dashboard/alumni/pengumuman") return `${base}pengumuman.html`;
-
-  // Rute Mitra Perusahaan
-  if (link === "/dashboard/alumni/mitra" || link === "/dashboard/alumni/perusahaan") {
-    return isAlumniSubdir() ? "index.html" : "mitra/index.html";
-  }
-
-  // Profil Detail Mitra Perusahaan (:slug)
-  const mPerusahaan = /^\/dashboard\/alumni\/(?:perusahaan|mitra)\/([^/]+)$/.exec(link || "");
-  if (mPerusahaan) {
-    const slug = encodeURIComponent(mPerusahaan[1]);
-    return isAlumniSubdir() ? `detail.html?slug=${slug}` : `mitra/detail.html?slug=${slug}`;
-  }
 
   const m = /^\/dashboard\/alumni\/([^/]+)$/.exec(link || "");
   if (m) return `${base}detail.html?id=${encodeURIComponent(m[1])}`;
@@ -208,27 +181,56 @@ const ALUMNI_NAVIGATIONS = [
 
 const ALWAYS_SHOW_MOBILE = ["Alumni", "Student", "Admin", "Superadmin", "Dosen", "Asisten"];
 
-// layout.tsx: convertToTitleCase + modifyBreadcrumb
-function alumniBreadcrumbItems(pathname) {
-  const pathParts = pathname.split("/").filter(Boolean);
-  const items = pathParts.map((part, index) => ({
-    text: part.charAt(0).toUpperCase() + part.slice(1),
-    href: `/${pathParts.slice(0, index + 1).join("/")}`,
-  }));
-  const toTitle = (input) => input.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  return items.map((item, i) => {
-    const text = toTitle(item.text);
-    const alwaysShow = ALWAYS_SHOW_MOBILE.includes(text);
-    if (i === 0 || i === items.length - 1) return { text, alwaysShow };
-    return { text, href: alumniHref(item.href), alwaysShow };
-  });
+/* ------------------------------------------------------------------ */
+/* Breadcrumb: Role › Nama Halaman                                     */
+/* ------------------------------------------------------------------ */
+
+// Halaman yang nggak ada di sidebar tapi tetap butuh judul breadcrumb
+const ALUMNI_EXTRA_TITLES = {
+  "/dashboard/alumni/detail": "Detail Alumni",
+};
+
+// Samain route alias ke route utama di ALUMNI_NAVIGATIONS
+function alumniNormalizeRoute(route) {
+  if (route === "/dashboard/alumni/beranda") return "/dashboard/alumni";
+  if (route === "/dashboard/alumni/alumni") return "/dashboard/alumni/direktori";
+  return route;
+}
+
+function alumniPageTitle(route) {
+  const r = alumniNormalizeRoute(route);
+  const nav = ALUMNI_NAVIGATIONS.find((n) => n.link === r);
+  if (nav) return nav.title;
+  if (ALUMNI_EXTRA_TITLES[r]) return ALUMNI_EXTRA_TITLES[r];
+  // /dashboard/alumni/<id> -> halaman detail
+  if (/^\/dashboard\/alumni\/[^/]+$/.test(r)) return "Detail Alumni";
+  return "Halaman";
+}
+
+function alumniRoleLabel() {
+  return isAlumniSubdir() ? "Mitra" : "Alumni";
+}
+
+function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel()) {
+  return `
+    <a href="${alumniHref("/dashboard/alumni")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${role}</a>
+    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+    <span class="font-medium text-neutral1 truncate">${title}</span>`;
 }
 
 function alumniCurrentProfile() {
-  const base = { name: "Aisha Dwi Rahmawati", email: "aisha.rahma@alumni.dinus.ac.id", image: "" };
+  let user = null;
+  try {
+    if (typeof DB !== "undefined" && DB.akun) user = DB.akun.aktif();
+  } catch {}
+  const base = {
+    name: user ? user.nama : "Aisha Dwi Rahmawati",
+    email: user ? user.email : "aisha.rahma@alumni.dinus.ac.id",
+    image: user ? (user.foto || "") : "",
+  };
   try {
     const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
-    if (saved) return { name: saved.name || base.name, email: saved.email || base.email, image: saved.avatarUrl || "" };
+    if (saved) return { name: saved.name || base.name, email: saved.email || base.email, image: saved.avatarUrl || base.image };
   } catch {}
   return base;
 }
@@ -246,10 +248,12 @@ document.addEventListener("alpine:init", () => {
     profile: alumniCurrentProfile(),
     init() {
       this.checkMobile();
+      this.loadNotifs();
       window.addEventListener("resize", () => this.checkMobile());
       this.$watch("sidebarIsOpen", (v) => {
         if (this.isHydrated && !this.isMobile) localStorage.setItem("sidebar_open", String(v));
       });
+      // Tutup dropdown kalau klik di luar (satu-satunya handler click-away)
       document.addEventListener("mousedown", (event) => {
         const t = event.target;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
@@ -285,7 +289,11 @@ document.addEventListener("alpine:init", () => {
       this.profileIsOpen = !this.profileIsOpen;
     },
     handleLogout() {
-      window.location.href = alumniRootPrefix() + "index.html";
+      try {
+        if (typeof DB !== "undefined" && DB.akun) DB.akun.keluar();
+        localStorage.removeItem("bengkod_alumni_profile");
+      } catch {}
+      window.location.href = "login.html";
     },
   }));
 });
@@ -324,41 +332,14 @@ function alumniNavSearchDropdownHTML() {
 
 function alumniLayoutHTML(route, breadcrumbItems) {
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
-    const active = nav.link === route;
+    const active = nav.link === activeRoute;
     return `
           <li>
-            <a href="${alumniHref(nav.link)}" class="flex items-center p-2 rounded-lg transition-all ease-in-out duration-200 ${active ? "bg-primary1 text-white fill-white" : "text-primary1 fill-primary1 hover:bg-primary5"}">
+            <a href="${alumniHref(nav.link)}" class="flex items-center p-2.5 rounded-lg transition-all ease-in-out duration-200 ${active ? "bg-primary1 text-white shadow-sm" : "text-neutral1 hover:bg-primary5 hover:text-primary1"}">
               ${nav.icon}
-              <span class="ms-3 text-sm ${active ? "bg-primary1 text-white fill-white" : "text-neutral1"}">${nav.title}</span>
+              <span class="ms-3 text-sm font-medium ${active ? "text-white" : "text-neutral1"}">${nav.title}</span>
             </a>
           </li>`;
-  }).join("");
-
-  // Nav.tsx: logika breadcrumb (tampil di mobile: pertama, terakhir, kedua dari akhir, alwaysShow)
-  const n = breadcrumbItems.length;
-  const isMobileVisible = (i) => i === 0 || i === n - 1 || i === n - 2 || breadcrumbItems[i].alwaysShow;
-  const hiddenItems = breadcrumbItems.filter((_, i) => !isMobileVisible(i));
-  const crumbs = breadcrumbItems.map((item, index) => {
-    const isFirst = index === 0;
-    const isLast = index === n - 1;
-    const hideOnMobile = hiddenItems.length > 0 && !isMobileVisible(index);
-    let html = "";
-    if (index > 0) html += `<span class="mx-2 shrink-0 ${hideOnMobile ? "hidden lg:inline" : ""}">›</span>`;
-    if (isFirst && hiddenItems.length > 0) {
-      html += `<span class="relative mr-2 lg:hidden">
-              <button type="button" @click="breadcrumbDropdownOpen = !breadcrumbDropdownOpen" class="text-neutral3 hover:text-primary1 px-1 rounded">...</button>
-              <template x-if="breadcrumbDropdownOpen">
-                <div class="absolute top-6 left-0 z-50 min-w-[160px] py-1.5 bg-white border border-neutral4/70 rounded-lg shadow-lg">
-                  ${hiddenItems.map((h) => `<a href="${h.href}" title="${h.text}" @click="breadcrumbDropdownOpen = false" class="block max-w-[16rem] truncate px-3 py-1.5 text-xs whitespace-nowrap hover:bg-neutral5 hover:text-primary1">${h.text}</a>`).join("")}
-                </div>
-              </template>
-            </span>`;
-    }
-    const inner = item.href
-      ? `<a href="${item.href}" title="${item.text}" class="block max-w-[10rem] truncate hover:text-primary1 lg:max-w-[14rem]">${item.text}</a>`
-      : `<span title="${item.text}" ${isLast ? 'aria-current="page"' : ""} class="block truncate font-medium ${isLast ? "max-w-[16rem] lg:max-w-[24rem]" : "max-w-[10rem] lg:max-w-[14rem]"}">${item.text}</span>`;
-    html += `<span class="min-w-0 whitespace-nowrap ${isFirst ? "hidden lg:inline" : hideOnMobile ? "hidden lg:inline" : ""}">${inner}</span>`;
-    return html;
   }).join("");
 
   return `
@@ -392,22 +373,25 @@ function alumniLayoutHTML(route, breadcrumbItems) {
     </template>
 
     <div class="flex-1 flex flex-col min-h-screen min-w-0 duration-300 ease-in-out" :class="!isMobile && sidebarIsOpen ? 'pl-64' : 'pl-0'" style="transition: padding-left 300ms ease-in-out">
-      <nav class="sticky top-0 z-30 bg-white border-b border-neutral4 shadow-sm">
-        <div class="w-full px-3 py-3 lg:px-5 lg:pl-3">
-          <div class="flex items-center justify-between">
-            <div class="flex min-w-0 flex-1 items-center justify-start gap-3">
-              <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button"
-                class="inline-flex items-center p-2 ml-1 text-sm fill-neutral2 rounded-lg hover:bg-neutral5 focus:outline-none shrink-0"
-                @click="sidebarIsOpen = !sidebarIsOpen">
-                <span class="sr-only">Toggle sidebar</span>
-                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor">
-                  <path d="M0 0h24v24H0z" fill="none" />
-                  <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" />
-                </svg>
-              </button>
-
-              <div class="relative flex items-center text-sm text-neutral1 min-w-0 flex-1" x-ref="breadcrumbRef">${crumbs}</div>
-            </div>
+      <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2 min-w-0 flex-1">
+          <button
+            id="sidebar-toggle"
+            type="button"
+            class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0 cursor-pointer"
+            aria-label="Toggle sidebar"
+            :aria-expanded="sidebarIsOpen"
+            @click="sidebarIsOpen = !sidebarIsOpen"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
+              <path d="M0 0h24v24H0V0z" fill="none"/>
+              <path d="M20 11H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1zM4 18h10c.55 0 1-.45 1-1s-.45-1-1-1H4c-.55 0-1 .45-1 1s.45 1 1 1zM20 6H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1z"/>
+            </svg>
+          </button>
+          <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">
+            ${alumniBreadcrumbHTML(pageTitle)}
+          </nav>
+        </div>
 
             <div class="flex items-center gap-3 shrink-0">
               <!-- Cari alumni: kolom di desktop -->
@@ -433,48 +417,123 @@ function alumniLayoutHTML(route, breadcrumbItems) {
                   </button>
                 </div>
 
-                <template x-if="profileIsOpen">
-                  <div class="absolute top-10 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden" id="dropdown-profile">
-                    <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
-                      <div class="flex items-center gap-2.5">
-                        ${alumniAvatarHTML("profile.image", "profile.name", "w-9 h-9", "text-xs", "border-2 border-white shadow-sm shrink-0")}
-                        <div class="min-w-0 flex-1">
-                          <p class="text-sm font-semibold text-white truncate" x-text="profile.name"></p>
-                          <p class="text-[11px] text-white/80 truncate" x-text="profile.email"></p>
-                        </div>
+            <!-- Dropdown Panel Notifikasi -->
+            <div
+              x-show="notifIsOpen"
+              x-cloak
+              class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-80 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
+              id="notif-panel"
+            >
+              <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
+                <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
+                <button
+                  x-show="notifUnreadCount > 0"
+                  type="button"
+                  @click="markAllNotifsRead()"
+                  class="text-xs font-semibold text-primary2 hover:underline cursor-pointer"
+                >
+                  Tandai semua dibaca
+                </button>
+              </div>
+              <div class="max-h-80 overflow-y-auto divide-y divide-neutral4/40">
+                <template x-for="n in notifs" :key="n.id">
+                  <a
+                    :href="n.tautan || '#'"
+                    @click="markNotifRead(n.id)"
+                    class="block px-4 py-3 hover:bg-neutral5 transition-colors"
+                    :class="!n.dibaca ? 'bg-primary5/30' : ''"
+                  >
+                    <div class="flex items-start gap-2.5">
+                      <span class="w-2 h-2 rounded-full bg-primary2 mt-1.5 shrink-0" :class="n.dibaca ? 'invisible' : ''"></span>
+                      <div class="flex-1 min-w-0">
+                        <p class="text-xs text-neutral1 leading-relaxed" x-text="n.pesan"></p>
+                        <p class="text-[10px] text-neutral3 mt-1" x-text="n.waktu"></p>
                       </div>
                     </div>
-                    <ul class="py-1.5 text-sm text-neutral1" aria-labelledby="avatarButton">
-                      <li>
-                        <a href="#" class="flex items-center gap-2.5 px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
-                          <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <circle cx="12" cy="12" r="3" />
-                              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 1 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                            </svg>
-                          </span>
-                          <span>Pengaturan</span>
-                        </a>
-                      </li>
-                    </ul>
-                    <div class="border-t border-neutral4/70"></div>
-                    <ul class="py-1.5">
-                      <li>
-                        <button type="button" @click="handleLogout()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
-                          <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                              <polyline points="16 17 21 12 16 7" />
-                              <line x1="21" y1="12" x2="9" y2="12" />
-                            </svg>
-                          </span>
-                          <span>Keluar</span>
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
+                  </a>
+                </template>
+                <template x-if="notifs.length === 0">
+                  <p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>
                 </template>
               </div>
+            </div>
+          </div>
+
+          <!-- User Menu Button & Dropdown -->
+          <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
+            <button
+              type="button"
+              id="profile-menu-btn"
+              @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
+              class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+              :aria-expanded="profileIsOpen"
+              aria-label="Menu Pengguna"
+            >
+              <div class="text-right hidden sm:block">
+                <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" x-text="profile.name"></div>
+                <div class="text-[11px] text-neutral3">Alumni Asisten Lab</div>
+              </div>
+              <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+                <template x-if="profile.image">
+                  <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                </template>
+                <template x-if="!profile.image">
+                  <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                </template>
+              </div>
+            </button>
+
+            <!-- Dropdown Profile Menu -->
+            <div
+              x-show="profileIsOpen"
+              x-cloak
+              class="absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
+              id="dropdown-profile-menu"
+            >
+              <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-full overflow-hidden bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
+                    <template x-if="profile.image">
+                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!profile.image">
+                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                    </template>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="!text-sm font-semibold text-white truncate" x-text="profile.name"></p>
+                    <p class="!text-[11px] text-white/80 truncate" x-text="profile.email"></p>
+                  </div>
+                </div>
+              </div>
+              <ul class="py-1.5 text-sm text-neutral1">
+                <li>
+                  <a href="${alumniHref("/dashboard/alumni/profil")}" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                    <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </span>
+                    <span>Pengaturan Profil</span>
+                  </a>
+                </li>
+              </ul>
+              <div class="border-t border-neutral4/70"></div>
+              <ul class="py-1.5">
+                <li>
+                  <button type="button" @click="handleLogout()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group cursor-pointer">
+                    <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                    </span>
+                    <span>Keluar</span>
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
@@ -503,7 +562,6 @@ function alumniLayoutHTML(route, breadcrumbItems) {
     </div>`;
 }
 
-// Potongan markup bersama (diisi file lain lewat window.ALUMNI_PARTIALS): <div data-partial="nama" data-*>
 function expandAlumniPartials(root) {
   const partials = window.ALUMNI_PARTIALS || {};
   let el;
@@ -512,9 +570,6 @@ function expandAlumniPartials(root) {
     el.outerHTML = render ? render(el.dataset) : "";
   }
 }
-
-// React tidak merender apa pun untuk kondisi false, sedangkan Alpine menyisakan <template>.
-// Atribut hidden membuat <template> diabaikan selektor space-y-* / divide-y-* Tailwind.
 function hideAlumniTemplates(root) {
   root.querySelectorAll("template").forEach((t) => {
     t.setAttribute("hidden", "");
@@ -526,13 +581,12 @@ document.addEventListener("DOMContentLoaded", () => {
   expandAlumniPartials(document.body);
   const main = document.querySelector("main[data-route], main[data-title]");
   if (main) {
-    // data-route: halaman hasil konversi (rute Next.js); data-title: halaman lama prototype (status-karir)
     const r = main.hasAttribute("data-route") ? main.dataset.route : location.pathname.split("/").pop().replace(/\.html$/, "");
     const route = r.startsWith("/dashboard/alumni") ? r : "/dashboard/alumni" + (r ? "/" + r.replace(/^\/+/, "") : "");
     const shell = document.createElement("div");
     shell.setAttribute("x-data", "alumniLayout");
     shell.className = "flex min-h-screen [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:none]";
-    shell.innerHTML = alumniLayoutHTML(route, alumniBreadcrumbItems(route));
+    shell.innerHTML = alumniLayoutHTML(route, alumniPageTitle(route));
     main.before(shell);
     shell.querySelector("[data-main-slot]").appendChild(main);
   }
