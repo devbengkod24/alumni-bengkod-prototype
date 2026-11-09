@@ -23,16 +23,236 @@
     }
   </style>
 </head>
-<body class="bg-white text-neutral1 antialiased font-sans">
-<main data-title="Generate CV">
-  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 no-print">
-    <div>
-      <h2 class="!text-2xl font-semibold text-neutral1">Generate CV</h2>
-      <p class="!text-sm text-neutral2 mt-1">CV dibuat otomatis dari data Profil Saya, termasuk Proyek dan Portofolio serta pengalaman freelance dari Gigs.</p>
+<body>
+<main data-route="generate-cv">
+  <div x-data="generateCvComponent()" class="w-full pb-16 antialiased space-y-6">
+
+    <!-- Toast Notifikasi -->
+    <template x-if="toast">
+      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span x-text="toast"></span>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        HEADER HALAMAN GENERATE CV
+    ============================================================ -->
+    <div id="cv-page-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
+      <div>
+        <template x-if="isApplicantView">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-[#1E3A8A] uppercase tracking-wider">Lampiran CV Pelamar</span>
+              <span class="text-xs text-gray-400">•</span>
+              <span class="text-xs text-gray-500 font-semibold" x-text="'Versi ' + cvLayout.toUpperCase() + ' (A4 Print-Ready)'"></span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight" x-text="'Pratinjau CV · ' + profile.name"></h1>
+            <p class="text-sm text-gray-500">
+              Dokumen CV resmi yang dilampirkan pelamar. Anda dapat meninjau format dokumen sebelum mencetak atau mengunduh PDF.
+            </p>
+          </div>
+        </template>
+        <template x-if="!isApplicantView">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Generate CV</h1>
+            <p class="text-sm text-gray-500 mt-0.5">
+              Pembuat CV otomatis berbasis data profil dan portofolio proyek alumni Bengkel Koding
+            </p>
+          </div>
+        </template>
+      </div>
+      <div class="flex items-center gap-2.5 flex-wrap shrink-0">
+        <template x-if="isApplicantView">
+          <a href="dashboard.html"
+            class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            <span>Kembali ke Beranda</span>
+          </a>
+        </template>
+        <template x-if="!isApplicantView">
+          <a href="profil.html"
+            class="px-5 py-2 rounded-full text-[15px] font-semibold text-[#1E3A8A] bg-white border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span>Edit Profil</span>
+          </a>
+        </template>
+        <button type="button" @click="handlePrintPdf()"
+          class="px-5 py-2 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors inline-flex items-center gap-2 shadow-sm cursor-pointer active:scale-95">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <polyline points="6 9 6 2 18 2 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Cetak / Unduh PDF</span>
+        </button>
+      </div>
     </div>
-    <div class="flex flex-wrap gap-2">
-      <a href="profil.html" class="btn-outline"><i data-lucide="pencil" class="w-4 h-4"></i> Edit Profil</a>
-      <button type="button" onclick="window.print()" class="btn-primary"><i data-lucide="printer" class="w-4 h-4"></i> Cetak / Unduh PDF</button>
+
+    <!-- ============================================================
+        PANEL PENGATURAN & KUSTOMISASI CV (CLEAN & MINIMALIS)
+    ============================================================ -->
+    <div id="cv-controls-panel" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-4 sm:p-5">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-[16px] sm:text-[17px] font-bold text-gray-900 tracking-tight">Kustomisasi Dokumen CV</h2>
+          <p class="text-[13px] text-gray-500 font-normal mt-0.5">Sesuaikan format tampilan dan bagian resume sesuai kebutuhan lamaran</p>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <!-- Pilihan Format: ATS Standar vs Modern Clean (Pill Oval Selector) -->
+          <div class="inline-flex p-1 bg-gray-100 rounded-full border border-gray-200/80 shrink-0">
+            <button type="button" @click="cvLayout = 'ats'"
+              class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer"
+              :class="cvLayout === 'ats' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">
+              Format ATS Standar
+            </button>
+            <button type="button" @click="cvLayout = 'modern'"
+              class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer"
+              :class="cvLayout === 'modern' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">
+              Format Modern Clean
+            </button>
+          </div>
+
+          <!-- Dropdown Bagian CV (Centang Bentuk Oval Minimalis, Warna persis Gambar 1) -->
+          <div class="relative shrink-0" @click.outside="showSectionDropdown = false">
+            <button type="button" @click="showSectionDropdown = !showSectionDropdown"
+              class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 text-[14.5px] font-semibold text-[#1E3A8A] transition-colors cursor-pointer bg-white shadow-2xs">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="21" x2="4" y2="14"/>
+                <line x1="4" y1="10" x2="4" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="12"/>
+                <line x1="12" y1="8" x2="12" y2="3"/>
+                <line x1="20" y1="21" x2="20" y2="16"/>
+                <line x1="20" y1="12" x2="20" y2="3"/>
+                <line x1="1" y1="14" x2="7" y2="14"/>
+                <line x1="9" y1="8" x2="15" y2="8"/>
+                <line x1="17" y1="16" x2="23" y2="16"/>
+              </svg>
+              <span>Pilih Bagian CV</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="showSectionDropdown ? 'rotate-180 transition-transform' : 'transition-transform'">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
+
+            <!-- Menu Dropdown Popover -->
+            <div x-show="showSectionDropdown"
+              x-transition:enter="transition ease-out duration-100"
+              x-transition:enter-start="transform opacity-0 scale-95"
+              x-transition:enter-end="transform opacity-100 scale-100"
+              x-transition:leave="transition ease-in duration-75"
+              x-transition:leave-start="transform opacity-100 scale-100"
+              x-transition:leave-end="transform opacity-0 scale-95"
+              class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-200/90 p-3 z-40 space-y-1.5"
+              style="display: none;">
+              
+              <div class="px-2.5 py-1.5 border-b border-gray-100 flex items-center justify-between text-[12px] font-medium text-gray-500">
+                <span>Tampilkan pada Dokumen</span>
+                <button type="button" @click="toggleAllSections()" class="text-[#1E3A8A] hover:underline font-semibold cursor-pointer" x-text="activeSectionsCount === 6 ? 'Sembunyikan Semua' : 'Pilih Semua'"></button>
+              </div>
+
+              <!-- Daftar Opsi Centang Oval -->
+              <div class="space-y-1 pt-1 max-h-72 overflow-y-auto">
+                <!-- Ringkasan Diri -->
+                <button type="button" @click="sections.about = !sections.about"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.about ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Ringkasan Diri</span>
+                  <!-- Centang Bentuk Oval -->
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.about ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.about">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Pendidikan -->
+                <button type="button" @click="sections.education = !sections.education"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.education ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Pendidikan</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.education ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.education">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Organisasi -->
+                <button type="button" @click="sections.organization = !sections.organization"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.organization ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Organisasi &amp; Kepemimpinan</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.organization ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.organization">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Proyek -->
+                <button type="button" @click="sections.projects = !sections.projects"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.projects ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Proyek &amp; Portofolio</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.projects ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.projects">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Keahlian -->
+                <button type="button" @click="sections.skills = !sections.skills"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.skills ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Keahlian &amp; Kompetensi</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.skills ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.skills">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Sertifikasi -->
+                <button type="button" @click="sections.certifications = !sections.certifications"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
+                  :class="sections.certifications ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Lisensi &amp; Sertifikasi</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="sections.certifications ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="sections.certifications">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+
+                <!-- Proyek Kolaborasi Gigs -->
+                <button type="button" @click="includeGigs = !includeGigs"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer border-t border-gray-100"
+                  :class="includeGigs ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
+                  <span class="text-[13px] font-medium">Sertakan Proyek Kolaborasi Gigs</span>
+                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
+                    :class="includeGigs ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
+                    <template x-if="includeGigs">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </template>
+                  </div>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -56,41 +276,162 @@
 </main>
 
 <script>
-  const aktif = new Set(Object.keys(CV_KATEGORI));
-  // Centang pengalaman freelance hanya muncul kalau ada proyek dari gig yang selesai
-  const adaFreelance = DB.cv.milik('projects', SAYA.id).some(r => r.id_gig);
-  let freelance = true;
-  let format = 'ats';
+function generateCvComponent() {
+  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const applicantParam = params.get("applicant") || params.get("name") || params.get("user");
+  const layoutParam = params.get("format");
+  const isApplicant = Boolean(applicantParam);
 
-  function render() {
-    document.getElementById('cv-document').innerHTML = dokumenCv(SAYA.id, format, aktif, freelance);
-    document.querySelectorAll('[data-format]').forEach(b => {
-      const dipilih = b.dataset.format === format;
-      b.setAttribute('aria-pressed', dipilih);
-      b.className = `px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all ${dipilih ? 'bg-white text-primary1 shadow-sm' : 'text-neutral2 hover:text-neutral1'}`;
-    });
+  let activeProfile = JSON.parse(JSON.stringify(INITIAL_PROFILE));
+  let edus = INITIAL_EDUCATIONS;
+  let orgs = INITIAL_ORGANIZATIONS;
+  let projs = INITIAL_PROJECTS;
+  let skillsList = INITIAL_SKILLS;
+  let certs = INITIAL_CERTIFICATIONS;
+
+  if (isApplicant) {
+    const rawName = decodeURIComponent(applicantParam).trim();
+    const isYoga = rawName.toLowerCase().includes("yoga");
+
+    if (isYoga) {
+      activeProfile = {
+        name: "Yoga Kurniawan",
+        headline: "Backend Developer · Batch 2023",
+        email: "yoga.kurniawan@alumni.dinus.ac.id",
+        location: "Kota Semarang, Jawa Tengah, Indonesia",
+        about: "Backend Engineer lulusan S1 Teknik Informatika Universitas Dian Nuswantoro. Berpengalaman mendesain arsitektur microservices, optimasi query database PostgreSQL, integrasi REST API, dan containerization dengan Docker di lingkungan cloud.",
+        linkedin: "https://linkedin.com/in/yogakurniawan",
+        github: "https://github.com/yogakurniawan",
+      };
+      edus = [
+        {
+          id: 1,
+          name: "Universitas Dian Nuswantoro",
+          major: "S1 Teknik Informatika (Informatics Engineering)",
+          period: "2019 – 2023",
+          degree: "Sarjana Komputer",
+          tags: ["Struktur Data & Algoritma", "Basis Data Lanjut", "Arsitektur Perangkat Lunak", "Jaringan Komputer"],
+        },
+      ];
+      orgs = [
+        {
+          id: 1,
+          name: "Laboratorium Bengkel Koding UDINUS",
+          role: "Koordinator Asisten Lab Backend",
+          period: "2022 – 2023",
+          desc: "Membimbing praktikum pemrograman backend, merancang modul basis data SQL, dan memelihara server staging lab.",
+        },
+      ];
+      projs = [
+        {
+          id: 1,
+          title: "Microservices Payment Gateway API",
+          period: "2024",
+          desc: "Arsitektur backend pembayaran multi-vendor menggunakan Express, PostgreSQL, Redis caching, dan RabbitMQ message queue.",
+          tags: ["Node.js", "PostgreSQL", "Docker", "Redis"],
+        },
+        {
+          id: 2,
+          title: "Sistem Manajemen Inventaris Lab Bengkod",
+          period: "2023",
+          desc: "Layanan REST API pencatatan perangkat keras lab dengan autentikasi JWT dan audit trail log terenkripsi.",
+          tags: ["Golang", "PostgreSQL", "REST API", "Docker"],
+        },
+      ];
+      skillsList = [
+        { id: 1, name: "Node.js & Express" },
+        { id: 2, name: "PostgreSQL & Prisma" },
+        { id: 3, name: "Docker & Container" },
+        { id: 4, name: "REST API & Microservices" },
+        { id: 5, name: "Redis Caching" },
+        { id: 6, name: "Git & CI/CD" },
+      ];
+    } else {
+      const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+        (a) => a.name.toLowerCase() === rawName.toLowerCase() || a.id.toLowerCase() === rawName.toLowerCase()
+      );
+      if (found) {
+        activeProfile = {
+          name: found.name,
+          headline: found.headline,
+          email: found.email || `${found.name.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
+          location: found.location || "Semarang, Jawa Tengah, Indonesia",
+          about: found.about || `Alumni Asisten Lab Bengkel Koding UDINUS Batch ${found.batch || "2024"}.`,
+          linkedin: found.linkedin || `https://linkedin.com/in/${found.name.toLowerCase().replace(/\s+/g, '-')}`,
+          github: found.github || `https://github.com/${found.name.toLowerCase().replace(/\s+/g, '')}`,
+        };
+      } else {
+        activeProfile = {
+          name: rawName,
+          headline: "Alumni Asisten Lab Bengkel Koding",
+          email: `${rawName.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
+          location: "Semarang, Jawa Tengah, Indonesia",
+          about: "Alumni Asisten Lab Bengkel Koding Universitas Dian Nuswantoro.",
+          linkedin: `https://linkedin.com/in/${rawName.toLowerCase().replace(/\s+/g, '-')}`,
+          github: `https://github.com/${rawName.toLowerCase().replace(/\s+/g, '')}`,
+        };
+      }
+    }
+  } else {
+    // Ambil data profil dari localStorage jika pernah diedit di profil.html, atau fallback ke INITIAL_PROFILE
+    try {
+      const saved = localStorage.getItem("bengkod_profile_v1");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.name) {
+          activeProfile = { ...activeProfile, ...parsed };
+        }
+      }
+    } catch (e) {
+      console.warn("Gagal memuat profil tersimpan:", e);
+    }
   }
 
-  document.getElementById('bagian').innerHTML = Object.entries(CV_KATEGORI).map(([kunci, k]) => `
-    <label class="flex items-center gap-2 text-sm text-neutral1 cursor-pointer"><input type="checkbox" value="${kunci}" checked class="w-4 h-4 accent-[#1E3A8A]"> ${esc(k.judul)}</label>`).join('')
-    + (adaFreelance ? '<label class="flex items-center gap-2 text-sm text-neutral1 cursor-pointer"><input type="checkbox" value="freelance" checked class="w-4 h-4 accent-[#1E3A8A]"> Pengalaman Freelance (Gigs)</label>' : '');
+  return {
+    toast: "",
+    isApplicantView: isApplicant,
+    cvLayout: layoutParam === "modern" ? "modern" : "ats", // "ats" | "modern"
+    showSectionDropdown: false,
+    profile: activeProfile,
+    educations: edus,
+    organizations: orgs,
+    projects: projs,
+    skills: skillsList,
+    certifications: certs,
+    includeGigs: true,
+    sections: {
+      about: true,
+      education: true,
+      organization: true,
+      projects: true,
+      skills: true,
+      certifications: true
+    },
 
-  document.getElementById('bagian').addEventListener('change', e => {
-    const { value, checked } = e.target;
-    if (value === 'freelance') freelance = checked;
-    else if (checked) aktif.add(value);
-    else aktif.delete(value);
-    render();
-  });
+    get activeSectionsCount() {
+      return Object.values(this.sections).filter(Boolean).length;
+    },
 
-  document.getElementById('format').addEventListener('click', e => {
-    const tombol = e.target.closest('[data-format]');
-    if (!tombol) return;
-    format = tombol.dataset.format;
-    render();
-  });
+    toggleAllSections() {
+      const allActive = this.activeSectionsCount === 6;
+      for (const key in this.sections) {
+        this.sections[key] = !allActive;
+      }
+    },
 
-  render();
+    showToast(msg) {
+      this.toast = msg;
+      setTimeout(() => { this.toast = ""; }, 3000);
+    },
+
+    handlePrintPdf() {
+      this.showToast("Mempersiapkan dokumen CV untuk dicetak / simpan sebagai PDF...");
+      setTimeout(() => {
+        window.print();
+      }, 350);
+    }
+  };
+}
 </script>
 </body>
 </html>

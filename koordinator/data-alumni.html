@@ -14,56 +14,270 @@
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Data Alumni">
-  <div>
-    <h2 class="!text-2xl font-semibold text-neutral1">Data Alumni</h2>
-    <p class="!text-sm text-neutral2 mt-1">Data diambil dari Profil Saya masing-masing alumni. Pilih satu alumni untuk melihat profil lengkapnya.</p>
-  </div>
+  <div class="w-full space-y-6 py-2 antialiased">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-gray-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Data &amp; Direktori Alumni</h1>
+        <p class="text-sm text-gray-500 mt-0.5">
+          Kelola dan pantau data profil, status karier, dan keahlian alumni Bengkel Koding UDINUS
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-200">
+          <i data-lucide="users" class="w-3.5 h-3.5"></i>
+          <span id="badge-total-alumni">0 Alumni Terdaftar</span>
+        </span>
+      </div>
+    </div>
 
-  <div class="relative">
-    <i data-lucide="search" class="w-4 h-4 text-neutral3 absolute left-3 top-1/2 -translate-y-1/2"></i>
-    <input id="cari" type="search" class="input !pl-9" placeholder="Cari nama, email, atau tempat" aria-label="Cari nama, email, atau tempat">
-  </div>
+    <!-- Filter & Pencarian -->
+    <div class="space-y-3">
+      <div class="relative">
+        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+          <i data-lucide="search" class="w-4 h-4"></i>
+        </span>
+        <input
+          id="cari"
+          type="search"
+          placeholder="Cari nama, email, jabatan, atau keahlian..."
+          aria-label="Cari alumni"
+          class="w-full h-11 pl-11 pr-4 rounded-full border border-gray-200 bg-white text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
+        >
+      </div>
 
-  <section id="daftar" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" aria-label="Daftar alumni"></section>
-  <div id="pager"></div>
+      <!-- Filter Controls: Angkatan, Keahlian, Status S2 -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 sm:flex-wrap sm:overflow-visible">
+        <div class="relative shrink-0">
+          <label for="filter-batch" class="sr-only">Angkatan</label>
+          <select
+            id="filter-batch"
+            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
+          >
+            <option value="">Semua angkatan</option>
+            <option value="2022">Angkatan 2022</option>
+            <option value="2023">Angkatan 2023</option>
+            <option value="2024">Angkatan 2024</option>
+            <option value="2025">Angkatan 2025</option>
+            <option value="2026">Angkatan 2026</option>
+          </select>
+          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </span>
+        </div>
+
+        <div class="relative shrink-0">
+          <label for="filter-skill" class="sr-only">Keahlian utama</label>
+          <select
+            id="filter-skill"
+            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
+          >
+            <option value="">Semua keahlian</option>
+            <option value="Laravel">Laravel / PHP</option>
+            <option value="React">React / Frontend</option>
+            <option value="Python">Python / ML</option>
+            <option value="Flutter">Flutter / Mobile</option>
+            <option value="Go">Golang / Cloud</option>
+            <option value="Docker">Docker / DevOps</option>
+            <option value="UI/UX">UI/UX Design</option>
+          </select>
+          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </span>
+        </div>
+
+        <!-- Toggle S2 -->
+        <button
+          type="button"
+          id="btn-filter-s2"
+          class="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-gray-200 bg-white text-gray-700 hover:border-gray-300 text-sm font-medium whitespace-nowrap transition-colors cursor-pointer"
+        >
+          <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+          <span>Studi Lanjut S2</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Hasil -->
+    <div class="flex items-center justify-between text-xs text-gray-500 px-1">
+      <span id="status-hasil">Menampilkan 0 alumni</span>
+      <button
+        type="button"
+        id="btn-reset-filter"
+        class="hidden text-[#1E3A8A] hover:underline font-semibold cursor-pointer"
+      >
+        Reset Semua Filter
+      </button>
+    </div>
+
+    <!-- Grid Card Alumni -->
+    <section id="daftar" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" aria-label="Daftar alumni"></section>
+
+    <!-- Pagination -->
+    <div id="pager" class="pt-2 empty:hidden flex justify-center"></div>
+  </div>
 </main>
 
 <script>
-  const PER_HALAMAN = 12;
+  const PER_HALAMAN = 9;
   let halaman = 1;
+  let s2Hanya = false;
 
-  // Alumni yang belum menyelesaikan first login belum punya data tracer
   const ringkasAlumni = a => {
     const t = DB.tracer.milik(a.id);
-    return t ? DB.tracer.karir(t).ringkas : 'Belum mengisi data';
+    return t ? DB.tracer.karir(t).ringkas : 'Alumni Bengkel Koding';
   };
 
-  // Angkatan dan keahlian, sama seperti ringkasan di header Profil Saya
-  const chipAlumni = a => {
+  function kartuAlumni(a) {
     const t = DB.tracer.milik(a.id);
-    if (!t) return '';
-    const chip = (teks, kelas) => `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${kelas}">${esc(teks)}</span>`;
-    return `<div class="flex flex-wrap gap-1.5 pt-1">${chip(`Alumni ${t.tahun_lulus}`, 'bg-[#1E3A8A] text-white')}${t.keahlian.slice(0, 3).map(k => chip(k, 'bg-gray-100 text-gray-700 border border-gray-200/90')).join('')}</div>`;
-  };
+    const batch = t ? t.tahun_lulus : '2024';
+    const isS2 = t && (t.status === 'Melanjutkan Pendidikan' || t.nama_studi);
+    const headline = ringkasAlumni(a);
+    const lokasi = (t && t.lingkup_job) ? `${t.lingkup_job}` : 'Semarang, Indonesia';
+
+    const avatarHtml = a.foto
+      ? `<img src="${esc(a.foto)}" alt="${esc(a.nama)}" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-14 h-14 rounded-full object-cover border border-blue-100 ring-2 ring-blue-50 shrink-0">`
+      : `<div class="w-14 h-14 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] text-white font-bold flex items-center justify-center text-base shrink-0">${esc(a.nama.slice(0, 2).toUpperCase())}</div>`;
+
+    return `
+      <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-300 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
+        <div>
+          <div class="flex items-start gap-3.5 mb-3">
+            ${avatarHtml}
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <h3 class="text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate">${esc(a.nama)}</h3>
+                <span class="text-blue-500 shrink-0" title="Alumni Terverifikasi">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.5 14.5L6 12l1.4-1.4 3.1 3.1 7.1-7.1 1.4 1.4-8.1 8.5z"/>
+                  </svg>
+                </span>
+              </div>
+              <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-[#1E3A8A] font-semibold text-[11px]">Batch ${batch}</span>
+                ${isS2 ? `<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[11px]">S2</span>` : ''}
+              </div>
+            </div>
+          </div>
+
+          <p class="text-[13px] text-gray-700 line-clamp-2 leading-relaxed">${esc(headline)}</p>
+
+          <div class="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 text-gray-400">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span class="truncate">${esc(lokasi)}</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
+          <span class="text-xs text-gray-400 truncate max-w-[130px]" title="${esc(a.email)}">${esc(a.email)}</span>
+          <a
+            href="profil-alumni.html?id=${a.id}"
+            class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors"
+          >
+            <span>Lihat Profil</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </div>`;
+  }
+
+  function filterAlumni(semua) {
+    const kata = document.getElementById('cari').value.trim().toLowerCase();
+    const batch = document.getElementById('filter-batch').value;
+    const skill = document.getElementById('filter-skill').value.toLowerCase();
+
+    return semua.filter(a => {
+      const t = DB.tracer.milik(a.id);
+      const headline = ringkasAlumni(a);
+      const keahlian = (t?.keahlian || []).join(' ').toLowerCase();
+
+      // Filter teks
+      if (kata) {
+        const gabungan = `${a.nama} ${a.email} ${headline} ${keahlian}`.toLowerCase();
+        if (!gabungan.includes(kata)) return false;
+      }
+
+      // Filter angkatan
+      if (batch && String(t?.tahun_lulus) !== batch) return false;
+
+      // Filter keahlian
+      if (skill && !keahlian.includes(skill)) return false;
+
+      // Filter S2
+      if (s2Hanya) {
+        const isS2 = t && (t.status === 'Melanjutkan Pendidikan' || t.nama_studi);
+        if (!isS2) return false;
+      }
+
+      return true;
+    });
+  }
 
   function render() {
-    const kata = document.getElementById('cari').value.trim().toLowerCase();
-    const list = DB.akun.alumni().filter(a => `${a.nama} ${a.email} ${ringkasAlumni(a)}`.toLowerCase().includes(kata));
-    document.getElementById('daftar').innerHTML = potong(list, halaman, PER_HALAMAN).map(a => `
-      <a href="profil-alumni.html?id=${a.id}" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 flex items-start gap-4 hover:border-blue-300 hover:-translate-y-0.5 transition-all min-w-0">
-        ${fotoBulat(a, 'w-14 h-14')}
-        <div class="min-w-0 flex-1 space-y-1.5">
-          <p class="text-[17px] font-bold text-gray-900 tracking-tight truncate">${esc(a.nama)}</p>
-          <p class="text-[14px] text-gray-700 leading-snug">${esc(ringkasAlumni(a))}</p>
-          <p class="text-xs text-gray-500 truncate">${esc(a.email)}</p>
-          ${chipAlumni(a)}
-        </div>
-      </a>`).join('') || `<div class="sm:col-span-2 xl:col-span-3">${kartuKosong('search-x', 'Alumni tidak ditemukan')}</div>`;
-    renderPager('pager', list.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
+    const semua = DB.akun.alumni();
+    document.getElementById('badge-total-alumni').textContent = `${semua.length} Alumni Terdaftar`;
+
+    const hasil = filterAlumni(semua);
+    const kata = document.getElementById('cari').value.trim();
+    const batch = document.getElementById('filter-batch').value;
+    const skill = document.getElementById('filter-skill').value;
+    const filterAktif = Boolean(kata || batch || skill || s2Hanya);
+
+    // Update status teks
+    document.getElementById('status-hasil').textContent = `Menampilkan ${hasil.length} dari ${semua.length} rekan alumni`;
+    const btnReset = document.getElementById('btn-reset-filter');
+    btnReset.classList.toggle('hidden', !filterAktif);
+
+    // Update style toggle S2
+    const btnS2 = document.getElementById('btn-filter-s2');
+    btnS2.className = `shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-full border text-sm font-medium whitespace-nowrap transition-colors cursor-pointer ${
+      s2Hanya ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+    }`;
+
+    // Update style select batch & skill
+    document.getElementById('filter-batch').className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors ${
+      batch ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'
+    }`;
+    document.getElementById('filter-skill').className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors ${
+      skill ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'
+    }`;
+
+    const container = document.getElementById('daftar');
+    if (hasil.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
+          Tidak ada alumni yang sesuai kriteria pencarian. Coba ubah kata kunci atau reset filter.
+        </div>`;
+    } else {
+      container.innerHTML = potong(hasil, halaman, PER_HALAMAN).map(kartuAlumni).join('');
+    }
+
+    renderPager('pager', hasil.length, PER_HALAMAN, halaman, ke => { halaman = ke; render(); });
     refreshIcons();
   }
 
+  // Event Listeners
   document.getElementById('cari').addEventListener('input', () => { halaman = 1; render(); });
+  document.getElementById('filter-batch').addEventListener('change', () => { halaman = 1; render(); });
+  document.getElementById('filter-skill').addEventListener('change', () => { halaman = 1; render(); });
+  document.getElementById('btn-filter-s2').addEventListener('click', () => {
+    s2Hanya = !s2Hanya;
+    halaman = 1;
+    render();
+  });
+  document.getElementById('btn-reset-filter').addEventListener('click', () => {
+    document.getElementById('cari').value = '';
+    document.getElementById('filter-batch').value = '';
+    document.getElementById('filter-skill').value = '';
+    s2Hanya = false;
+    halaman = 1;
+    render();
+  });
+
   render();
 </script>
 </body>
