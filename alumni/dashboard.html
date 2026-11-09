@@ -56,7 +56,7 @@
           rows="1"
           x-model="pmContent"
           @input="$el.style.height = 'auto'; $el.style.height = Math.max(38, $el.scrollHeight) + 'px'"
-          :placeholder="pmIsLoker ? 'Tulis info loker: posisi, perusahaan, kualifikasi, dan cara mendaftar atau minta referral...' : 'Bagikan kabar, pertanyaan, atau ide ke rekan alumni...'"
+          :placeholder="pmIsTanya ? 'Tulis pertanyaan untuk koordinator...' : 'Bagikan kabar, pertanyaan, atau ide ke rekan alumni...'"
           class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed overflow-hidden"
           style="min-height: 38px;"
         ></textarea>
@@ -76,13 +76,6 @@
               </svg>
             </button>
           </div>
-        </template>
-
-        <!-- Petunjuk mode loker -->
-        <template x-if="pmIsLoker">
-          <p class="mt-2.5 text-[12px] text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg px-3 py-1.5">
-            Postingan ini akan masuk tab <span class="font-semibold">Internal Referral</span>.
-          </p>
         </template>
 
         <!-- Petunjuk mode tanya koordinator -->
@@ -128,21 +121,23 @@
               <span>Karya</span>
             </button>
 
-            <!-- Tombol Loker: menandai postingan sebagai Internal Referral -->
+            <!-- Tombol Referral: membuka modal Bagikan Info Referral -->
             <button
               type="button"
-              id="btn-composer-loker"
-              @click="pmIsLoker = !pmIsLoker; pmIsTanya = false; $refs.postTextarea.focus()"
-              :aria-pressed="pmIsLoker.toString()"
-              title="Tandai sebagai info loker / referral"
-              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border"
-              :class="pmIsLoker ? 'bg-blue-50 border-blue-200 text-[#1E3A8A]' : 'border-gray-200 bg-transparent text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'"
+              id="btn-composer-referral"
+              @click.stop="openReferralModal()"
+              title="Bagikan info referral di kantor Anda"
+              class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                <path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0l-4.3 4.3a1 1 0 0 0 0 1.4Z"/>
+                <path d="m14 14 2.5 2.5"/>
+                <path d="m17.5 10.5 2 2"/>
+                <path d="m2 10 7-7 4.5 4.5"/>
+                <path d="m16 21 5-5"/>
+                <path d="m7.5 14.5-2 2a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 1 0 1.4Z"/>
               </svg>
-              <span>Loker</span>
+              <span>Referral</span>
             </button>
 
             <!-- Tombol Tanya Koordinator: pertanyaan administrasi untuk koordinator, dijawab di komentar -->
@@ -335,17 +330,244 @@
               </div>
             </template>
 
-            <!-- Label postingan loker / referral -->
-            <template x-if="(post.category || '').toLowerCase().includes('referral')">
+            <!-- Label postingan loker / referral (jika bukan kartu referral terstruktur) -->
+            <template x-if="!post.referral && (post.category || '').toLowerCase().includes('referral')">
               <span class="inline-flex items-center gap-1 mt-3.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200">
                 <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
                 Loker / Referral
               </span>
             </template>
 
-            <!-- Postingan karya: tanpa teks pengantar, langsung kartu karya -->
-            <template x-if="!post.karya">
+            <!-- Postingan biasa (bukan karya dan bukan referral) -->
+            <template x-if="!post.karya && !post.referral">
               <p class="text-[15px] text-gray-800 leading-relaxed mt-3.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-gray-900 font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+            </template>
+
+            <!-- KARTU REFERRAL (PEER-TO-PEER SESAMA ALUMNI) -->
+            <template x-if="post.referral">
+              <div class="mt-3.5 space-y-3">
+                <p class="text-[15px] text-gray-800 leading-relaxed whitespace-pre-line" x-text="post.content"></p>
+
+                <div class="rounded-xl border border-blue-200/90 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 p-4 sm:p-5 space-y-3.5">
+                  <div class="flex items-center justify-between gap-2 flex-wrap">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#1E3A8A] text-white">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0l-4.3 4.3a1 1 0 0 0 0 1.4Z"/><path d="m14 14 2.5 2.5"/><path d="m17.5 10.5 2 2"/><path d="m2 10 7-7 4.5 4.5"/><path d="m16 21 5-5"/><path d="m7.5 14.5-2 2a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 1 0 1.4Z"/></svg>
+                      #Referral
+                    </span>
+                    <template x-if="isReferralClosed(post)">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gray-200 text-gray-700">
+                        Ditutup
+                      </span>
+                    </template>
+                  </div>
+
+                  <div>
+                    <h4 class="text-[17px] sm:text-[18px] font-bold text-gray-900 leading-snug" x-text="post.referral.posisi + ' · ' + post.referral.perusahaan"></h4>
+                    <p class="text-[13.5px] text-gray-600 mt-1 flex items-center gap-2 flex-wrap">
+                      <span class="font-medium text-gray-700" x-text="post.referral.level"></span>
+                      <span class="text-gray-300">•</span>
+                      <span>Review sampai: <strong class="text-gray-800" x-text="formatDateIndo(post.referral.batas)"></strong></span>
+                    </p>
+                  </div>
+
+                  <!-- Aksi Referral -->
+                  <div class="pt-1">
+                    <!-- Jika pemilik postingan: tombol lihat pengajuan (Inline Accordion) -->
+                    <template x-if="isMyPost(post)">
+                      <div>
+                        <button
+                          type="button"
+                          @click="togglePengajuanInline(post.id)"
+                          class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                          <span>Lihat Pengajuan (<span x-text="(post.pengajuan || []).length"></span>)</span>
+                          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform duration-200" :class="activePengajuanPostId === post.id ? 'rotate-180' : ''"><polyline points="6 9 12 15 18 9"/></svg>
+                        </button>
+
+                        <!-- Panel Inline Pengajuan Pelamar (Langsung di Bawah Kartu, Tanpa Modal & Tanpa Split Screen) -->
+                        <template x-if="activePengajuanPostId === post.id">
+                          <div class="mt-4 pt-4 border-t border-blue-200/70 space-y-3.5">
+                            <div class="flex items-center justify-between text-[12.5px] text-gray-600 bg-white/70 p-2.5 rounded-lg border border-blue-100">
+                              <span><strong><span x-text="(post.pengajuan || []).length"></span></strong> pengajuan dari rekan alumni</span>
+                              <span>Tenggat review: <strong class="text-gray-800" x-text="formatDateIndo(post.referral?.batas)"></strong></span>
+                            </div>
+
+                            <template x-if="(!post.pengajuan || post.pengajuan.length === 0)">
+                              <div class="text-center py-6 text-gray-400 text-[13px] bg-white rounded-xl border border-dashed border-gray-200">
+                                Belum ada pengajuan dari rekan alumni untuk lowongan ini.
+                              </div>
+                            </template>
+
+                            <template x-for="pelamar in (post.pengajuan || [])" :key="pelamar.id">
+                              <div class="p-4 rounded-xl border border-gray-200 bg-white shadow-2xs space-y-3">
+                                <!-- Info Pelamar -->
+                                <div class="flex items-start justify-between gap-3">
+                                  <div class="flex items-start gap-3 min-w-0">
+                                    <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName" class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
+                                    <div class="min-w-0">
+                                      <h5 class="text-[14.5px] font-bold text-gray-900 truncate" x-text="pelamar.authorName"></h5>
+                                      <p class="text-[12px] text-gray-500 mt-0.5 line-clamp-1" x-text="pelamar.authorHeadline"></p>
+                                    </div>
+                                  </div>
+                                  <div class="shrink-0">
+                                    <template x-if="pelamar.status === 'menunggu'">
+                                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Menunggu</span>
+                                    </template>
+                                    <template x-if="pelamar.status === 'dihubungi'">
+                                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Dihubungi</span>
+                                    </template>
+                                    <template x-if="pelamar.status === 'masukan'">
+                                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-700 border border-gray-200">Diberi Masukan</span>
+                                    </template>
+                                  </div>
+                                </div>
+
+                                <!-- Pesan Perkenalan -->
+                                <div class="bg-gray-50 rounded-lg p-3 text-[13px] text-gray-700 leading-relaxed border border-gray-100">
+                                  <p class="text-[10.5px] font-bold uppercase tracking-wider text-gray-400 mb-1">Pesan Perkenalan</p>
+                                  <p x-text="pelamar.pesan"></p>
+                                </div>
+
+                                <!-- Lampiran Dokumen CV (Tautan Langsung ke Pratinjau Dokumen PDF) -->
+                                <div class="flex items-center justify-between p-3 rounded-xl border border-gray-200 bg-gray-50/80 hover:bg-blue-50/40 hover:border-blue-300 transition-all">
+                                  <div class="flex items-center gap-2.5 min-w-0">
+                                    <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center font-bold text-[11px] shrink-0 border border-red-200 shadow-2xs">
+                                      PDF
+                                    </div>
+                                    <div class="min-w-0">
+                                      <p class="text-[13px] font-bold text-gray-900 truncate" x-text="'CV_' + pelamar.authorName.replace(/\s+/g, '_') + '_' + (pelamar.format || 'ats').toUpperCase() + '.pdf'"></p>
+                                      <p class="text-[11.5px] text-gray-500" x-text="'Dokumen Lampiran Pelamar · Versi ' + (pelamar.format || 'ats').toUpperCase() + ' (A4 Print-Ready)'"></p>
+                                    </div>
+                                  </div>
+                                  <a
+                                    :href="'generate-cv.html?applicant=' + encodeURIComponent(pelamar.authorName) + '&format=' + (pelamar.format || 'ats')"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/50 text-[#1E3A8A] text-[12px] font-semibold transition-all shadow-2xs shrink-0"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                    <span>Preview CV <span x-text="(pelamar.format || 'ats').toUpperCase()"></span> (PDF)</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                  </a>
+                                </div>
+
+                                <!-- Bar Tombol Aksi Kontak & Komunikasi -->
+                                <div class="flex items-center gap-2 flex-wrap pt-0.5">
+                                  <!-- WhatsApp -->
+                                  <template x-if="pelamar.status !== 'masukan'">
+                                    <button
+                                      type="button"
+                                      @click="hubungiPelamarWa(post, pelamar)"
+                                      class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-semibold transition-colors cursor-pointer shadow-2xs"
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                      <span>Hubungi via WhatsApp</span>
+                                    </button>
+                                  </template>
+
+                                  <!-- LinkedIn -->
+                                  <template x-if="pelamar.linkedin">
+                                    <a
+                                      :href="pelamar.linkedin"
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 text-[#1E3A8A] hover:bg-blue-50 text-[12px] font-semibold transition-colors"
+                                    >
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                                      <span>LinkedIn</span>
+                                    </a>
+                                  </template>
+                                </div>
+
+                                <!-- Form Beri Masukan (jika status masih menunggu) -->
+                                <template x-if="pelamar.status === 'menunggu'">
+                                  <form @submit.prevent="submitMasukanPelamar(post, pelamar)" class="flex items-center gap-2 pt-2 border-t border-gray-100">
+                                    <input
+                                      type="text"
+                                      x-model="masukanInputs[pelamar.id]"
+                                      maxlength="150"
+                                      placeholder="Belum pas? Beri masukan 1 baris..."
+                                      class="flex-1 text-[12.5px] px-3 py-1.5 rounded-lg border border-gray-200 focus:outline-none focus:border-[#1E3A8A]"
+                                    >
+                                    <button
+                                      type="submit"
+                                      class="px-3 py-1.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 text-[12px] font-semibold cursor-pointer shrink-0 transition-colors"
+                                    >
+                                      Beri Masukan
+                                    </button>
+                                  </form>
+                                </template>
+
+                                <!-- Masukan terkirim -->
+                                <template x-if="pelamar.status === 'masukan'">
+                                  <div class="pt-2 border-t border-gray-100 text-[12.5px] text-gray-500">
+                                    <span class="font-semibold text-gray-700">Masukan terkirim:</span>
+                                    <span class="italic text-gray-600" x-text="' &quot;' + pelamar.masukan + '&quot;'"></span>
+                                  </div>
+                                </template>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+
+                    <!-- Jika alumni lain -->
+                    <template x-if="!isMyPost(post)">
+                      <div>
+                        <!-- Belum mengajukan -->
+                        <template x-if="!getMyPengajuan(post)">
+                          <div>
+                            <template x-if="!isReferralClosed(post)">
+                              <button
+                                type="button"
+                                @click.stop="openAjukanModal(post)"
+                                class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold transition-all shadow-xs cursor-pointer active:scale-95"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                                <span>Minta Review &amp; Referral</span>
+                              </button>
+                            </template>
+                            <template x-if="isReferralClosed(post)">
+                              <p class="text-[13.5px] text-gray-500 italic flex items-center gap-1.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>Batas waktu review sudah lewat.</span>
+                              </p>
+                            </template>
+                          </div>
+                        </template>
+
+                        <!-- Sudah mengajukan -->
+                        <template x-if="getMyPengajuan(post)">
+                          <div class="text-[14px]">
+                            <template x-if="getMyPengajuan(post).status === 'menunggu'">
+                              <div class="flex items-center gap-2.5 text-amber-800 bg-amber-50 border border-amber-200/80 px-4 py-2.5 rounded-xl font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                <span>Pengajuan terkirim, menunggu respons rekan alumni.</span>
+                              </div>
+                            </template>
+                            <template x-if="getMyPengajuan(post).status === 'dihubungi'">
+                              <div class="flex items-center gap-2.5 text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-4 py-2.5 rounded-xl font-medium">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                                <span>Rekan alumni akan menghubungi Anda lewat WhatsApp / LinkedIn.</span>
+                              </div>
+                            </template>
+                            <template x-if="getMyPengajuan(post).status === 'masukan'">
+                              <div class="rounded-xl bg-amber-50/90 border border-amber-200/90 p-4 text-gray-800 space-y-1.5">
+                                <div class="flex items-center gap-2 text-[12px] font-bold text-amber-900 uppercase tracking-wide">
+                                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                                  <span>Masukan dari rekan alumni</span>
+                                </div>
+                                <p class="text-[14px] text-gray-800 leading-relaxed font-normal" x-text="getMyPengajuan(post).masukan"></p>
+                              </div>
+                            </template>
+                          </div>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </div>
             </template>
 
             <!-- KARTU KARYA SHOWCASE (MEMANJANG, UNIFORM & CLICKABLE) -->
@@ -779,6 +1001,138 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
       </div>
     </template>
 
+    <!-- ======================================================
+        MODAL: BAGIKAN INFO REFERRAL
+    ====================================================== -->
+    <template x-if="referralModalOpen">
+      <div
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-xs animate-in fade-in duration-150"
+        @click.self="referralModalOpen = false"
+      >
+        <div class="bg-white rounded-2xl max-w-lg w-full border border-gray-200 shadow-xl overflow-hidden" @click.stop>
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-[17px] font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2"><path d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0l-4.3 4.3a1 1 0 0 0 0 1.4Z"/><path d="m14 14 2.5 2.5"/><path d="m17.5 10.5 2 2"/><path d="m2 10 7-7 4.5 4.5"/><path d="m16 21 5-5"/><path d="m7.5 14.5-2 2a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 1 0 1.4Z"/></svg>
+              <span>Bagikan Info Referral</span>
+            </h3>
+            <button type="button" @click="referralModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <form @submit.prevent="submitReferralPost()" class="p-6 space-y-4">
+            <p class="text-[13px] text-[#1E3A8A] bg-blue-50/70 border border-blue-200/70 rounded-xl p-3.5 leading-relaxed">
+              Anda hanya membuka jalan perkenalan ke kantor Anda. Sistem tidak mencatat proses rekrutmen dan Anda tidak wajib menjamin pelamar diterima.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-[13px] font-semibold text-gray-700">Nama Perusahaan <span class="text-red-500">*</span></label>
+                <input type="text" x-model="referralForm.perusahaan" placeholder="Contoh: PT Solusi Digital" required class="w-full text-[14px] px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors">
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-[13px] font-semibold text-gray-700">Role / Posisi <span class="text-red-500">*</span></label>
+                <input type="text" x-model="referralForm.posisi" placeholder="Contoh: Backend Developer" required class="w-full text-[14px] px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors">
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-[13px] font-semibold text-gray-700">Level Pengalaman <span class="text-red-500">*</span></label>
+                <div class="relative">
+                  <select
+                    x-model="referralForm.level"
+                    class="w-full text-[14px] px-3.5 py-2.5 pr-10 rounded-xl border border-gray-300 bg-white text-gray-800 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 cursor-pointer appearance-none transition-colors shadow-2xs"
+                  >
+                    <option value="Magang/Freshgrad">Magang / Freshgrad</option>
+                    <option value="Junior (1-2 tahun)">Junior (1-2 tahun)</option>
+                    <option value="Mid">Mid</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m6 9 6 6 6-6"/>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-1.5">
+                <label class="block text-[13px] font-semibold text-gray-700">Batas Waktu Review <span class="text-red-500">*</span></label>
+                <input type="date" x-model="referralForm.batas" :min="new Date().toISOString().split('T')[0]" required class="w-full text-[14px] px-3.5 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors shadow-2xs">
+              </div>
+            </div>
+            <div class="space-y-1.5">
+              <label class="block text-[13px] font-semibold text-gray-700">Pesan &amp; Kriteria Utama <span class="text-red-500">*</span></label>
+              <textarea x-model="referralForm.isi" rows="3" maxlength="300" placeholder="Satu sampai dua kalimat, contoh: familiar dengan Laravel dan siap belajar Docker..." required class="w-full text-[14px] p-3.5 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 resize-none transition-colors"></textarea>
+              <p class="text-[12px] text-gray-400 text-right"><span x-text="referralForm.isi.length"></span>/300 karakter</p>
+            </div>
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
+              <button type="button" @click="referralModalOpen = false" class="px-4 py-2 rounded-xl border border-gray-200 text-[14px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-xs transition-colors cursor-pointer">Bagikan Referral</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </template>
+
+    <!-- ======================================================
+        MODAL: MINTA REVIEW & REFERRAL
+    ====================================================== -->
+    <template x-if="ajukanModalOpen">
+      <div
+        class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-gray-900/50 backdrop-blur-xs animate-in fade-in duration-150"
+        @click.self="ajukanModalOpen = false"
+      >
+        <div class="bg-white rounded-2xl max-w-lg w-full border border-gray-200 shadow-xl overflow-hidden" @click.stop>
+          <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-[17px] font-bold text-gray-900 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span>Minta Review dan Referral</span>
+            </h3>
+            <button type="button" @click="ajukanModalOpen = false" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg cursor-pointer">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          </div>
+          <form @submit.prevent="submitAjukanReferral()" class="p-6 space-y-4">
+            <p class="text-[13.5px] text-gray-600 bg-gray-50 border border-gray-100 rounded-xl p-3">
+              Posisi <strong class="text-gray-900" x-text="ajukanPost?.referral?.posisi"></strong> di <strong class="text-gray-900" x-text="ajukanPost?.referral?.perusahaan"></strong>, direview oleh <strong class="text-[#1E3A8A]" x-text="ajukanPost?.authorName"></strong>. Profil dan CV Anda ikut terlampir.
+            </p>
+
+            <!-- Versi CV -->
+            <div class="space-y-2">
+              <label class="block text-[13px] font-semibold text-gray-700">Versi CV dari Generate CV</label>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors" :class="ajukanFormat === 'ats' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
+                  <input type="radio" name="format" value="ats" x-model="ajukanFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
+                  <div class="text-[13.5px]">
+                    <p class="leading-none">ATS Standar</p>
+                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Teks bersih terstruktur</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors" :class="ajukanFormat === 'modern' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
+                  <input type="radio" name="format" value="modern" x-model="ajukanFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
+                  <div class="text-[13.5px]">
+                    <p class="leading-none">Modern Clean</p>
+                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Layout 2-kolom visual</p>
+                  </div>
+                </label>
+              </div>
+              <a href="generate-cv.html" target="_blank" class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1E3A8A] hover:underline pt-0.5">
+                <span>Lihat CV saya</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+            </div>
+
+            <!-- Pesan Perkenalan -->
+            <div class="space-y-1.5">
+              <label class="block text-[13px] font-semibold text-gray-700">Pesan Perkenalan Singkat <span class="text-red-500">*</span></label>
+              <textarea x-model="ajukanPesan" rows="4" maxlength="250" placeholder="Perkenalkan diri, latar belakang keahlian, dan alasan Anda cocok untuk posisi ini..." required class="w-full text-[14px] p-3.5 rounded-xl border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 resize-none transition-colors"></textarea>
+              <p class="text-[12px] text-gray-400 text-right"><span x-text="ajukanPesan.length"></span>/250 karakter</p>
+            </div>
+
+            <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-gray-100">
+              <button type="button" @click="ajukanModalOpen = false" class="px-4 py-2 rounded-xl border border-gray-200 text-[14px] font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" class="px-5 py-2 rounded-xl bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-xs transition-colors cursor-pointer">Kirim Pengajuan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </template>
+
   </div>
 </main>
 
@@ -837,6 +1191,230 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
 
         // Modal Tambah Proyek / Launch Karya (State selaras form proyek profil)
         addProjectOpen: false,
+
+        // State Modal Bagikan Info Referral
+        referralModalOpen: false,
+        referralForm: {
+          perusahaan: "",
+          posisi: "",
+          level: "Magang/Freshgrad",
+          batas: "",
+          isi: "",
+        },
+
+        // State Modal Minta Review & Referral
+        ajukanModalOpen: false,
+        ajukanPost: null,
+        ajukanFormat: "ats",
+        ajukanPesan: "",
+
+        // State Pengajuan Referral Inline (Accordion di dalam Kartu Postingan)
+        activePengajuanPostId: null,
+        masukanInputs: {},
+
+        openReferralModal() {
+          const d = new Date();
+          d.setDate(d.getDate() + 14);
+          this.referralForm = {
+            perusahaan: "",
+            posisi: "",
+            level: "Magang/Freshgrad",
+            batas: d.toISOString().split("T")[0],
+            isi: "",
+          };
+          this.referralModalOpen = true;
+        },
+
+        submitReferralPost() {
+          const f = this.referralForm;
+          if (!f.perusahaan.trim()) return this.setToast("Nama perusahaan wajib diisi.");
+          if (!f.posisi.trim()) return this.setToast("Posisi/role lowongan wajib diisi.");
+          if (!f.batas) return this.setToast("Batas waktu review wajib diisi.");
+          if (!f.isi.trim()) return this.setToast("Pesan dan kriteria utama wajib diisi.");
+
+          const todayStr = new Date().toISOString().split("T")[0];
+          if (f.batas < todayStr) return this.setToast("Batas waktu review tidak boleh sebelum hari ini.");
+
+          const newPost = {
+            id: Date.now(),
+            authorName: this.profile.name,
+            authorAvatar: this.profile.avatarUrl,
+            authorHeadline: this.profile.headline,
+            date: "Baru saja",
+            category: "Internal Referral",
+            visibility: "Semua orang",
+            content: f.isi.trim(),
+            imageUrl: "",
+            likes: 0,
+            isLiked: false,
+            commentsCount: 0,
+            repostsCount: 0,
+            impressions: 1,
+            jenis: "referral",
+            referral: {
+              perusahaan: f.perusahaan.trim(),
+              posisi: f.posisi.trim(),
+              level: f.level,
+              batas: f.batas,
+            },
+            pengajuan: [],
+          };
+
+          this.posts = [newPost, ...this.posts];
+          this.simpan();
+          this.referralModalOpen = false;
+          this.setToast("Info referral berhasil dibagikan!");
+        },
+
+        isReferralClosed(post) {
+          if (!post || !post.referral || !post.referral.batas) return false;
+          const todayStr = new Date().toISOString().split("T")[0];
+          return post.referral.batas < todayStr;
+        },
+
+        isMyPost(post) {
+          if (!post) return false;
+          const myName = (this.profile?.name || "").trim().toLowerCase();
+          const authorName = (post.authorName || "").trim().toLowerCase();
+          // Cocokkan nama atau anggap post seed Aisha (id: 5) milik profil aktif
+          return (myName && authorName && myName === authorName) || post.id === 5;
+        },
+
+        getMyPengajuan(post) {
+          if (!post.pengajuan || !Array.isArray(post.pengajuan)) return null;
+          return post.pengajuan.find((a) => (a.authorName || "").toLowerCase() === (this.profile?.name || "").toLowerCase());
+        },
+
+        formatDateIndo(dateStr) {
+          if (!dateStr) return "";
+          try {
+            const iso = String(dateStr).includes("T") ? dateStr : dateStr + "T00:00:00";
+            return new Date(iso).toLocaleDateString("id-ID", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            });
+          } catch {
+            return dateStr;
+          }
+        },
+
+        openAjukanModal(post) {
+          this.ajukanPost = post;
+          this.ajukanFormat = "ats";
+          this.ajukanPesan = "";
+          this.ajukanModalOpen = true;
+        },
+
+        submitAjukanReferral() {
+          if (!this.ajukanPost) return;
+          if (!this.ajukanPesan.trim()) return this.setToast("Tulis pesan perkenalan singkat.");
+          if (this.ajukanPesan.trim().length > 250) return this.setToast("Pesan perkenalan maksimal 250 karakter.");
+
+          const target = this.posts.find((p) => p.id === this.ajukanPost.id);
+          if (!target) return;
+          if (!target.pengajuan) target.pengajuan = [];
+
+          if (target.pengajuan.some((a) => a.authorName === this.profile.name)) {
+            this.setToast("Anda sudah mengajukan ke referral ini.");
+            this.ajukanModalOpen = false;
+            return;
+          }
+
+          const newPengajuan = {
+            id: Date.now(),
+            authorName: this.profile.name,
+            authorAvatar: this.profile.avatarUrl,
+            authorHeadline: this.profile.headline,
+            format: this.ajukanFormat,
+            pesan: this.ajukanPesan.trim(),
+            status: "menunggu",
+            masukan: "",
+            waktu: new Date().toISOString(),
+            no_hp: "081234567890",
+            linkedin: "https://linkedin.com",
+          };
+
+          target.pengajuan.push(newPengajuan);
+          this.simpan();
+          this.ajukanModalOpen = false;
+          this.setToast("Pengajuan referral berhasil dikirim!");
+        },
+
+        togglePengajuanInline(postId) {
+          this.activePengajuanPostId = this.activePengajuanPostId === postId ? null : postId;
+        },
+
+        hubungiPelamarWa(post, pelamar) {
+          if (!post || !pelamar) return;
+          const target = this.posts.find((p) => p.id === post.id);
+          if (target && target.pengajuan) {
+            const item = target.pengajuan.find((a) => a.id === pelamar.id);
+            if (item) {
+              item.status = "dihubungi";
+              this.simpan();
+            }
+          }
+          const phone = (pelamar.no_hp || "081234567890").replace(/\D/g, "");
+          const waNumber = phone.startsWith("0") ? "62" + phone.slice(1) : phone;
+          const pos = post.referral?.posisi || "posisi";
+          const per = post.referral?.perusahaan || "perusahaan";
+          const pesan = `Halo ${pelamar.authorName}, saya ${this.profile.name} dari Portal Alumni Bengkel Koding. Terima kasih sudah mengajukan referral ${pos} di ${per}. Boleh kita ngobrol sebentar soal posisinya?`;
+          window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, "_blank");
+          this.setToast(`Menghubungi ${pelamar.authorName} lewat WhatsApp.`);
+        },
+
+        submitMasukanPelamar(post, pelamar) {
+          const teks = (this.masukanInputs[pelamar.id] || "").trim();
+          if (!teks) return this.setToast("Tulis masukan singkat terlebih dahulu.");
+          if (teks.length > 150) return this.setToast("Masukan maksimal 150 karakter.");
+
+          const target = this.posts.find((p) => p.id === post.id);
+          if (target && target.pengajuan) {
+            const item = target.pengajuan.find((a) => a.id === pelamar.id);
+            if (item) {
+              item.status = "masukan";
+              item.masukan = teks;
+              this.simpan();
+            }
+          }
+          this.masukanInputs[pelamar.id] = "";
+          this.setToast(`Masukan terkirim ke ${pelamar.authorName}.`);
+        },
+
+        getApplicantBio(applicant) {
+          if (!applicant) return "";
+          const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+            (a) => a.name === applicant.authorName
+          );
+          return (
+            found?.bio ||
+            found?.headline ||
+            "Alumni Asisten Lab Bengkel Koding Universitas Dian Nuswantoro dengan keahlian teknis dan pengalaman implementasi proyek."
+          );
+        },
+
+        getApplicantSkills(applicant) {
+          if (!applicant) return ["JavaScript", "PostgreSQL", "Node.js", "Tailwind CSS"];
+          const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+            (a) => a.name === applicant.authorName
+          );
+          return found?.skills && found.skills.length
+            ? found.skills
+            : ["JavaScript", "PostgreSQL", "Node.js", "Docker", "REST API"];
+        },
+
+        getApplicantProjects(applicant) {
+          if (!applicant) return [];
+          const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+            (a) => a.name === applicant.authorName
+          );
+          if (found?.projects && found.projects.length) return found.projects;
+          return [
+            { title: "Sistem Manajemen Inventaris Lab", period: "2024", desc: "Aplikasi web fullstack untuk pencatatan dan monitoring perangkat keras laboratorium." },
+            { title: "Bengkod Learning Assistant Bot", period: "2023", desc: "Bot otomatisasi evaluasi praktikum mahasiswa berbasis Node.js dan Webhook." },
+          ];
+        },
 
         // State Laporan Postingan ke Koordinator
         reportModalOpen: false,
@@ -937,7 +1515,7 @@ class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#
             if (target.includes("tanya")) return c === "tanya koordinator" || Boolean(p.pertanyaan);
             if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
             // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
-            if (target === "internal referral") return c.includes("referral") || c.includes("loker") || (!p.category && (p.content || "").toLowerCase().includes("referral"));
+            if (target === "internal referral") return c.includes("referral") || c.includes("loker") || Boolean(p.referral) || (!p.category && (p.content || "").toLowerCase().includes("referral"));
             return true;
           });
         },

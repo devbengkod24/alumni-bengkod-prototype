@@ -86,20 +86,46 @@
     ============================================================ -->
     <div id="cv-page-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Generate CV</h1>
-        <p class="text-sm text-gray-500 mt-0.5">
-          Pembuat CV otomatis berbasis data profil dan portofolio proyek alumni Bengkel Koding
-        </p>
+        <template x-if="isApplicantView">
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-[#1E3A8A] uppercase tracking-wider">Lampiran CV Pelamar</span>
+              <span class="text-xs text-gray-400">•</span>
+              <span class="text-xs text-gray-500 font-semibold" x-text="'Versi ' + cvLayout.toUpperCase() + ' (A4 Print-Ready)'"></span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight" x-text="'Pratinjau CV · ' + profile.name"></h1>
+            <p class="text-sm text-gray-500">
+              Dokumen CV resmi yang dilampirkan pelamar. Anda dapat meninjau format dokumen sebelum mencetak atau mengunduh PDF.
+            </p>
+          </div>
+        </template>
+        <template x-if="!isApplicantView">
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Generate CV</h1>
+            <p class="text-sm text-gray-500 mt-0.5">
+              Pembuat CV otomatis berbasis data profil dan portofolio proyek alumni Bengkel Koding
+            </p>
+          </div>
+        </template>
       </div>
       <div class="flex items-center gap-2.5 flex-wrap shrink-0">
-        <a href="profil.html"
-          class="px-5 py-2 rounded-full text-[15px] font-semibold text-[#1E3A8A] bg-white border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-          </svg>
-          <span>Edit Profil</span>
-        </a>
+        <template x-if="isApplicantView">
+          <a href="dashboard.html"
+            class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+            <span>Kembali ke Beranda</span>
+          </a>
+        </template>
+        <template x-if="!isApplicantView">
+          <a href="profil.html"
+            class="px-5 py-2 rounded-full text-[15px] font-semibold text-[#1E3A8A] bg-white border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            <span>Edit Profil</span>
+          </a>
+        </template>
         <button type="button" @click="handlePrintPdf()"
           class="px-5 py-2 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors inline-flex items-center gap-2 shadow-sm cursor-pointer active:scale-95">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -530,30 +556,127 @@
 
 <script>
 function generateCvComponent() {
-  // Ambil data profil dari localStorage jika pernah diedit di profil.html, atau fallback ke INITIAL_PROFILE
+  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const applicantParam = params.get("applicant") || params.get("name") || params.get("user");
+  const layoutParam = params.get("format");
+  const isApplicant = Boolean(applicantParam);
+
   let activeProfile = JSON.parse(JSON.stringify(INITIAL_PROFILE));
-  try {
-    const saved = localStorage.getItem("bengkod_profile_v1");
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed && parsed.name) {
-        activeProfile = { ...activeProfile, ...parsed };
+  let edus = INITIAL_EDUCATIONS;
+  let orgs = INITIAL_ORGANIZATIONS;
+  let projs = INITIAL_PROJECTS;
+  let skillsList = INITIAL_SKILLS;
+  let certs = INITIAL_CERTIFICATIONS;
+
+  if (isApplicant) {
+    const rawName = decodeURIComponent(applicantParam).trim();
+    const isYoga = rawName.toLowerCase().includes("yoga");
+
+    if (isYoga) {
+      activeProfile = {
+        name: "Yoga Kurniawan",
+        headline: "Backend Developer · Batch 2023",
+        email: "yoga.kurniawan@alumni.dinus.ac.id",
+        location: "Kota Semarang, Jawa Tengah, Indonesia",
+        about: "Backend Engineer lulusan S1 Teknik Informatika Universitas Dian Nuswantoro. Berpengalaman mendesain arsitektur microservices, optimasi query database PostgreSQL, integrasi REST API, dan containerization dengan Docker di lingkungan cloud.",
+        linkedin: "https://linkedin.com/in/yogakurniawan",
+        github: "https://github.com/yogakurniawan",
+      };
+      edus = [
+        {
+          id: 1,
+          name: "Universitas Dian Nuswantoro",
+          major: "S1 Teknik Informatika (Informatics Engineering)",
+          period: "2019 – 2023",
+          degree: "Sarjana Komputer",
+          tags: ["Struktur Data & Algoritma", "Basis Data Lanjut", "Arsitektur Perangkat Lunak", "Jaringan Komputer"],
+        },
+      ];
+      orgs = [
+        {
+          id: 1,
+          name: "Laboratorium Bengkel Koding UDINUS",
+          role: "Koordinator Asisten Lab Backend",
+          period: "2022 – 2023",
+          desc: "Membimbing praktikum pemrograman backend, merancang modul basis data SQL, dan memelihara server staging lab.",
+        },
+      ];
+      projs = [
+        {
+          id: 1,
+          title: "Microservices Payment Gateway API",
+          period: "2024",
+          desc: "Arsitektur backend pembayaran multi-vendor menggunakan Express, PostgreSQL, Redis caching, dan RabbitMQ message queue.",
+          tags: ["Node.js", "PostgreSQL", "Docker", "Redis"],
+        },
+        {
+          id: 2,
+          title: "Sistem Manajemen Inventaris Lab Bengkod",
+          period: "2023",
+          desc: "Layanan REST API pencatatan perangkat keras lab dengan autentikasi JWT dan audit trail log terenkripsi.",
+          tags: ["Golang", "PostgreSQL", "REST API", "Docker"],
+        },
+      ];
+      skillsList = [
+        { id: 1, name: "Node.js & Express" },
+        { id: 2, name: "PostgreSQL & Prisma" },
+        { id: 3, name: "Docker & Container" },
+        { id: 4, name: "REST API & Microservices" },
+        { id: 5, name: "Redis Caching" },
+        { id: 6, name: "Git & CI/CD" },
+      ];
+    } else {
+      const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+        (a) => a.name.toLowerCase() === rawName.toLowerCase() || a.id.toLowerCase() === rawName.toLowerCase()
+      );
+      if (found) {
+        activeProfile = {
+          name: found.name,
+          headline: found.headline,
+          email: found.email || `${found.name.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
+          location: found.location || "Semarang, Jawa Tengah, Indonesia",
+          about: found.about || `Alumni Asisten Lab Bengkel Koding UDINUS Batch ${found.batch || "2024"}.`,
+          linkedin: found.linkedin || `https://linkedin.com/in/${found.name.toLowerCase().replace(/\s+/g, '-')}`,
+          github: found.github || `https://github.com/${found.name.toLowerCase().replace(/\s+/g, '')}`,
+        };
+      } else {
+        activeProfile = {
+          name: rawName,
+          headline: "Alumni Asisten Lab Bengkel Koding",
+          email: `${rawName.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
+          location: "Semarang, Jawa Tengah, Indonesia",
+          about: "Alumni Asisten Lab Bengkel Koding Universitas Dian Nuswantoro.",
+          linkedin: `https://linkedin.com/in/${rawName.toLowerCase().replace(/\s+/g, '-')}`,
+          github: `https://github.com/${rawName.toLowerCase().replace(/\s+/g, '')}`,
+        };
       }
     }
-  } catch (e) {
-    console.warn("Gagal memuat profil tersimpan:", e);
+  } else {
+    // Ambil data profil dari localStorage jika pernah diedit di profil.html, atau fallback ke INITIAL_PROFILE
+    try {
+      const saved = localStorage.getItem("bengkod_profile_v1");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && parsed.name) {
+          activeProfile = { ...activeProfile, ...parsed };
+        }
+      }
+    } catch (e) {
+      console.warn("Gagal memuat profil tersimpan:", e);
+    }
   }
 
   return {
     toast: "",
-    cvLayout: "ats", // "ats" | "modern"
+    isApplicantView: isApplicant,
+    cvLayout: layoutParam === "modern" ? "modern" : "ats", // "ats" | "modern"
     showSectionDropdown: false,
     profile: activeProfile,
-    educations: INITIAL_EDUCATIONS,
-    organizations: INITIAL_ORGANIZATIONS,
-    projects: INITIAL_PROJECTS,
-    skills: INITIAL_SKILLS,
-    certifications: INITIAL_CERTIFICATIONS,
+    educations: edus,
+    organizations: orgs,
+    projects: projs,
+    skills: skillsList,
+    certifications: certs,
     includeGigs: true,
     sections: {
       about: true,
