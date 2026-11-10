@@ -376,11 +376,11 @@
                       <template x-if="isMyPost(post)">
                         <div>
                           <button type="button" @click="togglePengajuanInline(post.id)"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[13px] font-medium transition-colors cursor-pointer">
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs">
                             <span>Lihat Pengajuan (<span x-text="(post.pengajuan || []).length"></span>)</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                              fill="none" stroke="currentColor" stroke-width="2"
-                              class="transition-transform duration-200"
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                              fill="none" stroke="currentColor" stroke-width="2.5"
+                              class="transition-transform duration-200 text-[#1E3A8A]"
                               :class="activePengajuanPostId === post.id ? 'rotate-180' : ''">
                               <polyline points="6 9 12 15 18 9" />
                             </svg>
@@ -419,7 +419,7 @@
                                     <span
                                       class="px-2.5 py-0.5 rounded-full text-[11px] sm:text-[12px] font-normal border shrink-0"
                                       :class="{
-                                        'bg-gray-100 text-gray-600 border-gray-200': pelamar.status === 'menunggu',
+                                        'bg-white text-gray-600 border-gray-200': pelamar.status === 'menunggu',
                                         'bg-blue-50 text-[#1E3A8A] border-blue-200': pelamar.status === 'dihubungi',
                                         'bg-gray-50 text-gray-500 border-gray-200': pelamar.status === 'masukan'
                                       }"
@@ -463,8 +463,8 @@
 
                                       <template x-if="pelamar.status !== 'masukan'">
                                         <button type="button" @click="hubungiPelamarWa(post, pelamar)"
-                                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[12px] font-medium transition-colors cursor-pointer shadow-2xs">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[12px] font-semibold transition-all cursor-pointer shadow-2xs">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#1E3A8A]"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                                           <span>Hubungi WhatsApp</span>
                                         </button>
                                       </template>
