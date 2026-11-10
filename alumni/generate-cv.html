@@ -3,10 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CV Saya | Bengkel Koding UDINUS</title>
+  <title>Generate CV | Alumni Bengkel Koding</title>
   <meta name="description" content="Generate dan unduh CV profesional otomatis langsung dari profil alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../assets/js/page-skeleton.js"></script>
+  <script src="assets/js/data.js?v=9"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
@@ -163,7 +164,7 @@
             </button>
           </div>
 
-          <!-- Dropdown Bagian CV (Centang Bentuk Oval Minimalis, Warna persis Gambar 1) -->
+          <!-- Dropdown Bagian CV -->
           <div class="relative shrink-0" @click.outside="showSectionDropdown = false">
             <button type="button" @click="showSectionDropdown = !showSectionDropdown"
               class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 text-[14.5px] font-semibold text-[#1E3A8A] transition-colors cursor-pointer bg-white shadow-2xs">
@@ -374,10 +375,10 @@
           </div>
 
           <!-- Section: Proyek & Portofolio Teknis -->
-          <div x-show="sections.projects && projects.length > 0" class="space-y-3">
+          <div x-show="sections.projects && displayProjects.length > 0" class="space-y-3">
             <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Proyek &amp; Portofolio Unggulan</h3>
             <div class="space-y-3.5">
-              <template x-for="proj in projects" :key="proj.id">
+              <template x-for="proj in displayProjects" :key="proj.id">
                 <div class="text-[13px]">
                   <div class="flex items-center justify-between font-bold text-gray-900">
                     <span x-text="proj.title"></span>
@@ -522,13 +523,13 @@
               </div>
 
               <!-- Proyek Unggulan -->
-              <div x-show="sections.projects && projects.length > 0" class="space-y-3">
+              <div x-show="sections.projects && displayProjects.length > 0" class="space-y-3">
                 <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
                   <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
                   Proyek Unggulan
                 </h3>
                 <div class="space-y-4">
-                  <template x-for="proj in projects" :key="proj.id">
+                  <template x-for="proj in displayProjects" :key="proj.id">
                     <div class="p-3.5 bg-gray-50/70 rounded-xl border border-gray-100 text-[13px] space-y-1">
                       <div class="flex items-center justify-between font-bold text-gray-900">
                         <span x-text="proj.title"></span>
@@ -561,12 +562,21 @@ function generateCvComponent() {
   const layoutParam = params.get("format");
   const isApplicant = Boolean(applicantParam);
 
-  let activeProfile = JSON.parse(JSON.stringify(INITIAL_PROFILE));
-  let edus = INITIAL_EDUCATIONS;
-  let orgs = INITIAL_ORGANIZATIONS;
-  let projs = INITIAL_PROJECTS;
-  let skillsList = INITIAL_SKILLS;
-  let certs = INITIAL_CERTIFICATIONS;
+  let activeProfile = typeof INITIAL_PROFILE !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_PROFILE)) : {
+    name: "Aisha Dwi Rahmawati",
+    headline: "Mobile & Full-Stack Developer",
+    email: "aisha.rahma@alumni.dinus.ac.id",
+    location: "Semarang, Jawa Tengah, Indonesia",
+    about: "Lulusan S1 Teknik Informatika UDINUS dengan ketertarikan tinggi pada arsitektur sistem terdistribusi, mobile application (Flutter / React Native), dan modern web frontend.",
+    linkedin: "https://linkedin.com/in/aishadwirahma",
+    github: "https://github.com/aishaadr"
+  };
+
+  let edus = typeof INITIAL_EDUCATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_EDUCATIONS)) : [];
+  let orgs = typeof INITIAL_ORGANIZATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_ORGANIZATIONS)) : [];
+  let projs = typeof loadStoredProjects === "function" ? loadStoredProjects() : (typeof INITIAL_PROJECTS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_PROJECTS)) : []);
+  let skillsList = typeof INITIAL_SKILLS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_SKILLS)) : [];
+  let certs = typeof INITIAL_CERTIFICATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_CERTIFICATIONS)) : [];
 
   if (isApplicant) {
     const rawName = decodeURIComponent(applicantParam).trim();
@@ -581,6 +591,8 @@ function generateCvComponent() {
         about: "Backend Engineer lulusan S1 Teknik Informatika Universitas Dian Nuswantoro. Berpengalaman mendesain arsitektur microservices, optimasi query database PostgreSQL, integrasi REST API, dan containerization dengan Docker di lingkungan cloud.",
         linkedin: "https://linkedin.com/in/yogakurniawan",
         github: "https://github.com/yogakurniawan",
+        university: "Universitas Dian Nuswantoro",
+        batch: "2023"
       };
       edus = [
         {
@@ -625,8 +637,18 @@ function generateCvComponent() {
         { id: 5, name: "Redis Caching" },
         { id: 6, name: "Git & CI/CD" },
       ];
+      certs = [
+        {
+          id: 1,
+          name: "AWS Certified Solutions Architect",
+          issuer: "Amazon Web Services",
+          date: "Nov 2023",
+          credId: "AWS-SAA-884920"
+        }
+      ];
     } else {
-      const found = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).find(
+      const dir = typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : [];
+      const found = dir.find(
         (a) => a.name.toLowerCase() === rawName.toLowerCase() || a.id.toLowerCase() === rawName.toLowerCase()
       );
       if (found) {
@@ -635,9 +657,11 @@ function generateCvComponent() {
           headline: found.headline,
           email: found.email || `${found.name.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
           location: found.location || "Semarang, Jawa Tengah, Indonesia",
-          about: found.about || `Alumni Asisten Lab Bengkel Koding UDINUS Batch ${found.batch || "2024"}.`,
+          about: found.about || `Alumni Asisten Lab Bengkel Koding UDINUS Batch ${found.batch || "2024"}. Berpengalaman mengembangkan sistem perangkat lunak modern dan kolaboratif.`,
           linkedin: found.linkedin || `https://linkedin.com/in/${found.name.toLowerCase().replace(/\s+/g, '-')}`,
           github: found.github || `https://github.com/${found.name.toLowerCase().replace(/\s+/g, '')}`,
+          university: "Universitas Dian Nuswantoro",
+          batch: found.batch || "2024"
         };
       } else {
         activeProfile = {
@@ -648,13 +672,15 @@ function generateCvComponent() {
           about: "Alumni Asisten Lab Bengkel Koding Universitas Dian Nuswantoro.",
           linkedin: `https://linkedin.com/in/${rawName.toLowerCase().replace(/\s+/g, '-')}`,
           github: `https://github.com/${rawName.toLowerCase().replace(/\s+/g, '')}`,
+          university: "Universitas Dian Nuswantoro",
+          batch: "2024"
         };
       }
     }
   } else {
     // Ambil data profil dari localStorage jika pernah diedit di profil.html, atau fallback ke INITIAL_PROFILE
     try {
-      const saved = localStorage.getItem("bengkod_profile_v1");
+      const saved = localStorage.getItem("bengkod_alumni_profile") || localStorage.getItem("bengkod_profile_v1");
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed && parsed.name) {
@@ -687,6 +713,13 @@ function generateCvComponent() {
       certifications: true
     },
 
+    get displayProjects() {
+      if (!this.includeGigs) {
+        return this.projects.filter(p => !p.isGig && !p.id_gig && !(p.tags && p.tags.includes('Bengkod Gigs')));
+      }
+      return this.projects;
+    },
+
     get activeSectionsCount() {
       return Object.values(this.sections).filter(Boolean).length;
     },
@@ -711,6 +744,14 @@ function generateCvComponent() {
     }
   };
 }
+
+// Make sure it is globally exposed and registered with Alpine
+window.generateCvComponent = generateCvComponent;
+document.addEventListener("alpine:init", () => {
+  if (typeof Alpine !== "undefined" && typeof Alpine.data === "function") {
+    Alpine.data("generateCvComponent", generateCvComponent);
+  }
+});
 </script>
 </body>
 </html>

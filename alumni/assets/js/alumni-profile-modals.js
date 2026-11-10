@@ -79,6 +79,10 @@ function defaultFooter(close, submitDisabled = "") {
   return `<button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" ${submitDisabled ? `:disabled="${submitDisabled}"` : ""} class="${submitDisabled ? PC.btnPrimaryDis : PC.btnPrimary}">Simpan</button>`;
 }
 
+function editListFooter(close, removeAction = "removeSelected()", removeDisabled = "", submitDisabled = "") {
+  return `<button type="button" @click="${removeAction}" ${removeDisabled ? `:disabled="${removeDisabled}"` : ""} class="mr-auto px-5 py-2.5 rounded-full border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[14px] font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Hapus perubahan</button><button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" ${submitDisabled ? `:disabled="${submitDisabled}"` : ""} class="${submitDisabled ? PC.btnPrimaryDis : PC.btnPrimary}">Simpan</button>`;
+}
+
 function labelRow({ forId, label, required = false, star = '<span class="text-red-500">*</span>', err }) {
   return `<div class="flex items-center justify-between"><label ${forId ? `for="${forId}"` : ""} class="block text-[14px] font-medium text-gray-700">${label}${required ? ` ${star}` : ""}</label>
     ${err ? `<template x-if="${err}"><span class="text-[12px] text-red-600 font-medium" x-text="${err}"></span></template>` : ""}
@@ -437,6 +441,10 @@ document.addEventListener("alpine:init", () => {
       }
       this.$dispatch("skill-delete", s.id);
     },
+    removeSelected() {
+      const s = this.list.find((x) => x.id === this.selectedId);
+      if (s) this.deleteSkill(s);
+    },
     submit() {
       if (this.form && this.selectedId) {
         const err = this.validate(this.form, this.selectedId, this.list);
@@ -788,6 +796,12 @@ document.addEventListener("alpine:init", () => {
         this.submitted = false;
       }
     },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus penghargaan ini dari profil Anda?")) return;
+        this.removeHonor(this.selectedId);
+      }
+    },
     rowSubtitle(h) {
       if (h.id === this.selectedId && this.form) {
         const f = this.form;
@@ -922,6 +936,12 @@ document.addEventListener("alpine:init", () => {
         this.submitted = false;
       }
     },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus organisasi ini dari profil Anda?")) return;
+        this.removeOrg(this.selectedId);
+      }
+    },
     rowStart(org) {
       const src = org.id === this.selectedId && this.form ? this.form : org;
       return [src.startMonth, src.startYear].filter(Boolean).join(" ");
@@ -1054,6 +1074,12 @@ document.addEventListener("alpine:init", () => {
         this.form = fallback ? eduToDraft(fallback) : null;
         this.touched = {};
         this.submitted = false;
+      }
+    },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus riwayat pendidikan ini dari profil Anda?")) return;
+        this.removeEdu(this.selectedId);
       }
     },
     rowStart(e) {
@@ -1262,7 +1288,8 @@ document.addEventListener("alpine:init", () => {
     removeSelected() {
       if (this.selectedId === null) return;
       if (!confirm("Hapus proyek ini dari profil Anda?")) return;
-      this.$dispatch("projects-save", this.draftList.filter((p) => p.id !== this.selectedId));
+      this.removeProject(this.selectedId);
+      this.$dispatch("projects-save", this.draftList);
     },
     removeProject(id) {
       const next = this.draftList.filter((p) => p.id !== id);
@@ -1376,6 +1403,12 @@ document.addEventListener("alpine:init", () => {
         this.form = fallback ? certToDraft(fallback) : null;
         this.touched = {};
         this.submitted = false;
+      }
+    },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus sertifikasi ini dari profil Anda?")) return;
+        this.removeCert(this.selectedId);
       }
     },
     buildUpdated(c) {
@@ -1609,7 +1642,8 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
         ${profileFieldHTML({ label: "NIM Mahasiswa", forId: "ep-nim", err: "showErr('nim')", body: `<input id="ep-nim" type="text" autocomplete="off" x-model="draft.nim" placeholder="Contoh: A11.2020.12345" ${inputCls("nim")}>` })}
-        ${profileFieldHTML({ label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
+        ${profileFieldHTML({
+    label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
           <option value="">Pilih tahun lulus</option>
           <template x-for="y in gradYearOptions" :key="y"><option :value="y" :selected="y === draft.gradYear" x-text="y"></option></template>
         </select>` })}
@@ -1786,16 +1820,16 @@ ALUMNI_PARTIALS["modal-add-skills"] = () => {
 ALUMNI_PARTIALS["modal-edit-skill"] = () => {
   const close = "editSkillOpen = false";
   const body = `<template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada keahlian untuk diedit.</p></template><template x-if="list.length > 0"><div class="space-y-5"><div><p class="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">Pilih keahlian yang ingin diedit</p><div class="space-y-1.5"><template x-for="(s, idx) in list" :key="s.id"><div class="${PC.listRow}" :class="s.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectSkill(s)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><span class="w-6 h-6 rounded-full text-[12px] font-semibold flex items-center justify-center flex-shrink-0"
-                  :class="s.id === selectedId ? 'bg-[#1E3A8A] text-white' : 'bg-white border border-gray-300 text-gray-500'" x-text="idx + 1"></span><span class="min-w-0 flex-1"><span class="block text-[14px] font-medium truncate text-gray-900" x-text="s.id === selectedId && form ? form.name || s.name : s.name"></span><span class="block text-[12px] text-gray-500 truncate" x-text="s.id === selectedId && form ? form.level : s.level || DEFAULT_SKILL_LEVEL"></span></span><template x-if="countLinks(s) > 0"><span class="flex items-center gap-1 text-[12px] text-gray-400 flex-shrink-0 mr-2">${PI.folder("w-3.5 h-3.5")}<span x-text="countLinks(s)"></span></span></template><template x-if="s.id === selectedId"><span class="flex-shrink-0 mr-1"><svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span></template></button><button type="button" @click="deleteSkill(s)" class="${PC.listTrash}" title="Hapus keahlian">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="rounded-xl border border-gray-200 bg-white overflow-hidden"><div class="px-4 pt-4 pb-0"><p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detail keahlian terpilih</p></div><div class="px-4 pt-3 pb-5 space-y-5">
+                  :class="s.id === selectedId ? 'bg-[#1E3A8A] text-white' : 'bg-white border border-gray-300 text-gray-500'" x-text="idx + 1"></span><span class="min-w-0 flex-1"><span class="block text-[14px] font-medium truncate text-gray-900" x-text="s.id === selectedId && form ? form.name || s.name : s.name"></span><span class="block text-[12px] text-gray-500 truncate" x-text="s.id === selectedId && form ? form.level : s.level || DEFAULT_SKILL_LEVEL"></span></span><template x-if="countLinks(s) > 0"><span class="flex items-center gap-1 text-[12px] text-gray-400 flex-shrink-0 mr-2">${PI.folder("w-3.5 h-3.5")}<span x-text="countLinks(s)"></span></span></template><template x-if="s.id === selectedId"><span class="flex-shrink-0 mr-1"><svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span></template></button></div></template></div></div><template x-if="form"><div class="rounded-xl border border-gray-200 bg-white overflow-hidden"><div class="px-4 pt-4 pb-0"><p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detail keahlian terpilih</p></div><div class="px-4 pt-3 pb-5 space-y-5">
             ${skillFieldHTML({
-              label: "Nama keahlian",
-              forId: "'edit-skill-name'",
-              required: true,
-              error: "error",
-              body: `<input id="edit-skill-name" type="text" autocomplete="off" x-model="form.name" @input="if (error) error = ''" placeholder="Nama keahlian"
+    label: "Nama keahlian",
+    forId: "'edit-skill-name'",
+    required: true,
+    error: "error",
+    body: `<input id="edit-skill-name" type="text" autocomplete="off" x-model="form.name" @input="if (error) error = ''" placeholder="Nama keahlian"
                 class="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"
                 :class="error ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20'">`,
-            })}
+  })}
             ${skillFieldHTML({ label: "Tingkat keahlian", body: levelSelectorHTML("form.level") })}
             ${skillFieldHTML({ label: "Terkait dengan", hint: "Item yang dipilih akan muncul di bawah nama keahlian ini.", body: skillLinkChecklistHTML("form.links", "'edit-' + selectedId") })}
           </div></div></template></div></template>`;
@@ -1808,7 +1842,7 @@ ALUMNI_PARTIALS["modal-edit-skill"] = () => {
     description: "Pilih keahlian yang ingin diperbarui. Ubah tingkat atau item terkait, lalu simpan.",
     xdata: "editSkillModal",
     body,
-    footer: `<button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" :disabled="list.length === 0" class="${PC.btnPrimaryDis}">Simpan</button>`,
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
@@ -1867,7 +1901,7 @@ ALUMNI_PARTIALS["modal-edit-honors"] = () => {
   </p><template x-if="draftList.length === 0"><div class="py-8 text-center"><p class="text-[14px] text-gray-500 italic mb-4">Belum ada penghargaan. Tambahkan yang pertama.</p><button type="button" @click="addNew()" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">
         ${PI.plus("w-4 h-4")}
         Tambah penghargaan
-      </button></div></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Penghargaan Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(h, idx) in draftList" :key="h.id"><div class="${PC.listRow}" :class="h.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectHonor(h)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="h.id === selectedId && form ? (form.title || 'Penghargaan baru') : (h.title || 'Penghargaan baru')"></p><p class="text-[12px] text-gray-500 truncate" x-text="rowSubtitle(h)"></p></div><template x-if="h.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeHonor(h.id)" class="${PC.listTrash}" title="Hapus penghargaan">${PI.trash()}</button></div></template></div><button type="button" @click="addNew()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 text-[13px] font-semibold text-gray-600 hover:bg-gray-50 hover:border-[#1E3A8A]/40 hover:text-[#1E3A8A] transition-colors cursor-pointer">
+      </button></div></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Penghargaan Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(h, idx) in draftList" :key="h.id"><div class="${PC.listRow}" :class="h.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectHonor(h)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="h.id === selectedId && form ? (form.title || 'Penghargaan baru') : (h.title || 'Penghargaan baru')"></p><p class="text-[12px] text-gray-500 truncate" x-text="rowSubtitle(h)"></p></div><template x-if="h.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div><button type="button" @click="addNew()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 text-[13px] font-semibold text-gray-600 hover:bg-gray-50 hover:border-[#1E3A8A]/40 hover:text-[#1E3A8A] transition-colors cursor-pointer">
           ${PI.plus("w-3.5 h-3.5")}
           Tambah penghargaan baru
         </button></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail penghargaan terpilih</h3>${detailForm}</div></template></div></template>`;
@@ -1883,7 +1917,7 @@ ALUMNI_PARTIALS["modal-edit-honors"] = () => {
     headerShrink: false,
     footerShrink: false,
     body,
-    footer: defaultFooter(close, "draftList.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "draftList.length === 0", "draftList.length === 0"),
   });
 };
 
@@ -1924,7 +1958,7 @@ ALUMNI_PARTIALS["modal-edit-org"] = () => {
   const close = "editOrgOpen = false";
   const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
     Pilih organisasi yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus organisasi dari daftar.
-  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada organisasi untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Organisasi Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(org, idx) in list" :key="org.id"><div class="${PC.listRow}" :class="org.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectOrg(org)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="org.id === selectedId && form ? (form.name || org.name) : org.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="org.id === selectedId && form ? (form.role || org.role) : org.role"></span><template x-if="rowStart(org)"><span class="ml-1" x-text="'· ' + rowStart(org)"></span></template></p></div><template x-if="org.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeOrg(org.id)" class="${PC.listTrash}" title="Hapus organisasi">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail organisasi terpilih</h3>${orgFieldsHTML("edit", "orgEditName")}</div></template></div></template>`;
+  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada organisasi untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Organisasi Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(org, idx) in list" :key="org.id"><div class="${PC.listRow}" :class="org.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectOrg(org)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="org.id === selectedId && form ? (form.name || org.name) : org.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="org.id === selectedId && form ? (form.role || org.role) : org.role"></span><template x-if="rowStart(org)"><span class="ml-1" x-text="'· ' + rowStart(org)"></span></template></p></div><template x-if="org.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail organisasi terpilih</h3>${orgFieldsHTML("edit", "orgEditName")}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editOrgOpen",
@@ -1934,7 +1968,7 @@ ALUMNI_PARTIALS["modal-edit-org"] = () => {
     title: "Edit organisasi",
     titleId: "edit-org-title",
     body,
-    footer: defaultFooter(close, "list.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
@@ -1979,7 +2013,7 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
   const close = "editEducationOpen = false";
   const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
     Pilih pendidikan yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus pendidikan dari daftar.
-  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada pendidikan untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Pendidikan Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(e, idx) in list" :key="e.id"><div class="${PC.listRow}" :class="e.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectEdu(e)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="e.id === selectedId && form ? (form.name || e.name) : e.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="e.id === selectedId && form ? (form.major || e.major) : e.major"></span><template x-if="rowStart(e)"><span class="ml-1" x-text="'· ' + rowStart(e)"></span></template></p></div><template x-if="e.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeEdu(e.id)" class="${PC.listTrash}" title="Hapus pendidikan">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail pendidikan terpilih</h3>${eduFieldsHTML(true)}</div></template></div></template>`;
+  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada pendidikan untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Pendidikan Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(e, idx) in list" :key="e.id"><div class="${PC.listRow}" :class="e.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectEdu(e)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="e.id === selectedId && form ? (form.name || e.name) : e.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="e.id === selectedId && form ? (form.major || e.major) : e.major"></span><template x-if="rowStart(e)"><span class="ml-1" x-text="'· ' + rowStart(e)"></span></template></p></div><template x-if="e.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail pendidikan terpilih</h3>${eduFieldsHTML(true)}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editEducationOpen",
@@ -1989,7 +2023,7 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
     title: "Edit pendidikan",
     titleId: "edit-edu-title",
     body,
-    footer: defaultFooter(close, "list.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
@@ -2047,119 +2081,10 @@ function projectFieldsHTML(edit) {
       ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
     </div>
 
-    <!-- 1. Logo / Ikon Aplikasi (Rasio 1:1 Squircle - Murni Unggah Berkas) -->
-    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
-      <div class="flex items-center justify-between">
-        <label class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi</label>
-        <span class="text-[11px] text-gray-500">Ikon di kartu feed &amp; sidebar showcase</span>
-      </div>
-      <div class="flex items-center gap-4">
-        <!-- Squircle Preview Box (Bisa Diklik Langsung) -->
-        <div
-          @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
-          class="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs cursor-pointer transition-colors group relative"
-          title="Klik untuk memilih logo"
-        >
-          <template x-if="form.logoUrl">
-            <img :src="form.logoUrl" alt="Logo preview" class="w-full h-full object-cover">
-          </template>
-          <template x-if="!form.logoUrl">
-            <div class="flex flex-col items-center justify-center text-gray-400 group-hover:text-[#1E3A8A] transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                <circle cx="8.5" cy="8.5" r="1.5"/>
-                <polyline points="21 15 16 10 5 21"/>
-              </svg>
-              <span class="text-[10px] font-bold mt-0.5">Logo</span>
-            </div>
-          </template>
-        </div>
-
-        <div class="flex-1 min-w-0 space-y-1.5">
-          <div class="flex items-center gap-2">
-            <button
-              type="button"
-              @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
-              class="h-[38px] px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="17 8 12 3 7 8"/>
-                <line x1="12" y1="3" x2="12" y2="15"/>
-              </svg>
-              <span x-text="form.logoUrl ? 'Ganti Logo' : 'Pilih Logo Aplikasi'"></span>
-            </button>
-
-            <template x-if="form.logoUrl">
-              <button
-                type="button"
-                @click="form.logoUrl = ''"
-                class="h-[38px] px-3 rounded-lg text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-              >
-                Hapus
-              </button>
-            </template>
-          </div>
-          <p class="text-[12px] text-gray-500">Format PNG, JPG, atau WEBP. Otomatis menggunakan monogram inisial jika tidak diunggah.</p>
-        </div>
-      </div>
-      <input x-ref="${edit ? "editLogoFile" : "logoFile"}" type="file" accept="image/*" class="hidden" @change="onPickLogo($event)">
-    </div>
-
-    <!-- 2. Banner / Screenshot UI Aplikasi (Rasio 16:9 Memanjang - Murni Unggah Berkas) -->
-    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
-      <div class="flex items-center justify-between">
-        <label class="block text-[14px] font-semibold text-gray-800">Banner</label>
-        <span class="text-[11px] text-gray-500">Tampilan utama di halaman detail proyek</span>
-      </div>
-
-      <!-- Jika sudah ada banner terunggah -->
-      <template x-if="form.bannerUrl">
-        <div class="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] max-h-56 group shadow-2xs">
-          <img :src="form.bannerUrl" alt="Banner preview" class="w-full h-full object-cover">
-          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-            <button
-              type="button"
-              @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
-              class="px-3.5 py-1.5 rounded-lg bg-white/95 text-gray-900 text-xs font-semibold hover:bg-white transition-colors cursor-pointer shadow-sm"
-            >
-              Ganti Gambar
-            </button>
-            <button
-              type="button"
-              @click="form.bannerUrl = ''"
-              class="px-3.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
-            >
-              Hapus
-            </button>
-          </div>
-        </div>
-      </template>
-
-      <!-- Jika belum ada banner: Area Upload Bersih -->
-      <template x-if="!form.bannerUrl">
-        <div
-          @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
-          class="border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] rounded-xl p-6 text-center cursor-pointer transition-colors bg-white hover:bg-blue-50/20 group space-y-2"
-        >
-          <div class="w-10 h-10 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="17 8 12 3 7 8"/>
-              <line x1="12" y1="3" x2="12" y2="15"/>
-            </svg>
-          </div>
-          <div>
-            <p class="text-[13px] font-semibold text-gray-800 group-hover:text-[#1E3A8A] transition-colors">
-              Klik untuk mengunggah tangkapan layar antarmuka aplikasi
-            </p>
-            <p class="text-[11px] text-gray-400 mt-0.5">Mendukung format PNG, JPG, atau WEBP (Rasio 16:9 disarankan)</p>
-          </div>
-        </div>
-      </template>
-
-      <input x-ref="${edit ? "editBannerFile" : "bannerFile"}" type="file" accept="image/*" class="hidden" @change="onPickBanner($event)">
-      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium mt-1" x-text="showErr('media')"></p></template>
+    <!-- Media -->
+    <div class="sm:col-span-2 space-y-1.5">
+      ${mediaPickerHTML({ model: "form.media", label: "Media" })}
+      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template>
     </div>
   </div>`;
 }
@@ -2185,9 +2110,9 @@ ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
 
 ALUMNI_PARTIALS["modal-edit-project"] = () => {
   const close = "editProjectOpen = false";
-  // Edit satu proyek dari tombol Edit di kartunya; form sama dengan Tambah Proyek / Karya
-  const body = `<template x-if="form">${projectFieldsHTML(true)}</template>`;
-  const footer = `<button type="button" @click="removeSelected()" class="mr-auto px-4 py-2.5 rounded-full text-red-600 font-semibold text-[14.5px] hover:bg-red-50 transition-colors cursor-pointer">Hapus proyek</button>${defaultFooter(close)}`;
+  const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
+    Pilih proyek yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus proyek dari daftar.
+  </p><template x-if="draftList.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada proyek untuk diedit.</p></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Proyek Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(p, idx) in draftList" :key="p.id"><div class="${PC.listRow}" :class="p.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectProject(p)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="p.title"></p><p class="text-[12px] text-gray-500 truncate" x-text="p.period"></p></div><template x-if="p.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail proyek terpilih</h3>${projectFieldsHTML(true)}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editProjectOpen",
@@ -2195,12 +2120,12 @@ ALUMNI_PARTIALS["modal-edit-project"] = () => {
     formId: "modalEditProjectForm",
     labelledby: "edit-project-title",
     xdata: "editProjectModal",
-    title: "Edit Proyek / Karya",
+    title: "Edit proyek",
     titleId: "edit-project-title",
     headerShrink: false,
     footerShrink: false,
     body,
-    footer,
+    footer: editListFooter(close, "removeSelected()", "draftList.length === 0", "draftList.length === 0"),
   });
 };
 
@@ -2243,7 +2168,7 @@ ALUMNI_PARTIALS["modal-edit-cert"] = () => {
   const close = "editCertificationOpen = false";
   const body = `<p class="text-[14px] text-gray-500 leading-relaxed">
     Pilih sertifikasi yang ingin diperbarui dari daftar di bawah, ubah informasinya, lalu simpan perubahan.
-  </p><div class="border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Daftar Sertifikasi (' + list.length + ')'"></h3><template x-if="list.length === 0"><p class="text-[14px] text-gray-400 italic py-3 text-center">Belum ada sertifikasi.</p></template><template x-if="list.length > 0"><div class="space-y-2"><template x-for="(c, idx) in list" :key="c.id"><div class="${PC.listRow}" :class="c.id === selectedId ? 'border-blue-300 bg-blue-50/70' : 'border-gray-200 bg-gray-50/70 hover:bg-gray-100/70'"><button type="button" @click="selectCert(c)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="c.name"></p><p class="text-[12px] text-gray-500 truncate" x-text="c.issuer + ' • ' + c.date"></p></div><template x-if="c.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeCert(c.id)" class="${PC.listTrash}" title="Hapus sertifikasi">${PI.trash()}</button></div></template></div></template></div><template x-if="form"><div class="space-y-4 pt-1"><div><h3 class="text-[15px] font-semibold text-gray-900">Detail sertifikasi terpilih</h3></div>${certFieldsHTML(true)}</div></template>`;
+  </p><div class="border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Daftar Sertifikasi (' + list.length + ')'"></h3><template x-if="list.length === 0"><p class="text-[14px] text-gray-400 italic py-3 text-center">Belum ada sertifikasi.</p></template><template x-if="list.length > 0"><div class="space-y-2"><template x-for="(c, idx) in list" :key="c.id"><div class="${PC.listRow}" :class="c.id === selectedId ? 'border-blue-300 bg-blue-50/70' : 'border-gray-200 bg-gray-50/70 hover:bg-gray-100/70'"><button type="button" @click="selectCert(c)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="c.name"></p><p class="text-[12px] text-gray-500 truncate" x-text="c.issuer + ' • ' + c.date"></p></div><template x-if="c.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></template></div><template x-if="form"><div class="space-y-4 pt-1"><div><h3 class="text-[15px] font-semibold text-gray-900">Detail sertifikasi terpilih</h3></div>${certFieldsHTML(true)}</div></template>`;
 
   return formModalHTML({
     open: "editCertificationOpen",
@@ -2253,7 +2178,6 @@ ALUMNI_PARTIALS["modal-edit-cert"] = () => {
     title: "Edit lisensi &amp; sertifikasi",
     titleId: "edit-cert-title",
     body,
-    footerCls: "border-t border-gray-200 px-6 sm:px-8 py-4 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0",
-    footer: `<button type="button" @click="${close}" class="px-5 py-2.5 rounded-full border border-gray-300 text-gray-700 font-semibold text-[14.5px] hover:bg-gray-100 transition-colors cursor-pointer">Batal</button><button type="submit" class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[14.5px] shadow-sm transition-colors cursor-pointer">Simpan</button>`,
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };

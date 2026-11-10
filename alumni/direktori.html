@@ -3,245 +3,212 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Direktori Alumni | Bengkel Koding UDINUS</title>
+  <title>Direktori Rekan Alumni | Bengkel Koding UDINUS</title>
   <meta name="description" content="Pencarian dan jejaring sesama rekan alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
-  <script src="../assets/js/store.js"></script>
 </head>
 <body>
+<!-- Direktori Rekan Alumni Bengkel Koding UDINUS -->
+<!-- Desain 100% persis Informasi Mitra pada menu Mitra dengan tombol oval outline seperti Gambar 1 -->
 <main data-route="direktori">
-  <div x-data="direktoriPage" class="w-full space-y-6 py-2 antialiased">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-gray-200">
+  <div x-data="direktoriPage" class="w-full flex flex-col gap-6 py-2 pb-12 antialiased">
+    
+    <!-- Toast Notifikasi Ringkas -->
+    <template x-if="toast">
+      <div role="status" class="fixed bottom-6 right-6 z-[90] inline-flex items-center gap-2.5 h-12 px-6 rounded-full bg-gray-900 text-white text-[14px] font-semibold shadow-xl animate-fade-in">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <span x-text="toast"></span>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        HEADER DIREKTORI ALUMNI (100% PERSIS INFORMASI MITRA)
+    ============================================================ -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Direktori Rekan Alumni</h1>
-        <p class="text-sm text-gray-500 mt-0.5">
-          Cari dan perluas jejaring profesional sesama asisten dan alumni laboratorium Bengkel Koding
+        <h1 class="text-[28px] sm:text-[32px] font-bold text-gray-900 tracking-tight">
+          Direktori Rekan Alumni
+        </h1>
+        <p class="text-[15px] text-gray-500 mt-1 font-normal">
+          Jejaring sesama rekan alumni dan asisten laboratorium Bengkel Koding UDINUS.
         </p>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-200">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-          <span x-text="alumniList.length + ' Alumni Terdaftar'"></span>
-        </span>
+
+      <!-- ============================================================
+          PENCARIAN (KATA KUNCI & LOKASI) — PERSIS 100% MITRA
+      ============================================================ -->
+      <div class="mt-6 pt-5 border-t border-gray-100">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <!-- Input Kata Kunci (Col 1-6) -->
+          <div class="md:col-span-6 relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Cari nama alumni, peran, bidang keahlian, atau deskripsi..."
+              x-model="searchKeyword"
+              class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors shadow-2xs"
+            >
+          </div>
+
+          <!-- Input Kota (Col 7-10) -->
+          <div class="md:col-span-4 relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              <circle cx="12" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Kota lokasi (Semarang, Jakarta, Kudus...)"
+              x-model="searchLocation"
+              class="w-full pl-11 pr-4 py-2.5 bg-white border border-gray-200 rounded-full text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 transition-colors shadow-2xs"
+            >
+          </div>
+
+          <!-- Reset Filter Button (Col 11-12) -->
+          <div class="md:col-span-2">
+            <button
+              type="button"
+              @click="searchKeyword = ''; searchLocation = '';"
+              class="w-full py-2.5 px-4 border border-gray-200 hover:border-gray-300 rounded-full text-[14px] font-semibold text-gray-600 hover:text-[#1E3A8A] bg-white transition-colors cursor-pointer text-center shadow-2xs"
+            >
+              Reset Filter
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Filter & Pencarian -->
-    <div class="space-y-3">
-      <div class="relative">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-        </span>
-        <input
-          type="search"
-          x-model="searchQuery"
-          placeholder="Cari nama, peran, atau keahlian"
-          aria-label="Cari alumni"
-          class="w-full h-11 pl-11 pr-4 rounded-full border border-gray-200 bg-white text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
-        >
-      </div>
-
-      <!-- Ponsel: satu baris yang bisa digeser; desktop: membungkus -->
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 sm:flex-wrap sm:overflow-visible">
-        <div class="relative shrink-0">
-          <label for="filter-batch" class="sr-only">Angkatan</label>
-          <select
-            id="filter-batch"
-            x-model="selectedBatch"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedBatch ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua angkatan</option>
-              <option value="2022">Angkatan 2022</option>
-              <option value="2023">Angkatan 2023</option>
-              <option value="2024">Angkatan 2024</option>
-              <option value="2025">Angkatan 2025</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedBatch ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
-        </div>
-        <div class="relative shrink-0">
-          <label for="filter-skill" class="sr-only">Keahlian utama</label>
-          <select
-            id="filter-skill"
-            x-model="selectedSkill"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedSkill ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua keahlian</option>
-              <option value="react">React / Frontend</option>
-              <option value="laravel">Laravel / PHP</option>
-              <option value="flutter">Flutter / Mobile</option>
-              <option value="data">Data Science / ML</option>
-              <option value="ui/ux">UI/UX Design</option>
-              <option value="security">Cybersecurity</option>
-              <option value="golang">Golang / Cloud</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedSkill ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
-        </div>
-        <div class="relative shrink-0">
-          <label for="filter-city" class="sr-only">Kota domisili</label>
-          <select
-            id="filter-city"
-            x-model="selectedCity"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedCity ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua kota</option>
-              <option value="Semarang">Semarang</option>
-              <option value="Jakarta">Jakarta</option>
-              <option value="Kudus">Kudus</option>
-              <option value="Magelang">Magelang</option>
-              <option value="Salatiga">Salatiga</option>
-              <option value="Tangerang">Tangerang</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedCity ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
-        </div>
-
-        <!-- Toggle Studi Lanjut S2 -->
-        <button
-          type="button"
-          @click="filterS2Only = !filterS2Only"
-          :aria-pressed="filterS2Only.toString()"
-          class="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-full border text-sm font-medium whitespace-nowrap transition-colors cursor-pointer"
-          :class="filterS2Only ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
-          <span>Studi lanjut S2</span>
-        </button>
-      </div>
+    <!-- ============================================================
+        DAFTAR KARTU ALUMNI (100% PERSIS INFORMASI MITRA KEMARIN)
+    ============================================================ -->
+    <div class="px-1 text-[14px] font-normal text-gray-500">
+      <span>Menampilkan <span x-text="filteredAlumni.length"></span> rekan alumni</span>
     </div>
 
-    <!-- Status Hasil -->
-    <div class="flex items-center justify-between text-xs text-gray-500 px-1">
-      <span x-text="'Menampilkan ' + filteredAlumni.length + ' dari ' + alumniList.length + ' rekan alumni'"></span>
+    <!-- Grid Kartu Alumni (Horizontal: Foto Profil di kiri, detail dan tombol di kanan mengikuti kolom teks tanpa garis pembatas) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-show="filteredAlumni.length > 0">
+      <template x-for="alumni in filteredAlumni" :key="alumni.id">
+        <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-200 hover:shadow-md transition-all duration-200 p-6 flex flex-col justify-between group">
+          
+          <div class="flex items-start gap-4 sm:gap-5 h-full">
+            <!-- Foto Profil / Avatar Alumni (Di Samping Kiri) -->
+            <div class="shrink-0">
+              <template x-if="alumni.avatarUrl">
+                <img :src="alumni.avatarUrl" :alt="alumni.name"
+                  class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover bg-white p-1 border border-gray-200 shadow-2xs">
+              </template>
+              <template x-if="!alumni.avatarUrl">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] text-white font-extrabold text-base sm:text-lg flex items-center justify-center border border-gray-200 shadow-2xs tracking-wider"
+                  x-text="(alumni.name || 'Alumni').substring(0, 2).toUpperCase()">
+                </div>
+              </template>
+            </div>
+
+            <!-- Informasi di Samping Kanan (Nama -> Bidang -> Alamat -> Deskripsi -> Tombol di Bawahnya) -->
+            <div class="flex-1 min-w-0 flex flex-col justify-between h-full space-y-3">
+              <div class="space-y-1.5">
+                <!-- 1. Nama Alumni (Bold 18px) -->
+                <h3 class="text-[18px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">
+                  <a :href="'detail.html?id=' + encodeURIComponent(alumni.id)" x-text="alumni.name"></a>
+                </h3>
+
+                <!-- 2. Posisi / Profesi / Bidang (Font 15px Medium Warna Biru) -->
+                <p class="text-[15px] font-medium text-[#1E3A8A]" x-text="alumni.headline || alumni.jobTitle || 'Alumni Bengkel Koding'"></p>
+
+                <!-- 3. Alamat / Domisili (Font 14px Text-Gray-500) -->
+                <p class="text-[14px] text-gray-500 flex items-start gap-1.5 pt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 shrink-0 mt-0.5">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                  </svg>
+                  <span class="leading-relaxed" x-text="alumni.location || alumni.city || 'Semarang, Jawa Tengah'"></span>
+                </p>
+
+                <!-- 4. Deskripsi (Font 15px Leading Relaxed) -->
+                <p class="text-[14px] sm:text-[15px] text-gray-600 pt-1 line-clamp-3 leading-relaxed font-normal"
+                  x-text="alumni.about || alumni.headline || 'Alumni berdedikasi dari ekosistem Bengkel Koding Universitas Dian Nuswantoro.'">
+                </p>
+              </div>
+
+              <!-- Tombol Aksi Tepat di Bawah Deskripsi: Ukuran Compact & Proporsional UI/UX -->
+              <div class="pt-2">
+                <a
+                  :href="'detail.html?id=' + encodeURIComponent(alumni.id)"
+                  class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 hover:border-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
+                >
+                  Lihat Profil Alumni
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </template>
+    </div>
+
+    <!-- State Kosong jika Tidak Ada Hasil Filter -->
+    <div x-show="filteredAlumni.length === 0" class="bg-white rounded-xl border border-gray-200/90 p-12 text-center shadow-sm">
+      <div class="w-16 h-16 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      <h3 class="font-bold text-gray-900 text-[18px]">Tidak Ada Rekan Alumni Ditemukan</h3>
+      <p class="text-[14px] text-gray-500 max-w-md mx-auto mt-1 leading-relaxed">
+        Alumni yang Anda cari dengan kata kunci "<span class="font-semibold text-gray-700" x-text="searchKeyword || searchLocation"></span>" tidak ditemukan dalam direktori.
+      </p>
       <button
         type="button"
-        @click="resetFilter()"
-        x-show="searchQuery || selectedBatch || selectedSkill || selectedCity || filterS2Only"
-        class="text-[#1E3A8A] hover:underline font-semibold cursor-pointer"
+        @click="searchKeyword = ''; searchLocation = '';"
+        class="mt-5 px-6 py-2.5 rounded-full border border-[#1E3A8A] text-[#1E3A8A] hover:bg-[#1E3A8A] hover:text-white text-[14px] font-bold transition-colors cursor-pointer shadow-xs"
       >
-        Reset Semua Filter
+        Tampilkan Semua Alumni
       </button>
     </div>
 
-    <!-- Grid Card Alumni -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <template x-if="filteredAlumni.length === 0">
-        <div class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
-          Tidak ada alumni yang sesuai kriteria pencarian. Coba ubah kata kunci atau reset filter.
-        </div>
-      </template>
-
-      <template x-for="a in filteredAlumni" :key="a.id">
-        <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-300 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start gap-3.5 mb-3">
-              <template x-if="a.avatarUrl">
-                <img :src="a.avatarUrl" :alt="a.name" class="w-14 h-14 rounded-full object-cover border border-blue-100 ring-2 ring-blue-50 shrink-0">
-              </template>
-              <template x-if="!a.avatarUrl">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] text-white font-bold flex items-center justify-center text-base shrink-0"
-                     x-text="(a.name || 'Alumni').slice(0, 2).toUpperCase()"></div>
-              </template>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <h3 class="text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="a.name"></h3>
-                  <template x-if="a.isVerified">
-                    <span class="text-blue-500 shrink-0" title="Alumni Terverifikasi">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.5 14.5L6 12l1.4-1.4 3.1 3.1 7.1-7.1 1.4 1.4-8.1 8.5z"/>
-                      </svg>
-                    </span>
-                  </template>
-                </div>
-                <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-[#1E3A8A] font-semibold text-[11px]" x-text="'Batch ' + a.batch"></span>
-                  <template x-if="a.s2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[11px]">S2</span>
-                  </template>
-                </div>
-              </div>
-            </div>
-
-            <p class="text-[13px] text-gray-700 line-clamp-2 leading-relaxed" x-text="a.headline"></p>
-
-            <div class="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 text-gray-400">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-              <span class="truncate" x-text="a.location"></span>
-            </div>
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-            <span class="text-xs text-gray-400" x-text="(a.connections || 50) + ' koneksi'"></span>
-            <a
-              :href="'detail.html?id=' + encodeURIComponent(a.id)"
-              class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors"
-            >
-              <span>Lihat Profil</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-      </template>
-    </div>
   </div>
 </main>
 
 <script>
   document.addEventListener("alpine:init", () => {
-    Alpine.data("direktoriPage", () => ({
-      searchQuery: "",
-      selectedBatch: "",
-      selectedSkill: "",
-      selectedCity: "",
-      filterS2Only: false,
-      alumniList: [],
+    Alpine.data("direktoriPage", () => {
+      const rawList = typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : [];
+      
+      return {
+        toast: "",
+        alumniList: rawList,
+        searchKeyword: "",
+        searchLocation: "",
 
-      init() {
-        // Tandai beberapa alumni sebagai S2 untuk demonstrasi filter
-        const list = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).map((a, idx) => ({
-          ...a,
-          s2: idx % 3 === 1, // sample: beberapa alumni sedang S2
-        }));
-        this.alumniList = list;
-      },
+        get filteredAlumni() {
+          const kw = (this.searchKeyword || "").toLowerCase().trim();
+          const loc = (this.searchLocation || "").toLowerCase().trim();
 
-      get filteredAlumni() {
-        const q = this.searchQuery.trim().toLowerCase();
-        return this.alumniList.filter((a) => {
-          if (this.selectedBatch && String(a.batch) !== this.selectedBatch) return false;
-          if (this.selectedCity && !(a.location || "").toLowerCase().includes(this.selectedCity.toLowerCase())) return false;
-          if (this.filterS2Only && !a.s2) return false;
-          if (this.selectedSkill) {
-            const haystack = [(a.headline || ""), (a.about || "")].join(" ").toLowerCase();
-            if (!haystack.includes(this.selectedSkill)) return false;
-          }
-          if (q) {
-            const combined = [a.name, a.headline, a.location, a.batch, a.university, a.about || ""].join(" ").toLowerCase();
-            if (!combined.includes(q)) return false;
-          }
-          return true;
-        });
-      },
+          return this.alumniList.filter((a) => {
+            const nameMatch = (a.name || "").toLowerCase().includes(kw);
+            const headMatch = (a.headline || a.jobTitle || "").toLowerCase().includes(kw);
+            const aboutMatch = (a.about || "").toLowerCase().includes(kw);
+            const passKw = !kw || (nameMatch || headMatch || aboutMatch);
 
-      resetFilter() {
-        this.searchQuery = "";
-        this.selectedBatch = "";
-        this.selectedSkill = "";
-        this.selectedCity = "";
-        this.filterS2Only = false;
-      },
-    }));
+            const locText = (a.location || a.city || "").toLowerCase();
+            const passLoc = !loc || locText.includes(loc);
+
+            return passKw && passLoc;
+          });
+        },
+
+        setToast(msg) {
+          this.toast = msg;
+          setTimeout(() => (this.toast = ""), 2500);
+        }
+      };
+    });
   });
 </script>
 </body>

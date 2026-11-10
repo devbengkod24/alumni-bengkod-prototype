@@ -27,39 +27,57 @@
           <div data-partial="profile-top" data-variant="profil"></div>
         </div>
 
-        <!-- ── SEKSI 2: STATUS KARIR & STUDI LANJUT S2 ── -->
-        <div class="space-y-2">
-          <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
-            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
-              <div>
-                <h3 class="text-[18px] font-bold text-gray-900 tracking-tight">Status Karir Saat Ini</h3>
-                <p class="text-xs text-gray-500 mt-0.5">Tracer study dan linimasa pekerjaan utama alumni</p>
-              </div>
-              <button type="button" @click="editCareerOpen = true" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs font-semibold text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer">
-                Ubah Status
+        <!-- ── SEKSI 2: PENGALAMAN KERJA & MAGANG (Clean Design) ── -->
+        <div id="section-experience" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-2.5">
+              <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Pengalaman Kerja &amp; Magang</h3>
+              <!-- Jumlah pengalaman disamakan dgn Gambar 3 (lingkaran bg-blue-50 border border-blue-200 text-[#1E3A8A]) -->
+              <span class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 text-[#1E3A8A] font-bold text-[13px] flex items-center justify-center shrink-0" x-text="experiences.length"></span>
+            </div>
+            <!-- Tombol Aksi: Tambah (Icon Plus) & Edit (Icon Pensil) Persis Card Lainnya Tanpa Teks -->
+            <div class="flex items-center gap-1">
+              <button
+                type="button"
+                @click="openAddExperienceModal()"
+                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer"
+                aria-label="Tambah pengalaman kerja"
+                title="Tambah pengalaman kerja"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button
+                type="button"
+                @click="openManageExperienceModal()"
+                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer"
+                aria-label="Edit pengalaman kerja"
+                title="Edit pengalaman kerja"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
               </button>
             </div>
-
-            <!-- Ringkasan Status -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-100">
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Status Utama</span>
-                <span class="text-sm font-bold text-[#1E3A8A] mt-1 block" x-text="careerStatus.status"></span>
-                <span class="text-xs text-gray-600 mt-0.5 block" x-text="careerStatus.company"></span>
+          </div>
+          <div class="divide-y divide-gray-100 pt-2">
+            <template x-for="(exp, idx) in experiences" :key="exp.key || idx">
+              <div class="py-5" :class="[idx === 0 ? 'pt-2' : '', idx === experiences.length - 1 ? 'pb-0' : '']">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="exp.title"></h4>
+                  <!-- Saat ini dibuat OVAL persis permintaan user (tanpa tombol edit di tiap baris, edit jadi 1 saja di header) -->
+                  <template x-if="exp.isCurrent || (exp.period && exp.period.toLowerCase().includes('sekarang'))">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[13px] font-semibold text-[#1E3A8A]">Saat ini</span>
+                  </template>
+                </div>
+                <!-- Perusahaan · Lokasi · Tipe (e.g. Magang / Purnawaktu) -->
+                <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="[exp.place, exp.type].filter(Boolean).join(' · ')"></p>
+                <p class="text-[14px] text-gray-500 mt-1" x-text="exp.period"></p>
+                <template x-if="exp.note"><p class="text-[15px] text-gray-600 mt-2.5 leading-relaxed" x-text="exp.note"></p></template>
               </div>
-
-              <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Part-Time / Moonlight</span>
-                <span class="text-sm font-semibold text-gray-800 mt-1 block" x-text="careerStatus.moonlight || 'Tidak ada'"></span>
-                <span class="text-xs text-gray-500 mt-0.5 block" x-text="careerStatus.moonlightRole || '—'"></span>
-              </div>
-
-              <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
-                <span class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Studi Lanjut S2</span>
-                <span class="text-sm font-bold text-emerald-800 mt-1 block" x-text="careerStatus.s2Campus || 'Belum Menempuh'"></span>
-                <span class="text-xs text-emerald-700 mt-0.5 block" x-text="careerStatus.s2Major || '—'"></span>
-              </div>
-            </div>
+            </template>
           </div>
         </div>
 
@@ -828,9 +846,6 @@
                           </span>
                         </template>
                       </button>
-                      <button type="button" @click="epRemovePost(p.id)" class="ml-2 p-1.5 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer flex-shrink-0" title="Hapus postingan">
-                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                      </button>
                     </div>
                   </template>
                 </div>
@@ -887,10 +902,13 @@
               </div>
             </template>
           </div>
-          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
-            <button type="button" @click="editPostModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">Batal</button>
-            <button type="submit" :disabled="epList.length === 0"
-              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
+          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-between flex-shrink-0">
+            <button type="button" @click="epRemovePost(epSelectedId)" :disabled="epList.length === 0" class="px-5 py-2.5 rounded-full border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[14px] font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Hapus perubahan</button>
+            <div class="flex items-center gap-3">
+              <button type="button" @click="editPostModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" :disabled="epList.length === 0"
+                class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
+            </div>
           </div>
         </form>
       </div>
@@ -1049,7 +1067,326 @@
     </template>
 
     <div data-partial="profile-preview"></div>
-    
+
+    <!-- ======================================================
+        MODAL: TAMBAH PENGALAMAN KERJA & MAGANG (100% PERSIS TAMBAH PROYEK)
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="addExperienceModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="addExperienceModalOpen = false">
+          <form role="dialog" aria-modal="true" aria-labelledby="add-experience-title" novalidate autocomplete="off"
+            @submit.prevent="submitAddExperience()" @keydown.window.escape="addExperienceModalOpen = false"
+            class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+            style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+            
+            <!-- Header Modal (Persis 100% Tambah Proyek) -->
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+              <h2 id="add-experience-title" class="text-[20px] font-bold text-gray-900 tracking-tight">Tambah Pengalaman Kerja &amp; Magang</h2>
+              <button type="button" @click="addExperienceModalOpen = false" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer" aria-label="Tutup modal">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <!-- Body Modal (Grid 2 Kolom Persis Tambah Proyek) -->
+            <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Posisi / Jabatan -->
+                <div class="space-y-1.5 sm:col-span-2">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-[14px] font-medium text-gray-700">Posisi / Jabatan <span class="text-red-500 font-bold">*</span></label>
+                  </div>
+                  <input type="text" x-model="expForm.title" required placeholder="Contoh: Junior Data Scientist & Analyst"
+                    class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                </div>
+
+                <!-- Jenis Pekerjaan -->
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Jenis Pekerjaan <span class="text-red-500 font-bold">*</span></label>
+                  <select x-model="expForm.type" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                    <option value="Pekerjaan Purnawaktu">Pekerjaan Purnawaktu (Full-Time)</option>
+                    <option value="Magang">Magang (Internship)</option>
+                    <option value="Paruh Waktu">Paruh Waktu (Part-Time)</option>
+                    <option value="Kontrak">Kontrak (Contract)</option>
+                    <option value="Freelance">Freelance</option>
+                  </select>
+                </div>
+
+                <!-- Perusahaan & Lokasi -->
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Perusahaan &amp; Lokasi <span class="text-red-500 font-bold">*</span></label>
+                  <input type="text" x-model="expForm.place" required placeholder="Contoh: PT GoTo Gojek Tokopedia · Jakarta Selatan"
+                    class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                </div>
+
+                <!-- Periode Waktu -->
+                <div class="space-y-1.5 sm:col-span-2">
+                  <label class="block text-[14px] font-medium text-gray-700">Periode Waktu <span class="text-red-500 font-bold">*</span></label>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <input type="text" x-model="expForm.startYear" required placeholder="Tahun Mulai, contoh: 2024"
+                        class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                    </div>
+                    <div>
+                      <input type="text" x-model="expForm.endYear" :disabled="expForm.isCurrent" :placeholder="expForm.isCurrent ? 'Sekarang' : 'Tahun Selesai, contoh: 2025'"
+                        class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all disabled:bg-gray-100 disabled:text-gray-400">
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 pt-1.5">
+                    <input type="checkbox" id="exp-is-current" x-model="expForm.isCurrent" class="w-4 h-4 rounded text-[#1E3A8A] focus:ring-[#1E3A8A] border-gray-300 cursor-pointer">
+                    <label for="exp-is-current" class="text-[13px] font-medium text-gray-700 cursor-pointer">Saya saat ini masih bekerja di posisi ini (Saat ini)</label>
+                  </div>
+                </div>
+
+                <!-- Deskripsi Peran -->
+                <div class="space-y-1.5 sm:col-span-2">
+                  <div class="flex items-center justify-between">
+                    <label class="block text-[14px] font-medium text-gray-700">Deskripsi / Tanggung Jawab</label>
+                    <span class="text-[11px] text-gray-400">Opsional</span>
+                  </div>
+                  <textarea rows="3" x-model="expForm.note" placeholder="Jelaskan peran, capaian, dan teknologi yang digunakan..." style="resize: none"
+                    class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Modal (Persis 100% Tambah Proyek) -->
+            <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
+              <button type="button" @click="addExperienceModalOpen = false" class="px-6 py-2.5 rounded-full border border-gray-300 hover:bg-gray-100 text-[15px] font-semibold text-gray-700 transition-colors cursor-pointer">Batal</button>
+              <button type="submit" class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[15px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </template>
+    </template>
+
+    <!-- ======================================================
+        MODAL: EDIT PENGALAMAN KERJA & MAGANG (100% PERSIS EDIT PENDIDIKAN/HONORS)
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="editExperienceModalOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editExperienceModalOpen = false">
+          <form role="dialog" aria-modal="true" aria-labelledby="edit-experience-title" novalidate autocomplete="off"
+            @submit.prevent="submitSaveEditExperience()" @keydown.window.escape="editExperienceModalOpen = false"
+            class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+            style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+            
+            <!-- Header Modal -->
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+              <h2 id="edit-experience-title" class="text-[20px] font-bold text-gray-900 tracking-tight">Edit Pengalaman Kerja &amp; Magang</h2>
+              <button type="button" @click="editExperienceModalOpen = false" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer" aria-label="Tutup modal">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
+              <p class="text-[14.5px] text-gray-500 leading-relaxed">
+                Pilih pengalaman yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus pengalaman dari daftar.
+              </p>
+
+              <!-- State Kosong jika Tidak Ada Pengalaman -->
+              <template x-if="experiences.length === 0">
+                <div class="py-8 text-center">
+                  <p class="text-[14px] text-gray-500 italic mb-4">Belum ada riwayat pengalaman. Tambahkan yang pertama.</p>
+                  <button type="button" @click="editExperienceModalOpen = false; openAddExperienceModal()" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    Tambah Pengalaman
+                  </button>
+                </div>
+              </template>
+
+              <!-- Daftar Pengalaman (Persis Desain List Row Edit Pendidikan/Honors) -->
+              <template x-if="experiences.length > 0">
+                <div class="space-y-5">
+                  <div class="border-b border-gray-200 pb-5">
+                    <h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Pengalaman Kerja &amp; Magang Anda (' + experiences.length + ')'"></h3>
+                    <div class="space-y-2">
+                      <template x-for="(e, idx) in experiences" :key="e.key || idx">
+                        <div class="flex items-center justify-between p-3 rounded-lg border transition-colors"
+                          :class="selectedExpKey === (e.key || idx) ? 'border-blue-300 bg-blue-50' : 'border-gray-200 bg-gray-50 hover:bg-gray-100'">
+                          <button type="button" @click="selectExpForEdit(e, idx)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer">
+                            <div class="w-6 h-6 rounded-full bg-white text-gray-600 font-semibold text-[12px] border border-gray-200 flex items-center justify-center flex-shrink-0" x-text="idx + 1"></div>
+                            <div class="min-w-0 flex-1">
+                              <p class="text-[14px] font-medium text-gray-900 truncate" x-text="selectedExpKey === (e.key || idx) && selectedExpForm ? (selectedExpForm.title || e.title) : e.title"></p>
+                              <p class="text-[12px] text-gray-500 truncate" x-text="[e.place, e.type].filter(Boolean).join(' · ')"></p>
+                            </div>
+                            <template x-if="selectedExpKey === (e.key || idx)">
+                              <span class="ml-2 flex-shrink-0 text-[#1E3A8A]">
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                              </span>
+                            </template>
+                          </button>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+
+                  <!-- Form Detail Pengalaman Terpilih -->
+                  <template x-if="selectedExpForm">
+                    <div class="space-y-4">
+                      <h3 class="text-[14px] font-semibold text-gray-900">Detail Pengalaman Terpilih</h3>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1.5 sm:col-span-2">
+                          <label class="block text-[14px] font-medium text-gray-700">Posisi / Jabatan <span class="text-red-500 font-bold">*</span></label>
+                          <input type="text" x-model="selectedExpForm.title" required
+                            class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                        </div>
+
+                        <div class="space-y-1.5">
+                          <label class="block text-[14px] font-medium text-gray-700">Jenis Pekerjaan <span class="text-red-500 font-bold">*</span></label>
+                          <select x-model="selectedExpForm.type" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                            <option value="Pekerjaan Purnawaktu">Pekerjaan Purnawaktu (Full-Time)</option>
+                            <option value="Magang">Magang (Internship)</option>
+                            <option value="Paruh Waktu">Paruh Waktu (Part-Time)</option>
+                            <option value="Kontrak">Kontrak (Contract)</option>
+                            <option value="Freelance">Freelance</option>
+                          </select>
+                        </div>
+
+                        <div class="space-y-1.5">
+                          <label class="block text-[14px] font-medium text-gray-700">Perusahaan &amp; Lokasi <span class="text-red-500 font-bold">*</span></label>
+                          <input type="text" x-model="selectedExpForm.place" required
+                            class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                        </div>
+
+                        <div class="space-y-1.5 sm:col-span-2">
+                          <label class="block text-[14px] font-medium text-gray-700">Periode Waktu <span class="text-red-500 font-bold">*</span></label>
+                          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <input type="text" x-model="selectedExpForm.startYear" required placeholder="Tahun Mulai"
+                                class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                            </div>
+                            <div>
+                              <input type="text" x-model="selectedExpForm.endYear" :disabled="selectedExpForm.isCurrent" :placeholder="selectedExpForm.isCurrent ? 'Sekarang' : 'Tahun Selesai'"
+                                class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all disabled:bg-gray-100 disabled:text-gray-400">
+                            </div>
+                          </div>
+                          <div class="flex items-center gap-2 pt-1.5">
+                            <input type="checkbox" id="edit-exp-is-current" x-model="selectedExpForm.isCurrent" class="w-4 h-4 rounded text-[#1E3A8A] focus:ring-[#1E3A8A] border-gray-300 cursor-pointer">
+                            <label for="edit-exp-is-current" class="text-[13px] font-medium text-gray-700 cursor-pointer">Saya saat ini masih bekerja di posisi ini (Saat ini)</label>
+                          </div>
+                        </div>
+
+                        <div class="space-y-1.5 sm:col-span-2">
+                          <div class="flex items-center justify-between">
+                            <label class="block text-[14px] font-medium text-gray-700">Deskripsi / Catatan Peran</label>
+                            <span class="text-[11px] text-gray-400">Opsional</span>
+                          </div>
+                          <textarea rows="3" x-model="selectedExpForm.note" placeholder="Jelaskan peran, capaian, dan teknologi yang digunakan..." style="resize: none"
+                            class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
+                        </div>
+                      </div>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+
+            <!-- Footer Modal (Persis 100% Edit Pendidikan/Honors) -->
+            <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-between flex-shrink-0">
+              <button type="button" @click="deleteExperience(selectedExpKey)" :disabled="experiences.length === 0" class="px-5 py-2.5 rounded-full border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[14px] font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Hapus perubahan</button>
+              <div class="flex items-center gap-3">
+                <button type="button" @click="editExperienceModalOpen = false" class="px-6 py-2.5 rounded-full border border-gray-300 hover:bg-gray-100 text-[15px] font-semibold text-gray-700 transition-colors cursor-pointer">Batal</button>
+                <button type="submit" :disabled="experiences.length === 0" class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[15px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Simpan Perubahan</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </template>
+    </template>
+
+    <!-- ======================================================
+        MODAL: UBAH STATUS KARIR & TRACER
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="editCareerOpen">
+        <div id="modal-edit-career" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editCareerOpen = false">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" style="max-height: 90vh;">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-bold">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                </span>
+                <h3 class="text-lg font-bold text-gray-900">Perbarui Status Karir &amp; Tracer</h3>
+              </div>
+              <button type="button" @click="editCareerOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <form @submit.prevent="handleSaveCareer()" class="p-6 overflow-y-auto space-y-4 text-sm">
+              <div>
+                <label class="block text-xs font-semibold text-gray-700 mb-1">Status Aktivitas Saat Ini <span class="text-red-500">*</span></label>
+                <select x-model="careerDraft.status" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+                  <option value="Bekerja Full Time">Bekerja Full Time</option>
+                  <option value="Bekerja Part Time">Bekerja Part Time</option>
+                  <option value="Wiraswasta">Wiraswasta / Software House Mandiri</option>
+                  <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan (Studi S2)</option>
+                  <option value="Tidak Bekerja Tetapi Sedang Mencari Pekerjaan">Mencari Peluang Karir Baru</option>
+                </select>
+              </div>
+
+              <template x-if="careerDraft.status !== 'Melanjutkan Pendidikan'">
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat Bekerja / Nama Usaha</label>
+                    <input type="text" x-model="careerDraft.company" placeholder="Contoh: PT GoTo Gojek Tokopedia" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Jabatan / Posisi</label>
+                    <input type="text" x-model="careerDraft.title" placeholder="Contoh: Junior Data Scientist" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Bidang Pekerjaan</label>
+                      <select x-model="careerDraft.field" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                        <option value="Infokom">Infokom</option>
+                        <option value="Non Infokom">Non Infokom</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-semibold text-gray-700 mb-1">Lingkup Tingkat</label>
+                      <select x-model="careerDraft.scope" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                        <option value="Nasional">Nasional</option>
+                        <option value="Multinasional">Multinasional</option>
+                        <option value="Internasional">Internasional</option>
+                        <option value="Lokal">Lokal</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <template x-if="careerDraft.status === 'Melanjutkan Pendidikan'">
+                <div class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Perguruan Tinggi S2</label>
+                    <input type="text" x-model="careerDraft.studyUniv" placeholder="Contoh: Universitas Dian Nuswantoro" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Program Studi S2</label>
+                    <input type="text" x-model="careerDraft.studyMajor" placeholder="Contoh: Magister Ilmu Komputer" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Sumber Biaya Studi</label>
+                    <select x-model="careerDraft.studyFunding" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
+                      <option value="Beasiswa">Beasiswa</option>
+                      <option value="Sendiri">Mandiri / Sendiri</option>
+                    </select>
+                  </div>
+                </div>
+              </template>
+
+              <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
+                <button type="button" @click="editCareerOpen = false" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold text-sm hover:bg-gray-50 transition cursor-pointer">Batal</button>
+                <button type="submit" class="px-5 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white rounded-lg font-semibold text-sm transition shadow-sm cursor-pointer">Simpan Status Karir</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+    </template>
+>>>>>>> Stashed changes
   </div>
 </main>
 
@@ -1180,6 +1517,167 @@
             setTimeout(() => { this.toast = ""; }, 2500);
           }
         },
+        addExperienceModalOpen: false,
+        editExperienceModalOpen: false,
+        selectedExpKey: null,
+        selectedExpForm: null,
+        expForm: {
+          title: "",
+          type: "Pekerjaan Purnawaktu",
+          place: "",
+          startYear: "",
+          endYear: "",
+          isCurrent: true,
+          note: "",
+        },
+        openAddExperienceModal() {
+          this.expForm = {
+            title: "",
+            type: "Pekerjaan Purnawaktu",
+            place: "",
+            startYear: new Date().getFullYear().toString(),
+            endYear: "",
+            isCurrent: true,
+            note: "",
+          };
+          this.addExperienceModalOpen = true;
+        },
+        submitAddExperience() {
+          if (!this.expForm.title.trim() || !this.expForm.place.trim()) return;
+          const periodStr = this.expForm.isCurrent
+            ? `${this.expForm.startYear || new Date().getFullYear()} – Sekarang`
+            : `${this.expForm.startYear} – ${this.expForm.endYear || 'Selesai'}`;
+          const newExp = {
+            key: 'exp-' + Date.now(),
+            title: this.expForm.title.trim(),
+            type: this.expForm.type || "Pekerjaan Purnawaktu",
+            place: this.expForm.place.trim(),
+            period: periodStr,
+            startYear: this.expForm.startYear,
+            endYear: this.expForm.endYear,
+            isCurrent: this.expForm.isCurrent,
+            note: this.expForm.note.trim(),
+          };
+          this.experiences = [newExp, ...this.experiences];
+          try {
+            localStorage.setItem("bengkod_alumni_experiences_v1", JSON.stringify(this.experiences));
+          } catch (e) {}
+          this.addExperienceModalOpen = false;
+          this.toast = "Pengalaman kerja berhasil ditambahkan";
+          setTimeout(() => { this.toast = ""; }, 2500);
+        },
+        openManageExperienceModal() {
+          if (this.experiences.length > 0) {
+            this.selectExpForEdit(this.experiences[0], 0);
+          } else {
+            this.selectedExpKey = null;
+            this.selectedExpForm = null;
+          }
+          this.editExperienceModalOpen = true;
+        },
+        openEditSingleExperience(exp) {
+          const idx = this.experiences.findIndex(e => (e.key || e.id) === (exp.key || exp.id));
+          this.selectExpForEdit(exp, idx >= 0 ? idx : 0);
+          this.editExperienceModalOpen = true;
+        },
+        selectExpForEdit(exp, idx) {
+          const k = exp.key || idx;
+          this.selectedExpKey = k;
+          const periodParts = (exp.period || "").split("–").map(s => s.trim());
+          const start = exp.startYear || (periodParts[0] || "");
+          const end = exp.endYear || (periodParts[1] || "");
+          const isCurr = exp.isCurrent !== undefined ? exp.isCurrent : (exp.period && exp.period.toLowerCase().includes("sekarang"));
+          this.selectedExpForm = {
+            key: exp.key || ('exp-' + Date.now()),
+            title: exp.title || "",
+            type: exp.type || "Pekerjaan Purnawaktu",
+            place: exp.place || "",
+            startYear: start,
+            endYear: isCurr ? "" : end,
+            isCurrent: Boolean(isCurr),
+            note: exp.note || "",
+          };
+        },
+        submitSaveEditExperience() {
+          if (!this.selectedExpForm || !this.selectedExpForm.title.trim() || !this.selectedExpForm.place.trim()) return;
+          const periodStr = this.selectedExpForm.isCurrent
+            ? `${this.selectedExpForm.startYear || new Date().getFullYear()} – Sekarang`
+            : `${this.selectedExpForm.startYear} – ${this.selectedExpForm.endYear || 'Selesai'}`;
+
+          this.experiences = this.experiences.map((e, idx) => {
+            if ((e.key || idx) === this.selectedExpKey) {
+              return {
+                ...e,
+                title: this.selectedExpForm.title.trim(),
+                type: this.selectedExpForm.type,
+                place: this.selectedExpForm.place.trim(),
+                period: periodStr,
+                startYear: this.selectedExpForm.startYear,
+                endYear: this.selectedExpForm.endYear,
+                isCurrent: this.selectedExpForm.isCurrent,
+                note: this.selectedExpForm.note.trim(),
+              };
+            }
+            return e;
+          });
+
+          try {
+            localStorage.setItem("bengkod_alumni_experiences_v1", JSON.stringify(this.experiences));
+          } catch (e) {}
+          this.editExperienceModalOpen = false;
+          this.toast = "Pengalaman kerja berhasil diperbarui";
+          setTimeout(() => { this.toast = ""; }, 2500);
+        },
+        deleteExperience(keyOrIdx) {
+          if (!confirm("Hapus riwayat pengalaman ini?")) return;
+          this.experiences = this.experiences.filter((e, idx) => (e.key || idx) !== keyOrIdx);
+          try {
+            localStorage.setItem("bengkod_alumni_experiences_v1", JSON.stringify(this.experiences));
+          } catch (e) {}
+          if (this.experiences.length > 0) {
+            this.selectExpForEdit(this.experiences[0], 0);
+          } else {
+            this.selectedExpKey = null;
+            this.selectedExpForm = null;
+          }
+          this.toast = "Pengalaman kerja berhasil dihapus";
+          setTimeout(() => { this.toast = ""; }, 2500);
+        },
+        experiences: (() => {
+          try {
+            const raw = localStorage.getItem("bengkod_alumni_experiences_v1");
+            if (raw) return JSON.parse(raw);
+          } catch (e) {}
+          return [
+            {
+              key: 'exp-1',
+              title: 'Junior Data Scientist & Analyst',
+              place: 'PT GoTo Gojek Tokopedia · Jakarta Selatan',
+              type: 'Pekerjaan Purnawaktu',
+              period: '2024 – Sekarang',
+              isCurrent: true,
+              note: 'Membangun predictive model, exploratory data analysis, dan pipeline analytics untuk ekosistem produk rekomendasi.'
+            },
+            {
+              key: 'exp-2',
+              title: 'Technical Curriculum Consultant',
+              place: 'Bengkel Koding Lab · Semarang',
+              type: 'Paruh Waktu',
+              period: '2023 – Sekarang',
+              isCurrent: true,
+              note: 'Merancang kurikulum pembelajaran pemrograman web modern, Next.js, dan Data Science untuk mahasiswa.'
+            },
+            {
+              key: 'exp-3',
+              title: 'Koordinator Asisten Praktikum',
+              place: 'Laboratorium Bengkel Koding UDINUS · Semarang',
+              type: 'Magang',
+              period: '2022 – 2024',
+              isCurrent: false,
+              note: 'Memimpin tim asisten praktikum dalam mengampu mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web bagi 150+ mahasiswa.'
+            }
+          ];
+        })(),
         careerStatus: savedCareer || {
           status: "Bekerja Full Time",
           company: "Data Scientist @ Zepto Digital",
@@ -1556,6 +2054,64 @@
           };
           this.replyInputs = { ...this.replyInputs, [commentId]: "" };
           this.activeReplyCommentId = null;
+        },
+
+        // Status Karir & Tracer Modal
+        editCareerOpen: false,
+        careerDraft: {
+          status: 'Bekerja Full Time',
+          company: '',
+          title: '',
+          field: 'Infokom',
+          scope: 'Nasional',
+          studyUniv: '',
+          studyMajor: '',
+          studyFunding: 'Beasiswa'
+        },
+        openCareerModal() {
+          this.careerDraft = {
+            status: this.profile.careerStatus || 'Bekerja Full Time',
+            company: this.profile.companyName || '',
+            title: this.profile.jobTitle || '',
+            field: this.profile.jobField || 'Infokom',
+            scope: this.profile.jobScope || 'Nasional',
+            studyUniv: this.profile.studyUniversity || '',
+            studyMajor: this.profile.studyMajor || '',
+            studyFunding: this.profile.studyFunding || 'Beasiswa'
+          };
+          this.editCareerOpen = true;
+        },
+        handleSaveCareer() {
+          this.profile.careerStatus = this.careerDraft.status;
+          this.profile.companyName = this.careerDraft.company;
+          this.profile.jobTitle = this.careerDraft.title;
+          this.profile.jobField = this.careerDraft.field;
+          this.profile.jobScope = this.careerDraft.scope;
+          this.profile.studyUniversity = this.careerDraft.studyUniv;
+          this.profile.studyMajor = this.careerDraft.studyMajor;
+          this.profile.studyFunding = this.careerDraft.studyFunding;
+          try {
+            localStorage.setItem("bengkod_alumni_profile", JSON.stringify(this.profile));
+            if (typeof DB !== "undefined" && DB.tracer) {
+              const u = SAYA || DB.akun.aktif();
+              if (u) {
+                const cur = DB.tracer.milik(u.id) || {};
+                DB.tracer.simpan(u.id, {
+                  ...cur,
+                  status: this.careerDraft.status,
+                  nama_job: this.careerDraft.company,
+                  jabatan_job: this.careerDraft.title,
+                  bidang_job: this.careerDraft.field,
+                  lingkup_job: this.careerDraft.scope,
+                  nama_studi: this.careerDraft.studyUniv,
+                  prodi: this.careerDraft.studyMajor,
+                  biaya_studi: this.careerDraft.studyFunding,
+                });
+              }
+            }
+          } catch (e) {}
+          this.editCareerOpen = false;
+          this.toast = "Status karir berhasil diperbarui";
         },
       })
     );
