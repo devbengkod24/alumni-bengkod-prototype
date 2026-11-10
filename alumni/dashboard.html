@@ -357,9 +357,6 @@
                   <div class="mt-3 rounded-xl border border-blue-200/80 bg-blue-50/40 p-4 space-y-2">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                       <span class="text-[12px] font-medium uppercase tracking-wider text-[#1E3A8A]">#Referral</span>
-                      <template x-if="isReferralClosed(post)">
-                        <span class="px-2 py-0.5 rounded-full text-[11px] font-normal bg-gray-200 text-gray-600">Ditutup</span>
-                      </template>
                     </div>
 
                     <div>
@@ -374,7 +371,7 @@
                     <div class="pt-1.5">
                       <!-- Jika pemilik postingan: tombol lihat pengajuan -->
                       <template x-if="isMyPost(post)">
-                        <div>
+                        <div class="flex items-center gap-2 flex-wrap">
                           <button type="button" @click="togglePengajuanInline(post.id)"
                             class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs">
                             <span>Lihat Pengajuan (<span x-text="(post.pengajuan || []).length"></span>)</span>
@@ -385,6 +382,13 @@
                               <polyline points="6 9 12 15 18 9" />
                             </svg>
                           </button>
+                          <template x-if="isReferralClosed(post)">
+                            <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-[12px] font-normal">
+                              Ditutup
+                            </span>
+                          </template>
+                        </div>
+                      </template>
 
                           <!-- Panel Inline Pengajuan Pelamar -->
                           <template x-if="activePengajuanPostId === post.id">
@@ -402,29 +406,16 @@
 
                               <template x-for="pelamar in (post.pengajuan || [])" :key="pelamar.id">
                                 <div class="p-4 rounded-xl border border-gray-200 bg-white space-y-3 shadow-2xs">
-                                  <!-- Info Pelamar (Header) -->
-                                  <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-center gap-3 min-w-0">
-                                      <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName"
-                                        class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
-                                      <div class="min-w-0">
-                                        <h5 class="text-[14px] sm:text-[15px] font-medium text-gray-900 truncate"
-                                          x-text="pelamar.authorName"></h5>
-                                        <p class="text-[12px] sm:text-[13px] text-gray-500 truncate"
-                                          x-text="pelamar.authorHeadline"></p>
-                                      </div>
+                                  <!-- Info Pelamar (Header: Tanpa Oval di Atas) -->
+                                  <div class="flex items-center gap-3 min-w-0">
+                                    <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName"
+                                      class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
+                                    <div class="min-w-0">
+                                      <h5 class="text-[14px] sm:text-[15px] font-medium text-gray-900 truncate"
+                                        x-text="pelamar.authorName"></h5>
+                                      <p class="text-[12px] sm:text-[13px] text-gray-500 truncate"
+                                        x-text="pelamar.authorHeadline"></p>
                                     </div>
-
-                                    <!-- Status Badge (Clean & Netral) -->
-                                    <span
-                                      class="px-2.5 py-0.5 rounded-full text-[11px] sm:text-[12px] font-normal border shrink-0"
-                                      :class="{
-                                        'bg-white text-gray-600 border-gray-200': pelamar.status === 'menunggu',
-                                        'bg-blue-50 text-[#1E3A8A] border-blue-200': pelamar.status === 'dihubungi',
-                                        'bg-gray-50 text-gray-500 border-gray-200': pelamar.status === 'masukan'
-                                      }"
-                                      x-text="pelamar.status === 'dihubungi' ? 'Dihubungi' : (pelamar.status === 'masukan' ? 'Diberi Masukan' : 'Menunggu')"
-                                    ></span>
                                   </div>
 
                                   <!-- Pesan Perkenalan: Teks Langsung Bersih & Rapi -->
@@ -444,8 +435,14 @@
                                       <span class="text-gray-400 font-normal text-[11px] sm:text-[12px]">(Lihat CV)</span>
                                     </a>
 
-                                    <!-- Tombol Aksi (Konsisten Bengkel Koding Brand Colors) -->
-                                    <div class="flex items-center gap-2">
+                                    <!-- Tombol Aksi (Semua Oval Dijadikan 1 di Bawah) -->
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                      <!-- Status Badge: Background Putih, Border Halus, Sama Seperti LinkedIn -->
+                                      <span
+                                        class="px-3 py-1.5 rounded-full text-[12px] font-normal border bg-white border-gray-200 text-gray-600 shrink-0"
+                                        x-text="pelamar.status === 'dihubungi' ? 'Dihubungi' : (pelamar.status === 'masukan' ? 'Diberi Masukan' : 'Menunggu')"
+                                      ></span>
+
                                       <template x-if="pelamar.status === 'menunggu'">
                                         <button type="button"
                                           @click="activeMasukanId = activeMasukanId === pelamar.id ? null : pelamar.id"
@@ -510,9 +507,9 @@
                                 </button>
                               </template>
                               <template x-if="isReferralClosed(post)">
-                                <p class="text-[13px] text-gray-400">
-                                  Batas waktu review sudah lewat.
-                                </p>
+                                <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-[12px] font-normal">
+                                  Ditutup
+                                </span>
                               </template>
                             </div>
                           </template>
