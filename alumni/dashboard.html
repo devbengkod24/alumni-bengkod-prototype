@@ -401,87 +401,93 @@
                               </template>
 
                               <template x-for="pelamar in (post.pengajuan || [])" :key="pelamar.id">
-                                <div class="p-3.5 rounded-xl border border-gray-200 bg-white space-y-2.5">
-                                  <!-- Info Pelamar -->
+                                <div class="p-4 rounded-xl border border-gray-200 bg-white space-y-3 shadow-2xs">
+                                  <!-- Info Pelamar (Header) -->
                                   <div class="flex items-start justify-between gap-3">
-                                    <div class="flex items-start gap-2.5 min-w-0">
+                                    <div class="flex items-center gap-3 min-w-0">
                                       <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName"
-                                        class="w-9 h-9 rounded-full object-cover border border-gray-200 shrink-0">
+                                        class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
                                       <div class="min-w-0">
-                                        <h5 class="text-[14px] font-semibold text-gray-900 truncate"
+                                        <h5 class="text-[14px] sm:text-[15px] font-medium text-gray-900 truncate"
                                           x-text="pelamar.authorName"></h5>
-                                        <p class="text-[12px] text-gray-500 mt-0.5 line-clamp-1"
+                                        <p class="text-[12px] sm:text-[13px] text-gray-500 truncate"
                                           x-text="pelamar.authorHeadline"></p>
                                       </div>
                                     </div>
-                                    <div class="shrink-0">
-                                      <template x-if="pelamar.status === 'menunggu'">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">Menunggu</span>
-                                      </template>
-                                      <template x-if="pelamar.status === 'dihubungi'">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">Dihubungi</span>
-                                      </template>
-                                      <template x-if="pelamar.status === 'masukan'">
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-100 text-gray-700 border border-gray-200">Diberi Masukan</span>
-                                      </template>
-                                    </div>
+
+                                    <!-- Status Badge (Clean & Netral) -->
+                                    <span
+                                      class="px-2.5 py-0.5 rounded-full text-[11px] sm:text-[12px] font-normal border shrink-0"
+                                      :class="{
+                                        'bg-gray-100 text-gray-600 border-gray-200': pelamar.status === 'menunggu',
+                                        'bg-blue-50 text-[#1E3A8A] border-blue-200': pelamar.status === 'dihubungi',
+                                        'bg-gray-50 text-gray-500 border-gray-200': pelamar.status === 'masukan'
+                                      }"
+                                      x-text="pelamar.status === 'dihubungi' ? 'Dihubungi' : (pelamar.status === 'masukan' ? 'Diberi Masukan' : 'Menunggu')"
+                                    ></span>
                                   </div>
 
-                                  <!-- Pesan Perkenalan -->
-                                  <div class="bg-gray-50 rounded-lg p-2.5 text-[13px] text-gray-700 leading-relaxed border border-gray-100">
-                                    <p class="text-[11px] font-medium text-gray-400 mb-0.5">Pesan Perkenalan</p>
-                                    <p x-text="pelamar.pesan"></p>
-                                  </div>
+                                  <!-- Pesan Perkenalan: Teks Langsung Bersih & Rapi -->
+                                  <p class="text-[13.5px] sm:text-[14px] text-gray-700 leading-relaxed font-normal" x-text="pelamar.pesan"></p>
 
-                                  <!-- Dokumen CV -->
-                                  <div class="flex items-center justify-between p-2.5 rounded-lg border border-gray-200 bg-gray-50/60">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 shrink-0">
+                                  <!-- Dokumen CV & Bar Tombol Aksi -->
+                                  <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+                                    <!-- Dokumen Lampiran CV -->
+                                    <a :href="'generate-cv.html?applicant=' + encodeURIComponent(pelamar.authorName) + '&format=' + (pelamar.format || 'ats')"
+                                      target="_blank"
+                                      class="inline-flex items-center gap-1.5 text-[12.5px] sm:text-[13px] font-medium text-[#1E3A8A] hover:underline">
+                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 shrink-0">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
                                         <polyline points="14 2 14 8 20 8" />
                                       </svg>
-                                      <span class="text-[12px] font-medium text-gray-700 truncate"
-                                        x-text="'CV_' + pelamar.authorName.replace(/\s+/g, '_') + '_' + (pelamar.format || 'ats').toUpperCase() + '.pdf'">
-                                      </span>
-                                    </div>
-                                    <a :href="'generate-cv.html?applicant=' + encodeURIComponent(pelamar.authorName) + '&format=' + (pelamar.format || 'ats')"
-                                      target="_blank"
-                                      class="px-2.5 py-1 rounded-full border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[11px] font-medium transition-colors shrink-0">
-                                      Preview CV
+                                      <span x-text="'CV_' + pelamar.authorName.replace(/\s+/g, '_') + '_' + (pelamar.format || 'ats').toUpperCase() + '.pdf'"></span>
+                                      <span class="text-gray-400 font-normal text-[11px] sm:text-[12px]">(Lihat CV)</span>
                                     </a>
+
+                                    <!-- Tombol Aksi (Konsisten Bengkel Koding Brand Colors) -->
+                                    <div class="flex items-center gap-2">
+                                      <template x-if="pelamar.status === 'menunggu'">
+                                        <button type="button"
+                                          @click="activeMasukanId = activeMasukanId === pelamar.id ? null : pelamar.id"
+                                          class="px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-[12px] font-normal transition-colors cursor-pointer">
+                                          Beri Masukan
+                                        </button>
+                                      </template>
+
+                                      <template x-if="pelamar.linkedin">
+                                        <a :href="pelamar.linkedin" target="_blank" rel="noreferrer"
+                                          class="px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-[12px] font-normal transition-colors">
+                                          LinkedIn
+                                        </a>
+                                      </template>
+
+                                      <template x-if="pelamar.status !== 'masukan'">
+                                        <button type="button" @click="hubungiPelamarWa(post, pelamar)"
+                                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[12px] font-medium transition-colors cursor-pointer shadow-2xs">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                          <span>Hubungi WhatsApp</span>
+                                        </button>
+                                      </template>
+                                    </div>
                                   </div>
 
-                                  <!-- Tombol Kontak & Masukan -->
-                                  <div class="flex items-center gap-2 flex-wrap pt-0.5">
-                                    <template x-if="pelamar.status !== 'masukan'">
-                                      <button type="button" @click="hubungiPelamarWa(post, pelamar)"
-                                        class="px-3 py-1.5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium transition-colors cursor-pointer">
-                                        Hubungi via WhatsApp
-                                      </button>
-                                    </template>
-                                    <template x-if="pelamar.linkedin">
-                                      <a :href="pelamar.linkedin" target="_blank" rel="noreferrer"
-                                        class="px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 text-[12px] font-medium transition-colors">
-                                        LinkedIn
-                                      </a>
-                                    </template>
-                                  </div>
-
-                                  <!-- Form Beri Masukan (jika status masih menunggu) -->
-                                  <template x-if="pelamar.status === 'menunggu'">
-                                    <form @submit.prevent="submitMasukanPelamar(post, pelamar)" class="flex gap-2 pt-1">
+                                  <!-- Form Beri Masukan (Hanya Muncul saat Tombol "Beri Masukan" Diklik) -->
+                                  <template x-if="activeMasukanId === pelamar.id && pelamar.status === 'menunggu'">
+                                    <form @submit.prevent="submitMasukanPelamar(post, pelamar); activeMasukanId = null;" class="pt-2 border-t border-gray-100 flex gap-2">
                                       <input type="text" x-model="masukanInputs[pelamar.id]" maxlength="150"
-                                        placeholder="Belum pas? Beri masukan satu baris..."
+                                        placeholder="Tulis masukan singkat untuk pelamar..."
                                         class="flex-1 px-3 py-1.5 rounded-full border border-gray-200 text-[12.5px] focus:outline-none focus:border-[#1E3A8A] bg-gray-50/50">
                                       <button type="submit"
-                                        class="px-3 py-1.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-100 text-[12px] font-medium transition-colors shrink-0">
-                                        Kirim Masukan
+                                        class="px-3.5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[12px] font-medium transition-colors shrink-0 cursor-pointer">
+                                        Kirim
                                       </button>
                                     </form>
                                   </template>
+
+                                  <!-- Tampilan Masukan yang Sudah Terkirim -->
                                   <template x-if="pelamar.status === 'masukan' && pelamar.masukan">
-                                    <p class="text-[12px] text-gray-500 italic pt-0.5">
-                                      Masukan terkirim: "<span x-text="pelamar.masukan"></span>"
+                                    <p class="text-[12px] text-gray-500 italic pt-1 border-t border-gray-100">
+                                      Catatan terkirim: "<span x-text="pelamar.masukan"></span>"
                                     </p>
                                   </template>
                                 </div>
@@ -1271,6 +1277,7 @@
 
           // State Pengajuan Referral Inline (Accordion di dalam Kartu Postingan)
           activePengajuanPostId: null,
+          activeMasukanId: null,
           masukanInputs: {},
 
           openReferralModal() {
