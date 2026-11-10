@@ -356,16 +356,16 @@
                 <template x-if="post.referral">
                   <div class="mt-3 rounded-xl border border-blue-200/80 bg-blue-50/40 p-4 space-y-2">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
-                      <span class="text-[12px] font-semibold uppercase tracking-wider text-[#1E3A8A]">#Referral</span>
+                      <span class="text-[12px] font-medium uppercase tracking-wider text-[#1E3A8A]">#Referral</span>
                       <template x-if="isReferralClosed(post)">
-                        <span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-gray-200 text-gray-600">Ditutup</span>
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-normal bg-gray-200 text-gray-600">Ditutup</span>
                       </template>
                     </div>
 
                     <div>
-                      <h4 class="text-[15px] sm:text-[16px] font-semibold text-gray-900 leading-snug"
+                      <h4 class="text-[15px] sm:text-[16px] font-medium text-gray-900 leading-snug"
                         x-text="post.referral.posisi + ' · ' + post.referral.perusahaan"></h4>
-                      <p class="text-[13px] text-gray-500 mt-0.5">
+                      <p class="text-[13px] text-gray-500 mt-0.5 font-normal">
                         <span x-text="post.referral.level"></span> · Review sampai <span x-text="formatDateIndo(post.referral.batas)"></span>
                       </p>
                     </div>
@@ -558,7 +558,7 @@
                     <div class="flex-1 min-w-0 space-y-0.5">
                       <div class="flex items-center justify-between gap-2">
                         <h4
-                          class="text-[15px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate"
+                          class="text-[15px] font-medium text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate"
                           x-text="post.karya.nama"></h4>
                         <span class="text-[13px] font-medium text-[#1E3A8A] shrink-0">
                           Detail &rarr;
