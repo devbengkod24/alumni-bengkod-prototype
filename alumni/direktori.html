@@ -109,37 +109,32 @@
               </template>
             </div>
 
-            <!-- Informasi di Samping Kanan (Nama -> Bidang -> Alamat -> Deskripsi -> Tombol di Bawahnya) -->
+            <!-- Informasi di Samping Kanan (Nama -> Bidang -> Alamat -> Tombol) -->
             <div class="flex-1 min-w-0 flex flex-col justify-between h-full space-y-3">
-              <div class="space-y-1.5">
+              <div class="space-y-1">
                 <!-- 1. Nama Alumni (Bold 18px) -->
-                <h3 class="text-[18px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">
+                <h3 class="text-[17px] sm:text-[18px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">
                   <a :href="'detail.html?id=' + encodeURIComponent(alumni.id)" x-text="alumni.name"></a>
                 </h3>
 
-                <!-- 2. Posisi / Profesi / Bidang (Font 15px Medium Warna Biru) -->
-                <p class="text-[15px] font-medium text-[#1E3A8A]" x-text="alumni.headline || alumni.jobTitle || 'Alumni Bengkel Koding'"></p>
+                <!-- 2. Posisi / Profesi / Bidang (Font 14-15px Medium Warna Biru) -->
+                <p class="text-[14px] sm:text-[15px] font-medium text-[#1E3A8A] truncate" x-text="alumni.headline || alumni.jobTitle || 'Alumni Bengkel Koding'"></p>
 
-                <!-- 3. Alamat / Domisili (Font 14px Text-Gray-500) -->
-                <p class="text-[14px] text-gray-500 flex items-start gap-1.5 pt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 shrink-0 mt-0.5">
+                <!-- 3. Alamat / Domisili (Font 13px Text-Gray-500) -->
+                <p class="text-[13px] text-gray-500 flex items-center gap-1.5 pt-0.5">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 shrink-0">
                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
-                  <span class="leading-relaxed" x-text="alumni.location || alumni.city || 'Semarang, Jawa Tengah'"></span>
-                </p>
-
-                <!-- 4. Deskripsi (Font 15px Leading Relaxed) -->
-                <p class="text-[14px] sm:text-[15px] text-gray-600 pt-1 line-clamp-3 leading-relaxed font-normal"
-                  x-text="alumni.about || alumni.headline || 'Alumni berdedikasi dari ekosistem Bengkel Koding Universitas Dian Nuswantoro.'">
+                  <span class="leading-relaxed truncate" x-text="alumni.location || alumni.city || 'Semarang, Jawa Tengah'"></span>
                 </p>
               </div>
 
-              <!-- Tombol Aksi Tepat di Bawah Deskripsi: Ukuran Compact & Proporsional UI/UX -->
+              <!-- Tombol Aksi Tepat di Bawah: Ukuran Compact & Proporsional UI/UX -->
               <div class="pt-2">
                 <a
                   :href="'detail.html?id=' + encodeURIComponent(alumni.id)"
-                  class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 hover:border-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
+                  class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-blue-50 hover:bg-[#1E3A8A] text-[#1E3A8A] hover:text-white border border-blue-200 hover:border-[#1E3A8A] text-[13px] font-medium transition-all cursor-pointer shadow-2xs"
                 >
                   Lihat Profil Alumni
                 </a>
