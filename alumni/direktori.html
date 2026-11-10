@@ -90,56 +90,39 @@
       <span>Menampilkan <span x-text="filteredAlumni.length"></span> rekan alumni</span>
     </div>
 
-    <!-- Grid Kartu Alumni (Horizontal: Foto Profil di kiri, detail dan tombol di kanan mengikuti kolom teks tanpa garis pembatas) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6" x-show="filteredAlumni.length > 0">
+    <!-- Grid Kartu Alumni (Vertikal Murni Sesuai Desain Mitra, Tanpa Foto Profil & Tombol Oval Sesuai Referensi) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" x-show="filteredAlumni.length > 0">
       <template x-for="alumni in filteredAlumni" :key="alumni.id">
         <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-200 hover:shadow-md transition-all duration-200 p-6 flex flex-col justify-between group">
           
-          <div class="flex items-start gap-4 sm:gap-5 h-full">
-            <!-- Foto Profil / Avatar Alumni (Di Samping Kiri) -->
-            <div class="shrink-0">
-              <template x-if="alumni.avatarUrl">
-                <img :src="alumni.avatarUrl" :alt="alumni.name"
-                  class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover bg-white p-1 border border-gray-200 shadow-2xs">
-              </template>
-              <template x-if="!alumni.avatarUrl">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] text-white font-extrabold text-base sm:text-lg flex items-center justify-center border border-gray-200 shadow-2xs tracking-wider"
-                  x-text="(alumni.name || 'Alumni').substring(0, 2).toUpperCase()">
-                </div>
-              </template>
-            </div>
+          <!-- Informasi Vertikal (Nama -> Bidang -> Alamat) -->
+          <div class="space-y-1.5">
+            <!-- 1. Nama Alumni (Bold 18px Persis Mitra) -->
+            <h3 class="text-[18px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">
+              <a :href="'detail.html?id=' + encodeURIComponent(alumni.id)" x-text="alumni.name"></a>
+            </h3>
 
-            <!-- Informasi di Samping Kanan (Nama -> Bidang -> Alamat -> Tombol) -->
-            <div class="flex-1 min-w-0 flex flex-col justify-between h-full space-y-3">
-              <div class="space-y-1">
-                <!-- 1. Nama Alumni (Bold 18px) -->
-                <h3 class="text-[17px] sm:text-[18px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug">
-                  <a :href="'detail.html?id=' + encodeURIComponent(alumni.id)" x-text="alumni.name"></a>
-                </h3>
+            <!-- 2. Posisi / Profesi / Bidang (Font 15px Medium Warna Biru Persis Mitra) -->
+            <p class="text-[15px] font-medium text-[#1E3A8A]" x-text="alumni.headline || alumni.jobTitle || 'Alumni Bengkel Koding'"></p>
 
-                <!-- 2. Posisi / Profesi / Bidang (Font 14-15px Medium Warna Biru) -->
-                <p class="text-[14px] sm:text-[15px] font-medium text-[#1E3A8A] truncate" x-text="alumni.headline || alumni.jobTitle || 'Alumni Bengkel Koding'"></p>
+            <!-- 3. Alamat / Domisili (Font 14px Text-Gray-500 Persis Mitra) -->
+            <p class="text-[14px] text-gray-500 flex items-start gap-1.5 pt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 shrink-0 mt-0.5">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span class="leading-relaxed" x-text="alumni.location || alumni.city || 'Semarang, Jawa Tengah'"></span>
+            </p>
+          </div>
 
-                <!-- 3. Alamat / Domisili (Font 13px Text-Gray-500) -->
-                <p class="text-[13px] text-gray-500 flex items-center gap-1.5 pt-0.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 shrink-0">
-                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
-                    <circle cx="12" cy="10" r="3" />
-                  </svg>
-                  <span class="leading-relaxed truncate" x-text="alumni.location || alumni.city || 'Semarang, Jawa Tengah'"></span>
-                </p>
-              </div>
-
-              <!-- Tombol Aksi Tepat di Bawah: Ukuran Compact & Proporsional UI/UX -->
-              <div class="pt-2">
-                <a
-                  :href="'detail.html?id=' + encodeURIComponent(alumni.id)"
-                  class="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs"
-                >
-                  Lihat Profil Alumni
-                </a>
-              </div>
-            </div>
+          <!-- Tombol Aksi di Bawah Kartu: Lihat Profil Alumni (Oval Putih Border Halus Persis Pilih Bagian CV) -->
+          <div class="pt-5 mt-4 border-t border-gray-100">
+            <a
+              :href="'detail.html?id=' + encodeURIComponent(alumni.id)"
+              class="w-full block py-2.5 px-5 text-center rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[14px] font-semibold transition-all cursor-pointer shadow-2xs"
+            >
+              Lihat Profil Alumni
+            </a>
           </div>
 
         </div>
