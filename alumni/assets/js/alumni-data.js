@@ -2651,8 +2651,8 @@ function mediaToProjectFields(value) {
 // Model Transparan: Budget Range tanpa tracking transaksi uang
 // ============================================================
 
-const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v3";
-const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v3";
+const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v4";
+const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v4";
 
 const GIGS_BUDGET_RANGES = [
   "< Rp 1.000.000",
@@ -2679,7 +2679,16 @@ const INITIAL_GIGS = [
     quota: 1,
     status: "Terbuka", // Terbuka | Sedang Dikerjakan | Selesai | Batal
     postedDate: "2026-11-01",
-    description: "Membangun aplikasi presensi peserta seminar berbasis scan dynamic QR code dengan dashboard analitik kehadiran real-time serta mode offline sync.",
+    description: `Membangun aplikasi presensi peserta seminar dan workshop berbasis scan dynamic QR code dengan dashboard analitik kehadiran real-time serta dukungan mode offline synchronization saat sinyal di venue terbatas.
+
+Ruang Lingkup & Deliverables Utama:
+1. Pengembangan modul scanner kamera responsif pada Flutter dengan latensi pembacaan dynamic QR Code di bawah 300ms.
+2. Mekanisme caching lokal (SQLite / Isar database) untuk pencatatan kehadiran presensi offline yang otomatis sinkron ke server saat jaringan stabil.
+3. Dashboard web panel bagi panitia event untuk memantau grafik kehadiran, rekapitulasi data partisipasi, dan ekspor berkas laporan format CSV/Excel.
+4. Implementasi API backend Laravel yang aman dengan perlindungan rate-limiting dan otentikasi JWT.
+
+Ekspektasi Kontributor:
+Rekan alumni diharapkan menguasai state management Flutter (BLoC/Provider) serta arsitektur RESTful API Laravel. Koordinasi teknis dilakukan fleksibel via GitHub PR dan grup WhatsApp komunikasi tim.`,
     assignedContributor: null,
     endorsement: "",
     completedDate: null,
@@ -2732,7 +2741,13 @@ const INITIAL_GIGS = [
     quota: 1,
     status: "Terbuka",
     postedDate: "2026-11-02",
-    description: "Menerjemahkan komponen Figma yang sudah matang menjadi implementasi React responsif yang aksesibel, cepat, dan micro-interaction halus.",
+    description: `Menerjemahkan berkas desain Figma studio kreatif yang sudah komprehensif menjadi implementasi kode Next.js & Tailwind CSS yang sangat cepat, pixel-perfect, responsif mobile-first, dan dilengkapi micro-interaction halus.
+
+Spesifikasi & Kebutuhan Teknis:
+1. Slicing 5 halaman utama: Home Showcase, Portofolio Detail, Layanan Desain, Tentang Studio, dan Formulir Kontak Inquiry.
+2. Penataan komponen modular (atomik) yang reusable dengan integrasi Tailwind CSS token warna serta tipografi yang terstandarisasi.
+3. Optimasi performa web audit Core Web Vitals (Lighthouse score > 90) dengan optimasi lazy-load aset gambar WebP/SVG.
+4. Setup deployment otomatis ke Vercel dengan integrasi domain kustom.`,
     assignedContributor: null,
     endorsement: "",
     completedDate: null,
@@ -2770,7 +2785,13 @@ const INITIAL_GIGS = [
     quota: 1,
     status: "Sedang Dikerjakan",
     postedDate: "2026-10-28",
-    description: "Otomatisasi penarikan data transaksi dari beberapa marketplace ke PostgreSQL lalu disajikan ke dashboard Metabase.",
+    description: `Membangun arsitektur data pipeline otomatis (ETL) yang mengonsolidasi riwayat transaksi multi-channel e-commerce ke data warehouse PostgreSQL terpusat, lengkap dengan visualisasi dashboard Metabase untuk memantau performa penjualan UMKM.
+
+Tanggung Jawab & Fitur Proyek:
+1. Penjadwalan cron job script Python untuk penarikan data API transaksi secara berkala dengan penanganan retry logic.
+2. Proses data cleansing, validasi tipe data skema, dan transformasi agregasi bulanan/mingguan menggunakan Pandas & SQLAlchemy.
+3. Konfigurasi query analitik dan dashboard Metabase interaktif yang menampilkan metrik GMV, repeat order rate, dan performa kategori produk.
+4. Deployment pipeline terisolasi menggunakan Docker container pada server VPS.`,
     assignedContributor: {
       id: "aisha-dwi-rahmawati",
       name: "Aisha Dwi Rahmawati",

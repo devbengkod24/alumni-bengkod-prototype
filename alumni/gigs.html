@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bengkod Gigs & Side-Project Exchange | Bengkel Koding UDINUS</title>
+  <title>Bengkod Gigs &amp; Side-Project Exchange | Bengkel Koding UDINUS</title>
   <meta name="description" content="Platform Peer-to-Peer (P2P) kolaborasi side-project, tender freelance, dan rekrutmen tim internal alumni Bengkel Koding.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../assets/js/page-skeleton.js"></script>
@@ -14,914 +14,1264 @@
 </head>
 <body>
 <main data-route="gigs">
-  <div x-data="bengkodGigsExchange" class="w-full space-y-6 py-2 antialiased">
+  <div x-data="bengkodGigsExchange" class="w-full flex flex-col gap-6 py-2">
+
     <!-- Toast Notifikasi Interaktif -->
     <template x-if="toast">
-      <div class="fixed bottom-6 right-6 z-[120] bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in text-[14px]">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-        <span x-text="toast"></span>
+      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3.5 animate-fade-in text-[14px] max-w-md">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></span>
+        <span class="flex-1" x-text="toast"></span>
+        <template x-if="toastAction">
+          <button
+            type="button"
+            @click="toastAction.callback(); toast = ''; toastAction = null"
+            class="px-3 py-1 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[12.5px] font-semibold whitespace-nowrap transition-colors cursor-pointer"
+            x-text="toastAction.label"
+          ></button>
+        </template>
       </div>
     </template>
 
     <!-- ============================================================
-        HEADER MINIMALIS & CLEAN (BENGKOD DESIGN SYSTEM)
+        HEADER HALAMAN (BERSIH & MINIMALIS TANPA CONTAINER CARD)
     ============================================================ -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
       <div>
-        <div class="flex items-center gap-2.5">
-          <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Gigs &amp; Proyek</h1>
-        </div>
-        <p class="text-sm text-gray-500 mt-1">
-          Papan kolaborasi side-project, tender freelance, dan rekrutmen tim internal antar-alumni Bengkel Koding
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">
+          Gigs &amp; Proyek
+        </h1>
+        <p class="text-[14px] sm:text-[15px] text-gray-500 mt-1 font-normal">
+          Papan kolaborasi side-project, tender freelance, dan rekrutmen tim internal antar-alumni Bengkel Koding.
         </p>
       </div>
 
-      <div class="flex items-center gap-3 shrink-0">
+      <!-- Tombol Lempar Proyek (CTA Utama di kanan atas) -->
+      <div class="shrink-0">
         <button
           type="button"
           @click="openCreateGigModal()"
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer whitespace-nowrap"
         >
-          <span class="text-base leading-none">+</span>
-          <span>Lempar Proyek (Create Gig)</span>
+          <span class="text-base leading-none font-bold">+</span>
+          <span>Lempar Proyek</span>
         </button>
       </div>
     </div>
 
-    <!-- ============================================================
-        TAB NAVIGASI UTAMA (ProductHunt Tab Bar)
-    ============================================================ -->
-    <div class="flex items-center justify-between gap-3 border-b border-gray-200">
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar text-sm">
+    <!-- ── TAB NAVIGASI UTAMA (LANGSUNG DI HALAMAN) ── -->
+    <div class="flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+      <div class="inline-flex items-center bg-gray-100 p-1 rounded-full">
         <button
           type="button"
           @click="activeTab = 'board'"
-          class="px-5 py-3 font-semibold border-b-2 transition-all flex items-center gap-2 cursor-pointer"
-          :class="activeTab === 'board' ? 'border-[#1E3A8A] text-[#1E3A8A]' : 'border-transparent text-gray-500 hover:text-gray-900'"
+          class="px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          :class="activeTab === 'board' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
         >
-          <span>Eksplorasi Papan Gigs</span>
-          <span class="px-2 py-0.5 rounded-full text-xs" :class="activeTab === 'board' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-100 text-gray-600'" x-text="openGigsCount"></span>
+          <span>Jelajahi</span>
+          <span
+            class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+            :class="activeTab === 'board' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-200/70 text-gray-600'"
+            x-text="openGigsCount"
+          ></span>
+        </button>
+
+        <button
+          type="button"
+          @click="activeTab = 'saved'"
+          class="px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          :class="activeTab === 'saved' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
+        >
+          <span>Tersimpan</span>
+          <template x-if="savedGigIds.length > 0">
+            <span
+              class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+              :class="activeTab === 'saved' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-200/70 text-gray-600'"
+              x-text="savedGigIds.length"
+            ></span>
+          </template>
         </button>
 
         <button
           type="button"
           @click="activeTab = 'my_gigs'"
-          class="px-5 py-3 font-semibold border-b-2 transition-all flex items-center gap-2 cursor-pointer"
-          :class="activeTab === 'my_gigs' ? 'border-[#1E3A8A] text-[#1E3A8A]' : 'border-transparent text-gray-500 hover:text-gray-900'"
+          class="px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          :class="activeTab === 'my_gigs' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
         >
-          <span>Proyek Saya (Project Owner)</span>
-          <span class="px-2 py-0.5 rounded-full text-xs" :class="activeTab === 'my_gigs' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-100 text-gray-600'" x-text="myGigs.length"></span>
+          <span>Proyek Dibuat</span>
+          <template x-if="myGigs.length > 0">
+            <span
+              class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+              :class="activeTab === 'my_gigs' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-200/70 text-gray-600'"
+              x-text="myGigs.length"
+            ></span>
+          </template>
         </button>
 
         <button
           type="button"
           @click="activeTab = 'applications'"
-          class="px-5 py-3 font-semibold border-b-2 transition-all flex items-center gap-2 cursor-pointer"
-          :class="activeTab === 'applications' ? 'border-[#1E3A8A] text-[#1E3A8A]' : 'border-transparent text-gray-500 hover:text-gray-900'"
+          class="px-4 py-2 rounded-full text-[14px] font-medium transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5"
+          :class="activeTab === 'applications' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
         >
-          <span>Lamaran Saya (Contributor)</span>
-          <span class="px-2 py-0.5 rounded-full text-xs" :class="activeTab === 'applications' ? 'bg-emerald-50 text-emerald-700' : 'bg-gray-100 text-gray-600'" x-text="myApplications.length"></span>
+          <span>Lamaran Terkirim</span>
+          <template x-if="myApplications.length > 0">
+            <span
+              class="px-2 py-0.5 rounded-full text-[11px] font-semibold"
+              :class="activeTab === 'applications' ? 'bg-blue-50 text-[#1E3A8A]' : 'bg-gray-200/70 text-gray-600'"
+              x-text="myApplications.length"
+            ></span>
+          </template>
         </button>
       </div>
     </div>
 
-    <!-- ============================================================
-        TAB 1: EKSPLORASI PAPAN GIGS (CONTRIBUTOR BROWSE)
-    ============================================================ -->
-    <div x-show="activeTab === 'board'" class="space-y-5">
-        <!-- Filter & Search Controls -->
-        <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-xs space-y-3">
-          <div class="flex flex-col md:flex-row gap-3 items-center justify-between">
-            <div class="relative w-full md:w-96">
-              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-              </span>
-              <input
-                type="text"
-                x-model="searchQuery"
-                placeholder="Cari kebutuhan proyek, deliverables, tech stack..."
-                class="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 text-sm focus:outline-none focus:border-[#1E3A8A]"
-              >
-            </div>
-
-            <div class="flex items-center gap-2.5 w-full md:w-auto text-xs sm:text-sm">
-              <select x-model="filterBudget" class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#1E3A8A]">
-                <option value="">Semua Kisaran Budget</option>
-                <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
-                  <option :value="b" x-text="b"></option>
-                </template>
-              </select>
-
-              <select x-model="filterStatus" class="px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 focus:outline-none focus:border-[#1E3A8A]">
-                <option value="Terbuka">Buka Tim (OPEN Saja)</option>
-                <option value="Sedang Dikerjakan">Sedang Dikerjakan (In Progress)</option>
-                <option value="Selesai">Riwayat Selesai (Completed)</option>
-                <option value="">Semua Status</option>
-              </select>
-            </div>
-          </div>
+    <!-- ── BAR PENCARIAN & FILTER KATA KUNCI ── -->
+    <template x-if="activeTab === 'board' || (activeTab === 'saved' && savedGigIds.length > 0)">
+      <div class="space-y-3">
+        <!-- Input Pencarian -->
+        <div class="relative w-full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Cari kebutuhan proyek, tech stack (Flutter, Next.js), deliverables, atau nama owner..."
+            x-model="searchQuery"
+            class="w-full h-11 pl-11 pr-4 bg-white border border-gray-200 rounded-full text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-all shadow-2xs"
+          >
         </div>
 
-        <!-- Grid Card Gigs (ProductHunt Modern Card) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <template x-if="filteredBoardGigs.length === 0">
-            <div class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
-              Tidak ada tender proyek yang cocok dengan filter saat ini.
-            </div>
-          </template>
-
-          <template x-for="gig in filteredBoardGigs" :key="gig.id">
-            <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-300 p-6 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-              <div class="space-y-4">
-                <!-- Status & Quota Header -->
-                <div class="flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <template x-if="gig.status === 'Terbuka'">
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>OPEN</span>
-                      </span>
-                    </template>
-                    <template x-if="gig.status === 'Sedang Dikerjakan'">
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#1E3A8A] border border-blue-200">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <span>IN PROGRESS</span>
-                      </span>
-                    </template>
-                    <template x-if="gig.status === 'Selesai'">
-                      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                        <span>★ COMPLETED</span>
-                      </span>
-                    </template>
-
-                    <span class="text-xs text-gray-500 font-medium" x-text="'Kuota: ' + (gig.quota || 1) + ' Tim'"></span>
-                  </div>
-
-                  <span class="text-xs text-gray-400" x-text="gig.postedDate"></span>
-                </div>
-
-                <!-- Info Owner -->
-                <div class="flex items-center gap-3">
-                  <img :src="gig.ownerAvatar || DEFAULT_AVATAR" :alt="gig.ownerName" class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
-                  <div class="min-w-0">
-                    <p class="text-xs font-bold text-gray-900 truncate" x-text="gig.ownerName"></p>
-                    <p class="text-[11px] text-gray-500 truncate" x-text="gig.ownerRole"></p>
-                  </div>
-                </div>
-
-                <!-- Judul & Keterangan -->
-                <div>
-                  <h3 class="text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug" x-text="gig.title"></h3>
-                  <p class="text-[13px] text-gray-600 mt-2 line-clamp-3 leading-relaxed" x-text="gig.description"></p>
-                </div>
-
-                <!-- Peran & Tech Stack Pills -->
-                <div class="space-y-2">
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <span class="text-[11px] font-semibold text-gray-400">Peran:</span>
-                    <template x-for="r in gig.rolesNeeded" :key="r">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A]" x-text="r"></span>
-                    </template>
-                  </div>
-
-                  <div class="flex flex-wrap items-center gap-1.5">
-                    <template x-for="st in gig.techStack" :key="st">
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-gray-100 text-gray-700" x-text="st"></span>
-                    </template>
-                  </div>
-                </div>
-
-                <!-- Budget & Deadline Grid -->
-                <div class="pt-3 border-t border-gray-100 grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span class="text-gray-400 block font-medium">Rentang Budget</span>
-                    <span class="font-bold text-[#1E3A8A] text-[14px]" x-text="gig.budgetRange"></span>
-                  </div>
-                  <div>
-                    <span class="text-gray-400 block font-medium">Target Selesai</span>
-                    <span class="font-semibold text-gray-700 text-[13px]" x-text="gig.deadline"></span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Footer Aksi -->
-              <div class="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                <span class="text-xs text-gray-400" x-text="((gig.applicants || []).length) + ' Rekan Mengajukan'"></span>
-
-                <div>
-                  <!-- Kasus 1: Ini Gig buatan user sendiri -->
-                  <template x-if="gig.ownerId === currentUserId">
-                    <button
-                      type="button"
-                      @click="activeTab = 'my_gigs'"
-                      class="px-4 py-1.5 rounded-full text-xs font-semibold text-gray-700 border border-gray-300 hover:bg-gray-50"
-                    >
-                      Kelola di Proyek Saya
-                    </button>
-                  </template>
-
-                  <!-- Kasus 2: User sudah melamar -->
-                  <template x-if="gig.ownerId !== currentUserId && hasAppliedTo(gig.id)">
-                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-gray-100 text-gray-500">
-                      ✓ Minat Terkirim
-                    </span>
-                  </template>
-
-                  <!-- Kasus 3: Belum melamar dan status OPEN -->
-                  <template x-if="gig.ownerId !== currentUserId && !hasAppliedTo(gig.id) && gig.status === 'Terbuka'">
-                    <button
-                      type="button"
-                      @click="openQuickApplyModal(gig)"
-                      class="inline-flex items-center gap-1 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors shadow-xs cursor-pointer"
-                    >
-                      <span>Ajukan Minat</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </button>
-                  </template>
-
-                  <!-- Kasus 4: Sudah ditutup / pengerjaan -->
-                  <template x-if="gig.ownerId !== currentUserId && !hasAppliedTo(gig.id) && gig.status !== 'Terbuka'">
-                    <span class="text-xs font-semibold text-gray-400">Tim Terpenuhi</span>
-                  </template>
-                </div>
-              </div>
-            </div>
-          </template>
-        </div>
-    </div>
-
-    <!-- ============================================================
-        TAB 2: PROYEK SAYA (ALUR PROJECT OWNER)
-    ============================================================ -->
-    <div x-show="activeTab === 'my_gigs'" class="space-y-4">
-        <template x-if="myGigs.length === 0">
-          <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm space-y-3">
-            <p>Anda belum mempublikasikan tender side-project.</p>
-            <button
-              type="button"
-              @click="openCreateGigModal()"
-              class="px-5 py-2 rounded-full bg-[#1E3A8A] text-white text-xs font-bold"
+        <!-- Filter Dropdowns Pill Row -->
+        <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 sm:flex-wrap sm:overflow-visible">
+          <!-- Filter Kategori -->
+          <div class="relative shrink-0">
+            <label for="filter-gigs-category" class="sr-only">Kategori Proyek</label>
+            <select
+              id="filter-gigs-category"
+              x-model="selectedCategoryTag"
+              class="appearance-none h-10 pl-4 pr-9 rounded-full border bg-white text-[13.5px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-all shadow-2xs"
+              :class="selectedCategoryTag ? 'border-blue-300 bg-blue-50/70 text-[#1E3A8A] font-semibold' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
             >
-              Buat Gig Pertama Anda
-            </button>
+              <option value="">Kategori: Semua</option>
+              <option value="Mobile App">Mobile App</option>
+              <option value="Frontend">Frontend Development</option>
+              <option value="Backend">Backend API</option>
+              <option value="UI/UX">UI/UX &amp; Web Design</option>
+              <option value="Data Science">Data Science &amp; AI</option>
+              <option value="QA">QA &amp; Testing</option>
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedCategoryTag ? 'text-[#1E3A8A]' : 'text-gray-400'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </span>
           </div>
-        </template>
 
-        <div class="space-y-4">
-          <template x-for="g in myGigs" :key="g.id">
-            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-5">
-              <div class="space-y-2 flex-1">
-                <div class="flex items-center gap-2.5 flex-wrap">
-                  <template x-if="g.status === 'Terbuka'">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">OPEN</span>
-                  </template>
-                  <template x-if="g.status === 'Sedang Dikerjakan'">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-50 text-[#1E3A8A] border border-blue-200">IN PROGRESS</span>
-                  </template>
-                  <template x-if="g.status === 'Selesai'">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">COMPLETED</span>
-                  </template>
-                  <template x-if="g.status === 'Batal'">
-                    <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">CANCELLED</span>
-                  </template>
-                  <span class="text-xs text-gray-400" x-text="'Dibuat: ' + g.postedDate"></span>
-                  <span class="text-xs text-gray-400">•</span>
-                  <span class="text-xs text-gray-500 font-semibold" x-text="g.category"></span>
-                </div>
+          <!-- Filter Budget -->
+          <div class="relative shrink-0">
+            <label for="filter-gigs-budget" class="sr-only">Rentang Budget</label>
+            <select
+              id="filter-gigs-budget"
+              x-model="filterBudget"
+              class="appearance-none h-10 pl-4 pr-9 rounded-full border bg-white text-[13.5px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-all shadow-2xs"
+              :class="filterBudget ? 'border-blue-300 bg-blue-50/70 text-[#1E3A8A] font-semibold' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
+            >
+              <option value="">Rentang Budget: Semua</option>
+              <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
+                <option :value="b" x-text="b"></option>
+              </template>
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" :class="filterBudget ? 'text-[#1E3A8A]' : 'text-gray-400'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </span>
+          </div>
 
-                <h3 class="text-[17px] font-bold text-gray-900" x-text="g.title"></h3>
-                <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed" x-text="g.description"></p>
+          <!-- Filter Status -->
+          <div class="relative shrink-0">
+            <label for="filter-gigs-status" class="sr-only">Status Proyek</label>
+            <select
+              id="filter-gigs-status"
+              x-model="filterStatus"
+              class="appearance-none h-10 pl-4 pr-9 rounded-full border bg-white text-[13.5px] font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-all shadow-2xs"
+              :class="filterStatus && filterStatus !== 'Semua' ? 'border-blue-300 bg-blue-50/70 text-[#1E3A8A] font-semibold' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
+            >
+              <option value="Semua">Status Proyek: Semua</option>
+              <option value="Terbuka">Open</option>
+              <option value="Sedang Dikerjakan">Disetujui</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" :class="filterStatus && filterStatus !== 'Semua' ? 'text-[#1E3A8A]' : 'text-gray-400'">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+            </span>
+          </div>
 
-                <div class="flex items-center gap-4 text-xs pt-1 flex-wrap">
-                  <span class="font-bold text-[#1E3A8A]" x-text="'Budget: ' + g.budgetRange"></span>
-                  <span class="text-gray-500" x-text="'Tenggat: ' + g.deadline"></span>
-                  <template x-if="g.assignedContributor">
-                    <span class="font-semibold text-emerald-700" x-text="'Kontributor: ' + g.assignedContributor.name"></span>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Owner Action Buttons -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
-                <!-- Tombol Buka Applicants Drawer jika status bukan Batal -->
-                <template x-if="g.status !== 'Batal'">
-                  <button
-                    type="button"
-                    @click="openApplicantsDrawer(g)"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-blue-50/50 transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                    <span>Pelamar</span>
-                    <span class="px-1.5 py-0.2 rounded-full bg-[#1E3A8A] text-white text-[10px]" x-text="(g.applicants || []).length"></span>
-                  </button>
-                </template>
-
-                <!-- Tombol Edit Proyek (hanya saat Terbuka) -->
-                <template x-if="g.status === 'Terbuka'">
-                  <button
-                    type="button"
-                    @click="openEditGigModal(g)"
-                    class="px-3 py-2 rounded-xl text-xs font-semibold border border-gray-300 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer"
-                    title="Ubah rincian proyek"
-                  >
-                    Edit
-                  </button>
-                </template>
-
-                <!-- Tombol Batalkan Proyek (hanya saat Terbuka) -->
-                <template x-if="g.status === 'Terbuka'">
-                  <button
-                    type="button"
-                    @click="cancelGig(g.id)"
-                    class="px-3 py-2 rounded-xl text-xs font-semibold text-red-600 bg-red hover:bg-red-50 border border-red hover:border-red-200 transition-colors cursor-pointer"
-                    title="Batalkan proyek ini"
-                  >
-                    Batalkan
-                  </button>
-                </template>
-
-                <!-- Tombol Buka Kembali jika Batal -->
-                <template x-if="g.status === 'Batal'">
-                  <button
-                    type="button"
-                    @click="reopenGig(g.id)"
-                    class="px-3.5 py-2 rounded-xl text-xs font-semibold border border-gray-300 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer"
-                  >
-                    Buka Kembali
-                  </button>
-                </template>
-
-                <!-- Tombol WhatsApp jika sudah di-assign -->
-                <template x-if="g.assignedContributor && g.status === 'Sedang Dikerjakan'">
-                  <a
-                    :href="formatWaUrl(g.assignedContributor.phone, 'Halo ' + g.assignedContributor.name + ', saya ' + g.ownerName + ' dari Bengkel Koding. Pengajuan minatmu untuk gig ' + g.title + ' sudah saya setujui. Mari kita koordinasi teknis pengerjaannya.')"
-                    target="_blank"
-                    rel="noreferrer"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <span>Hubungi via WA</span>
-                  </a>
-                </template>
-
-                <!-- Tombol Tandai Selesai & Endorse -->
-                <template x-if="g.status === 'Sedang Dikerjakan'">
-                  <button
-                    type="button"
-                    @click="openEndorseModal(g)"
-                    class="px-3.5 py-2 rounded-xl text-xs font-bold bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
-                  >
-                    <span>✓ Tandai Selesai</span>
-                  </button>
-                </template>
-              </div>
-            </div>
-          </template>
+          <!-- Reset Filter Button (Hanya tampil saat ada filter atau pencarian aktif) -->
+          <button
+            type="button"
+            x-show="searchQuery || filterBudget || selectedCategoryTag || (filterStatus && filterStatus !== 'Semua')"
+            @click="searchQuery = ''; filterBudget = ''; filterStatus = 'Semua'; selectedCategoryTag = ''"
+            class="h-10 px-4 rounded-full border border-gray-200 hover:border-gray-300 text-[13px] font-semibold text-gray-600 hover:text-[#1E3A8A] bg-white transition-colors cursor-pointer flex items-center gap-1.5 shrink-0 shadow-2xs"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <span>Reset Filter</span>
+          </button>
         </div>
-    </div>
+      </div>
+    </template>
 
     <!-- ============================================================
-        TAB 3: LAMARAN SAYA (ALUR CONTRIBUTOR)
+        TAB: LAMARAN SAYA (APPLICATION TRACKER)
+        100% PERSIS TAB "LAMARAN SAYA" DI LOWONGAN PEKERJAAN
     ============================================================ -->
-    <div x-show="activeTab === 'applications'" class="space-y-4">
+    <template x-if="activeTab === 'applications'">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-2xs">
         <template x-if="myApplications.length === 0">
-          <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
-            Anda belum mengajukan minat pada proyek mana pun. Jelajahi tab &quot;Eksplorasi Papan Gigs&quot; untuk mulai berkontribusi.
+          <div class="text-center py-16 text-gray-400 space-y-3">
+            <div class="w-16 h-16 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <p class="text-[17px] font-semibold text-gray-900">Belum Ada Lamaran yang Dikirim</p>
+            <p class="text-[15px] text-gray-500 max-w-md mx-auto leading-relaxed font-normal">
+              Jelajahi Papan Gigs dan ajukan minat kolaborasi pada proyek alumni yang sesuai dengan keahlian Anda!
+            </p>
+            <div class="pt-2">
+              <button
+                type="button"
+                @click="activeTab = 'board'"
+                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer"
+              >
+                <span>Jelajahi Papan Gigs</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </button>
+            </div>
           </div>
         </template>
+        <template x-if="myApplications.length > 0">
+          <div>
+            <!-- Bulk Action Bar jika ada item dipilih -->
+            <template x-if="selectedAppIds.length > 0">
+              <div class="flex items-center justify-between px-6 py-3 bg-blue-50 border-b border-blue-100">
+                <span class="text-[14px] font-medium text-[#1E3A8A]" x-text="selectedAppIds.length + ' lamaran dipilih'"></span>
+                <button
+                  @click="handleDeleteSelected()"
+                  class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-blue-900 text-white text-[14px] font-semibold transition-colors cursor-pointer"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M15 9l-6 6M9 9l6 6" />
+                  </svg>
+                  Batalkan
+                </button>
+              </div>
+            </template>
 
-        <div class="space-y-4">
-          <template x-for="app in myApplications" :key="app.id">
-            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-xs space-y-4">
-              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs text-gray-400" x-text="'Diajukan pada ' + app.appliedDate"></span>
-                    <span class="text-xs text-gray-400">•</span>
-                    <span class="text-xs font-bold text-[#1E3A8A]" x-text="app.budgetRange"></span>
+            <!-- Header Kolom: Checkbox + "Proyek & Owner" -->
+            <div class="flex items-center justify-between gap-5 px-6 py-3.5 border-b border-gray-100 bg-gray-50/70">
+              <div class="flex items-center gap-5">
+                <input
+                  type="checkbox"
+                  :checked="selectedAppIds.length === myApplications.length && myApplications.length > 0"
+                  @change="handleToggleSelectAll()"
+                  class="w-4.5 h-4.5 rounded-[4px] border-2 border-gray-400 text-[#1E3A8A] focus:ring-0 cursor-pointer"
+                  aria-label="Pilih semua proyek"
+                >
+                <span class="font-semibold text-[13px] text-gray-500 uppercase tracking-wide">Daftar Lamaran Anda</span>
+              </div>
+              <span class="text-[12px] text-gray-400 font-normal">Klik baris untuk melihat detail proyek</span>
+            </div>
+
+            <!-- Rows List (Persis 100% Lowongan Pekerjaan) -->
+            <div class="divide-y divide-gray-100">
+              <template x-for="app in myApplications" :key="app.id">
+                <div
+                  @click="selectedGigId = app.gigId; activeTab = 'board'"
+                  class="flex items-center gap-5 px-6 py-5 hover:bg-blue-50/30 transition-colors cursor-pointer"
+                  :class="selectedAppIds.includes(app.id) ? 'bg-blue-50/50' : ''"
+                >
+                  <!-- Checkbox -->
+                  <input
+                    type="checkbox"
+                    :checked="selectedAppIds.includes(app.id)"
+                    @click.stop
+                    @change.stop="handleToggleSelectApp(app.id)"
+                    class="w-4.5 h-4.5 flex-shrink-0 rounded-[4px] border-2 border-gray-300 text-[#1E3A8A] focus:ring-0 cursor-pointer"
+                    :aria-label="'Pilih ' + app.gigTitle"
+                  >
+
+                  <!-- Icon Proyek -->
+                  <div class="w-11 h-11 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-[#1E3A8A] font-bold text-[15px]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
                   </div>
-                  <h3 class="text-[17px] font-bold text-gray-900 mt-1" x-text="app.gigTitle"></h3>
-                  <p class="text-xs text-gray-500 mt-0.5" x-text="'Owner: ' + app.ownerName"></p>
-                </div>
 
-                <div class="flex items-center gap-2">
-                  <template x-if="app.status === 'PENDING'">
-                    <div class="flex items-center gap-2">
-                      <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        Menunggu Review Owner
-                      </span>
+                  <!-- Info -->
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-[15px] font-semibold text-gray-900 hover:text-[#1E3A8A] transition-colors leading-snug truncate" x-text="app.gigTitle"></h3>
+                    </div>
+                    <p class="text-[14px] text-gray-600 mt-0.5 truncate" x-text="'Owner: ' + app.ownerName + ' · ' + app.budgetRange"></p>
+                    <p class="text-[13px] text-gray-400 mt-0.5" x-text="'Diajukan ' + app.appliedDate"></p>
+                  </div>
+
+                  <!-- Status badge: UKURAN SERAGAM w-44 PERSIS LOWONGAN PEKERJAAN -->
+                  <div class="flex-shrink-0 flex items-center gap-2">
+                    <span
+                      class="inline-flex items-center justify-center w-44 py-1.5 px-3 rounded-full text-[13px] font-semibold text-center bg-blue-50 text-[#1E3A8A] border border-blue-200/90 shadow-2xs"
+                      x-text="app.status === 'ACCEPTED' ? 'Disetujui' : (app.status === 'PENDING' ? 'Menunggu Review' : (app.status === 'COMPLETED' ? 'Selesai' : 'Belum Terpilih'))"
+                    ></span>
+
+                    <template x-if="app.status === 'PENDING'">
                       <button
                         type="button"
-                        @click="withdrawApplication(app.id, app.gigId)"
-                        class="px-2.5 py-1 rounded-full text-xs font-semibold text-gray-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-200 transition-colors cursor-pointer"
-                        title="Tarik kembali pengajuan minat"
+                        @click.stop="withdrawApplication(app.id, app.gigId)"
+                        class="p-2 rounded-full text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        title="Tarik lamaran"
                       >
-                        ✕ Tarik Lamaran
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        TAB: PROYEK SAYA (OWNER) — TAMPILAN TABEL BERSIH ALA LOWONGAN
+    ============================================================ -->
+    <template x-if="activeTab === 'my_gigs'">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-2xs">
+        <template x-if="myGigs.length === 0">
+          <div class="text-center py-16 text-gray-400 space-y-3">
+            <div class="w-16 h-16 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            </div>
+            <p class="text-[17px] font-semibold text-gray-900">Belum Ada Proyek yang Anda Terbitkan</p>
+            <p class="text-[15px] text-gray-500 max-w-md mx-auto leading-relaxed font-normal">
+              Lempar tender atau side-project ke Papan Gigs dan temukan rekan kolaborasi dari ekosistem alumni Bengkel Koding.
+            </p>
+            <div class="pt-2">
+              <button
+                type="button"
+                @click="openCreateGigModal()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer"
+              >
+                + Lempar Proyek Pertama
+              </button>
+            </div>
+          </div>
+        </template>
+        <template x-if="myGigs.length > 0">
+          <div>
+            <!-- Header Kolom -->
+            <div class="flex items-center justify-between gap-5 px-6 py-3.5 border-b border-gray-100 bg-gray-50/70">
+              <span class="font-semibold text-[13px] text-gray-500 uppercase tracking-wide">Proyek yang Anda Terbitkan (Owner)</span>
+              <span class="text-[12px] text-gray-400 font-normal">Kelola pelamar &amp; status pengerjaan</span>
+            </div>
+            <!-- Rows -->
+            <div class="divide-y divide-gray-100">
+              <template x-for="g in myGigs" :key="g.id">
+                <div class="flex items-center gap-5 px-6 py-5 hover:bg-blue-50/30 transition-colors">
+                  <!-- Icon -->
+                  <div class="w-11 h-11 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-[#1E3A8A]">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                  </div>
+
+                  <!-- Info -->
+                  <div class="min-w-0 flex-1">
+                    <h3 class="text-[15px] font-semibold text-gray-900 leading-snug truncate" x-text="g.title"></h3>
+                    <p class="text-[14px] text-gray-600 font-medium mt-0.5 truncate" x-text="g.category + ' · ' + g.budgetRange"></p>
+                    <p class="text-[13px] text-gray-400 mt-0.5" x-text="'Dibuat ' + g.postedDate + ' · Tenggat ' + g.deadline"></p>
+                  </div>
+
+                  <!-- Status badge & aksi -->
+                  <div class="flex-shrink-0 flex items-center gap-2.5">
+                    <!-- Status badge (ukuran oval sama dengan tombol lainnya, tanpa warna hijau) -->
+                    <span
+                      class="w-[110px] h-8 inline-flex items-center justify-center rounded-full text-[13px] font-semibold text-center border shadow-2xs"
+                      :class="{
+                        'bg-white text-gray-700 border-gray-200': g.status === 'Terbuka',
+                        'bg-blue-50 text-[#1E3A8A] border-blue-200': g.status === 'Sedang Dikerjakan',
+                        'bg-purple-50 text-purple-700 border-purple-200': g.status === 'Selesai',
+                        'bg-gray-100 text-gray-500 border-gray-200': g.status === 'Batal'
+                      }"
+                      x-text="g.status === 'Terbuka' ? 'Open' : (g.status === 'Sedang Dikerjakan' ? 'Disetujui' : g.status)"
+                    ></span>
+
+                    <!-- Tombol Review Pelamar -->
+                    <template x-if="g.status !== 'Batal'">
+                      <button
+                        type="button"
+                        @click="openApplicantsDrawer(g)"
+                        class="w-[110px] h-8 inline-flex items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold border border-gray-200 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-blue-50/50 transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span x-text="(g.applicants || []).length + ' Pelamar'"></span>
+                      </button>
+                    </template>
+
+                    <!-- Edit -->
+                    <template x-if="g.status === 'Terbuka'">
+                      <button
+                        type="button"
+                        @click.stop="openEditGigModal(g)"
+                        class="w-[110px] h-8 inline-flex items-center justify-center rounded-full text-[13px] font-semibold border border-gray-200 hover:bg-gray-50 text-gray-700 transition-colors cursor-pointer shadow-2xs"
+                      >
+                        Edit
+                      </button>
+                    </template>
+
+                    <!-- Tandai Selesai -->
+                    <template x-if="g.status === 'Sedang Dikerjakan'">
+                      <button
+                        type="button"
+                        @click="openEndorseModal(g)"
+                        class="px-4 py-1.5 rounded-full text-[13px] font-bold bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white transition-colors cursor-pointer shadow-sm"
+                      >
+                        ✓ Selesai
+                      </button>
+                    </template>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        TAB: PROYEK TERSIMPAN (KONDISI KOSONG BELUM ADA PROYEK DISIMPAN)
+    ============================================================ -->
+    <template x-if="activeTab === 'saved' && savedGigIds.length === 0">
+      <div class="bg-white rounded-xl border border-gray-200 p-12 sm:p-16 text-center space-y-4 shadow-2xs">
+        <div class="w-16 h-16 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" />
+          </svg>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-[18px] font-bold text-gray-900 tracking-tight">Belum Ada Proyek Tersimpan</h3>
+          <p class="text-[15px] text-gray-500 max-w-md mx-auto leading-relaxed font-normal">
+            Simpan proyek menarik saat menjelajahi Papan Gigs dengan menekan tombol Simpan atau ikon bookmark untuk ditinjau di kemudian hari.
+          </p>
+        </div>
+        <div class="pt-2">
+          <button
+            type="button"
+            @click="activeTab = 'board'"
+            class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer"
+          >
+            <span>Jelajahi Papan Gigs</span>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        KONTEN UTAMA: JELAJAHI & TERSIMPAN (KONDISI ADA DATA ATAU HASIL FILTER 0)
+    ============================================================ -->
+    <template x-if="activeTab === 'board' || (activeTab === 'saved' && savedGigIds.length > 0)">
+      <div class="w-full">
+        <!-- ── EMPTY STATE FULL-WIDTH KETIKA HASIL PENCARIAN/FILTER KOSONG (TIDAK ADA CARD KOSONG DI KANAN) ── -->
+        <template x-if="filteredBoardGigs.length === 0">
+          <div class="bg-white rounded-xl border border-gray-200 p-12 sm:p-16 text-center space-y-4 shadow-2xs w-full">
+            <div class="w-16 h-16 rounded-full bg-gray-50 text-gray-400 flex items-center justify-center mx-auto">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-[17px] font-semibold text-gray-900">Tidak ada proyek yang cocok</h3>
+              <p class="text-[14px] text-gray-500 max-w-md mx-auto leading-relaxed font-normal">
+                Coba sesuaikan kata kunci pencarian atau bersihkan filter kategori dan budget yang aktif.
+              </p>
+            </div>
+            <div class="pt-1">
+              <button
+                type="button"
+                @click="searchQuery = ''; filterBudget = ''; filterStatus = 'Semua'; selectedCategoryTag = ''"
+                class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full border border-gray-300 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] bg-white transition-colors cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                <span>Reset Pencarian &amp; Filter</span>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- ── SPLIT SCREEN 2-KOLOM (HANYA MUNCUL KETIKA ADA PROYEK UNTUK DITAMPILKAN) ── -->
+        <template x-if="filteredBoardGigs.length > 0">
+          <div class="flex flex-col lg:flex-row gap-6 items-start">
+
+            <!-- ── KOLOM KIRI: DAFTAR KARTU PROYEK (FEED) ─────────────── -->
+            <div class="w-full lg:w-[410px] xl:w-[440px] flex-shrink-0 flex flex-col gap-3.5">
+              <div class="flex items-center justify-between px-1 text-[14px] font-medium text-gray-500">
+                <span x-text="'Menampilkan ' + filteredBoardGigs.length + ' proyek'"></span>
+                <span class="text-[13px] text-gray-400">Diurutkan: Paling Relevan</span>
+              </div>
+
+              <div class="space-y-3.5 max-h-[840px] overflow-y-auto pr-1 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+              <template x-for="gig in filteredBoardGigs" :key="gig.id">
+                <div
+                  @click="selectedGigId = gig.id"
+                  class="p-5 rounded-xl border transition-all cursor-pointer relative bg-white"
+                  :class="selectedGig && selectedGig.id === gig.id
+                    ? 'border-[#1E3A8A] ring-2 ring-[#1E3A8A]/15 shadow-sm'
+                    : 'border-gray-200/90 hover:border-gray-300 hover:shadow-xs'"
+                >
+                  <!-- Baris Atas: Avatar Owner, Judul Luas, Kategori & Status Pill -->
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-3.5 min-w-0 flex-1">
+                      <!-- Avatar Owner -->
+                      <img :src="gig.ownerAvatar || DEFAULT_AVATAR" :alt="gig.ownerName" class="w-11 h-11 rounded-lg object-cover border border-gray-100 flex-shrink-0">
+
+                      <!-- Judul, Owner, Budget, Kategori & Status Pill -->
+                      <div class="min-w-0 flex-1">
+                        <h3 class="text-[15px] font-semibold text-gray-900 leading-snug hover:text-[#1E3A8A] transition-colors line-clamp-1" x-text="gig.title"></h3>
+                        <p class="text-[13.5px] font-normal text-gray-600 line-clamp-1 mt-0.5" x-text="gig.ownerName"></p>
+
+                        <!-- Rentang Budget -->
+                        <p class="text-[14px] font-semibold text-[#1E3A8A] mt-1.5" x-text="gig.budgetRange"></p>
+
+                        <!-- Badges: Kategori & Status dengan Border Bersih -->
+                        <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                          <!-- Badge Kategori -->
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium border border-gray-200 bg-gray-50/80 text-gray-700" x-text="gig.category"></span>
+
+                          <!-- Badge Status -->
+                          <span
+                            class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[12px] font-medium border"
+                            :class="{
+                              'bg-white text-gray-700 border-gray-200': gig.status === 'Terbuka',
+                              'bg-blue-50 text-[#1E3A8A] border-blue-200': gig.status === 'Sedang Dikerjakan',
+                              'bg-purple-50 text-purple-700 border-purple-200': gig.status === 'Selesai',
+                              'bg-gray-100 text-gray-500 border-gray-200': gig.status === 'Batal'
+                            }"
+                            x-text="gig.status === 'Terbuka' ? 'Open' : (gig.status === 'Sedang Dikerjakan' ? 'Disetujui' : (gig.status === 'Selesai' ? 'Selesai' : gig.status))"
+                          ></span>
+
+                          <!-- Tenggat Waktu -->
+                          <span class="text-[11.5px] text-gray-400 font-normal ml-0.5" x-text="'Tenggat ' + gig.deadline"></span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Tombol Bookmark (100% PERSIS LOWONGAN PEKERJAAN) -->
+                    <button
+                      type="button"
+                      @click.stop="handleToggleBookmark(gig.id)"
+                      :title="savedGigIds.includes(gig.id) ? 'Hapus dari tersimpan' : 'Simpan proyek'"
+                      class="w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer flex-shrink-0"
+                      :class="savedGigIds.includes(gig.id) ? 'text-[#1E3A8A] bg-blue-50' : 'text-gray-400 hover:text-gray-700 hover:bg-gray-100'"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" :fill="savedGigIds.includes(gig.id) ? 'currentColor' : 'none'">
+                        <path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+        </div>
+
+        <!-- ── KOLOM KANAN: RINCIAN LENGKAP PROYEK (DETAIL VIEW) ──── -->
+        <div class="flex-1 min-w-0 bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 sticky top-4 max-h-[860px] overflow-y-auto space-y-6 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <template x-if="selectedGig">
+            <div class="contents space-y-6">
+              <!-- Header Card Detail (100% Persis Lowongan) -->
+              <div class="border-b border-gray-100 pb-5">
+                <div class="flex items-start justify-between gap-4">
+                  <div class="flex items-start gap-4">
+                    <img :src="selectedGig.ownerAvatar || DEFAULT_AVATAR" :alt="selectedGig.ownerName" class="w-14 h-14 rounded-xl object-cover border border-gray-200 shadow-xs flex-shrink-0">
+                    <div>
+                      <h2 class="text-[20px] font-semibold text-gray-900 tracking-tight leading-tight" x-text="selectedGig.title"></h2>
+                      <div class="flex items-center gap-2 mt-1">
+                        <span class="text-[15px] font-semibold text-[#1E3A8A]" x-text="selectedGig.ownerName"></span>
+                      </div>
+                      <p class="text-[14px] font-semibold text-gray-900 mt-1" x-text="selectedGig.category + ' • ' + selectedGig.budgetRange + ' • Diposting ' + selectedGig.postedDate + ' • ' + ((selectedGig.applicants || []).length) + ' pelamar'"></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Tombol Aksi Utama (Ajukan Minat & Simpan Persis Lowongan) -->
+                <div class="mt-5 flex flex-wrap items-center gap-3">
+                  <!-- Jika Proyek Milik Sendiri -->
+                  <template x-if="selectedGig.ownerId === currentUserId">
+                    <div class="flex items-center gap-3">
+                      <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-blue-50 text-[#1E3A8A] border border-blue-200 text-[15px] font-semibold">
+                        <span>Ini Proyek Anda</span>
+                      </div>
+                      <template x-if="selectedGig.status === 'Terbuka'">
+                        <button
+                          type="button"
+                          @click="openEditGigModal(selectedGig)"
+                          class="px-5 py-2.5 rounded-full border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-[15px] transition-colors cursor-pointer"
+                        >
+                          Edit Proyek
+                        </button>
+                      </template>
+                    </div>
+                  </template>
+
+                  <!-- Jika Sudah Mengajukan Minat -->
+                  <template x-if="selectedGig.ownerId !== currentUserId && hasAppliedTo(selectedGig.id)">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                      <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-blue-50 text-[#1E3A8A] border border-blue-200 text-[14px] font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span>Minat Terkirim</span>
+                      </div>
+                      <button
+                        type="button"
+                        @click="activeTab = 'applications'"
+                        class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/40 text-gray-700 hover:text-[#1E3A8A] text-[14px] font-semibold transition-colors cursor-pointer"
+                      >
+                        <span>Pantau di Lamaran Terkirim</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                       </button>
                     </div>
                   </template>
-                  <template x-if="app.status === 'ACCEPTED'">
-                    <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-blue-50 text-[#1E3A8A] border border-blue-200">
-                      Disetujui · Sedang Dikerjakan
-                    </span>
+
+                  <!-- Tombol Ajukan Minat -->
+                  <template x-if="selectedGig.ownerId !== currentUserId && !hasAppliedTo(selectedGig.id) && selectedGig.status === 'Terbuka'">
+                    <button
+                      type="button"
+                      id="btn-apply-gig"
+                      @click="openQuickApplyModal(selectedGig)"
+                      class="px-6 py-2.5 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[15px] rounded-full shadow-sm transition-colors cursor-pointer"
+                    >
+                      Ajukan Minat Sekarang
+                    </button>
                   </template>
-                  <template x-if="app.status === 'REJECTED'">
-                    <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-500 border border-gray-200">
-                      ✕ Belum Terpilih / Kuota Penuh
-                    </span>
-                  </template>
-                  <template x-if="app.status === 'COMPLETED'">
-                    <span class="px-3.5 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                      ★ Selesai &amp; Mendapat Endorsement
-                    </span>
-                  </template>
-                </div>
-              </div>
 
-              <!-- Pesan Pitching & Lampiran Portofolio -->
-              <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 space-y-2 text-xs">
-                <span class="font-bold text-gray-500 block uppercase tracking-wider text-[11px]">Pesan Pitching Anda:</span>
-                <p class="text-gray-800 leading-relaxed italic" x-text="'&ldquo;' + app.message + '&rdquo;'"></p>
+                  <!-- Tombol Simpan / Bookmark (100% Persis Gambar 3 User: Border Biru Navy, Teks Biru Navy, Background Putih) -->
+                  <button
+                    type="button"
+                    @click="handleToggleBookmark(selectedGig.id)"
+                    class="px-5 py-2.5 rounded-full text-[15px] font-semibold border transition-colors cursor-pointer"
+                    :class="savedGigIds.includes(selectedGig.id) ? 'border-[#1E3A8A] text-[#1E3A8A] bg-white hover:bg-blue-50/20' : 'border-gray-300 text-gray-700 hover:bg-gray-100'"
+                    x-text="savedGigIds.includes(selectedGig.id) ? 'Tersimpan' : 'Simpan'"
+                  ></button>
 
-                <template x-if="app.portfolioItems && app.portfolioItems.length > 0">
-                  <div class="pt-2 border-t border-gray-200/60 mt-2">
-                    <span class="font-bold text-gray-500 block text-[11px] mb-1">Bukti Portofolio Dilampirkan:</span>
-                    <div class="flex flex-wrap gap-2">
-                      <template x-for="p in app.portfolioItems" :key="p.title">
-                        <a :href="p.linkUrl || '#'" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 rounded-lg text-xs font-medium text-[#1E3A8A] hover:underline">
-                          <span x-text="p.title"></span>
-                          <span class="text-[10px] text-gray-400" x-text="'(' + p.stack + ')'"></span>
-                        </a>
-                      </template>
-                    </div>
-                  </div>
-                </template>
-              </div>
-
-              <!-- Endorsement dari Owner jika ada -->
-              <template x-if="app.endorsement">
-                <div class="p-4 rounded-xl bg-purple-50/80 border border-purple-200 text-xs space-y-1">
-                  <span class="font-bold text-purple-800 block text-[11px] uppercase tracking-wider">Catatan Endorsement dari Owner:</span>
-                  <p class="text-gray-800 font-medium italic leading-relaxed" x-text="'&ldquo;' + app.endorsement + '&rdquo;'"></p>
-                </div>
-              </template>
-
-              <!-- Kontak Langsung WA jika disetujui -->
-              <template x-if="app.status === 'ACCEPTED'">
-                <div class="flex items-center justify-between pt-2">
-                  <p class="text-xs text-gray-500">Koordinasikan serah terima kode dan link repository langsung via WA.</p>
-                  <a
-                    :href="formatWaUrl(app.ownerPhone, 'Halo ' + app.ownerName + ', saya Aisha. Saya siap menyerahkan hasil pengerjaan untuk proyek ' + app.gigTitle)"
-                    target="_blank"
-                    rel="noreferrer"
-                    class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-sm"
+                  <!-- Tombol Salin Tautan -->
+                  <button
+                    type="button"
+                    @click="navigator.clipboard.writeText(window.location.href); setToast('Tautan proyek berhasil disalin ke clipboard!')"
+                    class="p-2.5 rounded-full text-gray-500 hover:text-gray-800 hover:bg-gray-100 transition-colors cursor-pointer border border-gray-200"
+                    title="Salin tautan proyek"
                   >
-                    <span>Hubungi Owner via WhatsApp</span>
-                  </a>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                      <circle cx="18" cy="5" r="3" stroke="currentColor" stroke-width="2" />
+                      <circle cx="6" cy="12" r="3" stroke="currentColor" stroke-width="2" />
+                      <circle cx="18" cy="19" r="3" stroke="currentColor" stroke-width="2" />
+                      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" stroke="currentColor" stroke-width="2" />
+                      <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" stroke="currentColor" stroke-width="2" />
+                    </svg>
+                  </button>
                 </div>
-              </template>
+
+                <!-- Informasi Ringkas: Grid Kartu Spesifikasi dengan Border Halus -->
+                <div class="mt-5 pt-5 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div class="p-3.5 rounded-xl border border-gray-200/90 bg-gray-50/50 space-y-1">
+                    <span class="text-[12px] font-medium text-gray-500 block">Kategori Proyek</span>
+                    <span class="text-[14px] font-semibold text-gray-900 block leading-snug" x-text="selectedGig.category"></span>
+                  </div>
+                  <div class="p-3.5 rounded-xl border border-gray-200/90 bg-gray-50/50 space-y-1">
+                    <span class="text-[12px] font-medium text-gray-500 block">Rentang Budget</span>
+                    <span class="text-[14px] font-semibold text-[#1E3A8A] block leading-snug" x-text="selectedGig.budgetRange"></span>
+                  </div>
+                  <div class="p-3.5 rounded-xl border border-gray-200/90 bg-gray-50/50 space-y-1">
+                    <span class="text-[12px] font-medium text-gray-500 block">Target Selesai</span>
+                    <span class="text-[14px] font-semibold text-gray-900 block leading-snug" x-text="selectedGig.deadline"></span>
+                  </div>
+                  <div class="p-3.5 rounded-xl border border-gray-200/90 bg-gray-50/50 space-y-1">
+                    <span class="text-[12px] font-medium text-gray-500 block">Kuota Tim</span>
+                    <span class="text-[14px] font-semibold text-gray-900 block leading-snug" x-text="(selectedGig.quota || 1) + ' Orang'"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── TECH STACK & KEAHLIAN ── -->
+              <div class="space-y-3 pt-5 border-t border-gray-100">
+                <h3 class="text-[16px] font-semibold text-gray-900">Tech Stack &amp; Keahlian</h3>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="(skill, i) in (selectedGig.techStack || [])" :key="i">
+                    <span class="px-3.5 py-1.5 rounded-lg text-[13px] font-medium bg-blue-50/70 text-[#1E3A8A] border border-blue-100/90 shadow-2xs" x-text="skill"></span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- ── PERAN YANG DICARI (WARNA PERSIS TECH STACK ALUMNI) ── -->
+              <div class="space-y-3 pt-5 border-t border-gray-100">
+                <h3 class="text-[16px] font-semibold text-gray-900">Peran yang Dicari</h3>
+                <div class="flex flex-wrap gap-2">
+                  <template x-for="(role, i) in (selectedGig.rolesNeeded || [])" :key="i">
+                    <span class="px-3.5 py-1.5 rounded-lg text-[13px] font-medium bg-blue-50/70 text-[#1E3A8A] border border-blue-100/90 shadow-2xs" x-text="role"></span>
+                  </template>
+                </div>
+              </div>
+
+              <!-- ── DESKRIPSI & DELIVERABLES ── -->
+              <div class="space-y-5 text-[15px] text-gray-700 leading-relaxed border-t border-gray-100 pt-5">
+                <div>
+                  <h3 class="text-[16px] font-semibold text-gray-900 mb-2">Deskripsi &amp; Deliverables</h3>
+                  <p class="text-gray-700 leading-relaxed whitespace-pre-line" x-text="selectedGig.description"></p>
+                </div>
+              </div>
+
+              <!-- ── TENTANG PEMILIK PROYEK (DESKRIPSI BIO PROFIL) ── -->
+              <div class="border-t border-gray-100 pt-5 space-y-2">
+                <h3 class="text-[16px] font-semibold text-gray-900" x-text="'Tentang ' + selectedGig.ownerName"></h3>
+                <p class="text-[15px] text-gray-700 leading-relaxed whitespace-pre-line" x-text="getOwnerAbout(selectedGig.ownerName, selectedGig.ownerId)"></p>
+              </div>
+            </div>
+          </template>
+
+          <!-- Fallback jika belum ada proyek yang dipilih / kosong -->
+          <template x-if="!selectedGig">
+            <div class="py-20 flex flex-col items-center justify-center text-center p-8 text-gray-400 space-y-3">
+              <div class="w-16 h-16 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+              </div>
+              <h3 class="text-[17px] font-semibold text-gray-800">Pilih Proyek dari Daftar</h3>
+              <p class="text-[14px] text-gray-500 max-w-xs leading-relaxed font-normal">
+                Pilih salah satu proyek di sebelah kiri untuk melihat rincian spesifikasi lengkap, deliverables, dan mengajukan minat.
+              </p>
             </div>
           </template>
         </div>
-    </div>
+      </div>
+    </template>
+  </div>
+</template>
 
     <!-- ============================================================
-        SLIDE-OVER APPLICANTS DRAWER (PRODUCT OWNER REVIEW FLOW)
+        MODAL: AJUKAN MINAT (100% PERSIS MODAL LAMAR PEKERJAAN LOWONGAN)
     ============================================================ -->
-    <template x-if="drawerOpen && activeGigReview">
-      <div class="fixed inset-0 z-[150] overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
-        <!-- Backdrop Blur -->
+    <template x-if="quickApplyModalOpen && targetApplyGig">
+      <div
+        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200"
+        @mousedown.self="quickApplyModalOpen = false"
+      >
         <div
-          class="absolute inset-0 bg-gray-900/60 backdrop-blur-xs transition-opacity duration-300"
-          @click="drawerOpen = false"
-        ></div>
+          style="width: 90vw; max-width: 720px; max-height: min(92vh, 680px)"
+          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Header Modal Persis Lowongan -->
+          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+            <h2 class="text-[20px] font-bold text-gray-900 tracking-tight" x-text="'Ajukan Minat: ' + targetApplyGig.title"></h2>
+            <button
+              type="button"
+              @click="quickApplyModalOpen = false"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+              aria-label="Tutup modal"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
 
-        <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
-          <div class="pointer-events-auto w-screen max-w-xl bg-white shadow-2xl flex flex-col">
-            <!-- Header Drawer Clean & Minimal -->
-            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
+          <!-- Body Form -->
+          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-4">
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Nama Lengkap</label>
+              <input type="text" readonly :value="currentUserName" class="w-full rounded-md border border-gray-300 bg-gray-50 px-3.5 py-2.5 text-[15px] text-gray-900 outline-none cursor-default">
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Nomor WhatsApp / HP Kontak <span class="text-red-500 font-bold">*</span></label>
+              <input type="text" autocomplete="off" x-model="applyContactPhone" placeholder="Contoh: 0812-3456-7890" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Tautan Portofolio / GitHub Terkait</label>
+              <input type="url" autocomplete="off" x-model="applyPortfolioUrl" placeholder="https://github.com/username/project" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Pesan Singkat &amp; Pitching Keahlian <span class="text-red-500 font-bold">*</span></label>
+              <textarea rows="4" x-model="applyPitchMessage" placeholder="Ceritakan pengalaman relevan Anda dan bagaimana Anda dapat berkontribusi di proyek ini..." style="resize: none" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
+              <p class="text-right text-[12px] text-gray-400" x-text="(applyPitchMessage.length) + '/250 karakter'"></p>
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
+            <button
+              type="button"
+              @click="quickApplyModalOpen = false"
+              class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              :disabled="!applyPitchMessage.trim()"
+              @click="submitQuickApply()"
+              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Kirim Pengajuan
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        MODAL: BUAT PROYEK BARU (LEMPAR PROYEK)
+    ============================================================ -->
+    <template x-if="createGigModalOpen">
+      <div
+        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200"
+        @mousedown.self="createGigModalOpen = false"
+      >
+        <div
+          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
+          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          <!-- Header Modal -->
+          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+            <h2 class="text-[20px] font-bold text-gray-900 tracking-tight">Lempar Proyek Baru</h2>
+            <button
+              type="button"
+              @click="createGigModalOpen = false"
+              class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+              aria-label="Tutup modal"
+            >
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Body Form -->
+          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-4">
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Judul Proyek / Kebutuhan <span class="text-red-500 font-bold">*</span></label>
+              <input type="text" autocomplete="off" x-model="newGigForm.title" placeholder="Contoh: Pembuatan Landing Page Startup IoT Berbasis Next.js" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Kategori <span class="text-red-500 font-bold">*</span></label>
+                <div class="relative">
+                  <select x-model="newGigForm.category" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                    <option value="Mobile App">Mobile App</option>
+                    <option value="Frontend">Frontend Development</option>
+                    <option value="Backend">Backend API</option>
+                    <option value="UI/UX">UI/UX &amp; Web Design</option>
+                    <option value="Data Science">Data Science &amp; AI</option>
+                    <option value="QA">QA &amp; Testing</option>
+                  </select>
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Rentang Budget / Kompensasi <span class="text-red-500 font-bold">*</span></label>
+                <div class="relative">
+                  <select x-model="newGigForm.budgetRange" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                    <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
+                      <option :value="b" x-text="b"></option>
+                    </template>
+                  </select>
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Peran yang Dicari (Pisahkan koma)</label>
+                <input type="text" autocomplete="off" x-model="newGigForm.rolesNeeded" placeholder="Frontend React, UI Designer" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Target Tanggal Selesai</label>
+                <input type="date" x-model="newGigForm.deadline" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all">
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Tech Stack yang Digunakan (Pisahkan koma)</label>
+              <input type="text" autocomplete="off" x-model="newGigForm.techStack" placeholder="React, Tailwind CSS, TypeScript, Supabase" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="block text-[14px] font-medium text-gray-700">Deskripsi Kebutuhan &amp; Deliverables <span class="text-red-500 font-bold">*</span></label>
+              <textarea rows="4" x-model="newGigForm.description" placeholder="Jelaskan ruang lingkup proyek, target deliverables, serta ekspektasi kontribusi rekan alumni..." style="resize: none" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
+            <button
+              type="button"
+              @click="createGigModalOpen = false"
+              class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              :disabled="!newGigForm.title.trim() || !newGigForm.description.trim()"
+              @click="submitCreateGig()"
+              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Terbitkan Proyek
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+
+    <!-- ============================================================
+        MODAL: EDIT PROYEK ANDA
+    ============================================================ -->
+    <template x-teleport="body">
+      <template x-if="editGigModalOpen">
+        <div
+          class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto"
+          @mousedown.self="editGigModalOpen = false"
+          @keydown.window.escape="editGigModalOpen = false"
+        >
+          <div
+            style="width: 90vw; max-width: 1024px; max-height: 90vh;"
+            class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col min-h-0 overflow-hidden my-auto"
+            role="dialog"
+            aria-modal="true"
+          >
+            <!-- Header Modal -->
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+              <h2 class="text-[20px] font-bold text-gray-900 tracking-tight">Edit Proyek Anda</h2>
+              <button
+                type="button"
+                @click="editGigModalOpen = false"
+                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+                aria-label="Tutup modal"
+              >
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Body Form (Dapat di-scroll dengan sempurna) -->
+            <div class="flex-1 min-h-0 overflow-y-auto px-6 sm:px-8 py-6 space-y-4">
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Judul Proyek / Kebutuhan <span class="text-red-500 font-bold">*</span></label>
+                <input type="text" autocomplete="off" x-model="editGigForm.title" placeholder="Contoh: Sistem Presensi QR Code Mobile App" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Kategori <span class="text-red-500 font-bold">*</span></label>
+                  <div class="relative">
+                    <select x-model="editGigForm.category" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                      <option value="Mobile App">Mobile App</option>
+                      <option value="Frontend">Frontend Development</option>
+                      <option value="Backend">Backend API</option>
+                      <option value="UI/UX">UI/UX &amp; Web Design</option>
+                      <option value="Data Science">Data Science &amp; AI</option>
+                      <option value="QA">QA &amp; Testing</option>
+                    </select>
+                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Rentang Budget / Kompensasi <span class="text-red-500 font-bold">*</span></label>
+                  <div class="relative">
+                    <select x-model="editGigForm.budgetRange" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
+                      <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
+                        <option :value="b" x-text="b"></option>
+                      </template>
+                    </select>
+                    <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Peran yang Dicari (Pisahkan koma)</label>
+                  <input type="text" autocomplete="off" x-model="editGigForm.rolesNeeded" placeholder="Frontend React, UI Designer" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+                </div>
+
+                <div class="space-y-1.5">
+                  <label class="block text-[14px] font-medium text-gray-700">Target Tanggal Selesai</label>
+                  <input type="date" x-model="editGigForm.deadline" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all">
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Tech Stack yang Digunakan (Pisahkan koma)</label>
+                <input type="text" autocomplete="off" x-model="editGigForm.techStack" placeholder="React Native, Flutter, Firebase" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[14px] font-medium text-gray-700">Deskripsi Kebutuhan &amp; Deliverables <span class="text-red-500 font-bold">*</span></label>
+                <textarea rows="4" x-model="editGigForm.description" placeholder="Jelaskan ruang lingkup proyek, target deliverables, serta ekspektasi kontribusi rekan alumni..." style="resize: none" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
+              </div>
+            </div>
+
+            <!-- Footer Actions (Oval merah Hapus perubahan di kiri, Batal & Simpan Perubahan di kanan) -->
+            <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-between flex-shrink-0">
               <div>
-                <h2 id="slide-over-title" class="text-base font-bold text-gray-900">Daftar Pelamar Internal</h2>
-                <p class="text-xs text-gray-500 mt-0.5 line-clamp-1" x-text="activeGigReview.title"></p>
+                <button
+                  type="button"
+                  @click="deleteGig(editingGigId)"
+                  class="px-5 py-2 rounded-full border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[14px] font-semibold transition-colors cursor-pointer"
+                >
+                  Hapus perubahan
+                </button>
+              </div>
+              <div class="flex items-center gap-3">
+                <button
+                  type="button"
+                  @click="editGigModalOpen = false"
+                  class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  :disabled="!(editGigForm.title || '').trim() || !(editGigForm.description || '').trim()"
+                  @click="submitEditGig()"
+                  class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </template>
+
+    <!-- ============================================================
+        MODAL: REVIEW PELAMAR PROYEK (OWNER) - UKURAN CARD SAMA DENGAN YG LAIN
+    ============================================================ -->
+    <template x-teleport="body">
+      <template x-if="drawerOpen && activeGigReview">
+        <div
+          class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto"
+          @mousedown.self="drawerOpen = false"
+          @keydown.window.escape="drawerOpen = false"
+        >
+          <div
+            style="width: 90vw; max-width: 1024px; max-height: 90vh;"
+            class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col min-h-0 overflow-hidden my-auto"
+            role="dialog"
+            aria-modal="true"
+          >
+            <!-- Header Modal (Sama persis dengan modal lainnya) -->
+            <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+              <div class="min-w-0 flex-1 pr-4">
+                <h2 class="text-[20px] font-bold text-gray-900 tracking-tight">Daftar Pelamar Proyek</h2>
+                <p class="text-[14px] text-gray-500 mt-0.5 truncate font-normal" x-text="activeGigReview.title"></p>
               </div>
               <button
                 type="button"
                 @click="drawerOpen = false"
-                class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors cursor-pointer"
+                class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+                aria-label="Tutup modal"
               >
-                ✕
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
               </button>
             </div>
 
-            <!-- Body Drawer (Daftar Pelamar) -->
-            <div class="p-6 overflow-y-auto space-y-4 flex-1">
-              <template x-if="(!activeGigReview.applicants || activeGigReview.applicants.length === 0)">
-                <div class="p-8 text-center text-gray-400 text-sm">
-                  Belum ada pelamar yang mengajukan minat untuk proyek ini.
+            <!-- Body Pelamar -->
+            <div class="flex-1 min-h-0 overflow-y-auto px-6 sm:px-8 py-6 space-y-4">
+              <!-- Empty State jika belum ada pelamar -->
+              <template x-if="!(activeGigReview.applicants || []).length">
+                <div class="py-16 text-center">
+                  <div class="w-12 h-12 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                  </div>
+                  <h3 class="text-[16px] font-normal text-gray-900">Belum ada rekan yang mengajukan minat</h3>
+                  <p class="text-[14px] text-gray-500 mt-1 max-w-md mx-auto font-normal">Pengajuan kolaborasi dari rekan alumni untuk proyek ini akan otomatis terdata di sini.</p>
                 </div>
               </template>
 
-              <template x-for="applicant in activeGigReview.applicants" :key="applicant.id">
-                <div class="rounded-xl border border-gray-200 p-5 space-y-3.5 hover:border-blue-300 transition-colors shadow-2xs">
-                  <!-- Identitas Pelamar -->
-                  <div class="flex items-start justify-between gap-3">
-                    <div class="flex items-center gap-3">
-                      <img :src="applicant.applicantAvatar || DEFAULT_AVATAR" class="w-12 h-12 rounded-full object-cover border border-blue-100 ring-2 ring-blue-50">
+              <!-- Daftar Kartu Pelamar -->
+              <template x-for="app in (activeGigReview.applicants || [])" :key="app.id">
+                <div class="p-5 sm:p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all space-y-4 shadow-2xs">
+                  <!-- Baris Atas Pelamar: Profil, Status, dan Tombol Aksi -->
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3.5">
+                      <img :src="app.applicantAvatar || DEFAULT_AVATAR" class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0" :alt="app.applicantName">
                       <div>
-                        <h4 class="text-sm font-bold text-gray-900" x-text="applicant.applicantName"></h4>
-                        <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
-                          <span class="font-semibold text-[#1E3A8A]" x-text="'Batch ' + applicant.applicantBatch"></span>
-                          <span>•</span>
-                          <span x-text="applicant.appliedDate"></span>
-                        </div>
+                        <h4 class="text-[14px] font-normal text-gray-900" x-text="app.applicantName"></h4>
+                        <p class="text-[14px] text-gray-500 font-normal" x-text="'Alumni ' + (app.applicantBatch || 'Bengkod') + ' · Diajukan ' + (app.appliedDate || '-')"></p>
                       </div>
                     </div>
 
-                    <template x-if="applicant.status === 'ACCEPTED'">
-                      <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-[#1E3A8A]">
-                        ✓ Tim Terpilih
-                      </span>
-                    </template>
-                    <template x-if="applicant.status === 'REJECTED'">
-                      <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-500">
-                        ✕ Belum Terpilih
-                      </span>
-                    </template>
-                  </div>
+                    <div class="flex items-center gap-2.5 self-end sm:self-center">
+                      <!-- Status Badge (Netral, Tanpa Warna Hijau) -->
+                      <span
+                        class="px-3 py-1 rounded-full text-[13px] font-normal border"
+                        :class="{
+                          'bg-blue-50 text-[#1E3A8A] border-blue-200': app.status === 'ACCEPTED',
+                          'bg-gray-100 text-gray-500 border-gray-200': app.status === 'REJECTED',
+                          'bg-white text-gray-700 border-gray-200': app.status === 'PENDING'
+                        }"
+                        x-text="app.status === 'ACCEPTED' ? 'Disetujui' : (app.status === 'REJECTED' ? 'Ditolak' : 'Pending')"
+                      ></span>
 
-                  <!-- Skills Tags -->
-                  <div class="flex flex-wrap gap-1.5">
-                    <template x-for="sk in applicant.skills" :key="sk">
-                      <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-medium" x-text="sk"></span>
-                    </template>
-                  </div>
-
-                  <!-- Pitch Message Box -->
-                  <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-100 text-xs">
-                    <span class="text-[11px] font-bold text-[#1E3A8A] uppercase tracking-wider block mb-1">💬 Pesan Pitching (Maks 250 Karakter):</span>
-                    <p class="text-gray-800 leading-relaxed italic" x-text="'&ldquo;' + applicant.pitchMessage + '&rdquo;'"></p>
-                  </div>
-
-                  <!-- Lampiran Portofolio 1-2 Project -->
-                  <template x-if="applicant.portfolioItems && applicant.portfolioItems.length > 0">
-                    <div class="space-y-1.5 pt-1">
-                      <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wider block">Bukti Portofolio Terpilih:</span>
-                      <template x-for="port in applicant.portfolioItems" :key="port.title">
-                        <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-200 flex items-center justify-between text-xs">
-                          <div>
-                            <span class="font-semibold text-gray-900 block" x-text="port.title"></span>
-                            <span class="text-gray-500 text-[11px]" x-text="'Stack: ' + port.stack"></span>
-                          </div>
-                          <a :href="port.linkUrl" target="_blank" class="text-xs font-bold text-[#1E3A8A] hover:underline shrink-0">Lihat Karya ↗</a>
+                      <!-- Aksi untuk status PENDING -->
+                      <template x-if="app.status === 'PENDING'">
+                        <div class="flex items-center gap-2">
+                          <button
+                            type="button"
+                            @click="rejectApplicant(activeGigReview.id, app.id)"
+                            class="px-4 py-1.5 rounded-full border border-gray-200 hover:border-red-200 hover:bg-red-50 hover:text-red-600 text-gray-600 text-[13px] font-normal transition-colors cursor-pointer"
+                          >
+                            Tolak
+                          </button>
+                          <button
+                            type="button"
+                            @click="assignContributor(activeGigReview.id, app)"
+                            class="px-4 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[13px] font-normal transition-colors cursor-pointer shadow-2xs"
+                          >
+                            Setujui &amp; Hubungi WA
+                          </button>
                         </div>
                       </template>
+
+                      <!-- Aksi jika sudah ACCEPTED (Tombol Netral Abu-Abu, Tanpa Oval Hijau) -->
+                      <template x-if="app.status === 'ACCEPTED' && app.applicantPhone">
+                        <a
+                          :href="'https://wa.me/' + (app.applicantPhone.replace(/\D/g, ''))"
+                          target="_blank"
+                          class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 text-[13px] font-normal transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                          <span>Hubungi WA</span>
+                        </a>
+                      </template>
                     </div>
-                  </template>
+                  </div>
 
-                  <!-- Tombol Aksi Owner -->
-                  <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
-                    <template x-if="applicant.status === 'PENDING' && activeGigReview.status === 'Terbuka'">
-                      <div class="flex items-center gap-2">
-                        <button
-                          type="button"
-                          @click="rejectApplicant(activeGigReview.id, applicant.id)"
-                          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-gray-500 hover:text-red-600 hover:bg-red-50 border border-gray-200 hover:border-red-200 transition-colors cursor-pointer"
-                        >
-                          Tolak
-                        </button>
-                        <button
-                          type="button"
-                          @click="assignContributor(activeGigReview.id, applicant)"
-                          class="px-4 py-1.5 rounded-xl text-xs font-bold bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white transition-all shadow-sm cursor-pointer"
-                        >
-                          Pilih &amp; Tugaskan Tim
-                        </button>
+                  <!-- 4 Detail Pelamar: ATAS BAWAH (Font Normal, Tidak Bold, Semua Font 14px Seragam) -->
+                  <div class="space-y-4 pt-4 border-t border-gray-100 text-[14px]">
+                    <!-- 1. Nama Lengkap -->
+                    <div class="space-y-1">
+                      <span class="block text-[14px] font-normal text-gray-500">Nama Lengkap</span>
+                      <p class="font-normal text-gray-900 text-[14px]" x-text="app.applicantName"></p>
+                    </div>
+
+                    <!-- 2. Nomor WhatsApp / HP Kontak * -->
+                    <div class="space-y-1">
+                      <span class="block text-[14px] font-normal text-gray-500">Nomor WhatsApp / HP Kontak <span class="text-red-500 font-normal">*</span></span>
+                      <p class="font-normal text-gray-900 text-[14px]" x-text="app.applicantPhone || '-'"></p>
+                    </div>
+
+                    <!-- 3. Tautan Portofolio / GitHub Terkait -->
+                    <div class="space-y-1">
+                      <span class="block text-[14px] font-normal text-gray-500">Tautan Portofolio / GitHub Terkait</span>
+                      <div>
+                        <template x-if="app.portfolioUrl">
+                          <a :href="app.portfolioUrl" target="_blank" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] break-all">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                            <span x-text="app.portfolioUrl"></span>
+                          </a>
+                        </template>
+                        <template x-if="!app.portfolioUrl && (app.portfolioItems || []).length > 0">
+                          <div class="flex flex-col gap-1.5">
+                            <template x-for="p in (app.portfolioItems || [])" :key="p.linkUrl || p.title">
+                              <a :href="p.linkUrl || 'https://github.com'" target="_blank" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] break-all">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                                <span x-text="(p.linkUrl || p.title) + (p.stack ? ' (' + p.stack + ')' : '')"></span>
+                              </a>
+                            </template>
+                          </div>
+                        </template>
+                        <template x-if="!app.portfolioUrl && (!app.portfolioItems || app.portfolioItems.length === 0)">
+                          <p class="text-gray-400 font-normal text-[14px] italic">Tidak ada tautan terlampir</p>
+                        </template>
                       </div>
-                    </template>
+                    </div>
 
-                    <template x-if="applicant.status === 'ACCEPTED'">
-                      <a
-                        :href="formatWaUrl(applicant.applicantPhone, 'Halo ' + applicant.applicantName + ', saya ' + activeGigReview.ownerName + ' dari Bengkel Koding. Pengajuan minatmu untuk gig ' + activeGigReview.title + ' sudah saya setujui. Mari kita koordinasi teknis pengerjaannya.')"
-                        target="_blank"
-                        rel="noreferrer"
-                        class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1.5 shadow-sm"
-                      >
-                        <span>Hubungi via WhatsApp</span>
-                      </a>
-                    </template>
-
-                    <template x-if="applicant.status === 'REJECTED'">
-                      <span class="text-xs text-gray-400 font-medium">Pelamar ditandai belum sesuai / kuota penuh</span>
-                    </template>
+                    <!-- 4. Pesan Singkat & Pitching Keahlian * -->
+                    <div class="space-y-1">
+                      <span class="block text-[14px] font-normal text-gray-500">Pesan Singkat &amp; Pitching Keahlian <span class="text-red-500 font-normal">*</span></span>
+                      <p class="font-normal text-gray-800 text-[14px] leading-relaxed whitespace-pre-line" x-text="app.pitchMessage || '-'"></p>
+                    </div>
                   </div>
                 </div>
               </template>
             </div>
-          </div>
-        </div>
-      </div>
-    </template>
 
-    <!-- ============================================================
-        MODAL: QUICK APPLY (ALUR CONTRIBUTOR)
-    ============================================================ -->
-    <template x-if="quickApplyModalOpen && targetApplyGig">
-      <div class="fixed inset-0 z-[150] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="quickApplyModalOpen = false">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <!-- Header Modal -->
-          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
-            <div>
-              <h3 class="text-base font-bold text-gray-900">Ajukan Minat Kolaborasi</h3>
-              <p class="text-xs text-gray-500 mt-0.5">Kirim penawaran singkat langsung ke pemilik proyek</p>
-            </div>
-            <button type="button" @click="quickApplyModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">✕</button>
-          </div>
-
-          <!-- Ringkasan Proyek Singkat -->
-          <div class="px-6 py-3 bg-blue-50/60 border-b border-blue-100/70 flex items-center justify-between text-xs shrink-0">
-            <div class="flex items-center gap-2.5 min-w-0">
-              <img :src="targetApplyGig.ownerAvatar || DEFAULT_AVATAR" class="w-8 h-8 rounded-full object-cover border border-gray-200 shrink-0">
-              <div class="min-w-0">
-                <span class="font-bold text-gray-900 block truncate" x-text="targetApplyGig.title"></span>
-                <span class="text-gray-500 text-[11px]" x-text="'Owner: ' + targetApplyGig.ownerName"></span>
-              </div>
-            </div>
-            <span class="font-bold text-[#1E3A8A] text-xs shrink-0 ml-3 bg-white px-2.5 py-1 rounded-full border border-blue-200" x-text="targetApplyGig.budgetRange"></span>
-          </div>
-
-          <form @submit.prevent="submitQuickApply()" class="p-6 space-y-4 text-sm overflow-y-auto">
-            <!-- Pesan Pitching Singkat -->
-            <div>
-              <div class="flex items-center justify-between mb-1">
-                <label class="block font-semibold text-gray-800 text-xs">
-                  Pesan Pitching / Perkenalan <span class="text-red-500">*</span>
-                </label>
-                <span class="text-[11px] font-mono" :class="applyPitchMessage.length > 250 ? 'text-red-500 font-bold' : 'text-gray-400'" x-text="applyPitchMessage.length + '/250 karakter'"></span>
-              </div>
-              <textarea
-                rows="3"
-                x-model="applyPitchMessage"
-                required
-                maxlength="250"
-                placeholder="Ceritakan pengalaman singkat Anda yang relevan dengan kebutuhan proyek ini..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"
-              ></textarea>
-              <p class="text-[11px] text-gray-400 mt-1">Gunakan pesan singkat dan lugas mengenai kesiapan Anda.</p>
-            </div>
-
-            <!-- Tautan Portofolio / GitHub Manual -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">
-                Tautan Portofolio / GitHub / Demo Karya <span class="text-gray-400 font-normal">(Opsional)</span>
-              </label>
-              <div class="relative">
-                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                </span>
-                <input
-                  type="url"
-                  x-model="applyPortfolioUrl"
-                  placeholder="https://github.com/username/project atau link Figma"
-                  class="w-full pl-10 pr-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]"
-                >
-              </div>
-            </div>
-
-            <!-- Nomor Kontak WhatsApp -->
-            <div>
-              <label class="block font-semibold text-gray-800 text-xs mb-1">Nomor WhatsApp untuk Koordinasi <span class="text-red-500">*</span></label>
-              <input
-                type="text"
-                x-model="applyContactPhone"
-                required
-                placeholder="081234567890"
-                class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]"
+            <!-- Footer Modal -->
+            <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-between flex-shrink-0">
+              <span class="text-[14px] font-normal text-gray-500" x-text="'Total ' + (activeGigReview.applicants || []).length + ' pelamar tercatat'"></span>
+              <button
+                type="button"
+                @click="drawerOpen = false"
+                class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-normal text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
               >
-              <p class="text-[11px] text-gray-400 mt-1">Hanya akan dibagikan ke pemilik proyek jika pengajuan Anda disetujui.</p>
+                Tutup
+              </button>
             </div>
-
-            <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2.5">
-              <button type="button" @click="quickApplyModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50">Batal</button>
-              <button type="submit" :disabled="applyPitchMessage.length > 250" class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm disabled:opacity-50">Kirim Minat</button>
-            </div>
-          </form>
+          </div>
         </div>
-      </div>
+      </template>
     </template>
 
     <!-- ============================================================
-        MODAL: ENDORSEMENT & PENYELESAIAN GIG (OWNER FLOW)
+        MODAL: SELESAIKAN PROYEK & ENDORSEMENT
     ============================================================ -->
     <template x-if="endorseModalOpen && targetEndorseGig">
-      <div class="fixed inset-0 z-[150] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="endorseModalOpen = false">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-lg w-full overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
-            <h3 class="text-base font-bold text-gray-900">Penyelesaian &amp; Beri Endorsement</h3>
-            <button type="button" @click="endorseModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">✕</button>
+      <div
+        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200"
+        @mousedown.self="endorseModalOpen = false"
+      >
+        <div style="width: 90vw; max-width: 600px" class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden">
+          <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
+            <h2 class="text-[18px] font-bold text-gray-900">Selesaikan Proyek &amp; Berikan Endorsement</h2>
+            <button type="button" @click="endorseModalOpen = false" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100">✕</button>
           </div>
-
-          <form @submit.prevent="submitCompleteGig()" class="p-6 space-y-4 text-sm">
-            <div class="p-3 bg-blue-50/70 border border-blue-200 rounded-xl text-xs space-y-1">
-              <span class="font-bold text-[#1E3A8A] block">Proyek: <span x-text="targetEndorseGig.title"></span></span>
-              <span class="text-gray-600 block">Kontributor: <span class="font-bold" x-text="targetEndorseGig.assignedContributor ? targetEndorseGig.assignedContributor.name : 'Rekan Tim'"></span></span>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-800 mb-1">
-                Catatan Rekomendasi / Endorsement <span class="text-red-500">*</span>
-              </label>
-              <textarea
-                rows="4"
-                x-model="endorsementText"
-                required
-                placeholder="Berikan ulasan performa, kualitas deliverables kode, atau apresiasi atas kinerja kontributor..."
-                class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"
-              ></textarea>
-              <p class="text-[11px] text-gray-400 mt-0.5">Catatan ini akan tampil di profil kontributor dan linimasa komunitas.</p>
-            </div>
-
-            <div>
-              <label class="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-gray-800">
-                <input type="checkbox" x-model="autoPublishFeed" class="w-4 h-4 rounded text-[#1E3A8A] focus:ring-[#1E3A8A]">
-                <span>Publikasikan pencapaian proyek ini ke Beranda Alumni</span>
-              </label>
-            </div>
-
-            <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2.5">
-              <button type="button" @click="endorseModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50">Batal</button>
-              <button type="submit" class="px-6 py-2 rounded-full bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs shadow-sm">Selesaikan &amp; Beri Endorsement</button>
-            </div>
-          </form>
+          <div class="p-6 space-y-4">
+            <p class="text-[14px] text-gray-600">Berikan testimoni/endorsement untuk rekan alumni yang telah menyelesaikan proyek ini:</p>
+            <textarea rows="4" x-model="endorsementText" class="w-full rounded-md border border-gray-300 p-3 text-[14px] outline-none focus:border-[#1E3A8A]"></textarea>
+            <label class="flex items-center gap-2.5 cursor-pointer">
+              <input type="checkbox" x-model="autoPublishFeed" class="w-4 h-4 rounded text-[#1E3A8A]">
+              <span class="text-[14px] text-gray-700">Publikasikan keberhasilan proyek ini ke Feed Alumni</span>
+            </label>
+          </div>
+          <div class="border-t border-gray-200 px-6 py-3.5 bg-gray-50 flex items-center justify-end gap-3">
+            <button type="button" @click="endorseModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700">Batal</button>
+            <button type="button" @click="submitCompleteGig()" class="px-6 py-2 rounded-full bg-[#1E3A8A] text-white text-[14px] font-semibold">Tandai Selesai</button>
+          </div>
         </div>
       </div>
     </template>
 
-    <!-- ============================================================
-        MODAL: CREATE GIG (OWNER PUBLISH)
-    ============================================================ -->
-    <template x-if="createGigModalOpen">
-      <div class="fixed inset-0 z-[150] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="createGigModalOpen = false">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
-            <h3 class="text-base font-bold text-gray-900">Publikasi Kebutuhan Tender / Side-Project</h3>
-            <button type="button" @click="createGigModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">✕</button>
-          </div>
-
-          <form @submit.prevent="submitCreateGig()" class="p-6 overflow-y-auto space-y-4 text-sm">
-            <div>
-              <label class="block font-semibold text-gray-800 mb-1">Judul Proyek / Kebutuhan <span class="text-red-500">*</span></label>
-              <input type="text" x-model="newGigForm.title" required placeholder="Contoh: Mobile App Dashboard Monitoring Pengiriman" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Kategori Peran Utama <span class="text-red-500">*</span></label>
-                <select x-model="newGigForm.category" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <option value="Mobile App">Mobile App</option>
-                  <option value="Frontend">Frontend Development</option>
-                  <option value="Backend">Backend API</option>
-                  <option value="UI/UX & Web">UI/UX &amp; Web Design</option>
-                  <option value="QA / Testing">QA &amp; Automated Testing</option>
-                  <option value="Data Science">Data Science &amp; AI</option>
-                  <option value="Keamanan Siber">Keamanan Siber</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Rentang Budget (Transparan) <span class="text-red-500">*</span></label>
-                <select x-model="newGigForm.budgetRange" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
-                    <option :value="b" x-text="b"></option>
-                  </template>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Kuota Anggota Tim</label>
-                <select x-model.number="newGigForm.quota" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <option value="1">1 Orang</option>
-                  <option value="2">2 Orang</option>
-                  <option value="3">3 Orang</option>
-                  <option value="5">5 Orang (Tim Lengkap)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Target Tenggat Waktu <span class="text-red-500">*</span></label>
-                <input type="date" x-model="newGigForm.deadline" required class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Peran Spesifik yang Dicari</label>
-                <input type="text" x-model="newGigForm.rolesNeeded" placeholder="Slicing UI, API Auth, Unit Test" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Tech Stack Tags</label>
-                <input type="text" x-model="newGigForm.techStack" placeholder="React, Flutter, Laravel, Figma" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-800 mb-1">Deskripsi &amp; Deliverables Proyek <span class="text-red-500">*</span></label>
-              <textarea rows="4" x-model="newGigForm.description" required placeholder="Jelaskan ruang lingkup pengerjaan, ekspektasi output, dan arsitektur yang sudah ada..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"></textarea>
-            </div>
-
-            <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2.5">
-              <button type="button" @click="createGigModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50">Batal</button>
-              <button type="submit" class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm">Publikasikan ke Papan Gigs</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </template>
-
-    <!-- ============================================================
-        MODAL: EDIT GIG (OWNER UPDATE)
-    ============================================================ -->
-    <template x-if="editGigModalOpen">
-      <div class="fixed inset-0 z-[150] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editGigModalOpen = false">
-        <div class="bg-white rounded-2xl shadow-2xl border border-gray-200 max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white shrink-0">
-            <h3 class="text-base font-bold text-gray-900">Edit Detail Tender Proyek</h3>
-            <button type="button" @click="editGigModalOpen = false" class="w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 flex items-center justify-center transition-colors">✕</button>
-          </div>
-
-          <form @submit.prevent="submitEditGig()" class="p-6 overflow-y-auto space-y-4 text-sm">
-            <div>
-              <label class="block font-semibold text-gray-800 mb-1">Judul Proyek / Kebutuhan <span class="text-red-500">*</span></label>
-              <input type="text" x-model="editGigForm.title" required class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Kategori Peran Utama <span class="text-red-500">*</span></label>
-                <select x-model="editGigForm.category" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <option value="Mobile App">Mobile App</option>
-                  <option value="Frontend">Frontend Development</option>
-                  <option value="Backend">Backend API</option>
-                  <option value="UI/UX & Web">UI/UX &amp; Web Design</option>
-                  <option value="QA / Testing">QA &amp; Automated Testing</option>
-                  <option value="Data Science">Data Science &amp; AI</option>
-                  <option value="Keamanan Siber">Keamanan Siber</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Rentang Budget (Transparan) <span class="text-red-500">*</span></label>
-                <select x-model="editGigForm.budgetRange" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
-                    <option :value="b" x-text="b"></option>
-                  </template>
-                </select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Kuota Anggota Tim</label>
-                <select x-model.number="editGigForm.quota" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm bg-white focus:outline-none focus:border-[#1E3A8A]">
-                  <option value="1">1 Orang</option>
-                  <option value="2">2 Orang</option>
-                  <option value="3">3 Orang</option>
-                  <option value="5">5 Orang (Tim Lengkap)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Target Tenggat Waktu <span class="text-red-500">*</span></label>
-                <input type="date" x-model="editGigForm.deadline" required class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Peran Spesifik yang Dicari</label>
-                <input type="text" x-model="editGigForm.rolesNeeded" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-
-              <div>
-                <label class="block font-semibold text-gray-800 mb-1">Tech Stack Tags</label>
-                <input type="text" x-model="editGigForm.techStack" class="w-full px-3.5 py-2 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
-              </div>
-            </div>
-
-            <div>
-              <label class="block font-semibold text-gray-800 mb-1">Deskripsi &amp; Deliverables Proyek <span class="text-red-500">*</span></label>
-              <textarea rows="4" x-model="editGigForm.description" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] leading-relaxed"></textarea>
-            </div>
-
-            <div class="pt-3 border-t border-gray-200 flex items-center justify-end gap-2.5">
-              <button type="button" @click="editGigModalOpen = false" class="px-5 py-2 rounded-full border border-gray-300 text-gray-700 font-semibold text-xs hover:bg-gray-50">Batal</button>
-              <button type="submit" class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-bold text-xs shadow-sm">Simpan Perubahan</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </template>
   </div>
 </main>
 
@@ -946,9 +1296,13 @@
       activeTab: "board",
       searchQuery: "",
       filterBudget: "",
-      filterStatus: "Terbuka",
+      filterStatus: "Semua",
       selectedCategoryTag: "",
+      selectedGigId: null,
+      savedGigIds: [],
+      selectedAppIds: [],
       toast: "",
+      toastAction: null,
 
       GIGS_BUDGET_RANGES: budgetList,
 
@@ -1001,6 +1355,14 @@
 
       init() {
         this.muat();
+        // Load saved gigs from localStorage
+        try {
+          const rawSaved = localStorage.getItem("bengkod_saved_gigs");
+          if (rawSaved) this.savedGigIds = JSON.parse(rawSaved);
+        } catch {}
+
+        const loaded = typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []);
+        if (loaded && loaded.length > 0) this.selectedGigId = loaded[0].id;
         window.addEventListener("bengkod_gigs_updated", () => this.muat());
         window.addEventListener("bengkod_gigs_apply_updated", () => this.muat());
       },
@@ -1009,6 +1371,11 @@
         const loaded = typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []);
         this.gigs = Array.isArray(loaded) && loaded.length > 0 ? loaded : (window.INITIAL_GIGS || []);
         this.myApplications = typeof loadMyApplications === "function" ? loadMyApplications() : [];
+      },
+
+      get selectedGig() {
+        if (!this.selectedGigId) return this.filteredBoardGigs[0] || null;
+        return this.filteredBoardGigs.find((g) => g.id === this.selectedGigId) || this.filteredBoardGigs[0] || null;
       },
 
       get openGigsCount() {
@@ -1027,16 +1394,10 @@
         return this.gigs.filter((g) => g.ownerId === this.currentUserId);
       },
 
-      get availablePortfolioProjects() {
-        return typeof INITIAL_PROJECTS !== "undefined" ? INITIAL_PROJECTS : [
-          { id: 1, title: "UMKM Success Probability Prediction", desc: "Machine Learning model ensemble regresi", tags: ["Python", "PostgreSQL"] },
-          { id: 2, title: "Automatic Proofreading Academic Documents", desc: "NLP Hybrid Transformer", tags: ["NLP", "PyTorch"] }
-        ];
-      },
-
       get filteredBoardGigs() {
         const q = this.searchQuery.trim().toLowerCase();
         return this.gigs.filter((g) => {
+          if (this.activeTab === "saved" && !this.savedGigIds.includes(g.id)) return false;
           if (this.filterBudget && g.budgetRange !== this.filterBudget) return false;
           if (this.filterStatus && this.filterStatus !== "" && this.filterStatus !== "Semua") {
             const gs = (g.status || "").toLowerCase();
@@ -1062,6 +1423,58 @@
 
       hasAppliedTo(gigId) {
         return this.myApplications.some((a) => a.gigId === gigId);
+      },
+
+      getOwnerAbout(ownerName, ownerId) {
+        if (ownerId === this.currentUserId || ownerName === this.currentUserName) {
+          try {
+            const savedProf = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
+            if (savedProf && savedProf.about) return savedProf.about;
+          } catch {}
+          if (typeof INITIAL_PROFILE !== "undefined" && INITIAL_PROFILE.about) return INITIAL_PROFILE.about;
+        }
+        if (typeof ALUMNI_DIRECTORY !== "undefined" && Array.isArray(ALUMNI_DIRECTORY)) {
+          const found = ALUMNI_DIRECTORY.find((a) => a.name === ownerName || a.id === ownerId);
+          if (found && found.about) return found.about;
+        }
+        return "Alumni berdedikasi dari ekosistem Bengkel Koding Universitas Dian Nuswantoro Semarang dengan pengalaman mendalam dalam pengembangan perangkat lunak, perancangan arsitektur sistem, serta kolaborasi proyek teknologi.";
+      },
+
+      handleToggleBookmark(gigId) {
+        if (this.savedGigIds.includes(gigId)) {
+          this.savedGigIds = this.savedGigIds.filter((id) => id !== gigId);
+          this.setToast("Proyek dihapus dari daftar tersimpan");
+        } else {
+          this.savedGigIds.push(gigId);
+          this.setToast("Proyek disimpan ke daftar tersimpan");
+        }
+        try {
+          localStorage.setItem("bengkod_saved_gigs", JSON.stringify(this.savedGigIds));
+        } catch {}
+      },
+
+      handleToggleSelectAll() {
+        if (this.selectedAppIds.length === this.myApplications.length) {
+          this.selectedAppIds = [];
+        } else {
+          this.selectedAppIds = this.myApplications.map((a) => a.id);
+        }
+      },
+
+      handleToggleSelectApp(id) {
+        if (this.selectedAppIds.includes(id)) {
+          this.selectedAppIds = this.selectedAppIds.filter((i) => i !== id);
+        } else {
+          this.selectedAppIds.push(id);
+        }
+      },
+
+      handleDeleteSelected() {
+        if (!confirm(`Batalkan ${this.selectedAppIds.length} lamaran yang dipilih?`)) return;
+        this.myApplications = this.myApplications.filter((a) => !this.selectedAppIds.includes(a.id));
+        if (typeof saveMyApplications === "function") saveMyApplications(this.myApplications);
+        this.selectedAppIds = [];
+        this.setToast("Pengajuan minat yang dipilih berhasil dibatalkan.");
       },
 
       openCreateGigModal() {
@@ -1103,9 +1516,11 @@
           applicants: [],
         };
         const updated = [newGig, ...this.gigs];
-        saveGigs(updated);
+        if (typeof saveGigs === "function") saveGigs(updated);
         this.gigs = updated;
+        this.selectedGigId = newGig.id;
         this.createGigModalOpen = false;
+        this.activeTab = "board";
         this.setToast("Tender proyek berhasil diterbitkan ke Papan Gigs!");
       },
 
@@ -1136,18 +1551,17 @@
           return g;
         });
 
-        saveGigs(updated);
+        if (typeof saveGigs === "function") saveGigs(updated);
         this.gigs = updated;
         this.activeGigReview = updated.find((g) => g.id === gigId);
 
-        // Buka link WhatsApp otomatis di tab baru
-        const waLink = formatWaUrl(
-          applicant.applicantPhone,
+        const phone = applicant.applicantPhone || "081234567890";
+        const waLink = "https://wa.me/" + phone.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(
           `Halo ${applicant.applicantName}, saya ${this.activeGigReview.ownerName} dari Bengkel Koding. Pengajuan minatmu untuk gig "${this.activeGigReview.title}" sudah saya setujui. Mari kita koordinasi teknis pengerjaannya.`
         );
         window.open(waLink, "_blank");
 
-        this.setToast(`Rekan ${applicant.applicantName} berhasil ditugaskan! WhatsApp koordinasi telah dibuka.`);
+        this.setToast(`Rekan ${applicant.applicantName} berhasil ditugaskan!`);
       },
 
       openQuickApplyModal(gig) {
@@ -1166,11 +1580,7 @@
         }
 
         const pickedProjects = this.applyPortfolioUrl.trim()
-          ? [{
-              title: "Tautan Portofolio / GitHub",
-              linkUrl: this.applyPortfolioUrl.trim(),
-              stack: "Karya Terlampir"
-            }]
+          ? [{ title: "Tautan Portofolio / GitHub", linkUrl: this.applyPortfolioUrl.trim(), stack: "Karya Terlampir" }]
           : [];
 
         const newApplicant = {
@@ -1187,20 +1597,15 @@
           status: "PENDING"
         };
 
-        // 1. Simpan ke daftar applicants pada Gig yang bersangkutan
         const updatedGigs = this.gigs.map((g) => {
           if (g.id === this.targetApplyGig.id) {
-            return {
-              ...g,
-              applicants: [newApplicant, ...(g.applicants || [])]
-            };
+            return { ...g, applicants: [newApplicant, ...(g.applicants || [])] };
           }
           return g;
         });
-        saveGigs(updatedGigs);
+        if (typeof saveGigs === "function") saveGigs(updatedGigs);
         this.gigs = updatedGigs;
 
-        // 2. Simpan ke Lamaran Saya
         const myAppEntry = {
           id: newApplicant.id,
           gigId: this.targetApplyGig.id,
@@ -1214,11 +1619,17 @@
           status: "PENDING"
         };
         const nextApps = [myAppEntry, ...this.myApplications];
-        saveMyApplications(nextApps);
+        if (typeof saveMyApplications === "function") saveMyApplications(nextApps);
         this.myApplications = nextApps;
 
         this.quickApplyModalOpen = false;
-        this.setToast("Minat berhasil diajukan! Owner proyek akan segera meninjau pitching Anda.");
+        this.setToast(
+          "Minat berhasil diajukan! Owner proyek akan segera meninjau pitching Anda.",
+          {
+            label: "Lihat Lamaran →",
+            callback: () => { this.activeTab = "applications"; }
+          }
+        );
       },
 
       openEndorseModal(gig) {
@@ -1243,30 +1654,29 @@
           return g;
         });
 
-        saveGigs(updated);
+        if (typeof saveGigs === "function") saveGigs(updated);
         this.gigs = updated;
 
-        // Jika auto publish dicentang, buat postingan baru di feed
-        if (this.autoPublishFeed) {
+        if (this.autoPublishFeed && typeof publishGigCompletionToFeed === "function") {
           publishGigCompletionToFeed(this.targetEndorseGig, this.endorsementText.trim());
         }
 
         this.endorseModalOpen = false;
-        this.setToast("Proyek resmi diselesaikan & rekomendasi/endorsement telah diterbitkan!");
+        this.setToast("Proyek resmi diselesaikan & endorsement telah diterbitkan!");
       },
 
-      // Fitur 3: Edit Proyek (Owner)
       openEditGigModal(gig) {
+        if (!gig) return;
         this.editingGigId = gig.id;
         this.editGigForm = {
-          title: gig.title,
-          category: gig.category,
-          budgetRange: gig.budgetRange,
+          title: gig.title || "",
+          category: gig.category || "Mobile App",
+          budgetRange: gig.budgetRange || "Rp 1.000.000 - Rp 3.000.000",
           quota: gig.quota || 1,
-          deadline: gig.deadline,
-          rolesNeeded: (gig.rolesNeeded || []).join(", "),
-          techStack: (gig.techStack || []).join(", "),
-          description: gig.description,
+          deadline: gig.deadline || "",
+          rolesNeeded: Array.isArray(gig.rolesNeeded) ? gig.rolesNeeded.join(", ") : (gig.rolesNeeded || ""),
+          techStack: Array.isArray(gig.techStack) ? gig.techStack.join(", ") : (gig.techStack || ""),
+          description: gig.description || "",
         };
         this.editGigModalOpen = true;
       },
@@ -1284,33 +1694,43 @@
               budgetRange: f.budgetRange,
               quota: Number(f.quota) || 1,
               deadline: f.deadline,
-              rolesNeeded: f.rolesNeeded.split(",").map((s) => s.trim()).filter(Boolean),
-              techStack: f.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+              rolesNeeded: typeof f.rolesNeeded === "string" ? f.rolesNeeded.split(",").map((s) => s.trim()).filter(Boolean) : (f.rolesNeeded || []),
+              techStack: typeof f.techStack === "string" ? f.techStack.split(",").map((s) => s.trim()).filter(Boolean) : (f.techStack || []),
               description: f.description.trim(),
             };
           }
           return g;
         });
-        saveGigs(this.gigs);
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
         this.editGigModalOpen = false;
         this.setToast("Rincian proyek berhasil diperbarui.");
       },
 
-      // Fitur 3: Batalkan Proyek & Buka Kembali (Owner)
+      deleteGig(id) {
+        if (!confirm("Hapus proyek ini dari daftar proyek Anda?")) return;
+        this.gigs = this.gigs.filter((g) => g.id !== id);
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
+        this.editGigModalOpen = false;
+        if (this.selectedGigId === id) {
+          const first = this.gigs[0] || null;
+          this.selectedGigId = first ? first.id : null;
+        }
+        this.setToast("Proyek berhasil dihapus.");
+      },
+
       cancelGig(gigId) {
-        if (!confirm("Apakah Anda yakin ingin membatalkan proyek ini? Status akan dialihkan ke Batal (Cancelled).")) return;
+        if (!confirm("Apakah Anda yakin ingin membatalkan proyek ini?")) return;
         this.gigs = this.gigs.map((g) => (g.id === gigId ? { ...g, status: "Batal" } : g));
-        saveGigs(this.gigs);
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
         this.setToast("Proyek telah dibatalkan.");
       },
 
       reopenGig(gigId) {
         this.gigs = this.gigs.map((g) => (g.id === gigId ? { ...g, status: "Terbuka" } : g));
-        saveGigs(this.gigs);
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
         this.setToast("Proyek dibuka kembali di Papan Gigs.");
       },
 
-      // Fitur 2: Tolak Pelamar di Applicants Drawer (Owner)
       rejectApplicant(gigId, applicantId) {
         this.gigs = this.gigs.map((g) => {
           if (g.id === gigId) {
@@ -1321,31 +1741,27 @@
           }
           return g;
         });
-        saveGigs(this.gigs);
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
 
         if (this.activeGigReview && this.activeGigReview.id === gigId) {
           this.activeGigReview = this.gigs.find((g) => g.id === gigId);
         }
 
-        // Sinkronkan ke daftar lamaran kontributor jika ada
         this.myApplications = this.myApplications.map((app) => {
           if (app.gigId === gigId && app.id === applicantId) {
             return { ...app, status: "REJECTED" };
           }
           return app;
         });
-        saveMyApplications(this.myApplications);
-
-        this.setToast("Pelamar telah ditandai belum sesuai / kuota penuh.");
+        if (typeof saveMyApplications === "function") saveMyApplications(this.myApplications);
+        this.setToast("Pelamar telah ditandai belum sesuai.");
       },
 
-      // Fitur 4: Tarik Lamaran (Contributor)
       withdrawApplication(appId, gigId) {
         if (!confirm("Tarik kembali pengajuan minat Anda untuk proyek ini?")) return;
         this.myApplications = this.myApplications.filter((a) => a.id !== appId);
-        saveMyApplications(this.myApplications);
+        if (typeof saveMyApplications === "function") saveMyApplications(this.myApplications);
 
-        // Hapus juga pelamar ini dari data applicants pada gig bersangkutan
         this.gigs = this.gigs.map((g) => {
           if (g.id === gigId) {
             return {
@@ -1356,16 +1772,19 @@
           }
           return g;
         });
-        saveGigs(this.gigs);
-
+        if (typeof saveGigs === "function") saveGigs(this.gigs);
         this.setToast("Pengajuan minat berhasil ditarik.");
       },
 
-      setToast(msg) {
+      setToast(msg, action = null) {
         this.toast = msg;
+        this.toastAction = action;
         setTimeout(() => {
-          if (this.toast === msg) this.toast = "";
-        }, 3500);
+          if (this.toast === msg) {
+            this.toast = "";
+            this.toastAction = null;
+          }
+        }, 4500);
       }
     };
   }
