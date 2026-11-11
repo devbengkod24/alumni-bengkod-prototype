@@ -55,14 +55,18 @@ const modalLifecycle = (lockScroll = true) => ({
 });
 
 // Modal wrapper standar
-function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, submit = "submit()", title, titleId, headerExtra = "", headerShrink = true, body, footer, footerShrink = true, footerCls }) {
+// Ukuran modal tambah postingan di Beranda (Postingan, Karya, Referral) disamakan
+const POST_MODAL_STYLE = "width: 90vw; max-width: 720px; height: min(92vh, 680px)";
+const FORM_MODAL_STYLE = "width: 90vw; max-width: 1024px; height: min(92vh, 720px)";
+
+function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, submit = "submit()", title, titleId, headerExtra = "", headerShrink = true, body, footer, footerShrink = true, footerCls, style = FORM_MODAL_STYLE }) {
   return `<template x-teleport="body">
     <template x-if="${open}">
       <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="${close}">
         <form ${formId ? `id="${formId}"` : ""} role="dialog" aria-modal="true" ${labelledby ? `aria-labelledby="${labelledby}"` : ""} ${ariaLabel ? `aria-label="${ariaLabel}"` : ""}
           novalidate autocomplete="off" x-data="${xdata}" @submit.prevent="${submit}" @keydown.window.escape="${close}"
           class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
-          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+          style="${style}">
           <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between${headerShrink ? " flex-shrink-0" : ""}">
             ${headerExtra || `<h2 ${titleId ? `id="${titleId}"` : ""} class="text-[20px] font-bold text-gray-900 tracking-tight">${title}</h2>`}
             <button type="button" @click="${close}" class="${PC.closeBtn}" aria-label="Tutup modal">${PI.close()}</button>
@@ -2105,6 +2109,7 @@ ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
     footerShrink: false,
     body: projectFieldsHTML(false),
     footer: defaultFooter(close),
+    style: dataset && dataset.size === "post" ? POST_MODAL_STYLE : FORM_MODAL_STYLE,
   });
 };
 

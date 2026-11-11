@@ -856,6 +856,7 @@
       <!-- ======================================================
         MODAL: BUAT POSTINGAN (dibuka tombol "+ Buat Postingan" di header)
         Teks + Foto langsung diposting; Karya & Referral membuka modal masing-masing.
+        Ukuran semua modal tambah postingan (Postingan, Karya, Referral) sama: 720px x maks. 680px.
     ====================================================== -->
       <template x-teleport="body">
         <template x-if="composerOpen">
@@ -863,12 +864,12 @@
             class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto"
             @click.self="closeComposer()" @keydown.window.escape="closeComposer()">
             <form id="form-buat-postingan" @submit.prevent="handlePostModalSubmit()" autocomplete="off"
-              style="width: 90vw; max-width: 640px; max-height: 92vh;"
+              style="width: 90vw; max-width: 720px; height: min(92vh, 680px);"
               class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col min-h-0 overflow-hidden my-auto"
               role="dialog" aria-modal="true" aria-labelledby="judul-buat-postingan">
               <!-- Header Modal -->
-              <div class="px-5 sm:px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
-                <h2 id="judul-buat-postingan" class="text-[18px] font-bold text-gray-900 tracking-tight">Buat Postingan</h2>
+              <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
+                <h2 id="judul-buat-postingan" class="text-[20px] font-bold text-gray-900 tracking-tight">Buat Postingan</h2>
                 <button type="button" @click="closeComposer()"
                   class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
                   aria-label="Tutup modal">
@@ -881,7 +882,7 @@
               </div>
 
               <!-- Body -->
-              <div class="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-5">
+              <div class="flex-1 min-h-0 overflow-y-auto px-6 sm:px-8 py-6 flex flex-col">
                 <div class="flex items-center gap-3 mb-3">
                   <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name"
                     class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
@@ -893,7 +894,7 @@
 
                 <textarea id="post-content" rows="5" x-model="pmContent" x-init="$nextTick(() => $el.focus())"
                   placeholder="Bagikan kabar, ide, atau pengalaman ke rekan alumni..." aria-label="Isi postingan"
-                  class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
+                  class="w-full flex-1 min-h-[140px] resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
 
                 <!-- Pratinjau media -->
                 <template x-if="pmImageUrl">
@@ -910,7 +911,7 @@
               </div>
 
               <!-- Footer: Foto / Karya / Referral di kiri, Posting di kanan -->
-              <div class="border-t border-gray-200 px-5 sm:px-6 py-3.5 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
+              <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
                 <div class="flex items-center gap-2 flex-wrap">
                   <button type="button" id="btn-add-post-media"
                     @click="$el.closest('form').querySelector('input[type=file]').click()" title="Tambahkan foto"
@@ -974,7 +975,7 @@
       <!-- ======================================================
         MODAL: TAMBAH PROYEK / LAUNCH KARYA (SELARAS FORM PROFIL)
     ====================================================== -->
-      <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya"></div>
+      <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya" data-size="post"></div>
 
       <!-- ======================================================
         MODAL: LAPORKAN POSTINGAN KE KOORDINATOR
@@ -1049,7 +1050,7 @@
             @keydown.window.escape="referralModalOpen = false"
           >
             <div
-              style="width: 90vw; max-width: 1024px; height: min(92vh, 720px); max-height: 92vh;"
+              style="width: 90vw; max-width: 720px; height: min(92vh, 680px);"
               class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col min-h-0 overflow-hidden my-auto"
               role="dialog"
               aria-modal="true"
