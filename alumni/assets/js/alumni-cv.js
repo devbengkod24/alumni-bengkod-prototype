@@ -1,9 +1,14 @@
 /**
- * CV ATS bersama: sumber data, template HTML, dan pembuat PDF.
- *   - generate-cv.html  : pratinjau ATS memakai renderAtsCvHTML (x-html)
- *   - dashboard.html    : "Lihat CV" pelamar referral & "Lihat CV saya" -> openCvPdf (format ATS / Modern)
- *   - gigs.html         : pilihan versi CV di modal Ajukan Minat -> openCvPdf
- *   - gigs-pelamar.html : "Lihat CV" pelamar gigs sesuai versi yang dipilih pelamar
+ * CV bersama: sumber data, template HTML (ATS / Modern), pembuat PDF, dan penampil CV.
+ *   - generate-cv.html         : pratinjau ATS memakai renderAtsCvHTML (x-html)
+ *   - profil.html              : "Lihat CV" di checklist profil -> openCvPdf (PDF ATS di tab baru)
+ *   - openCvViewer             : modal pratinjau web dengan pilihan ATS Standar | Modern Clean + Unduh PDF.
+ *                                Pengirim tidak memilih versi; penerima yang memilih tampilan saat melihat.
+ *       · dashboard.html / referral.html : "Pratinjau CV" di modal Minta Review & Referral, "Lihat CV saya"
+ *       · referral-pengajuan.html        : "Lihat CV" pelamar referral
+ *       · gigs.html                      : "Pratinjau CV" di modal Ajukan Minat
+ *       · gigs-pelamar.html              : "Lihat CV" pelamar gigs
+ *   - cvBaseFileName           : nama berkas tanpa akhiran versi (CV_<Nama>.pdf) untuk kartu berkas
  * Butuh alumni-data.js (ALUMNI_DIRECTORY, loadStoredProjects) dan alumni-profile-data.js (INITIAL_*).
  * PDF dibuat di browser dengan html2pdf.js (dimuat saat pertama kali dibutuhkan).
  */
@@ -25,10 +30,19 @@ function cvEscape(value) {
 
 const cvClone = (v) => JSON.parse(JSON.stringify(v));
 
+function cvNameSlug(name) {
+  const clean = String(name || "Alumni").trim().replace(/[^\p{L}\p{N}\s.-]/gu, "").replace(/\s+/g, "_");
+  return clean || "Alumni";
+}
+
 /** Nama berkas PDF: CV_<Nama_Dengan_Garis_Bawah>_ATS.pdf atau _MODERN.pdf */
 function cvFileName(name, format = "ats") {
-  const clean = String(name || "Alumni").trim().replace(/[^\p{L}\p{N}\s.-]/gu, "").replace(/\s+/g, "_");
-  return `CV_${clean || "Alumni"}_${format === "modern" ? "MODERN" : "ATS"}.pdf`;
+  return `CV_${cvNameSlug(name)}_${format === "modern" ? "MODERN" : "ATS"}.pdf`;
+}
+
+/** Nama berkas tanpa akhiran versi: CV_<Nama>.pdf (kartu berkas; versi dipilih penerima saat melihat) */
+function cvBaseFileName(name) {
+  return `CV_${cvNameSlug(name)}.pdf`;
 }
 
 /** Profil sendiri (hasil edit profil.html bila ada) */
@@ -431,6 +445,226 @@ async function openCvPdf(applicant, options = {}) {
   }
 }
 
+/* ------------------------------------------------------------------ */
+/* Penampil CV (modal DOM vanilla, dipakai semua halaman Alpine)       */
+/* ------------------------------------------------------------------ */
+
+const CV_PAPER_WIDTH = 794; // A4 pada 96 dpi
+const CV_PAPER_HEIGHT = 1123;
+const CV_FORMATS = [
+  { id: "ats", label: "ATS Standar", desc: "Teks bersih terstruktur" },
+  { id: "modern", label: "Modern Clean", desc: "Layout 2-kolom visual" },
+];
+
+// Gaya modal disuntik sekali; tidak memakai kelas Tailwind supaya tidak berkedip saat CDN belum membuat CSS-nya
+function cvViewerInjectStyles() {
+  if (document.getElementById("cv-viewer-style")) return;
+  const style = document.createElement("style");
+  style.id = "cv-viewer-style";
+  style.textContent = `
+    .cvv-overlay{position:fixed;inset:0;z-index:150;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(17,24,39,.6);backdrop-filter:blur(2px);font-family:Poppins,Arial,sans-serif;}
+    .cvv-panel{display:flex;flex-direction:column;width:100%;max-width:920px;height:min(94vh,1040px);background:#fff;border:1px solid #e5e7eb;border-radius:16px;box-shadow:0 24px 60px rgba(0,0,0,.25);overflow:hidden;}
+    .cvv-head{flex-shrink:0;display:flex;flex-direction:column;gap:12px;padding:16px 20px;border-bottom:1px solid #e5e7eb;background:#fff;}
+    .cvv-row{display:flex;align-items:center;gap:10px;min-width:0;}
+    .cvv-icon{width:36px;height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:10px;background:#fef2f2;border:1px solid #fee2e2;color:#dc2626;}
+    .cvv-title{flex:1;min-width:0;}
+    .cvv-title h2{margin:0;font-size:17px;line-height:1.3;font-weight:700;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cvv-title p{margin:2px 0 0;font-size:12.5px;line-height:1.4;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cvv-dl{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 16px;border:0;border-radius:999px;background:#1E3A8A;color:#fff;font:600 13.5px/1 Poppins,Arial,sans-serif;white-space:nowrap;cursor:pointer;transition:background .15s;}
+    .cvv-dl:hover{background:#1D4ED8;}
+    .cvv-dl:disabled{opacity:.75;cursor:progress;}
+    .cvv-x{flex-shrink:0;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:0;border-radius:999px;background:transparent;color:#9ca3af;cursor:pointer;transition:background .15s,color .15s;}
+    .cvv-x:hover{background:#eff6ff;color:#1E3A8A;}
+    .cvv-seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;width:100%;max-width:440px;padding:4px;border-radius:12px;background:#f3f4f6;}
+    .cvv-seg button{display:block;min-width:0;padding:7px 12px;border:0;border-radius:9px;background:transparent;text-align:left;color:#4b5563;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;}
+    .cvv-seg button:hover{color:#111827;}
+    .cvv-seg button[aria-pressed="true"]{background:#fff;color:#1E3A8A;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+    .cvv-seg b{display:block;font-size:13.5px;line-height:1.3;font-weight:600;}
+    .cvv-seg span{display:block;margin-top:1px;font-size:11px;line-height:1.3;color:#6b7280;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .cvv-body{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:24px;background:#e5e7eb;overscroll-behavior:contain;}
+    .cvv-sizer{margin:0 auto;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.12);}
+    .cvv-paper{width:${CV_PAPER_WIDTH}px;min-height:${CV_PAPER_HEIGHT}px;box-sizing:border-box;padding:48px 53px;background:#fff;transform-origin:top left;}
+    .cvv-overlay button:focus-visible{outline:2px solid #1E3A8A;outline-offset:2px;}
+    @media (max-width:639px){
+      .cvv-overlay{padding:0;}
+      .cvv-panel{height:100%;max-width:none;border:0;border-radius:0;}
+      .cvv-head{padding:12px 16px;gap:10px;}
+      .cvv-icon{display:none;}
+      .cvv-title h2{font-size:16px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+      .cvv-title p{display:none;}
+      .cvv-dl{padding:0 14px;}
+      .cvv-seg{max-width:none;}
+      .cvv-body{padding:12px;}
+    }`;
+  document.head.appendChild(style);
+}
+
+let cvActiveViewer = null;
+
+/**
+ * Buka penampil CV. applicant: nama/id pelamar, kosong = CV sendiri.
+ * Versi ATS / Modern dirender ulang langsung; Unduh PDF memakai createCvPdf.
+ */
+function openCvViewer(applicant, { format = "ats" } = {}) {
+  if (cvActiveViewer) cvActiveViewer.close();
+  cvViewerInjectStyles();
+
+  const data = alumniCvData(applicant);
+  const name = data.profile.name || "Alumni";
+  const trigger = document.activeElement;
+  let current = format === "modern" ? "modern" : "ats";
+  let busy = false;
+
+  const overlay = document.createElement("div");
+  overlay.className = "cvv-overlay";
+  overlay.innerHTML = `
+    <div class="cvv-panel" role="dialog" aria-modal="true" aria-labelledby="cvv-title">
+      <div class="cvv-head">
+        <div class="cvv-row">
+          <span class="cvv-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          <div class="cvv-title">
+            <h2 id="cvv-title">CV ${cvEscape(name)}</h2>
+            <p>Dibuat otomatis dari profil alumni</p>
+          </div>
+          <button type="button" class="cvv-dl" data-cvv="download">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span data-cvv="download-label">Unduh PDF</span>
+          </button>
+          <button type="button" class="cvv-x" data-cvv="close" aria-label="Tutup pratinjau CV">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="cvv-seg" role="group" aria-label="Versi tampilan CV">
+          ${CV_FORMATS.map((f) => `<button type="button" data-cvv-format="${f.id}" aria-pressed="false"><b>${f.label}</b><span>${f.desc}</span></button>`).join("")}
+        </div>
+      </div>
+      <div class="cvv-body" data-cvv="body">
+        <div class="cvv-sizer" data-cvv="sizer"><div class="cvv-paper" data-cvv="paper"></div></div>
+      </div>
+    </div>`;
+
+  const $ = (sel) => overlay.querySelector(`[data-cvv="${sel}"]`);
+  const body = $("body");
+  const sizer = $("sizer");
+  const paper = $("paper");
+  const dlBtn = $("download");
+  const dlLabel = $("download-label");
+  const closeBtn = $("close");
+  const formatBtns = [...overlay.querySelectorAll("[data-cvv-format]")];
+
+  // Kertas tetap lebar A4 lalu diperkecil mengikuti lebar area; sizer memotong sisa lebar supaya tidak bisa digeser ke samping
+  function fit() {
+    const cs = getComputedStyle(body);
+    const avail = body.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const scale = Math.min(1, Math.max(0.2, avail / CV_PAPER_WIDTH));
+    paper.style.transform = scale < 1 ? `scale(${scale})` : "";
+    sizer.style.width = `${Math.floor(CV_PAPER_WIDTH * scale)}px`;
+    sizer.style.height = `${Math.ceil(paper.offsetHeight * scale)}px`;
+  }
+
+  function render() {
+    paper.innerHTML = renderCvHTML(data, { format: current });
+    formatBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.cvvFormat === current)));
+    body.scrollTop = 0;
+    fit();
+  }
+
+  async function download() {
+    if (busy) return;
+    busy = true;
+    dlBtn.disabled = true;
+    dlLabel.textContent = "Menyiapkan…";
+    try {
+      const { url, fileName } = await createCvPdf(applicant, { format: current });
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      dlLabel.textContent = "Unduh PDF";
+    } catch (err) {
+      console.error("Gagal membuat PDF CV:", err);
+      dlLabel.textContent = "Gagal, coba lagi";
+      setTimeout(() => { if (!busy) dlLabel.textContent = "Unduh PDF"; }, 3000);
+    } finally {
+      busy = false;
+      dlBtn.disabled = false;
+    }
+  }
+
+  function focusables() {
+    return [...overlay.querySelectorAll("button:not([disabled]), [href], [tabindex]:not([tabindex='-1'])")];
+  }
+
+  // Capture di window supaya Esc tidak ikut menutup modal Alpine di bawahnya
+  function onKeydown(e) {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      close();
+      return;
+    }
+    if (e.key === "Tab") {
+      const items = focusables();
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && (document.activeElement === first || !overlay.contains(document.activeElement))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (document.activeElement === last || !overlay.contains(document.activeElement))) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  const ro = typeof ResizeObserver === "function" ? new ResizeObserver(() => fit()) : null;
+  const prevOverflow = document.body.style.getPropertyValue("overflow");
+  const prevPriority = document.body.style.getPropertyPriority("overflow");
+
+  function close() {
+    if (cvActiveViewer !== handle) return;
+    cvActiveViewer = null;
+    window.removeEventListener("keydown", onKeydown, true);
+    window.removeEventListener("resize", fit);
+    if (ro) ro.disconnect();
+    overlay.remove();
+    // alumni.js memasang body { overflow: auto !important }, jadi kunci & pulihkan dengan prioritas yang sama
+    if (prevOverflow) document.body.style.setProperty("overflow", prevOverflow, prevPriority);
+    else document.body.style.removeProperty("overflow");
+    if (trigger && typeof trigger.focus === "function" && document.contains(trigger)) trigger.focus({ preventScroll: true });
+  }
+
+  overlay.addEventListener("mousedown", (e) => {
+    if (e.target === overlay) close();
+  });
+  closeBtn.addEventListener("click", close);
+  dlBtn.addEventListener("click", download);
+  formatBtns.forEach((b) => b.addEventListener("click", () => {
+    if (b.dataset.cvvFormat === current) return;
+    current = b.dataset.cvvFormat;
+    render();
+  }));
+
+  const handle = { close, get format() { return current; } };
+  cvActiveViewer = handle;
+
+  document.body.appendChild(overlay);
+  document.body.style.setProperty("overflow", "hidden", "important");
+  window.addEventListener("keydown", onKeydown, true);
+  window.addEventListener("resize", fit);
+  if (ro) {
+    ro.observe(body);
+    ro.observe(paper);
+  }
+  render();
+  (formatBtns.find((b) => b.dataset.cvvFormat === current) || closeBtn).focus({ preventScroll: true });
+  return handle;
+}
+
 if (typeof window !== "undefined") {
-  Object.assign(window, { cvFileName, alumniCvData, renderAtsCvHTML, renderModernCvHTML, renderCvHTML, createCvPdf, openCvPdf });
+  Object.assign(window, { cvFileName, cvBaseFileName, alumniCvData, renderAtsCvHTML, renderModernCvHTML, renderCvHTML, createCvPdf, openCvPdf, openCvViewer });
 }

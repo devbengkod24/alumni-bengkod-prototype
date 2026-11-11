@@ -7,7 +7,7 @@
  * Dimuat setelah store.js dan alumni-data.js. Pakai: FeedBersama.semua(), FeedBersama.cari(id), dst.
  */
 (function () {
-  const KATEGORI_BERANDA = { umum: 'Umum', karya: 'Karya & Showcase', referral: 'Internal Referral', tanya: 'Tanya Koordinator' };
+  const KATEGORI_BERANDA = { umum: 'Umum', karya: 'Karya & Showcase', referral: 'Referral', tanya: 'Tanya Koordinator' };
 
   // Kategori dikenali dengan aturan yang sama seperti filteredPosts di Beranda
   function kategoriDari(p, isi) {
@@ -26,7 +26,7 @@
     return {
       id: p.id, sumber: 'alumni', penulis: p.authorName, peran: 'Alumni', foto: p.authorAvatar || '', headline: p.authorHeadline || '',
       waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, referral: p.referral || null, pengajuan: p.pengajuan || [],
-      kategori: kategoriDari(p, isi), pertanyaan: false, disematkan: !!p.disematkan, tag: p.tagRekap || '',
+      kategori: kategoriDari(p, isi), pertanyaan: false, tag: p.tagRekap || '',
       suka: p.likes || 0, disukaiSaya: (p.disukai || []).includes(nama), komentar: (p.komentarForum || []).map(keKomentar),
     };
   }
@@ -36,7 +36,7 @@
     return {
       id: -f.id, sumber: 'forum', penulis: f.penulis, peran: f.peran || 'Alumni', foto: f.foto || '', headline: f.headline || '',
       waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, referral: f.referral || null, pengajuan: f.pengajuan || [],
-      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan, disematkan: !!f.disematkan, tag: f.tagRekap || '',
+      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan, tag: f.tagRekap || '',
       suka: (f.disukai || []).length, disukaiSaya: (f.disukai || []).includes(nama), komentar: (f.comments || []).map(keKomentar),
     };
   }
@@ -62,11 +62,10 @@
   window.FeedBersama = {
     KATEGORI_BERANDA,
 
-    // Postingan disematkan selalu di atas, sisanya dari yang terbaru
+    // Urut dari yang terbaru (tidak ada lagi postingan yang disematkan)
     semua(nama) {
       const list = [...loadPosts().map(p => dariAlumni(p, nama)), ...BengkodStore.getForum().map(f => dariForum(f, nama))];
-      const urut = l => l.sort((a, b) => b.waktu - a.waktu);
-      return [...urut(list.filter(p => p.disematkan)), ...urut(list.filter(p => !p.disematkan))];
+      return list.sort((a, b) => b.waktu - a.waktu);
     },
 
     cari(id, nama) {
@@ -89,7 +88,7 @@
       const id = list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
       list.push({
         id, judul: '', isi: teks, gambar, tags: [], penulis: nama, peran, waktu: new Date().toISOString(),
-        category: KATEGORI_BERANDA[kategori], pertanyaan: !!pertanyaan, disematkan: false, disukai: [], dibagikan: 0, comments: [],
+        category: KATEGORI_BERANDA[kategori], pertanyaan: !!pertanyaan, disukai: [], dibagikan: 0, comments: [],
       });
       BengkodStore.saveForum(list);
       return { ok: true, id: -id };
@@ -163,12 +162,6 @@
         const terhapus = sebelum - sisa.reduce((n, c) => n + 1 + (c.balasan || []).length, 0);
         if (sumber === 'alumni') p.commentsCount = Math.max(0, (p.commentsCount || 0) - terhapus);
       });
-    },
-
-    sematkan(id) {
-      let hasil = false;
-      ubahMentah(id, p => { p.disematkan = hasil = !p.disematkan; });
-      return hasil;
     },
 
     beriTag(id, tag) {

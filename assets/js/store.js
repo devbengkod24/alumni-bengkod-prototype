@@ -532,18 +532,18 @@
 
   // Postingan contoh feed bersama alumni-koordinator. Ditandai kunci supaya ditambahkan sekali saja
   // ke data forum yang sudah tersimpan. Field bersama: category (kategori feed Beranda),
-  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), disematkan, tagRekap (tag rekap koordinator).
+  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), tagRekap (tag rekap koordinator).
   const FORUM_TAMBAHAN = [
     {
       kunci: 'sambutan-feed', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-10-20T09:00:00',
-      category: 'Umum', disematkan: true, tags: [], dibagikan: 0,
+      category: 'Umum', tags: [], dibagikan: 0,
       disukai: ['Rizky Pratama', 'Nadia Putri', 'Dimas Arya', 'Salsa Ramadhani', 'Fajar Nugroho'],
       isi: SAMBUTAN_ISI,
       comments: [],
     },
     {
       kunci: 'pertanyaan-stack', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-11-04T08:30:00',
-      category: 'Umum', pertanyaan: true, disematkan: true, tags: [], dibagikan: 0,
+      category: 'Umum', pertanyaan: true, tags: [], dibagikan: 0,
       disukai: ['Nadia Putri', 'Intan Maharani', 'Rizky Pratama'],
       isi: 'Pertanyaan minggu ini: di kantor kalian sekarang pakai stack apa, dan materi apa yang menurut kalian perlu ditambah di Bengkel Koding? Jawab di kolom komentar ya.',
       comments: [

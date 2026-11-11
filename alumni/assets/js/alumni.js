@@ -105,6 +105,8 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
   if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
+  if (link === "/dashboard/alumni/referral") return `${base}referral.html`;
+  if (link === "/dashboard/alumni/referral-pengajuan") return `${base}referral-pengajuan.html`;
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
@@ -159,6 +161,17 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
+    title: "Referral",
+    link: "/dashboard/alumni/referral",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+          <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+          <path d="m21 3 1 11h-2" />
+          <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+          <path d="M3 4h8" />
+        </svg>`,
+  },
+  {
     title: "Generate CV",
     link: "/dashboard/alumni/generate-cv",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -192,6 +205,7 @@ const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/pengumuman": "Pengumuman",
   "/dashboard/alumni/tracer": "Status Karir",
   "/dashboard/alumni/gigs-pelamar": "Pelamar Proyek",
+  "/dashboard/alumni/referral-pengajuan": "Pengajuan Referral",
 };
 
 // Halaman turunan menyorot menu induknya di sidebar
@@ -199,6 +213,7 @@ const ALUMNI_NAV_PARENT = {
   "/dashboard/alumni/pengumuman": "/dashboard/alumni",
   "/dashboard/alumni/tracer": "/dashboard/alumni/profil",
   "/dashboard/alumni/gigs-pelamar": "/dashboard/alumni/gigs",
+  "/dashboard/alumni/referral-pengajuan": "/dashboard/alumni/referral",
 };
 
 // Samain route alias ke route utama di ALUMNI_NAVIGATIONS
@@ -295,10 +310,40 @@ window.ALUMNI_PARTIALS = Object.assign(window.ALUMNI_PARTIALS || {}, {
 
 /* ------------------------------------------------------------------ */
 /* Notifikasi lonceng: seed NOTIFIKASI_AISHA (alumni-data.js),         */
-/* status baca disimpan di localStorage                                */
+/* status baca & notifikasi yang dihapus disimpan di localStorage.     */
+/* Desain (dropdown + modal Semua Notifikasi) mengikuti role           */
+/* koordinator di alumni/assets/js/app.js.                             */
 /* ------------------------------------------------------------------ */
 
 const ALUMNI_NOTIF_READ_KEY = "bengkod_alumni_notif_read_v1";
+const ALUMNI_NOTIF_HAPUS_KEY = "bengkod_alumni_notif_hapus_v1";
+const ALUMNI_NOTIF_PER_HALAMAN = 5;
+const ALUMNI_NOTIF_MODAL_PER_HAL = 6;
+
+function alumniNotifHapusIds() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(ALUMNI_NOTIF_HAPUS_KEY) || "[]");
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+}
+
+function alumniSaveNotifHapusIds(ids) {
+  try {
+    localStorage.setItem(ALUMNI_NOTIF_HAPUS_KEY, JSON.stringify([...new Set(ids)]));
+  } catch {}
+}
+
+// Ikon lucide (stroke) yang dipakai lonceng koordinator, ditulis inline karena halaman alumni tidak memuat lucide
+const alumniLucide = (size, paths) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const ALUMNI_NOTIF_SVG = {
+  trash: alumniLucide(14, '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>'),
+  chevronLeft: alumniLucide(14, '<path d="m15 18-6-6 6-6"/>'),
+  chevronRight: alumniLucide(14, '<path d="m9 18 6-6-6-6"/>'),
+  x: alumniLucide(20, '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  bellOff: (size) => alumniLucide(size, '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/>'),
+};
 
 function alumniNotifReadIds() {
   try {
@@ -340,6 +385,12 @@ document.addEventListener("alpine:init", () => {
     profileIsOpen: false,
     notifIsOpen: false,
     notifs: [],
+    notifHalaman: 1,
+    notifModalOpen: false,
+    notifModalFilter: "semua",
+    notifModalHal: 1,
+    notifConfirmOpen: false,
+    NOTIF_MODAL_PER_HAL: ALUMNI_NOTIF_MODAL_PER_HAL,
     breadcrumbDropdownOpen: false,
     profile: alumniCurrentProfile(),
     init() {
@@ -351,7 +402,7 @@ document.addEventListener("alpine:init", () => {
       });
       // Status baca ikut berubah kalau ditandai dari tab lain
       window.addEventListener("storage", (e) => {
-        if (e.key === ALUMNI_NOTIF_READ_KEY) this.loadNotifs();
+        if (e.key === ALUMNI_NOTIF_READ_KEY || e.key === ALUMNI_NOTIF_HAPUS_KEY) this.loadNotifs();
       });
       // Tutup dropdown kalau klik di luar (satu-satunya handler click-away)
       document.addEventListener("mousedown", (event) => {
@@ -367,7 +418,9 @@ document.addEventListener("alpine:init", () => {
     loadNotifs() {
       const seed = typeof NOTIFIKASI_AISHA !== "undefined" ? NOTIFIKASI_AISHA : [];
       const read = alumniNotifReadIds();
+      const dihapus = alumniNotifHapusIds();
       this.notifs = seed
+        .filter((n) => !dihapus.includes(n.id))
         .map((n) => ({ ...n, dibaca: read.includes(n.id) }))
         .sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
     },
@@ -378,6 +431,52 @@ document.addEventListener("alpine:init", () => {
     markAllNotifsRead() {
       alumniSaveNotifReadIds([...alumniNotifReadIds(), ...this.notifs.map((n) => n.id)]);
       this.loadNotifs();
+    },
+    hapusNotif(id) {
+      alumniSaveNotifHapusIds([...alumniNotifHapusIds(), id]);
+      this.loadNotifs();
+    },
+    mintaHapusSemuaNotif() {
+      this.notifIsOpen = false;
+      this.notifConfirmOpen = true;
+    },
+    hapusSemuaNotif() {
+      alumniSaveNotifHapusIds([...alumniNotifHapusIds(), ...this.notifs.map((n) => n.id)]);
+      this.notifConfirmOpen = false;
+      this.loadNotifs();
+    },
+    bukaSemuaNotif() {
+      this.notifIsOpen = false;
+      this.notifModalFilter = "semua";
+      this.notifModalHal = 1;
+      this.notifModalOpen = true;
+    },
+    // Dropdown: 5 per halaman (halaman dijaga tetap valid setelah ada yang dihapus)
+    get notifTotalHalaman() {
+      return Math.max(1, Math.ceil(this.notifs.length / ALUMNI_NOTIF_PER_HALAMAN));
+    },
+    get notifHalamanAktif() {
+      return Math.min(Math.max(1, this.notifHalaman), this.notifTotalHalaman);
+    },
+    get notifHalamanIni() {
+      const awal = (this.notifHalamanAktif - 1) * ALUMNI_NOTIF_PER_HALAMAN;
+      return this.notifs.slice(awal, awal + ALUMNI_NOTIF_PER_HALAMAN);
+    },
+    // Modal Semua Notifikasi: tab Semua / Belum Dibaca, 6 per halaman
+    get notifModalList() {
+      return this.notifModalFilter === "belum" ? this.notifs.filter((n) => !n.dibaca) : this.notifs;
+    },
+    get notifModalTotalHal() {
+      return Math.max(1, Math.ceil(this.notifModalList.length / ALUMNI_NOTIF_MODAL_PER_HAL));
+    },
+    get notifModalHalAktif() {
+      return Math.min(Math.max(1, this.notifModalHal), this.notifModalTotalHal);
+    },
+    get notifModalAwal() {
+      return (this.notifModalHalAktif - 1) * ALUMNI_NOTIF_MODAL_PER_HAL;
+    },
+    get notifModalItems() {
+      return this.notifModalList.slice(this.notifModalAwal, this.notifModalAwal + ALUMNI_NOTIF_MODAL_PER_HAL);
     },
     notifHref(n) {
       return alumniBasePrefix() + (n.tautan || "dashboard.html");
@@ -545,43 +644,69 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
                   ></span>
                 </button>
 
+                <!-- Panel notifikasi: desain sama dengan lonceng role koordinator (alumni/assets/js/app.js renderNotifikasi) -->
                 <div
                   x-show="notifIsOpen"
                   x-cloak
                   id="notif-panel"
                   class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
                 >
-                  <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
-                    <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
-                    <template x-if="notifUnreadCount > 0">
-                      <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-primary2 hover:underline cursor-pointer">Tandai semua dibaca</button>
-                    </template>
+                  <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-gray-100 bg-white">
+                    <div class="flex items-center gap-2">
+                      <p class="!text-sm font-bold text-gray-900">Notifikasi</p>
+                      <template x-if="notifUnreadCount > 0">
+                        <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[11px] font-bold" x-text="notifUnreadCount + ' baru'"></span>
+                      </template>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <template x-if="notifUnreadCount > 0">
+                        <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
+                      </template>
+                      <template x-if="notifs.length > 0">
+                        <button type="button" @click="mintaHapusSemuaNotif()" class="text-xs text-gray-400 hover:text-red-600 transition-colors cursor-pointer" title="Hapus semua notifikasi" aria-label="Hapus semua notifikasi">${ALUMNI_NOTIF_SVG.trash}</button>
+                      </template>
+                    </div>
                   </div>
-                  <div class="max-h-96 overflow-y-auto">
-                    <template x-for="n in notifs" :key="n.id">
-                      <div class="flex items-start gap-3 px-4 py-3 border-b border-neutral4/40 last:border-0 transition-colors" :class="n.dibaca ? 'hover:bg-neutral5' : 'bg-primary5/40 hover:bg-primary5/70'">
-                        <span class="w-8 h-8 rounded-lg bg-primary5 text-primary2 flex items-center justify-center shrink-0 mt-0.5" x-html="notifIcon(n)"></span>
+                  <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                    <template x-for="n in notifHalamanIni" :key="n.id">
+                      <div class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors" :class="n.dibaca ? 'bg-white' : 'bg-blue-50/40'">
+                        <span class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5" :class="n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'" x-html="notifIcon(n)"></span>
                         <div class="min-w-0 flex-1">
-                          <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="block group/notif">
-                            <span class="block text-[11px] font-semibold uppercase tracking-wide text-neutral3" x-text="n.judul"></span>
-                            <span class="block text-[13px] text-neutral1 leading-snug mt-0.5 group-hover/notif:text-primary1" x-text="n.pesan"></span>
+                          <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="block group/link">
+                            <span class="block text-[13px] leading-snug group-hover/link:text-[#1E3A8A] transition-colors" :class="n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-semibold'" x-text="n.pesan"></span>
+                            <span class="block text-[11px] text-gray-400 mt-1" x-text="n.judul + ' · ' + notifTime(n)"></span>
                           </a>
-                          <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[11px] text-neutral3" x-text="notifTime(n)"></span>
+                          <div class="flex items-center gap-3 mt-1.5 pt-0.5">
                             <template x-if="!n.dibaca">
-                              <button type="button" @click="markNotifRead(n.id)" class="text-[11px] font-semibold text-primary2 hover:underline cursor-pointer">· Tandai dibaca</button>
+                              <button type="button" @click="markNotifRead(n.id)" class="text-[11px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai dibaca</button>
                             </template>
+                            <button type="button" @click="hapusNotif(n.id)" class="text-[11px] font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto">Hapus</button>
                           </div>
                         </div>
                         <template x-if="!n.dibaca">
-                          <span class="w-2 h-2 rounded-full bg-primary2 shrink-0 mt-2" aria-label="Belum dibaca"></span>
+                          <span class="w-2 h-2 rounded-full bg-[#1E3A8A] shrink-0 mt-1.5" aria-label="Belum dibaca"></span>
                         </template>
                       </div>
                     </template>
                     <template x-if="notifs.length === 0">
-                      <p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>
+                      <div class="p-8 text-center text-gray-400">
+                        <span class="flex justify-center mb-2 text-gray-300">${ALUMNI_NOTIF_SVG.bellOff(32)}</span>
+                        <p class="!text-sm">Belum ada notifikasi.</p>
+                      </div>
                     </template>
                   </div>
+                  <template x-if="notifs.length > 0">
+                    <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs text-gray-600">
+                      <button type="button" @click="bukaSemuaNotif()" class="font-semibold text-[#1E3A8A] hover:underline cursor-pointer" x-text="'Lihat semua notif (' + notifs.length + ')'"></button>
+                      <template x-if="notifTotalHalaman > 1">
+                        <div class="flex items-center gap-1.5">
+                          <button type="button" @click="notifHalaman = notifHalamanAktif - 1" :disabled="notifHalamanAktif <= 1" class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Sebelumnya" aria-label="Halaman sebelumnya">${ALUMNI_NOTIF_SVG.chevronLeft}</button>
+                          <span class="tabular-nums font-semibold text-gray-800" x-text="notifHalamanAktif + '/' + notifTotalHalaman"></span>
+                          <button type="button" @click="notifHalaman = notifHalamanAktif + 1" :disabled="notifHalamanAktif >= notifTotalHalaman" class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Berikutnya" aria-label="Halaman berikutnya">${ALUMNI_NOTIF_SVG.chevronRight}</button>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
                 </div>
               </div>
 
@@ -672,7 +797,93 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
           </div>
         </div>
       </footer>
-    </div>`;
+    </div>
+
+    <!-- Modal Semua Notifikasi + konfirmasi hapus: desain sama dengan role koordinator -->
+    <template x-if="notifModalOpen">
+      <div class="fixed inset-0 z-[80] bg-neutral1/60 backdrop-blur-sm flex items-center justify-center p-4" @mousedown.self="notifModalOpen = false" @keydown.window.escape="if (!notifConfirmOpen) notifModalOpen = false">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto elevation5" role="dialog" aria-modal="true" aria-labelledby="modal-notif-title">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+            <div>
+              <h3 id="modal-notif-title" class="text-lg font-bold text-gray-900 tracking-tight">Semua Notifikasi</h3>
+              <p class="!text-xs text-gray-500 mt-0.5">Kelola seluruh riwayat notifikasi dan pemberitahuan Anda</p>
+            </div>
+            <button type="button" @click="notifModalOpen = false" class="p-2 rounded-lg text-neutral2 hover:bg-primary5 hover:text-primary1 focus:outline-none focus:ring-2 focus:ring-primary3 cursor-pointer" aria-label="Tutup">${ALUMNI_NOTIF_SVG.x}</button>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <button type="button" @click="notifModalFilter = 'semua'; notifModalHal = 1" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer" :class="notifModalFilter === 'semua' ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'">Semua</button>
+              <button type="button" @click="notifModalFilter = 'belum'; notifModalHal = 1" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer" :class="notifModalFilter === 'belum' ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'">Belum Dibaca</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
+              <span class="text-gray-300">•</span>
+              <button type="button" @click="mintaHapusSemuaNotif()" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Hapus semua</button>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 py-3 min-h-[240px]">
+            <template x-for="n in notifModalItems" :key="'m-' + n.id">
+              <div class="flex items-start gap-3 p-4 rounded-xl border hover:border-gray-200 hover:bg-gray-50/70 transition-colors" :class="n.dibaca ? 'bg-white border-gray-100' : 'bg-blue-50/30 border-blue-100'">
+                <span class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5" :class="n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'" x-html="notifIcon(n)"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="text-[14px] hover:text-[#1E3A8A] leading-snug" :class="n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-bold'" x-text="n.pesan"></a>
+                    <template x-if="!n.dibaca">
+                      <span class="px-2 py-0.5 rounded-full bg-blue-100 text-[#1E3A8A] text-[10.5px] font-bold shrink-0">Baru</span>
+                    </template>
+                  </div>
+                  <p class="!text-xs text-gray-400 mt-1" x-text="n.judul + ' · ' + notifTime(n)"></p>
+                  <div class="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-100/80">
+                    <template x-if="!n.dibaca">
+                      <button type="button" @click="markNotifRead(n.id)" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai telah dibaca</button>
+                    </template>
+                    <button type="button" @click="hapusNotif(n.id)" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto flex items-center gap-1">
+                      ${ALUMNI_NOTIF_SVG.trash}<span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template x-if="notifModalList.length === 0">
+              <div class="p-12 text-center text-gray-400">
+                <span class="flex justify-center mb-2 text-gray-300">${ALUMNI_NOTIF_SVG.bellOff(40)}</span>
+                <p class="!text-sm" x-text="'Tidak ada notifikasi' + (notifModalFilter === 'belum' ? ' yang belum dibaca' : '') + '.'"></p>
+              </div>
+            </template>
+          </div>
+
+          <template x-if="notifModalList.length > NOTIF_MODAL_PER_HAL">
+            <div class="pt-3 border-t border-gray-100">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <p class="!text-xs sm:!text-[13px] text-gray-500 order-last sm:order-none">
+                  Menampilkan <span class="font-semibold text-gray-800" x-text="notifModalAwal + 1"></span>–<span class="font-semibold text-gray-800" x-text="notifModalAwal + notifModalItems.length"></span> dari <span class="font-semibold text-gray-800" x-text="notifModalList.length"></span> data
+                </p>
+                <div class="flex items-center gap-1.5 self-center sm:self-auto">
+                  <button type="button" @click="notifModalHal = notifModalHalAktif - 1" :disabled="notifModalHalAktif <= 1" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer">${ALUMNI_NOTIF_SVG.chevronLeft}<span>Sebelumnya</span></button>
+                  <span class="px-2.5 py-1 text-xs font-semibold text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg" x-text="notifModalHalAktif + ' / ' + notifModalTotalHal"></span>
+                  <button type="button" @click="notifModalHal = notifModalHalAktif + 1" :disabled="notifModalHalAktif >= notifModalTotalHal" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer"><span>Berikutnya</span>${ALUMNI_NOTIF_SVG.chevronRight}</button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="notifConfirmOpen">
+      <div class="fixed inset-0 z-[90] bg-neutral1/60 backdrop-blur-sm flex items-center justify-center p-4" @mousedown.self="notifConfirmOpen = false" @keydown.window.escape="notifConfirmOpen = false">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="notif-confirm-title" aria-describedby="notif-confirm-message">
+          <h3 id="notif-confirm-title" class="font-semibold text-base text-neutral1">Hapus semua notifikasi?</h3>
+          <p id="notif-confirm-message" class="!text-sm text-neutral2 mt-2">Seluruh riwayat notifikasi akan dihapus.</p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button" @click="notifConfirmOpen = false" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5 cursor-pointer">Batal</button>
+            <button type="button" @click="hapusSemuaNotif()" class="px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-4 bg-red2 hover:bg-red1 focus:ring-red3 cursor-pointer">Hapus Semua</button>
+          </div>
+        </div>
+      </div>
+    </template>`;
 }
 
 function expandAlumniPartials(root) {

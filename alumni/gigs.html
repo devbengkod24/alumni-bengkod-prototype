@@ -741,38 +741,23 @@
               <input type="text" autocomplete="off" x-model="applyContactPhone" placeholder="Contoh: 0812-3456-7890" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
             </div>
 
-            <!-- CV terlampir: pilih versi dari Generate CV (sama seperti modal Minta Review & Referral) -->
-            <div class="space-y-2">
-              <span class="block text-[14px] font-medium text-gray-700">Versi CV dari Generate CV</span>
-              <div class="grid grid-cols-2 gap-3">
-                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                  :class="applyResumeFormat === 'ats' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
-                  <input type="radio" name="gig-cv-format" value="ats" x-model="applyResumeFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
-                  <div class="text-[13.5px]">
-                    <p class="leading-none">ATS Standar</p>
-                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Teks bersih terstruktur</p>
-                  </div>
-                </label>
-                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                  :class="applyResumeFormat === 'modern' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
-                  <input type="radio" name="gig-cv-format" value="modern" x-model="applyResumeFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
-                  <div class="text-[13.5px]">
-                    <p class="leading-none">Modern Clean</p>
-                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Layout 2-kolom visual</p>
-                  </div>
-                </label>
+            <!-- CV terlampir: satu berkas dari profil; versi ATS / Modern dipilih penerima saat melihat -->
+            <div class="space-y-1.5">
+              <div class="flex items-baseline justify-between gap-3">
+                <span class="block text-[14px] font-medium text-gray-700">CV Terlampir</span>
+                <a href="generate-cv.html" class="text-[12px] font-medium text-gray-500 hover:text-[#1E3A8A] hover:underline shrink-0">Perbarui di Generate CV</a>
               </div>
-              <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-3">
-                <div class="flex items-center gap-3 min-w-0">
+              <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-3">
+                <div class="flex items-center gap-3 min-w-0 flex-1 basis-60">
                   <span class="w-9 h-9 rounded-lg bg-red-50 border border-red-100 text-red-600 flex items-center justify-center shrink-0" aria-hidden="true">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   </span>
                   <div class="min-w-0">
                     <p class="text-[14px] font-medium text-gray-900 truncate" x-text="applyResumeFileName"></p>
-                    <p class="text-[12px] text-gray-500">Dibuat otomatis dari profil Anda</p>
+                    <p class="text-[12px] text-gray-500 leading-snug">Dibuat otomatis dari profil · penerima bisa melihat versi ATS &amp; Modern</p>
                   </div>
                 </div>
-                <button type="button" @click="openCvPdf(undefined, { format: applyResumeFormat })" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline shrink-0 cursor-pointer">Lihat CV</button>
+                <button type="button" @click="openCvViewer(undefined)" class="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/50 text-gray-700 hover:text-[#1E3A8A] text-[13px] font-semibold transition-colors cursor-pointer shrink-0">Pratinjau CV</button>
               </div>
             </div>
 
@@ -1096,7 +1081,6 @@
       applyPitchMessage: "",
       applyPortfolioUrl: "",
       applyContactPhone: "081234567890",
-      applyResumeFormat: "ats",
       applyCvName: "",
 
       // Create gig modal
@@ -1183,9 +1167,9 @@
         return this.isAppAccepted(app) || app.status === "REJECTED";
       },
 
-      // Nama berkas CV terlampir mengikuti versi yang dipilih (ATS / Modern)
+      // Nama berkas CV terlampir tanpa akhiran versi (penerima memilih ATS / Modern saat melihat)
       get applyResumeFileName() {
-        return typeof cvFileName === "function" ? cvFileName(this.applyCvName || this.currentUserName, this.applyResumeFormat) : "";
+        return typeof cvBaseFileName === "function" ? cvBaseFileName(this.applyCvName || this.currentUserName) : "";
       },
 
       hasAppliedTo(gigId) {
@@ -1284,7 +1268,6 @@
         this.applyPitchMessage = "";
         this.applyPortfolioUrl = "";
         this.applyContactPhone = "081234567890";
-        this.applyResumeFormat = "ats";
         this.applyCvName = typeof alumniCvData === "function" ? alumniCvData().profile.name : this.currentUserName;
         this.quickApplyModalOpen = true;
       },
@@ -1311,7 +1294,6 @@
           pitchMessage: this.applyPitchMessage.trim(),
           portfolioItems: pickedProjects,
           resumeFileName: this.applyResumeFileName,
-          resumeFormat: this.applyResumeFormat,
           appliedDate: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
           status: "PENDING"
         };
@@ -1334,7 +1316,6 @@
           message: this.applyPitchMessage.trim(),
           portfolioItems: pickedProjects,
           resumeFileName: this.applyResumeFileName,
-          resumeFormat: this.applyResumeFormat,
           appliedDate: newApplicant.appliedDate,
           budgetRange: this.targetApplyGig.budgetRange,
           status: "PENDING"

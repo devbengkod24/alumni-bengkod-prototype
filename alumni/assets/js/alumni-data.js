@@ -205,7 +205,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
     date: "03 Nov 2026",
     content: "Halo rekan-rekan asisten Bengkel Koding! Divisi AI/Data di kantor kami sedang membuka posisi Backend Developer Intern untuk menangani pipeline ETL dan microservices analitik. Kriteria utama: familiar dengan Python/Node.js, paham REST API dan siap belajar arsitektur cloud. Silakan kirimkan CV dan perkenalan singkat lewat tombol di bawah!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 8,
@@ -226,7 +226,6 @@ const INITIAL_POSTS = [
         authorName: "Yoga Kurniawan",
         authorAvatar: "https://i.pravatar.cc/150?img=33",
         authorHeadline: "Backend Developer · Batch 2023",
-        format: "ats",
         pesan: "Halo Aisha! Saya sangat tertarik dengan posisi Backend Developer Intern ini. Saya sudah terbiasa membangun API dengan Node.js dan PostgreSQL di berbagai proyek lab dan siap kerja hybrid di Semarang.",
         status: "menunggu",
         masukan: "",
@@ -243,7 +242,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Backend Engineer | Golang, Node.js & Cloud Infrastructure · Batch 2023",
     date: "02 Nov 2026",
     content: "Di PT Awan Nusantara ada lowongan Junior Mobile Developer untuk proyek aplikasi mobile logistik. Dibutuhkan yang punya dasar Flutter atau React Native dan terbiasa consume API. Boleh langsung minta referral di bawah!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 12,
@@ -267,7 +266,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Frontend Engineer | React, Vue & Design Systems · Batch 2024",
     date: "25 Okt 2026",
     content: "Info referral untuk posisi UI/UX Designer di Studio Inovasi sudah ditutup ya rekan-rekan. Terima kasih banyak untuk rekan alumni yang sudah mengajukan!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 5,
@@ -284,11 +283,54 @@ const INITIAL_POSTS = [
     },
     pengajuan: [],
   },
+  {
+    // Referral milik alumni lain yang sudah diajukan Aisha (mengisi tab Pengajuan Terkirim di referral.html)
+    id: 8,
+    authorName: "Rafi Pratama",
+    authorAvatar: "https://i.pravatar.cc/150?img=12",
+    authorHeadline: "Fullstack Web Developer | Next.js, TypeScript & Laravel",
+    date: "05 Nov 2026",
+    content: "Tim data di PT Kreasi Data Nusantara butuh Data Analyst junior untuk dashboard penjualan dan analisis kohort. Kriteria: kuat di SQL, terbiasa Python (pandas), dan bisa menyajikan insight dengan Looker Studio atau Power BI. Silakan minta referral lewat tombol di bawah!",
+    category: "Referral",
+    visibility: "Semua orang",
+    imageUrl: "",
+    likes: 10,
+    isLiked: false,
+    commentsCount: 3,
+    repostsCount: 2,
+    impressions: 260,
+    jenis: "referral",
+    referral: {
+      perusahaan: "PT Kreasi Data Nusantara",
+      posisi: "Data Analyst",
+      level: "Junior (1-2 tahun)",
+      batas: "2026-11-27",
+    },
+    pengajuan: [
+      {
+        id: 801,
+        authorName: "Aisha Dwi Rahmawati",
+        authorAvatar: DEFAULT_AVATAR,
+        authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
+        pesan: "Halo Rafi! Saya tertarik dengan posisi Data Analyst ini. Saya terbiasa mengolah data dengan Python dan SQL, dan pernah membangun dashboard analisis sentimen untuk proyek Sentimeter AI.",
+        status: "masukan",
+        masukan: "Profilmu kuat di analisis data. Tambahkan contoh dashboard bisnis (SQL + BI) di portofolio, lalu ajukan lagi di periode berikutnya ya.",
+        waktu: "2026-11-06T10:20:00",
+        no_hp: "081234567890",
+        linkedin: "https://www.linkedin.com/in/aisharah",
+      },
+    ],
+  },
 ];
 
 const OPSI_LEVEL_REFERRAL = ["Magang/Freshgrad", "Junior (1-2 tahun)", "Mid"];
 
 const STORAGE_KEY = "bengkod_alumni_posts_v2";
+
+// Kategori lama "Internal Referral" sekarang cukup "Referral" (data tersimpan ikut dinormalkan saat dibaca)
+function normalisasiKategoriPost(posts) {
+  return posts.map((p) => (p && p.category === "Internal Referral" ? { ...p, category: "Referral" } : p));
+}
 
 function loadPosts() {
   if (typeof window === "undefined") return INITIAL_POSTS;
@@ -298,7 +340,8 @@ function loadPosts() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_POSTS));
       return INITIAL_POSTS;
     }
-    const parsed = JSON.parse(raw);
+    const mentah = JSON.parse(raw);
+    const parsed = Array.isArray(mentah) ? normalisasiKategoriPost(mentah) : mentah;
     if (Array.isArray(parsed) && parsed.length > 0) {
       // Auto-merge if new seed posts are not present
       const existingIds = new Set(parsed.map(p => p.id));
@@ -3167,7 +3210,7 @@ const NOTIFIKASI_AISHA = [
     judul: "Pengajuan referral baru",
     pesan: "Yoga Kurniawan meminta review & referral untuk Backend Developer Intern di PT Solusi Digital Jateng.",
     waktu: "2026-11-04T09:15:00",
-    tautan: "dashboard.html#activity-card-5",
+    tautan: "referral-pengajuan.html?id=5",
   },
   {
     id: "notif-gig-102",

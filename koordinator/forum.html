@@ -144,7 +144,7 @@
   const KATEGORI = {
     umum: { label: 'Umum', ikon: 'globe' },
     karya: { label: 'Karya & Showcase', ikon: 'rocket' },
-    referral: { label: 'Internal Referral', ikon: 'briefcase' },
+    referral: { label: 'Referral', ikon: 'briefcase' },
   };
 
   const TAG = {
@@ -271,7 +271,6 @@
       <div data-menu class="relative shrink-0">
         <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 cursor-pointer"><i data-lucide="ellipsis" class="w-5 h-5"></i></button>
         <div data-panel-menu class="hidden absolute right-0 top-9 z-20 w-60 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5" role="menu">
-          ${item('sematkan', p.disematkan ? 'pin-off' : 'pin', p.disematkan ? 'Lepas sematan' : 'Sematkan di atas')}
           ${item('bagikan', 'link', 'Salin tautan postingan')}
           ${pilihanTag}
           <div class="border-t border-gray-100 mt-1 pt-1">${item('hapus', 'trash-2', 'Hapus postingan', '', 'text-red1 hover:bg-red3')}</div>
@@ -490,7 +489,6 @@
 
     return `
       <article id="post-${p.id}" class="bg-white rounded-xl border border-gray-200/90 shadow-xs scroll-mt-24 transition-shadow">
-        ${p.disematkan ? '<div class="px-4 py-2 border-b border-gray-100 flex items-center gap-1.5 text-[12px] text-gray-500"><i data-lucide="pin" class="w-3.5 h-3.5"></i>Disematkan oleh koordinator</div>' : ''}
         <div class="px-5 pt-4 flex items-start gap-3.5">
           ${fotoOrang(p.penulis, p.foto, 'w-12 h-12')}
           <div class="min-w-0 flex-1">
@@ -772,10 +770,6 @@
     if (aksi === 'hapus-komentar') {
       FeedBersama.hapusKomentar(id, Number(tombol.dataset.komentarId));
       return segarkan(id);
-    }
-    if (aksi === 'sematkan') {
-      showToast(FeedBersama.sematkan(id) ? 'Postingan disematkan di atas.' : 'Sematan dilepas.');
-      return lompat(id);
     }
     if (aksi === 'beri-tag') {
       FeedBersama.beriTag(id, tombol.dataset.tag);

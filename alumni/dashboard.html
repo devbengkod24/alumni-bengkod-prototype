@@ -13,6 +13,7 @@
   <script src="assets/js/alumni-profile-data.js"></script>
   <script src="assets/js/alumni-profile-modals.js"></script>
   <script src="assets/js/alumni-cv.js"></script>
+  <script src="assets/js/alumni-referral.js"></script>
   <script src="../assets/js/store.js?v=3"></script>
 </head>
 
@@ -73,7 +74,7 @@
         <!-- ── TAB KATEGORI FEED ── -->
         <div class="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar text-sm">
           <div class="flex items-center gap-2 shrink-0">
-            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']"
+            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Referral']"
               :key="cat">
               <button type="button" @click="selectedCategory = cat"
                 class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
@@ -97,20 +98,6 @@
           <template x-for="post in filteredPosts" :key="post.id">
             <div :id="'activity-card-' + post.id"
               class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white">
-              <!-- Disematkan koordinator dari halaman Forum -->
-              <template x-if="post.disematkan">
-                <div
-                  class="px-5 pt-3 pb-2 border-b border-gray-100 flex items-center gap-1.5 text-[13px] text-gray-500">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 17v5" />
-                    <path
-                      d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
-                  </svg>
-                  Disematkan oleh koordinator
-                </div>
-              </template>
-
               <!-- Repost Header jika ada -->
               <template x-if="post.isRepost && post.repostedBy">
                 <div
@@ -284,126 +271,22 @@
 
                     <!-- Aksi Referral -->
                     <div class="pt-1.5">
-                      <!-- Jika pemilik postingan: tombol lihat pengajuan -->
+                      <!-- Jika pemilik postingan: pengajuan dikelola di halaman tersendiri -->
                       <template x-if="isMyPost(post)">
-                        <div>
-                          <div class="flex items-center gap-2 flex-wrap">
-                            <button type="button" @click="togglePengajuanInline(post.id)"
-                              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[13px] font-semibold transition-all cursor-pointer shadow-2xs">
-                              <span>Lihat Pengajuan (<span x-text="(post.pengajuan || []).length"></span>)</span>
-                              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2.5"
-                                class="transition-transform duration-200 text-[#1E3A8A]"
-                                :class="activePengajuanPostId === post.id ? 'rotate-180' : ''">
-                                <polyline points="6 9 12 15 18 9" />
-                              </svg>
-                            </button>
-                            <template x-if="isReferralClosed(post)">
-                              <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-[12px] font-normal">
-                                Ditutup
-                              </span>
-                            </template>
-                          </div>
-
-                          <!-- Panel Inline Pengajuan Pelamar -->
-                          <template x-if="activePengajuanPostId === post.id">
-                            <div class="mt-3 pt-3 border-t border-gray-100 space-y-3">
-                              <div class="flex items-center justify-between text-[12px] text-gray-500">
-                                <span><strong class="font-semibold text-gray-700" x-text="(post.pengajuan || []).length"></strong> pengajuan dari rekan alumni</span>
-                                <span>Tenggat review: <span x-text="formatDateIndo(post.referral?.batas)"></span></span>
-                              </div>
-
-                              <template x-if="(!post.pengajuan || post.pengajuan.length === 0)">
-                                <div class="text-center py-6 text-gray-400 text-[13px] bg-white rounded-xl border border-dashed border-gray-200">
-                                  Belum ada pengajuan dari rekan alumni untuk lowongan ini.
-                                </div>
-                              </template>
-
-                              <template x-for="pelamar in (post.pengajuan || [])" :key="pelamar.id">
-                                <div class="p-4 rounded-xl border border-gray-200 bg-white space-y-3 shadow-2xs">
-                                  <!-- Info Pelamar (Header: Tanpa Oval di Atas) -->
-                                  <div class="flex items-center gap-3 min-w-0">
-                                    <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName"
-                                      class="w-10 h-10 rounded-full object-cover border border-gray-200 shrink-0">
-                                    <div class="min-w-0">
-                                      <h5 class="text-[14px] sm:text-[15px] font-medium text-gray-900 truncate"
-                                        x-text="pelamar.authorName"></h5>
-                                      <p class="text-[12px] sm:text-[13px] text-gray-500 truncate"
-                                        x-text="pelamar.authorHeadline"></p>
-                                    </div>
-                                  </div>
-
-                                  <!-- Pesan Perkenalan: Teks Langsung Bersih & Rapi -->
-                                  <p class="text-[13.5px] sm:text-[14px] text-gray-700 leading-relaxed font-normal" x-text="pelamar.pesan"></p>
-
-                                  <!-- Dokumen CV & Bar Tombol Aksi -->
-                                  <div class="pt-2 border-t border-gray-100 flex items-center justify-between gap-3 flex-wrap">
-                                    <!-- Dokumen Lampiran CV: PDF (versi ATS / Modern pilihan pelamar) dibuat langsung dan dibuka di tab baru -->
-                                    <button type="button" @click="openCvPdf(pelamar.authorName, { format: pelamar.format || 'ats' })"
-                                      class="inline-flex items-center gap-1.5 text-[12.5px] sm:text-[13px] font-medium text-[#1E3A8A] hover:underline cursor-pointer text-left min-w-0">
-                                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-400 shrink-0">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                                        <polyline points="14 2 14 8 20 8" />
-                                      </svg>
-                                      <span class="truncate" x-text="cvFileName(pelamar.authorName, pelamar.format)"></span>
-                                      <span class="text-gray-400 font-normal text-[11px] sm:text-[12px] shrink-0">(Lihat CV)</span>
-                                    </button>
-
-                                    <!-- Tombol Aksi (Semua Oval Dijadikan 1 di Bawah) -->
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                      <!-- Status Badge: Background Putih, Border Halus, Sama Seperti LinkedIn -->
-                                      <span
-                                        class="px-3 py-1.5 rounded-full text-[12px] font-normal border bg-white border-gray-200 text-gray-600 shrink-0"
-                                        x-text="pelamar.status === 'dihubungi' ? 'Dihubungi' : (pelamar.status === 'masukan' ? 'Diberi Masukan' : 'Menunggu')"
-                                      ></span>
-
-                                      <template x-if="pelamar.status === 'menunggu'">
-                                        <button type="button"
-                                          @click="activeMasukanId = activeMasukanId === pelamar.id ? null : pelamar.id"
-                                          class="px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-[12px] font-normal transition-colors cursor-pointer">
-                                          Beri Masukan
-                                        </button>
-                                      </template>
-
-                                      <template x-if="pelamar.linkedin">
-                                        <a :href="pelamar.linkedin" target="_blank" rel="noreferrer"
-                                          class="px-3 py-1.5 rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-600 text-[12px] font-normal transition-colors">
-                                          LinkedIn
-                                        </a>
-                                      </template>
-
-                                      <template x-if="pelamar.status !== 'masukan'">
-                                        <button type="button" @click="hubungiPelamarWa(post, pelamar)"
-                                          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[12px] font-semibold transition-all cursor-pointer shadow-2xs">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#1E3A8A]"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                          <span>Hubungi WhatsApp</span>
-                                        </button>
-                                      </template>
-                                    </div>
-                                  </div>
-
-                                  <!-- Form Beri Masukan (Hanya Muncul saat Tombol "Beri Masukan" Diklik) -->
-                                  <template x-if="activeMasukanId === pelamar.id && pelamar.status === 'menunggu'">
-                                    <form @submit.prevent="submitMasukanPelamar(post, pelamar); activeMasukanId = null;" class="pt-2 border-t border-gray-100 flex gap-2">
-                                      <input type="text" x-model="masukanInputs[pelamar.id]" maxlength="150"
-                                        placeholder="Tulis masukan singkat untuk pelamar..."
-                                        class="flex-1 px-3 py-1.5 rounded-full border border-gray-200 text-[12.5px] focus:outline-none focus:border-[#1E3A8A] bg-gray-50/50">
-                                      <button type="submit"
-                                        class="px-3.5 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[12px] font-medium transition-colors shrink-0 cursor-pointer">
-                                        Kirim
-                                      </button>
-                                    </form>
-                                  </template>
-
-                                  <!-- Tampilan Masukan yang Sudah Terkirim -->
-                                  <template x-if="pelamar.status === 'masukan' && pelamar.masukan">
-                                    <p class="text-[12px] text-gray-500 italic pt-1 border-t border-gray-100">
-                                      Catatan terkirim: "<span x-text="pelamar.masukan"></span>"
-                                    </p>
-                                  </template>
-                                </div>
-                              </template>
-                            </div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                          <a :href="'referral-pengajuan.html?id=' + encodeURIComponent(post.id)"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white hover:bg-blue-50/50 border border-gray-300 hover:border-[#1E3A8A] text-[#1E3A8A] text-[13px] font-semibold transition-all shadow-2xs">
+                            <span x-text="'Kelola Pengajuan (' + (post.pengajuan || []).length + ')'"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                              <path d="M5 12h14" />
+                              <path d="m12 5 7 7-7 7" />
+                            </svg>
+                          </a>
+                          <template x-if="isReferralClosed(post)">
+                            <span class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-white border border-gray-200 text-gray-600 text-[12px] font-normal">
+                              Ditutup
+                            </span>
                           </template>
                         </div>
                       </template>
@@ -1184,39 +1067,33 @@
                   class="text-[#1E3A8A]" x-text="ajukanPost?.authorName"></strong>. Profil dan CV Anda ikut terlampir.
               </p>
 
-              <!-- Versi CV -->
-              <div class="space-y-2">
-                <label class="block text-[13px] font-semibold text-gray-700">Versi CV dari Generate CV</label>
-                <div class="grid grid-cols-2 gap-3">
-                  <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                    :class="ajukanFormat === 'ats' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
-                    <input type="radio" name="format" value="ats" x-model="ajukanFormat"
-                      class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
-                    <div class="text-[13.5px]">
-                      <p class="leading-none">ATS Standar</p>
-                      <p class="text-[11px] text-gray-500 font-normal mt-0.5">Teks bersih terstruktur</p>
-                    </div>
-                  </label>
-                  <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
-                    :class="ajukanFormat === 'modern' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
-                    <input type="radio" name="format" value="modern" x-model="ajukanFormat"
-                      class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
-                    <div class="text-[13.5px]">
-                      <p class="leading-none">Modern Clean</p>
-                      <p class="text-[11px] text-gray-500 font-normal mt-0.5">Layout 2-kolom visual</p>
-                    </div>
-                  </label>
+              <!-- CV terlampir: satu berkas dari profil; pereview memilih tampilan ATS / Modern -->
+              <div class="space-y-1.5">
+                <div class="flex items-baseline justify-between gap-3">
+                  <span class="block text-[13px] font-semibold text-gray-700">CV Terlampir</span>
+                  <a href="generate-cv.html"
+                    class="text-[12px] font-medium text-gray-500 hover:text-[#1E3A8A] hover:underline shrink-0">Perbarui di Generate CV</a>
                 </div>
-                <button type="button" @click="openCvPdf(undefined, { format: ajukanFormat })"
-                  class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1E3A8A] hover:underline pt-0.5 cursor-pointer">
-                  <span>Lihat CV saya</span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                    <polyline points="15 3 21 3 21 9" />
-                    <line x1="10" y1="14" x2="21" y2="3" />
-                  </svg>
-                </button>
+                <div
+                  class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-3">
+                  <div class="flex items-center gap-3 min-w-0 flex-1 basis-52">
+                    <span
+                      class="w-9 h-9 rounded-lg bg-red-50 border border-red-100 text-red-600 flex items-center justify-center shrink-0"
+                      aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                      </svg></span>
+                    <div class="min-w-0">
+                      <p class="text-[14px] font-medium text-gray-900 truncate" x-text="cvBaseFileName(alumniCvData().profile.name)"></p>
+                      <p class="text-[12px] text-gray-500 leading-snug">Dibuat otomatis dari profil · penerima bisa melihat versi ATS &amp; Modern</p>
+                    </div>
+                  </div>
+                  <button type="button" @click="openCvViewer(undefined)"
+                    class="inline-flex items-center justify-center px-4 py-1.5 rounded-full border border-gray-300 hover:border-[#1E3A8A] hover:bg-blue-50/50 text-gray-700 hover:text-[#1E3A8A] text-[13px] font-semibold transition-colors cursor-pointer shrink-0">Pratinjau CV</button>
+                </div>
               </div>
 
               <!-- Pesan Perkenalan -->
@@ -1312,16 +1189,10 @@
             isi: "",
           },
 
-          // State Modal Minta Review & Referral
+          // State Modal Minta Review & Referral (pengajuan pemilik dikelola di referral-pengajuan.html)
           ajukanModalOpen: false,
           ajukanPost: null,
-          ajukanFormat: "ats",
           ajukanPesan: "",
-
-          // State Pengajuan Referral Inline (Accordion di dalam Kartu Postingan)
-          activePengajuanPostId: null,
-          activeMasukanId: null,
-          masukanInputs: {},
 
           openReferralModal() {
             const d = new Date();
@@ -1352,7 +1223,7 @@
               authorAvatar: this.profile.avatarUrl,
               authorHeadline: this.profile.headline,
               date: "Baru saja",
-              category: "Internal Referral",
+              category: "Referral",
               visibility: "Semua orang",
               content: f.isi.trim(),
               imageUrl: "",
@@ -1377,42 +1248,14 @@
             this.setToast("Info referral berhasil dibagikan!");
           },
 
-          isReferralClosed(post) {
-            if (!post || !post.referral || !post.referral.batas) return false;
-            const todayStr = new Date().toISOString().split("T")[0];
-            return post.referral.batas < todayStr;
-          },
-
-          isMyPost(post) {
-            if (!post) return false;
-            const myName = (this.profile?.name || "").trim().toLowerCase();
-            const authorName = (post.authorName || "").trim().toLowerCase();
-            // Cocokkan nama atau anggap post seed Aisha (id: 5) milik profil aktif
-            return (myName && authorName && myName === authorName) || post.id === 5;
-          },
-
-          getMyPengajuan(post) {
-            if (!post.pengajuan || !Array.isArray(post.pengajuan)) return null;
-            return post.pengajuan.find((a) => (a.authorName || "").toLowerCase() === (this.profile?.name || "").toLowerCase());
-          },
-
-          formatDateIndo(dateStr) {
-            if (!dateStr) return "";
-            try {
-              const iso = String(dateStr).includes("T") ? dateStr : dateStr + "T00:00:00";
-              return new Date(iso).toLocaleDateString("id-ID", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              });
-            } catch {
-              return dateStr;
-            }
-          },
+          // Logika referral bersama di alumni-referral.js (dipakai juga referral.html & referral-pengajuan.html)
+          isReferralClosed(post) { return referralIsClosed(post); },
+          isMyPost(post) { return referralIsMine(post, this.profile?.name); },
+          getMyPengajuan(post) { return referralMyPengajuan(post, this.profile?.name); },
+          formatDateIndo(dateStr) { return referralFormatDate(dateStr); },
 
           openAjukanModal(post) {
             this.ajukanPost = post;
-            this.ajukanFormat = "ats";
             this.ajukanPesan = "";
             this.ajukanModalOpen = true;
           },
@@ -1437,7 +1280,6 @@
               authorName: this.profile.name,
               authorAvatar: this.profile.avatarUrl,
               authorHeadline: this.profile.headline,
-              format: this.ajukanFormat,
               pesan: this.ajukanPesan.trim(),
               status: "menunggu",
               masukan: "",
@@ -1450,47 +1292,6 @@
             this.simpan();
             this.ajukanModalOpen = false;
             this.setToast("Pengajuan referral berhasil dikirim!");
-          },
-
-          togglePengajuanInline(postId) {
-            this.activePengajuanPostId = this.activePengajuanPostId === postId ? null : postId;
-          },
-
-          hubungiPelamarWa(post, pelamar) {
-            if (!post || !pelamar) return;
-            const target = this.posts.find((p) => p.id === post.id);
-            if (target && target.pengajuan) {
-              const item = target.pengajuan.find((a) => a.id === pelamar.id);
-              if (item) {
-                item.status = "dihubungi";
-                this.simpan();
-              }
-            }
-            const phone = (pelamar.no_hp || "081234567890").replace(/\D/g, "");
-            const waNumber = phone.startsWith("0") ? "62" + phone.slice(1) : phone;
-            const pos = post.referral?.posisi || "posisi";
-            const per = post.referral?.perusahaan || "perusahaan";
-            const pesan = `Halo ${pelamar.authorName}, saya ${this.profile.name} dari Portal Alumni Bengkel Koding. Terima kasih sudah mengajukan referral ${pos} di ${per}. Boleh kita ngobrol sebentar soal posisinya?`;
-            window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(pesan)}`, "_blank");
-            this.setToast(`Menghubungi ${pelamar.authorName} lewat WhatsApp.`);
-          },
-
-          submitMasukanPelamar(post, pelamar) {
-            const teks = (this.masukanInputs[pelamar.id] || "").trim();
-            if (!teks) return this.setToast("Tulis masukan singkat terlebih dahulu.");
-            if (teks.length > 150) return this.setToast("Masukan maksimal 150 karakter.");
-
-            const target = this.posts.find((p) => p.id === post.id);
-            if (target && target.pengajuan) {
-              const item = target.pengajuan.find((a) => a.id === pelamar.id);
-              if (item) {
-                item.status = "masukan";
-                item.masukan = teks;
-                this.simpan();
-              }
-            }
-            this.masukanInputs[pelamar.id] = "";
-            this.setToast(`Masukan terkirim ke ${pelamar.authorName}.`);
           },
 
           getApplicantBio(applicant) {
@@ -1654,7 +1455,7 @@
               const target = this.selectedCategory.toLowerCase();
               if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
               // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
-              if (target === "internal referral") return c.includes("referral") || c.includes("loker") || Boolean(p.referral) || (!p.category && (p.content || "").toLowerCase().includes("referral"));
+              if (target === "referral") return c.includes("referral") || c.includes("loker") || Boolean(p.referral) || (!p.category && (p.content || "").toLowerCase().includes("referral"));
               return true;
             });
           },
@@ -1722,14 +1523,13 @@
             });
           },
 
-          // Tautan #activity-card-<id> (mis. dari notifikasi): buka daftar pengajuan referral lalu gulir ke kartunya
+          // Tautan #activity-card-<id> (mis. Salin Tautan / "Lihat di Beranda"): gulir ke kartunya
           bukaDariHash() {
             const m = /^#activity-card-(-?\d+)$/.exec(location.hash || "");
             if (!m) return;
             const id = Number(m[1]);
             const post = this.posts.find((p) => p.id === id);
             if (!post) return;
-            if (post.pengajuan && post.pengajuan.length) this.activePengajuanPostId = id;
             this.$nextTick(() => document.getElementById("activity-card-" + id)?.scrollIntoView({ block: "start" }));
           },
 
@@ -1777,7 +1577,6 @@
                 content: [f.judul, f.isi].filter(Boolean).join("\n\n"),
                 // Field bersama yang diatur koordinator dari halaman Forum (lihat assets/js/feed-bersama.js)
                 category: f.category,
-                disematkan: !!f.disematkan,
                 visibility: "Semua orang",
                 imageUrl: f.gambar,
                 tablePreview: f.tabel,
@@ -1809,7 +1608,7 @@
             const alumniPosts = (typeof loadPosts === "function") ? loadPosts() : (typeof INITIAL_POSTS !== "undefined" ? INITIAL_POSTS : []);
             const validForumPosts = (Array.isArray(forumItems) ? forumItems : []).map(dariForum).filter(Boolean);
 
-            this.posts = [...alumniPosts, ...validForumPosts].sort((a, b) => (b.disematkan ? 1 : 0) - (a.disematkan ? 1 : 0) || waktu(b) - waktu(a));
+            this.posts = [...alumniPosts, ...validForumPosts].sort((a, b) => waktu(b) - waktu(a));
 
             // Komentar dari forum (koor/mitra/alumni) ikut tampil di daftar komentar; dedupe by id karena muat() dipanggil ulang
             const keKomentar = (c) => ({
@@ -1917,7 +1716,7 @@
             }
 
             // Kategori tidak ditebak dari isi teks; referral & karya punya modal sendiri
-            const resolvedCategory = this.pmIsLoker ? "Internal Referral" : "Umum";
+            const resolvedCategory = this.pmIsLoker ? "Referral" : "Umum";
 
             const newPost = {
               id: Date.now(),
