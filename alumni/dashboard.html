@@ -878,7 +878,7 @@
               </div>
 
               <!-- Body -->
-              <div class="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-5">
+              <div class="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 pt-4 pb-3">
                 <div class="flex items-center gap-3 mb-3">
                   <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name"
                     class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
@@ -888,9 +888,11 @@
                   </div>
                 </div>
 
-                <textarea id="post-content" rows="5" x-model="pmContent" x-init="$nextTick(() => $el.focus())"
+                <textarea id="post-content" rows="3" x-model="pmContent" x-init="$nextTick(() => $el.focus())"
+                  @input="$el.style.height = 'auto'; $el.style.height = Math.min($el.scrollHeight, 320) + 'px'"
                   placeholder="Bagikan kabar, ide, atau pengalaman ke rekan alumni..." aria-label="Isi postingan"
-                  class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
+                  class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"
+                  style="min-height: 76px;"></textarea>
 
                 <!-- Pratinjau media -->
                 <template x-if="pmImageUrl">
