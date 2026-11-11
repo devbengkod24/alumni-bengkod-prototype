@@ -25,8 +25,8 @@
     const isi = p.content || '';
     return {
       id: p.id, sumber: 'alumni', penulis: p.authorName, peran: 'Alumni', foto: p.authorAvatar || '', headline: p.authorHeadline || '',
-      waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, kategori: kategoriDari(p, isi),
-      pertanyaan: false, disematkan: !!p.disematkan, tag: p.tagRekap || '',
+      waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, referral: p.referral || null, pengajuan: p.pengajuan || [],
+      kategori: kategoriDari(p, isi), pertanyaan: false, disematkan: !!p.disematkan, tag: p.tagRekap || '',
       suka: p.likes || 0, disukaiSaya: (p.disukai || []).includes(nama), komentar: (p.komentarForum || []).map(keKomentar),
     };
   }
@@ -35,8 +35,8 @@
     const isi = [f.judul, f.isi].filter(Boolean).join('\n\n');
     return {
       id: -f.id, sumber: 'forum', penulis: f.penulis, peran: f.peran || 'Alumni', foto: f.foto || '', headline: f.headline || '',
-      waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, kategori: kategoriDari(f, isi),
-      pertanyaan: !!f.pertanyaan, disematkan: !!f.disematkan, tag: f.tagRekap || '',
+      waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, referral: f.referral || null, pengajuan: f.pengajuan || [],
+      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan, disematkan: !!f.disematkan, tag: f.tagRekap || '',
       suka: (f.disukai || []).length, disukaiSaya: (f.disukai || []).includes(nama), komentar: (f.comments || []).map(keKomentar),
     };
   }

@@ -195,6 +195,12 @@
         { id: 1, id_user: 2, ikon: 'circle-check', pesan: `Jawaban Anda dipilih sebagai jawaban terbaik di "${JUDUL_WAWANCARA}".`, tautan: 'forum-detail.html?id=2#balasan-1', waktu: '2026-10-27T09:00:00', dibaca: false },
         { id: 2, id_user: 2, ikon: 'message-square', pesan: `Ananda Safitri membalas "${JUDUL_AI}".`, tautan: 'forum-detail.html?id=7#balasan-1', waktu: '2026-10-31T18:05:00', dibaca: false },
         { id: 3, id_user: 1, ikon: 'flag', pesan: `Fajar Saputra melaporkan balasan di "${JUDUL_AI}".`, tautan: 'laporan-forum.html', waktu: '2026-11-01T20:30:00', dibaca: false },
+        { id: 4, id_user: 1, ikon: 'users', pesan: 'Aisha Dwi Rahmawati memperbarui profil & data tracer.', tautan: 'profil-alumni.html?id=2', waktu: '2026-11-02T10:15:00', dibaca: false },
+        { id: 5, id_user: 1, ikon: 'rocket', pesan: 'Bagas Pratama meluncurkan karya baru ke Showcase.', tautan: 'karya.html', waktu: '2026-11-03T14:20:00', dibaca: false },
+        { id: 6, id_user: 1, ikon: 'briefcase', pesan: 'Nadia Putri membagikan lowongan #Referral di PT Cakra Teknologi.', tautan: 'forum.html', waktu: '2026-11-04T08:45:00', dibaca: true },
+        { id: 7, id_user: 1, ikon: 'flag', pesan: 'Yoga Pratama melaporkan postingan yang mengandung tautan mencurigakan.', tautan: 'laporan-forum.html', waktu: '2026-11-04T16:00:00', dibaca: false },
+        { id: 8, id_user: 1, ikon: 'clipboard-list', pesan: '5 alumni baru mengisi kuesioner tracer study.', tautan: 'tracer.html', waktu: '2026-11-05T11:30:00', dibaca: true },
+        { id: 9, id_user: 1, ikon: 'megaphone', pesan: 'Pengumuman "Jadwal Pelepasan Alumni" berhasil terbit.', tautan: 'pengumuman.html', waktu: '2026-11-05T15:00:00', dibaca: true },
       ],
     };
   }
@@ -466,6 +472,16 @@
       }
     });
     if (adaNormalisasi) simpan();
+    // Pastikan koordinator punya notifikasi contoh untuk paginasi jika belum ada
+    const notifKoor = db.notifikasi.filter(n => n.id_user === 1);
+    if (notifKoor.length < 5) {
+      const dataAwal = buatDataAwal();
+      const belumAda = dataAwal.notifikasi.filter(n => n.id_user === 1 && !db.notifikasi.some(x => x.id === n.id));
+      if (belumAda.length) {
+        db.notifikasi.push(...belumAda);
+        simpan();
+      }
+    }
     // Pelamar gig yang tersimpan sebelum ada pilihan versi CV: format diambil dari data contoh (hanya menambah field yang kosong)
     const tanpaFormat = (db.gigs || []).flatMap(g => g.pelamar.filter(a => !a.format).map(a => [g, a]));
     if (tanpaFormat.length) {
@@ -707,17 +723,25 @@
     },
   };
 
-  // ===================== STATISTIK =====================
+  // ===================== STATISTIK (OTOMATIS DARI LMS-BENGKOD-API) =====================
   const statistik = {
     terdeteksi: tahun => muat().tracer.filter(t => t.tahun_lulus === tahun).length,
 
-    // Satu baris per tahun. Tahun yang belum dicatat koordinator tetap muncul dengan total 0.
+    // Sumber: total akun asisten di lms-bengkod-api berumur >= 1 tahun per tahun angkatan NIM,
+    // disandingkan dengan alumni yang sudah memverifikasi NIM dan aktif di Portal Alumni.
     semua() {
       const data = muat();
       const tahun = new Set([...data.statistik.map(s => s.tahun_lulus), ...data.tracer.map(t => t.tahun_lulus)]);
       return [...tahun].sort((a, b) => a - b).map(t => {
         const baris = data.statistik.find(s => s.tahun_lulus === t);
-        return { id: baris ? baris.id : null, tahun_lulus: t, alumni_total: baris ? baris.alumni_total : 0, alumni_terlacak: statistik.terdeteksi(t) };
+        const totalLms = baris ? baris.alumni_total : statistik.terdeteksi(t);
+        return {
+          id: baris ? baris.id : null,
+          tahun_lulus: t,
+          alumni_total: totalLms,
+          alumni_terlacak: statistik.terdeteksi(t),
+          sumber: 'lms-bengkod-api',
+        };
       });
     },
 
@@ -726,24 +750,68 @@
       return statistik.semua().filter(s => s.tahun_lulus >= batas);
     },
 
-    simpan({ id, tahun_lulus, alumni_total }) {
-      const data = muat();
-      const tahun = Number(tahun_lulus);
-      const total = Number(alumni_total);
-      if (!Number.isInteger(tahun) || tahun < 1990) return gagal('Tahun lulus tidak valid.', 'tahun_lulus');
-      if (!Number.isInteger(total) || total < 0) return gagal('Total alumni tidak valid.', 'alumni_total');
-      if (data.statistik.some(s => s.tahun_lulus === tahun && s.id !== id)) return gagal(`Data tahun ${tahun} sudah ada. Gunakan tombol edit.`, 'tahun_lulus');
-      const ada = data.statistik.find(s => s.id === id);
-      if (ada) Object.assign(ada, { tahun_lulus: tahun, alumni_total: total });
-      else data.statistik.push({ id: idBaru(data.statistik), tahun_lulus: tahun, alumni_total: total });
-      simpan();
-      return { ok: true };
+    waktuSinkron() {
+      return muat().statistik_synced_at || '2026-11-11T08:00:00.000Z';
     },
 
-    hapus(id) {
+    sinkronLms() {
       const data = muat();
-      data.statistik = data.statistik.filter(s => s.id !== id);
+      data.statistik_synced_at = new Date().toISOString();
       simpan();
+      return { ok: true, waktu: data.statistik_synced_at };
+    },
+
+    // Rincian gabungan asisten LMS (sudah mendaftar portal vs belum mendaftar) untuk tahun tertentu
+    detailAngkatan(tahun) {
+      const thn = Number(tahun);
+      const ringkas = statistik.semua().find(s => s.tahun_lulus === thn);
+      const terdaftarRaw = muat().tracer.filter(t => t.tahun_lulus === thn);
+
+      const terdaftar = terdaftarRaw.map(t => ({
+        id: t.id_alumni,
+        nama: t.nama_alumni,
+        nim: t.nim,
+        email: t.email,
+        no_hp: t.no_hp || '',
+        terdaftar: true,
+        status_karir: t.status,
+        updated_at: t.updated_at,
+        foto: akun.cari(t.id_alumni)?.foto || '',
+      }));
+
+      const totalLms = ringkas ? Math.max(ringkas.alumni_total, terdaftar.length) : terdaftar.length;
+      const jumlahBelum = Math.max(0, totalLms - terdaftar.length);
+
+      const namaDepanLms = ['Aldi', 'Bagus', 'Candra', 'Dika', 'Eka', 'Farhan', 'Galih', 'Hafiz', 'Ilham', 'Jihan', 'Kartika', 'Lutfi', 'Miftah', 'Naufal', 'Oky', 'Putra', 'Qori', 'Reza', 'Siti', 'Taufik'];
+      const namaBelakangLms = ['Santoso', 'Wibowo', 'Kusuma', 'Permadi', 'Haryanto', 'Ramadhan', 'Nugraha', 'Purnomo', 'Utama', 'Prasetyo', 'Syahputra', 'Maulana', 'Fauzan', 'Setiadi'];
+
+      const belum = [];
+      for (let k = 0; k < jumlahBelum; k++) {
+        const idx = (thn + k * 3) % namaDepanLms.length;
+        const idxB = (thn * 2 + k * 5) % namaBelakangLms.length;
+        const nimNo = 14000 + (thn % 10) * 100 + k * 19;
+        const nim = `A11.${thn - 4}.${nimNo}`;
+        belum.push({
+          id: null,
+          nama: `${namaDepanLms[idx]} ${namaBelakangLms[idxB]}`,
+          nim,
+          email: `${nim.toLowerCase()}@mhs.dinus.ac.id`,
+          no_hp: '', // Di lms-bengkod-api tabel users hanya menyimpan identity_code, name, dan email
+          terdaftar: false,
+          status_karir: '',
+          updated_at: '',
+          foto: '',
+        });
+      }
+
+      return {
+        tahun: thn,
+        totalLms,
+        totalTerdaftar: terdaftar.length,
+        totalBelum: belum.length,
+        cakupan: totalLms ? Math.round((terdaftar.length / totalLms) * 100) : 0,
+        asisten: [...terdaftar, ...belum],
+      };
     },
   };
 
@@ -1450,6 +1518,18 @@
 
     bacaSemua(idUser) {
       muat().notifikasi.forEach(n => { if (n.id_user === idUser) n.dibaca = true; });
+      simpan();
+    },
+
+    hapus(id) {
+      const d = muat();
+      d.notifikasi = d.notifikasi.filter(x => x.id !== Number(id));
+      simpan();
+    },
+
+    hapusSemua(idUser) {
+      const d = muat();
+      d.notifikasi = d.notifikasi.filter(x => x.id_user !== idUser);
       simpan();
     },
   };
