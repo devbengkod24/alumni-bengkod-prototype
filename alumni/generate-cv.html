@@ -10,6 +10,7 @@
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
+  <script src="assets/js/alumni-cv.js"></script>
   <style>
     @media print {
       @page {
@@ -310,115 +311,10 @@
 
         <!-- ────────────────────────────────────────────────────────────
             TEMPLATE 1: ATS STANDAR (REKOMENDASI HR & ATS FILTER)
+            Template dirender oleh renderAtsCvHTML (assets/js/alumni-cv.js),
+            sama dengan PDF "Lihat CV" di Beranda dan Gigs.
         ──────────────────────────────────────────────────────────── -->
-        <div x-show="cvLayout === 'ats'" class="space-y-6 text-gray-800 font-sans">
-          <!-- Header Nama & Kontak Formal ATS -->
-          <div class="text-center pb-4 border-b-2 border-gray-800 space-y-1.5">
-            <h2 class="text-2xl sm:text-3xl font-bold uppercase tracking-wider text-gray-900" x-text="profile.name"></h2>
-            <p class="text-[14px] sm:text-[15px] font-semibold text-gray-700" x-text="profile.headline"></p>
-            <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[13px] text-gray-600 pt-1">
-              <span x-show="profile.location" x-text="profile.location"></span>
-              <span x-show="profile.location && profile.email">•</span>
-              <span x-show="profile.email" x-text="profile.email"></span>
-              <span x-show="profile.email && profile.linkedin">•</span>
-              <span x-show="profile.linkedin" x-text="profile.linkedin.replace(/^https?:\/\/(www\.)?/, '')"></span>
-              <span x-show="profile.linkedin && profile.github">•</span>
-              <span x-show="profile.github" x-text="profile.github.replace(/^https?:\/\/(www\.)?/, '')"></span>
-            </div>
-          </div>
-
-          <!-- Section: Ringkasan Diri -->
-          <div x-show="sections.about && profile.about" class="space-y-2">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Ringkasan Profesional</h3>
-            <p class="text-[13px] leading-relaxed text-gray-700 text-justify whitespace-pre-line" x-text="profile.about"></p>
-          </div>
-
-          <!-- Section: Pendidikan -->
-          <div x-show="sections.education && educations.length > 0" class="space-y-3">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Pendidikan</h3>
-            <div class="space-y-3">
-              <template x-for="edu in educations" :key="edu.id">
-                <div class="text-[13px]">
-                  <div class="flex items-center justify-between font-bold text-gray-900">
-                    <span x-text="edu.name"></span>
-                    <span class="text-gray-600 font-medium" x-text="edu.period"></span>
-                  </div>
-                  <div class="text-gray-700 italic mt-0.5" x-text="edu.degree ? edu.degree + ' ' + edu.major : edu.major"></div>
-                  <div class="text-gray-600 mt-1" x-show="edu.tags && edu.tags.length">
-                    <span>Mata Kuliah Utama: </span>
-                    <span x-text="edu.tags.join(', ')"></span>
-                  </div>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Section: Pengalaman Organisasi & Kepemimpinan -->
-          <div x-show="sections.organization && organizations.length > 0" class="space-y-3">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Pengalaman Organisasi &amp; Kepemimpinan</h3>
-            <div class="space-y-3.5">
-              <template x-for="org in organizations" :key="org.id">
-                <div class="text-[13px]">
-                  <div class="flex items-center justify-between font-bold text-gray-900">
-                    <div>
-                      <span x-text="org.role"></span>
-                      <span class="font-normal text-gray-700"> – </span>
-                      <span class="font-semibold text-gray-800" x-text="org.name"></span>
-                    </div>
-                    <span class="text-gray-600 font-medium shrink-0" x-text="org.period"></span>
-                  </div>
-                  <p class="text-gray-700 mt-1 text-justify" x-text="org.desc"></p>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Section: Proyek & Portofolio Teknis -->
-          <div x-show="sections.projects && displayProjects.length > 0" class="space-y-3">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Proyek &amp; Portofolio Unggulan</h3>
-            <div class="space-y-3.5">
-              <template x-for="proj in displayProjects" :key="proj.id">
-                <div class="text-[13px]">
-                  <div class="flex items-center justify-between font-bold text-gray-900">
-                    <span x-text="proj.title"></span>
-                    <span class="text-gray-600 font-medium shrink-0" x-text="proj.period"></span>
-                  </div>
-                  <p class="text-gray-700 mt-1 text-justify" x-text="proj.desc"></p>
-                  <div class="text-[12px] text-gray-600 mt-1" x-show="proj.tags && proj.tags.length">
-                    <span class="font-semibold text-gray-700">Teknologi: </span>
-                    <span x-text="proj.tags.join(', ')"></span>
-                  </div>
-                </div>
-              </template>
-            </div>
-          </div>
-
-          <!-- Section: Keahlian Teknis & Kompetensi -->
-          <div x-show="sections.skills && skills.length > 0" class="space-y-2">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Keahlian &amp; Kompetensi</h3>
-            <div class="text-[13px] text-gray-700 leading-relaxed">
-              <span class="font-semibold text-gray-900">Keahlian Utama: </span>
-              <span x-text="skills.map(s => s.name).join(' • ')"></span>
-            </div>
-          </div>
-
-          <!-- Section: Sertifikasi & Lisensi -->
-          <div x-show="sections.certifications && certifications.length > 0" class="space-y-3">
-            <h3 class="text-[14px] font-bold uppercase tracking-wider text-gray-900 pb-1 border-b border-gray-300">Lisensi &amp; Sertifikasi</h3>
-            <div class="space-y-2">
-              <template x-for="cert in certifications" :key="cert.id">
-                <div class="text-[13px] flex items-baseline justify-between gap-4">
-                  <div>
-                    <span class="font-semibold text-gray-900" x-text="cert.name"></span>
-                    <span class="text-gray-600" x-text="' – ' + cert.issuer"></span>
-                    <span class="text-[12px] text-gray-500 font-mono ml-1" x-show="cert.credId" x-text="'(ID: ' + cert.credId + ')'"></span>
-                  </div>
-                  <span class="text-[12px] text-gray-600 shrink-0" x-text="cert.date"></span>
-                </div>
-              </template>
-            </div>
-          </div>
-        </div>
+        <div x-show="cvLayout === 'ats'" x-html="atsHtml"></div>
 
         <!-- ────────────────────────────────────────────────────────────
             TEMPLATE 2: MODERN CLEAN (NAVY ACCENT & 2 COLUMNS)
@@ -561,147 +457,20 @@ function generateCvComponent() {
   const layoutParam = params.get("format");
   const isApplicant = Boolean(applicantParam);
 
-  let activeProfile = typeof INITIAL_PROFILE !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_PROFILE)) : {
-    name: "Aisha Dwi Rahmawati",
-    headline: "Mobile & Full-Stack Developer",
-    email: "aisha.rahma@alumni.dinus.ac.id",
-    location: "Semarang, Jawa Tengah, Indonesia",
-    about: "Lulusan S1 Teknik Informatika UDINUS dengan ketertarikan tinggi pada arsitektur sistem terdistribusi, mobile application (Flutter / React Native), dan modern web frontend.",
-    linkedin: "https://linkedin.com/in/aishadwirahma",
-    github: "https://github.com/aishaadr"
-  };
-
-  let edus = typeof INITIAL_EDUCATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_EDUCATIONS)) : [];
-  let orgs = typeof INITIAL_ORGANIZATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_ORGANIZATIONS)) : [];
-  let projs = typeof loadStoredProjects === "function" ? loadStoredProjects() : (typeof INITIAL_PROJECTS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_PROJECTS)) : []);
-  let skillsList = typeof INITIAL_SKILLS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_SKILLS)) : [];
-  let certs = typeof INITIAL_CERTIFICATIONS !== "undefined" ? JSON.parse(JSON.stringify(INITIAL_CERTIFICATIONS)) : [];
-
-  if (isApplicant) {
-    const rawName = decodeURIComponent(applicantParam).trim();
-    const isYoga = rawName.toLowerCase().includes("yoga");
-
-    if (isYoga) {
-      activeProfile = {
-        name: "Yoga Kurniawan",
-        headline: "Backend Developer · Batch 2023",
-        email: "yoga.kurniawan@alumni.dinus.ac.id",
-        location: "Kota Semarang, Jawa Tengah, Indonesia",
-        about: "Backend Engineer lulusan S1 Teknik Informatika Universitas Dian Nuswantoro. Berpengalaman mendesain arsitektur microservices, optimasi query database PostgreSQL, integrasi REST API, dan containerization dengan Docker di lingkungan cloud.",
-        linkedin: "https://linkedin.com/in/yogakurniawan",
-        github: "https://github.com/yogakurniawan",
-        university: "Universitas Dian Nuswantoro",
-        batch: "2023"
-      };
-      edus = [
-        {
-          id: 1,
-          name: "Universitas Dian Nuswantoro",
-          major: "S1 Teknik Informatika (Informatics Engineering)",
-          period: "2019 – 2023",
-          degree: "Sarjana Komputer",
-          tags: ["Struktur Data & Algoritma", "Basis Data Lanjut", "Arsitektur Perangkat Lunak", "Jaringan Komputer"],
-        },
-      ];
-      orgs = [
-        {
-          id: 1,
-          name: "Laboratorium Bengkel Koding UDINUS",
-          role: "Koordinator Asisten Lab Backend",
-          period: "2022 – 2023",
-          desc: "Membimbing praktikum pemrograman backend, merancang modul basis data SQL, dan memelihara server staging lab.",
-        },
-      ];
-      projs = [
-        {
-          id: 1,
-          title: "Microservices Payment Gateway API",
-          period: "2024",
-          desc: "Arsitektur backend pembayaran multi-vendor menggunakan Express, PostgreSQL, Redis caching, dan RabbitMQ message queue.",
-          tags: ["Node.js", "PostgreSQL", "Docker", "Redis"],
-        },
-        {
-          id: 2,
-          title: "Sistem Manajemen Inventaris Lab Bengkod",
-          period: "2023",
-          desc: "Layanan REST API pencatatan perangkat keras lab dengan autentikasi JWT dan audit trail log terenkripsi.",
-          tags: ["Golang", "PostgreSQL", "REST API", "Docker"],
-        },
-      ];
-      skillsList = [
-        { id: 1, name: "Node.js & Express" },
-        { id: 2, name: "PostgreSQL & Prisma" },
-        { id: 3, name: "Docker & Container" },
-        { id: 4, name: "REST API & Microservices" },
-        { id: 5, name: "Redis Caching" },
-        { id: 6, name: "Git & CI/CD" },
-      ];
-      certs = [
-        {
-          id: 1,
-          name: "AWS Certified Solutions Architect",
-          issuer: "Amazon Web Services",
-          date: "Nov 2023",
-          credId: "AWS-SAA-884920"
-        }
-      ];
-    } else {
-      const dir = typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : [];
-      const found = dir.find(
-        (a) => a.name.toLowerCase() === rawName.toLowerCase() || a.id.toLowerCase() === rawName.toLowerCase()
-      );
-      if (found) {
-        activeProfile = {
-          name: found.name,
-          headline: found.headline,
-          email: found.email || `${found.name.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
-          location: found.location || "Semarang, Jawa Tengah, Indonesia",
-          about: found.about || `Alumni Asisten Lab Bengkel Koding UDINUS Batch ${found.batch || "2024"}. Berpengalaman mengembangkan sistem perangkat lunak modern dan kolaboratif.`,
-          linkedin: found.linkedin || `https://linkedin.com/in/${found.name.toLowerCase().replace(/\s+/g, '-')}`,
-          github: found.github || `https://github.com/${found.name.toLowerCase().replace(/\s+/g, '')}`,
-          university: "Universitas Dian Nuswantoro",
-          batch: found.batch || "2024"
-        };
-      } else {
-        activeProfile = {
-          name: rawName,
-          headline: "Alumni Asisten Lab Bengkel Koding",
-          email: `${rawName.toLowerCase().replace(/\s+/g, '')}@alumni.dinus.ac.id`,
-          location: "Semarang, Jawa Tengah, Indonesia",
-          about: "Alumni Asisten Lab Bengkel Koding Universitas Dian Nuswantoro.",
-          linkedin: `https://linkedin.com/in/${rawName.toLowerCase().replace(/\s+/g, '-')}`,
-          github: `https://github.com/${rawName.toLowerCase().replace(/\s+/g, '')}`,
-          university: "Universitas Dian Nuswantoro",
-          batch: "2024"
-        };
-      }
-    }
-  } else {
-    // Ambil data profil dari localStorage jika pernah diedit di profil.html, atau fallback ke INITIAL_PROFILE
-    try {
-      const saved = localStorage.getItem("bengkod_alumni_profile") || localStorage.getItem("bengkod_profile_v1");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.name) {
-          activeProfile = { ...activeProfile, ...parsed };
-        }
-      }
-    } catch (e) {
-      console.warn("Gagal memuat profil tersimpan:", e);
-    }
-  }
+  // Data CV (milik sendiri atau pelamar ?applicant=) dari modul bersama alumni-cv.js
+  const cv = alumniCvData(isApplicant ? decodeURIComponent(applicantParam) : "");
 
   return {
     toast: "",
     isApplicantView: isApplicant,
     cvLayout: layoutParam === "modern" ? "modern" : "ats", // "ats" | "modern"
     showSectionDropdown: false,
-    profile: activeProfile,
-    educations: edus,
-    organizations: orgs,
-    projects: projs,
-    skills: skillsList,
-    certifications: certs,
+    profile: cv.profile,
+    educations: cv.educations,
+    organizations: cv.organizations,
+    projects: cv.projects,
+    skills: cv.skills,
+    certifications: cv.certifications,
     includeGigs: true,
     sections: {
       about: true,
@@ -713,10 +482,21 @@ function generateCvComponent() {
     },
 
     get displayProjects() {
-      if (!this.includeGigs) {
-        return this.projects.filter(p => !p.isGig && !p.id_gig && !(p.tags && p.tags.includes('Bengkod Gigs')));
-      }
-      return this.projects;
+      return cvFilterProjects(this.projects, this.includeGigs);
+    },
+
+    get atsHtml() {
+      return renderAtsCvHTML(
+        {
+          profile: this.profile,
+          educations: this.educations,
+          organizations: this.organizations,
+          projects: this.projects,
+          skills: this.skills,
+          certifications: this.certifications,
+        },
+        { sections: { ...this.sections }, includeGigs: this.includeGigs }
+      );
     },
 
     get activeSectionsCount() {
