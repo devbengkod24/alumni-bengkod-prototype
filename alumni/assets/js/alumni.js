@@ -249,6 +249,8 @@ function alumniCurrentProfile() {
 /* ------------------------------------------------------------------ */
 
 // State + aksi pencarian. Pakai lewat alumniWithNavSearch({...}) supaya getter tidak ikut dievaluasi.
+// Mencari alumni (nama/keahlian) dan, bila komponen punya searchFeedPosts(q) & focusFeedPost(id),
+// juga postingan feed berdasarkan topik/isi.
 function alumniNavSearch() {
   return {
     navSearchQuery: "",
@@ -256,14 +258,28 @@ function alumniNavSearch() {
     get navSearchResults() {
       const q = this.navSearchQuery.trim();
       if (!q || typeof searchAlumni !== "function") return [];
-      return searchAlumni(q).slice(0, 6);
+      return searchAlumni(q).slice(0, 4);
+    },
+    get navSearchPostResults() {
+      const q = this.navSearchQuery.trim();
+      if (!q || typeof this.searchFeedPosts !== "function") return [];
+      return this.searchFeedPosts(q).slice(0, 5);
     },
     navSearchHref(a) {
       return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
     },
+    openNavSearchPost(p) {
+      this.navSearchOpen = false;
+      if (typeof this.focusFeedPost === "function") this.focusFeedPost(p.id);
+    },
     submitNavSearch() {
       const first = this.navSearchResults[0];
-      if (first) window.location.href = this.navSearchHref(first);
+      if (first) {
+        window.location.href = this.navSearchHref(first);
+        return;
+      }
+      const post = this.navSearchPostResults[0];
+      if (post) this.openNavSearchPost(post);
     },
   };
 }
@@ -405,10 +421,13 @@ function alumniAvatarHTML(srcExpr, nameExpr, size, textSize, extraClass = "") {
     </template>`;
 }
 
-// Dropdown hasil pencarian alumni di navbar (dipakai versi desktop & ponsel)
+// Dropdown hasil pencarian: grup Alumni lalu grup Postingan
 function alumniNavSearchDropdownHTML() {
   return `<div x-show="navSearchOpen && navSearchQuery.trim()" x-cloak
-      class="absolute top-[calc(100%+6px)] left-0 right-0 z-[70] bg-white rounded-xl border border-neutral4/70 shadow-xl overflow-hidden">
+      class="absolute top-[calc(100%+6px)] left-0 right-0 z-[70] bg-white rounded-xl border border-neutral4/70 shadow-xl overflow-hidden max-h-[440px] overflow-y-auto">
+      <template x-if="navSearchResults.length > 0">
+        <p class="px-3.5 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral3">Alumni</p>
+      </template>
       <template x-for="a in navSearchResults" :key="a.id">
         <a :href="navSearchHref(a)" class="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral5 transition-colors">
           <img :src="a.avatarUrl" :alt="a.name" class="w-8 h-8 rounded-full object-cover border border-neutral4 shrink-0">
@@ -418,8 +437,20 @@ function alumniNavSearchDropdownHTML() {
           </div>
         </a>
       </template>
-      <template x-if="navSearchResults.length === 0">
-        <p class="px-3.5 py-3 text-sm text-neutral3">Tidak ada alumni untuk "<span class="font-semibold text-neutral1" x-text="navSearchQuery"></span>"</p>
+      <template x-if="navSearchPostResults.length > 0">
+        <p class="px-3.5 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral3 border-t border-neutral4/60">Postingan</p>
+      </template>
+      <template x-for="p in navSearchPostResults" :key="'post-' + p.id">
+        <button type="button" @click="openNavSearchPost(p)" class="w-full text-left flex items-start gap-3 px-3.5 py-2.5 hover:bg-neutral5 transition-colors cursor-pointer">
+          <img :src="p.avatar || 'assets/img/user.png'" :alt="p.author" class="w-8 h-8 rounded-full object-cover border border-neutral4 shrink-0 mt-0.5">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-neutral1 truncate" x-text="p.title"></p>
+            <p class="text-xs text-neutral3 leading-snug line-clamp-2" x-text="p.snippet"></p>
+          </div>
+        </button>
+      </template>
+      <template x-if="navSearchResults.length === 0 && navSearchPostResults.length === 0">
+        <p class="px-3.5 py-3 text-sm text-neutral3">Tidak ada alumni atau postingan untuk "<span class="font-semibold text-neutral1" x-text="navSearchQuery"></span>"</p>
       </template>
     </div>`;
 }

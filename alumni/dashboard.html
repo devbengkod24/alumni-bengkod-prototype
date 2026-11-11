@@ -45,7 +45,7 @@
           </div>
 
           <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-            <!-- Cari alumni: state & dropdown dari helper bersama alumniNavSearch (alumni.js) -->
+            <!-- Cari alumni & postingan: state & dropdown dari helper bersama alumniNavSearch (alumni.js) -->
             <form class="relative flex-1 min-w-0" role="search" @submit.prevent="submitNavSearch()"
               @click.outside="navSearchOpen = false">
               <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -56,14 +56,14 @@
                 </svg>
               </span>
               <input type="search" id="beranda-cari-alumni" x-model="navSearchQuery" @focus="navSearchOpen = true"
-                @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false" placeholder="Cari alumni…"
-                aria-label="Cari alumni" autocomplete="off"
+                @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false" placeholder="Cari alumni atau topik postingan…"
+                aria-label="Cari alumni atau postingan" autocomplete="off"
                 class="w-full pl-11 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-[14.5px] text-gray-900 placeholder:text-gray-400 shadow-2xs focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-all">
               <div data-partial="navSearchDropdown"></div>
             </form>
 
             <button type="button" id="btn-buat-postingan" @click="openComposer()"
-              class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14.5px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap">
+              class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-4 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap">
               <span class="text-base leading-none font-bold">+</span>
               <span>Buat Postingan</span>
             </button>
@@ -1678,6 +1678,50 @@
                 };
               }
             } catch { }
+          },
+
+          // Pencarian postingan untuk kolom cari di header (topik, isi, karya, referral, penulis)
+          searchFeedPosts(query) {
+            const q = String(query || "").toLowerCase();
+            if (!q) return [];
+            const ringkas = (teks, n = 110) => {
+              const t = String(teks || "").replace(/\s+/g, " ").trim();
+              const i = t.toLowerCase().indexOf(q);
+              if (i < 0 || t.length <= n) return t.slice(0, n) + (t.length > n ? "…" : "");
+              const mulai = Math.max(0, i - 30);
+              return (mulai > 0 ? "…" : "") + t.slice(mulai, mulai + n) + (mulai + n < t.length ? "…" : "");
+            };
+            return this.posts
+              .filter((p) => {
+                const k = p.karya || {};
+                const r = p.referral || {};
+                return [
+                  p.content, p.category, p.authorName,
+                  k.nama, k.tagline, (k.categoryTags || []).join(" "), (k.stack || []).join(" "),
+                  r.posisi, r.perusahaan, r.level,
+                ].join(" ").toLowerCase().includes(q);
+              })
+              .map((p) => ({
+                id: p.id,
+                author: p.authorName,
+                avatar: p.authorAvatar,
+                title: p.karya ? "Karya: " + p.karya.nama
+                  : p.referral ? "Referral: " + p.referral.posisi + " · " + p.referral.perusahaan
+                  : p.authorName,
+                snippet: ringkas(p.content || (p.karya && p.karya.tagline) || ""),
+              }));
+          },
+
+          // Dipanggil dari hasil pencarian: tampilkan semua kategori lalu gulir & sorot kartunya
+          focusFeedPost(id) {
+            this.selectedCategory = "Semua";
+            this.$nextTick(() => {
+              const el = document.getElementById("activity-card-" + id);
+              if (!el) return;
+              el.scrollIntoView({ behavior: "smooth", block: "center" });
+              el.classList.add("ring-2", "ring-[#1E3A8A]/40");
+              setTimeout(() => el.classList.remove("ring-2", "ring-[#1E3A8A]/40"), 2000);
+            });
           },
 
           // Tautan #activity-card-<id> (mis. dari notifikasi): buka daftar pengajuan referral lalu gulir ke kartunya
