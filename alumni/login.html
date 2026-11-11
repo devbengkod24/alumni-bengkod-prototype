@@ -8,7 +8,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
   <script src="assets/js/data.js?v=9"></script>
-  <script src="assets/js/app.js?v=6"></script>
+  <script src="assets/js/app.js?v=7"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
@@ -109,7 +109,13 @@
   </div>
 
   <script>
-    if (SAYA) location.replace(DASHBOARD[SAYA.role]);
+    // ?keluar dikirim dari tombol Keluar di halaman alumni (shell alumni.js tidak memuat data.js)
+    if (new URLSearchParams(location.search).has('keluar')) {
+      DB.akun.keluar();
+      history.replaceState(null, '', 'login.html');
+    } else if (SAYA) {
+      location.replace(DASHBOARD[SAYA.role]);
+    }
 
     const form = document.getElementById('login-form');
 

@@ -188,6 +188,15 @@ const ALWAYS_SHOW_MOBILE = ["Alumni", "Student", "Admin", "Superadmin", "Dosen",
 // Halaman yang nggak ada di sidebar tapi tetap butuh judul breadcrumb
 const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/detail": "Detail Alumni",
+  "/dashboard/alumni/detail-proyek": "Detail Proyek",
+  "/dashboard/alumni/pengumuman": "Pengumuman",
+  "/dashboard/alumni/tracer": "Status Karir",
+};
+
+// Halaman turunan menyorot menu induknya di sidebar
+const ALUMNI_NAV_PARENT = {
+  "/dashboard/alumni/pengumuman": "/dashboard/alumni",
+  "/dashboard/alumni/tracer": "/dashboard/alumni/profil",
 };
 
 // Samain route alias ke route utama di ALUMNI_NAVIGATIONS
@@ -218,15 +227,13 @@ function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel()) {
     <span class="font-medium text-neutral1 truncate">${title}</span>`;
 }
 
+// Identitas di topbar selalu dari data profil Aisha (alumni-profile-data.js / hasil edit di profil.html)
 function alumniCurrentProfile() {
-  let user = null;
-  try {
-    if (typeof DB !== "undefined" && DB.akun) user = DB.akun.aktif();
-  } catch {}
+  const seed = typeof INITIAL_PROFILE !== "undefined" ? INITIAL_PROFILE : null;
   const base = {
-    name: user ? user.nama : "Aisha Dwi Rahmawati",
-    email: user ? user.email : "aisha.rahma@alumni.dinus.ac.id",
-    image: user ? (user.foto || "") : "",
+    name: seed ? seed.name : "Aisha Dwi Rahmawati",
+    email: seed ? seed.email : "aisha.rahma@alumni.dinus.ac.id",
+    image: seed ? (seed.avatarUrl || "") : (typeof DEFAULT_AVATAR !== "undefined" ? DEFAULT_AVATAR : ""),
   };
   try {
     const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
@@ -323,12 +330,12 @@ document.addEventListener("alpine:init", () => {
     toggleProfile() {
       this.profileIsOpen = !this.profileIsOpen;
     },
+    // Sesi login disimpan data.js (tidak dimuat di sini), jadi login.html yang menghapusnya lewat ?keluar
     handleLogout() {
       try {
         if (typeof DB !== "undefined" && DB.akun) DB.akun.keluar();
-        localStorage.removeItem("bengkod_alumni_profile");
       } catch {}
-      window.location.href = "login.html";
+      window.location.href = alumniBasePrefix() + "login.html?keluar=1";
     },
   }));
 });
@@ -366,7 +373,8 @@ function alumniNavSearchDropdownHTML() {
 }
 
 function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
-  const activeRoute = alumniNormalizeRoute(route);
+  const normalized = alumniNormalizeRoute(route);
+  const activeRoute = ALUMNI_NAV_PARENT[normalized] || normalized;
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
     const active = nav.link === activeRoute;
     return `
@@ -393,14 +401,14 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
         </ul>
       </nav>
       <div class="p-3 border-t border-neutral4 shrink-0">
-        <a href="${alumniRootPrefix()}index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <button type="button" @click="handleLogout()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 shrink-0">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           <span>Keluar</span>
-        </a>
+        </button>
       </div>
     </aside>
 

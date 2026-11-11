@@ -43,7 +43,7 @@ document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
 // Dipakai halaman di folder alumni/ (termasuk login) dan koordinator/. Login hanya ada di alumni/.
 const ROLE_HALAMAN = document.documentElement.dataset.role || '';
 const SAYA = DB.akun.aktif();
-const DASHBOARD = { alumni: 'beranda.html', admin: '../koordinator/dashboard.html' };
+const DASHBOARD = { alumni: 'dashboard.html', admin: '../koordinator/dashboard.html' };
 const NAMA_FILE = location.pathname.split('/').pop() || 'dashboard.html';
 
 if (ROLE_HALAMAN && SAYA?.role !== ROLE_HALAMAN) {
@@ -367,10 +367,11 @@ function legendaDonat(label, nilai, warna) {
 
 // ===================== LAYOUT (Sidebar + Topbar) =====================
 const NAV = {
-  // Tracer study ada di Profil Saya, pengumuman tampil di Beranda
+  // Menu alumni mengarah ke halaman versi Aisha (shell alumni.js). Halaman lama tidak lagi ditautkan.
   alumni: [
-    { href: 'beranda.html', icon: 'house', label: 'Beranda' },
+    { href: 'dashboard.html', icon: 'house', label: 'Beranda' },
     { href: 'direktori.html', icon: 'users', label: 'Alumni' },
+    { href: 'showcase.html', icon: 'rocket', label: 'Showcase' },
     { href: 'gigs.html', icon: 'briefcase-business', label: 'Gigs & Proyek' },
     { href: 'generate-cv.html', icon: 'file-text', label: 'Generate CV' },
     { href: 'profil.html', icon: 'user-round', label: 'Profil Saya' },
