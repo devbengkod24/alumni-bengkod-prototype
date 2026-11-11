@@ -3183,8 +3183,57 @@ function publishGigCompletionToFeed(gig, endorsement) {
   }
 }
 
+// ============================================================
+// NOTIFIKASI AISHA (lonceng di topbar alumni.js)
+// Status baca disimpan terpisah di localStorage (lihat alumniNotifReadIds di alumni.js).
+// tautan relatif terhadap folder alumni/.
+// ============================================================
+const NOTIFIKASI_AISHA = [
+  {
+    id: "notif-referral-101",
+    jenis: "referral",
+    judul: "Pengajuan referral baru",
+    pesan: "Yoga Kurniawan meminta review & referral untuk Backend Developer Intern di PT Solusi Digital Jateng.",
+    waktu: "2026-11-04T09:15:00",
+    tautan: "dashboard.html#activity-card-5",
+  },
+  {
+    id: "notif-gig-102",
+    jenis: "gigs",
+    judul: "Pelamar gigs baru",
+    pesan: "Kirana Maheswari mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
+    waktu: "2026-11-03T13:40:00",
+    tautan: "gigs-kelola.html?pelamar=gig-1",
+  },
+  {
+    id: "notif-gig-101",
+    jenis: "gigs",
+    judul: "Pelamar gigs baru",
+    pesan: "Dimas Aryo mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
+    waktu: "2026-11-02T10:05:00",
+    tautan: "gigs-kelola.html?pelamar=gig-1",
+  },
+  {
+    id: "notif-pengumuman-2",
+    jenis: "pengumuman",
+    judul: "Pengumuman koordinator",
+    pesan: "Pengisian Data Alumni Terbaru: perbarui profil, keahlian, dan tracer study Anda.",
+    waktu: "2026-10-21T08:00:00",
+    tautan: "pengumuman.html#pengumuman-2",
+  },
+  {
+    id: "notif-pengumuman-1",
+    jenis: "pengumuman",
+    judul: "Pengumuman koordinator",
+    pesan: "Jadwal Pelepasan Alumni Angkatan 2024 sudah terbit.",
+    waktu: "2026-10-24T08:00:00",
+    tautan: "pengumuman.html#pengumuman-1",
+  },
+];
+
 // Expose globals for Alpine.js & pages
 if (typeof window !== "undefined") {
+  window.NOTIFIKASI_AISHA = NOTIFIKASI_AISHA;
   window.GIGS_BUDGET_RANGES = GIGS_BUDGET_RANGES;
   window.INITIAL_GIGS = INITIAL_GIGS;
   window.loadGigs = loadGigs;

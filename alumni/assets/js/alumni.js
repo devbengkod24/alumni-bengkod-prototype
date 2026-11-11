@@ -286,17 +286,54 @@ window.ALUMNI_PARTIALS = Object.assign(window.ALUMNI_PARTIALS || {}, {
   navSearchDropdown: () => alumniNavSearchDropdownHTML(),
 });
 
+/* ------------------------------------------------------------------ */
+/* Notifikasi lonceng: seed NOTIFIKASI_AISHA (alumni-data.js),         */
+/* status baca disimpan di localStorage                                */
+/* ------------------------------------------------------------------ */
+
+const ALUMNI_NOTIF_READ_KEY = "bengkod_alumni_notif_read_v1";
+
+function alumniNotifReadIds() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(ALUMNI_NOTIF_READ_KEY) || "[]");
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+}
+
+function alumniSaveNotifReadIds(ids) {
+  try {
+    localStorage.setItem(ALUMNI_NOTIF_READ_KEY, JSON.stringify([...new Set(ids)]));
+  } catch {}
+}
+
+function alumniWaktuLalu(iso) {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return "";
+  const menit = Math.floor((Date.now() - t) / 60000);
+  if (menit < 1) return "baru saja";
+  if (menit < 60) return `${menit} menit lalu`;
+  if (menit < 1440) return `${Math.floor(menit / 60)} jam lalu`;
+  if (menit < 10080) return `${Math.floor(menit / 1440)} hari lalu`;
+  return new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+}
+
+const ALUMNI_NOTIF_ICONS = {
+  referral: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>`,
+  gigs: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>`,
+  pengumuman: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></svg>`,
+};
+
 document.addEventListener("alpine:init", () => {
-  Alpine.data("alumniLayout", () => alumniWithNavSearch({
+  Alpine.data("alumniLayout", () => ({
     sidebarIsOpen: true,
     isMobile: false,
     isHydrated: false,
     profileIsOpen: false,
     notifIsOpen: false,
     notifs: [],
-    notifUnreadCount: 0,
     breadcrumbDropdownOpen: false,
-    mobileSearchOpen: false,
     profile: alumniCurrentProfile(),
     init() {
       this.checkMobile();
@@ -305,49 +342,44 @@ document.addEventListener("alpine:init", () => {
       this.$watch("sidebarIsOpen", (v) => {
         if (this.isHydrated && !this.isMobile) localStorage.setItem("sidebar_open", String(v));
       });
+      // Status baca ikut berubah kalau ditandai dari tab lain
+      window.addEventListener("storage", (e) => {
+        if (e.key === ALUMNI_NOTIF_READ_KEY) this.loadNotifs();
+      });
       // Tutup dropdown kalau klik di luar (satu-satunya handler click-away)
       document.addEventListener("mousedown", (event) => {
         const t = event.target;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
         if (this.$refs.notifDropdownRef && !this.$refs.notifDropdownRef.contains(t)) this.notifIsOpen = false;
         if (this.$refs.breadcrumbRef && !this.$refs.breadcrumbRef.contains(t)) this.breadcrumbDropdownOpen = false;
-        const inSearch = [this.$refs.navSearchRef, this.$refs.mobileSearchRef, this.$refs.mobileSearchToggle].some((el) => el && el.contains(t));
-        if (!inSearch) this.navSearchOpen = false;
       });
     },
+    get notifUnreadCount() {
+      return this.notifs.filter((n) => !n.dibaca).length;
+    },
     loadNotifs() {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
-          const user = DB.akun.aktif();
-          if (user) {
-            const list = DB.notifikasi.milik(user.id).filter((n) => user.role !== "alumni" || !n.tautan.startsWith("forum"));
-            this.notifs = list;
-            this.notifUnreadCount = list.filter((n) => !n.dibaca).length;
-          }
-        }
-      } catch (e) {}
+      const seed = typeof NOTIFIKASI_AISHA !== "undefined" ? NOTIFIKASI_AISHA : [];
+      const read = alumniNotifReadIds();
+      this.notifs = seed
+        .map((n) => ({ ...n, dibaca: read.includes(n.id) }))
+        .sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
     },
     markNotifRead(id) {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi) {
-          DB.notifikasi.baca(id);
-          this.loadNotifs();
-        }
-      } catch (e) {}
+      alumniSaveNotifReadIds([...alumniNotifReadIds(), id]);
+      this.loadNotifs();
     },
     markAllNotifsRead() {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
-          const user = DB.akun.aktif();
-          if (user) {
-            DB.notifikasi.bacaSemua(user.id);
-            this.loadNotifs();
-          }
-        }
-      } catch (e) {}
+      alumniSaveNotifReadIds([...alumniNotifReadIds(), ...this.notifs.map((n) => n.id)]);
+      this.loadNotifs();
     },
-    openMobileSearch() {
-      this.mobileSearchOpen = !this.mobileSearchOpen;
+    notifHref(n) {
+      return alumniBasePrefix() + (n.tautan || "dashboard.html");
+    },
+    notifIcon(n) {
+      return ALUMNI_NOTIF_ICONS[n.jenis] || ALUMNI_NOTIF_ICONS.pengumuman;
+    },
+    notifTime(n) {
+      return alumniWaktuLalu(n.waktu);
     },
     checkMobile() {
       const mobile = window.innerWidth < 1024;
@@ -467,31 +499,18 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
           </nav>
         </div>
 
-            <div class="flex items-center gap-3 shrink-0">
-              <!-- Cari alumni: kolom di desktop -->
-              <form class="relative hidden md:block w-64 lg:w-80" x-ref="navSearchRef" role="search" @submit.prevent="submitNavSearch()">
-                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
-                <input type="search" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false"
-                  placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
-                  class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
-                ${alumniNavSearchDropdownHTML()}
-              </form>
-              <!-- Cari alumni: ikon di ponsel -->
-              <button type="button" x-ref="mobileSearchToggle" class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full text-neutral2 hover:bg-neutral5" @click="openMobileSearch()" :aria-expanded="mobileSearchOpen" aria-label="Cari alumni">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-              </button>
-
-              <!-- User Menu Button & Dropdown -->
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <!-- Avatar + nama (nama disembunyikan di layar < sm), klik membuka menu profil -->
               <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
                 <button
                   type="button"
                   id="profile-menu-btn"
                   @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
-                  class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+                  class="flex items-center gap-2.5 rounded-full p-0.5 sm:pr-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group"
                   :aria-expanded="profileIsOpen"
                   aria-label="Menu Pengguna"
                 >
-                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs shrink-0">
                     <template x-if="profile.image">
                       <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
                     </template>
@@ -499,6 +518,8 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
                       <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
                     </template>
                   </div>
+                  <span class="hidden sm:block max-w-[180px] truncate font-semibold text-neutral1 group-hover:text-primary1 transition-colors" x-text="profile.name"></span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden sm:block text-neutral3 transition-transform" :class="profileIsOpen ? 'rotate-180' : ''"><path d="m6 9 6 6 6-6" /></svg>
                 </button>
 
             <!-- Dropdown Profile Menu -->
@@ -554,21 +575,72 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
               </ul>
             </div>
           </div>
-        </div>
+
+              <!-- Lonceng notifikasi (paling kanan): badge belum dibaca + dropdown -->
+              <div class="relative flex items-center" x-ref="notifDropdownRef">
+                <button
+                  type="button"
+                  id="notif-btn"
+                  @click="notifIsOpen = !notifIsOpen; profileIsOpen = false"
+                  class="relative w-10 h-10 inline-flex items-center justify-center rounded-full text-neutral2 hover:bg-neutral5 hover:text-neutral1 focus:outline-none focus:ring-4 focus:ring-primary5 transition-colors cursor-pointer"
+                  :aria-expanded="notifIsOpen"
+                  :aria-label="notifUnreadCount ? 'Notifikasi, ' + notifUnreadCount + ' belum dibaca' : 'Notifikasi'"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                  </svg>
+                  <span
+                    x-show="notifUnreadCount > 0"
+                    x-cloak
+                    id="notif-badge"
+                    class="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red2 text-white text-[10.5px] font-bold leading-[18px] text-center ring-2 ring-white"
+                    x-text="notifUnreadCount > 9 ? '9+' : notifUnreadCount"
+                  ></span>
+                </button>
+
+                <div
+                  x-show="notifIsOpen"
+                  x-cloak
+                  id="notif-panel"
+                  class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
+                >
+                  <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
+                    <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
+                    <template x-if="notifUnreadCount > 0">
+                      <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-primary2 hover:underline cursor-pointer">Tandai semua dibaca</button>
+                    </template>
+                  </div>
+                  <div class="max-h-96 overflow-y-auto">
+                    <template x-for="n in notifs" :key="n.id">
+                      <div class="flex items-start gap-3 px-4 py-3 border-b border-neutral4/40 last:border-0 transition-colors" :class="n.dibaca ? 'hover:bg-neutral5' : 'bg-primary5/40 hover:bg-primary5/70'">
+                        <span class="w-8 h-8 rounded-lg bg-primary5 text-primary2 flex items-center justify-center shrink-0 mt-0.5" x-html="notifIcon(n)"></span>
+                        <div class="min-w-0 flex-1">
+                          <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="block group/notif">
+                            <span class="block text-[11px] font-semibold uppercase tracking-wide text-neutral3" x-text="n.judul"></span>
+                            <span class="block text-[13px] text-neutral1 leading-snug mt-0.5 group-hover/notif:text-primary1" x-text="n.pesan"></span>
+                          </a>
+                          <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[11px] text-neutral3" x-text="notifTime(n)"></span>
+                            <template x-if="!n.dibaca">
+                              <button type="button" @click="markNotifRead(n.id)" class="text-[11px] font-semibold text-primary2 hover:underline cursor-pointer">· Tandai dibaca</button>
+                            </template>
+                          </div>
+                        </div>
+                        <template x-if="!n.dibaca">
+                          <span class="w-2 h-2 rounded-full bg-primary2 shrink-0 mt-2" aria-label="Belum dibaca"></span>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="notifs.length === 0">
+                      <p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>
+                    </template>
+                  </div>
+                </div>
+              </div>
+            </div>
         </div>
 
-        <!-- Cari alumni: baris yang melebar di ponsel -->
-        <template x-if="mobileSearchOpen">
-        <form class="md:hidden px-3 pb-3" x-ref="mobileSearchRef" role="search" @submit.prevent="submitNavSearch()">
-          <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
-            <input type="search" x-ref="mobileSearchInput" x-init="$nextTick(() => $el.focus())" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="mobileSearchOpen = false"
-              placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
-              class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
-            ${alumniNavSearchDropdownHTML()}
-          </div>
-        </form>
-        </template>
       </header>
       <div class="flex-1 px-6 lg:px-10 py-6" data-main-slot></div>
       <footer class="w-full px-2 lg:px-4 py-4">

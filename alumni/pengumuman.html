@@ -6,7 +6,9 @@
   <title>Pengumuman | Bengkel Koding UDINUS</title>
   <meta name="description" content="Pengumuman resmi dari koordinator Bengkel Koding">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
   <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
 </head>
 <body>
 <!-- Pengumuman Resmi Koordinator Bengkel Koding -->
@@ -72,6 +74,10 @@
 <script>
 document.addEventListener('alpine:init', () => {
   Alpine.data('pengumumanPage', () => ({
+    // Tautan #pengumuman-N (notifikasi & kartu Beranda) baru bisa digulir setelah x-for merender kartu
+    init() {
+      if (location.hash) this.$nextTick(() => document.querySelector(location.hash)?.scrollIntoView({ block: 'start' }));
+    },
     announcements: [
       {
         id: 1,

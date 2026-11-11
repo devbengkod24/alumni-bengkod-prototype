@@ -1663,6 +1663,7 @@
 
           init() {
             this.muat();
+            this.bukaDariHash();
             window.addEventListener("bengkod_posts_updated", () => this.muat());
             window.addEventListener("bengkod:forum-updated", () => this.muat());
             window.addEventListener("bengkod:laporan-updated", () => this.muat());
@@ -1677,6 +1678,17 @@
                 };
               }
             } catch { }
+          },
+
+          // Tautan #activity-card-<id> (mis. dari notifikasi): buka daftar pengajuan referral lalu gulir ke kartunya
+          bukaDariHash() {
+            const m = /^#activity-card-(-?\d+)$/.exec(location.hash || "");
+            if (!m) return;
+            const id = Number(m[1]);
+            const post = this.posts.find((p) => p.id === id);
+            if (!post) return;
+            if (post.pengajuan && post.pengajuan.length) this.activePengajuanPostId = id;
+            this.$nextTick(() => document.getElementById("activity-card-" + id)?.scrollIntoView({ block: "start" }));
           },
 
           // Feed gabungan: postingan alumni (alumni-data.js) + forum bersama Koordinator & Mitra (BengkodStore).
