@@ -807,11 +807,11 @@
           </div>
         </div>
 
-        <!-- ── WIDGET 2: GIGS & TENDER PROYEK TERBUKA ── -->
+        <!-- ── WIDGET 2: GIGS & TENDER PROYEK TERBARU ── -->
         <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 sm:p-6">
           <div class="flex items-start justify-between pb-3 border-b border-gray-100">
             <div>
-              <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Gigs Terbuka</h3>
+              <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Gigs Terbaru</h3>
               <p class="text-[13px] text-gray-500 font-medium mt-0.5">Tender kolaborasi antar-alumni</p>
             </div>
             <a href="gigs.html" title="Buka Papan Gigs" class="inline-flex items-center gap-1 text-[12px] font-semibold text-[#1E3A8A] hover:underline mt-1">
@@ -821,12 +821,9 @@
           </div>
 
           <div class="space-y-2.5 mt-3">
-            <template x-for="g in openGigsList" :key="g.id">
-              <a href="gigs.html" class="block p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group cursor-pointer shadow-2xs">
-                <div class="flex items-start justify-between gap-2">
-                  <h4 class="text-[13.5px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug line-clamp-1" x-text="g.title"></h4>
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">Open</span>
-                </div>
+            <template x-for="g in latestGigsList" :key="g.id">
+              <a :href="'gigs.html?gig=' + encodeURIComponent(g.id)" class="block p-3 rounded-xl border border-gray-100 hover:border-blue-200 hover:bg-blue-50/30 transition-all group cursor-pointer shadow-2xs">
+                <h4 class="text-[13.5px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors leading-snug line-clamp-1" x-text="g.title"></h4>
                 <div class="flex items-center justify-between text-[12px] mt-1.5 text-gray-500">
                   <span class="font-semibold text-[#1E3A8A]" x-text="g.budgetRange"></span>
                   <span class="text-gray-400 text-[11.5px]" x-text="g.category"></span>
@@ -1618,9 +1615,10 @@
               .slice(0, 5);
           },
 
-          get openGigsList() {
+          // Gigs tidak punya status lagi: tampilkan 3 proyek teratas di papan
+          get latestGigsList() {
             const all = typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []);
-            return (all || []).filter((g) => g.status === "Terbuka").slice(0, 3);
+            return (all || []).slice(0, 3);
           },
 
           openLaunchModal() {

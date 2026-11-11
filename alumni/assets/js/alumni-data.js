@@ -3003,7 +3003,7 @@ Tanggung Jawab & Fitur Proyek:
     completedDate: null,
     applicants: []
   },
-  // Proyek milik Aisha yang sedang dikerjakan, supaya alur "Tandai Selesai" di tab Proyek Dibuat bisa dicoba
+  // Proyek kedua milik Aisha (tab Proyek Dibuat & halaman pelamar)
   {
     id: "gig-11",
     title: "Dashboard Rekap Nilai Praktikum Lab Bengkel Koding",
@@ -3155,34 +3155,6 @@ function formatWaUrl(phone, text) {
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text || "")}`;
 }
 
-/** Auto-publish gig yang selesai ke Feed Beranda */
-function publishGigCompletionToFeed(gig, endorsement) {
-  try {
-    const posts = typeof loadPosts === "function" ? loadPosts() : [];
-    const contributorName = (gig.assignedContributor && gig.assignedContributor.name) || "Rekan Kontributor";
-    const newPost = {
-      id: Date.now(),
-      authorName: gig.ownerName,
-      authorAvatar: gig.ownerAvatar,
-      authorHeadline: gig.ownerRole,
-      date: "Baru saja",
-      category: "Karya & Showcase",
-      visibility: "Semua orang",
-      content: `🎉 Kolaborasi Bengkod Gigs Selesai!\n\nProyek "${gig.title}" telah rampung dikerjakan bersama @${contributorName}.\n\n⭐ Catatan Rekomendasi:\n"${endorsement || 'Pengerjaan berkualitas, komunikasi profesional, dan serah terima tepat waktu.'}"\n\n#BengkodGigs #KolaborasiAlumni`,
-      likes: 1,
-      isLiked: false,
-      commentsCount: 0,
-      repostsCount: 0,
-      impressions: 1,
-    };
-    if (typeof savePosts === "function") {
-      savePosts([newPost, ...posts]);
-    }
-  } catch (err) {
-    console.warn("Gagal auto-publish ke feed:", err);
-  }
-}
-
 // ============================================================
 // NOTIFIKASI AISHA (lonceng di topbar alumni.js)
 // Status baca disimpan terpisah di localStorage (lihat alumniNotifReadIds di alumni.js).
@@ -3241,5 +3213,4 @@ if (typeof window !== "undefined") {
   window.loadMyApplications = loadMyApplications;
   window.saveMyApplications = saveMyApplications;
   window.formatWaUrl = formatWaUrl;
-  window.publishGigCompletionToFeed = publishGigCompletionToFeed;
 }

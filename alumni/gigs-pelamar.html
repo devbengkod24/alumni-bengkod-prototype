@@ -49,16 +49,6 @@
             <p class="text-[14px] sm:text-[15px] text-gray-500 mt-1" x-text="gig.category + ' · ' + gig.budgetRange + ' · Tenggat ' + (gig.deadline || '-')"></p>
           </div>
           <div class="shrink-0 flex flex-wrap items-center gap-2.5">
-            <span
-              class="px-4 h-9 inline-flex items-center justify-center rounded-full text-[13px] font-semibold border"
-              :class="{
-                'bg-white text-gray-700 border-gray-200': gig.status === 'Terbuka',
-                'bg-blue-50 text-[#1E3A8A] border-blue-200': gig.status === 'Sedang Dikerjakan',
-                'bg-purple-50 text-purple-700 border-purple-200': gig.status === 'Selesai',
-                'bg-gray-100 text-gray-500 border-gray-200': gig.status === 'Batal'
-              }"
-              x-text="gig.status === 'Terbuka' ? 'Open' : (gig.status === 'Sedang Dikerjakan' ? 'Disetujui' : gig.status)"
-            ></span>
             <a :href="'gigs.html?gig=' + encodeURIComponent(gig.id)"
               class="inline-flex items-center gap-2 px-5 h-9 rounded-full text-[14px] font-semibold text-gray-700 border border-gray-300 hover:border-[#1E3A8A] hover:text-[#1E3A8A] hover:bg-blue-50/40 transition-colors whitespace-nowrap">
               Lihat di Papan Gigs
@@ -66,40 +56,19 @@
           </div>
         </div>
 
-        <!-- Kontributor terpilih -->
-        <template x-if="gig.assignedContributor">
-          <div class="flex items-center gap-3 rounded-xl border border-blue-200 bg-blue-50/60 px-4 py-3 text-[14px] text-gray-700">
-            <img :src="gig.assignedContributor.avatar || DEFAULT_AVATAR" :alt="gig.assignedContributor.name" class="w-9 h-9 rounded-full object-cover border border-blue-200 shrink-0">
-            <p class="min-w-0">
-              <span x-text="gig.status === 'Selesai' ? 'Proyek diselesaikan bersama ' : 'Proyek sedang dikerjakan oleh '"></span>
-              <span class="font-semibold text-gray-900" x-text="gig.assignedContributor.name"></span>
-            </p>
-          </div>
-        </template>
-
-        <!-- Filter status pelamar -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <template x-for="f in filters" :key="f.value">
-            <button type="button" @click="filterStatus = f.value"
-              class="px-4 py-1.5 rounded-full text-[13px] font-medium border transition-colors cursor-pointer whitespace-nowrap"
-              :class="filterStatus === f.value ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300 hover:text-gray-900'"
-              x-text="f.label + ' (' + countByStatus(f.value) + ')'"></button>
-          </template>
-        </div>
-
         <!-- Daftar pelamar -->
         <div class="space-y-4">
-          <template x-if="filteredApplicants.length === 0">
+          <template x-if="applicants.length === 0">
             <div class="bg-white rounded-xl border border-gray-200 py-16 px-6 text-center">
               <div class="w-12 h-12 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
               </div>
-              <h3 class="text-[16px] font-normal text-gray-900" x-text="(gig.applicants || []).length ? 'Tidak ada pelamar dengan status ini' : 'Belum ada rekan yang mengajukan minat'"></h3>
+              <h3 class="text-[16px] font-normal text-gray-900">Belum ada rekan yang mengajukan minat</h3>
               <p class="text-[14px] text-gray-500 mt-1 max-w-md mx-auto font-normal">Pengajuan kolaborasi dari rekan alumni untuk proyek ini akan otomatis terdata di sini.</p>
             </div>
           </template>
 
-              <template x-for="app in filteredApplicants" :key="app.id">
+              <template x-for="app in applicants" :key="app.id">
                 <div class="p-5 sm:p-6 rounded-xl border border-gray-200 bg-white hover:border-gray-300 transition-all space-y-4 shadow-2xs">
                   <!-- Baris Atas Pelamar: Profil, Status, dan Tombol Aksi -->
                   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -112,19 +81,8 @@
                     </div>
 
                     <div class="flex items-center gap-2.5 self-end sm:self-center">
-                      <!-- Status Badge (Netral, Tanpa Warna Hijau) -->
-                      <span
-                        class="px-3 py-1 rounded-full text-[13px] font-normal border"
-                        :class="{
-                          'bg-blue-50 text-[#1E3A8A] border-blue-200': app.status === 'ACCEPTED',
-                          'bg-gray-100 text-gray-500 border-gray-200': app.status === 'REJECTED',
-                          'bg-white text-gray-700 border-gray-200': app.status === 'PENDING'
-                        }"
-                        x-text="app.status === 'ACCEPTED' ? 'Disetujui' : (app.status === 'REJECTED' ? 'Ditolak' : 'Pending')"
-                      ></span>
-
-                      <!-- Aksi untuk status PENDING -->
-                      <template x-if="app.status === 'PENDING'">
+                      <!-- Belum diputuskan: pemilik hanya bisa Terima atau Tolak -->
+                      <template x-if="!isDecided(app)">
                         <div class="flex items-center gap-2">
                           <button
                             type="button"
@@ -135,16 +93,21 @@
                           </button>
                           <button
                             type="button"
-                            @click="assignContributor(gig.id, app)"
+                            @click="acceptApplicant(gig.id, app)"
                             class="px-4 py-1.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[13px] font-normal transition-colors cursor-pointer shadow-2xs"
                           >
-                            Setujui &amp; Hubungi WA
+                            Terima
                           </button>
                         </div>
                       </template>
 
-                      <!-- Aksi jika sudah ACCEPTED (Tombol Netral Abu-Abu, Tanpa Oval Hijau) -->
-                      <template x-if="app.status === 'ACCEPTED' && app.applicantPhone">
+                      <!-- Sudah diputuskan: tampilkan hasilnya -->
+                      <template x-if="isDecided(app)">
+                        <span class="px-3 py-1 rounded-full text-[13px] font-normal border"
+                          :class="isAccepted(app) ? 'bg-blue-50 text-[#1E3A8A] border-blue-200' : 'bg-gray-100 text-gray-500 border-gray-200'"
+                          x-text="isAccepted(app) ? 'Diterima' : 'Ditolak'"></span>
+                      </template>
+                      <template x-if="isAccepted(app) && app.applicantPhone">
                         <a
                           :href="'https://wa.me/' + (app.applicantPhone.replace(/\D/g, ''))"
                           target="_blank"
@@ -229,20 +192,12 @@
 <script>
   function bengkodGigPelamar() {
     const gigId = new URLSearchParams(window.location.search).get("id");
-    const today = () => new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
 
     return {
       DEFAULT_AVATAR: typeof DEFAULT_AVATAR !== "undefined" ? DEFAULT_AVATAR : "",
       currentUserId: "aisha-dwi-rahmawati",
       gigs: typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []),
       myApplications: typeof loadMyApplications === "function" ? loadMyApplications() : [],
-      filterStatus: "Semua",
-      filters: [
-        { value: "Semua", label: "Semua" },
-        { value: "PENDING", label: "Menunggu" },
-        { value: "ACCEPTED", label: "Disetujui" },
-        { value: "REJECTED", label: "Ditolak" },
-      ],
       toast: "",
 
       init() {
@@ -259,14 +214,16 @@
         return this.gigs.find((g) => g.id === gigId && g.ownerId === this.currentUserId) || null;
       },
 
-      get filteredApplicants() {
-        const list = (this.gig && this.gig.applicants) || [];
-        return this.filterStatus === "Semua" ? list : list.filter((a) => a.status === this.filterStatus);
+      get applicants() {
+        return (this.gig && this.gig.applicants) || [];
       },
 
-      countByStatus(status) {
-        const list = (this.gig && this.gig.applicants) || [];
-        return status === "Semua" ? list.length : list.filter((a) => a.status === status).length;
+      isAccepted(app) {
+        return app.status === "ACCEPTED" || app.status === "COMPLETED";
+      },
+
+      isDecided(app) {
+        return this.isAccepted(app) || app.status === "REJECTED";
       },
 
       simpanGigs(updated) {
@@ -274,32 +231,15 @@
         if (typeof saveGigs === "function") saveGigs(updated);
       },
 
-      assignContributor(gigId, applicant) {
-        const updated = this.gigs.map((g) => {
+      // Terima pelamar: hanya menandai lamaran diterima (proyek tidak punya status pengerjaan)
+      acceptApplicant(gigId, applicant) {
+        this.simpanGigs(this.gigs.map((g) => {
           if (g.id !== gigId) return g;
-          return {
-            ...g,
-            status: "Sedang Dikerjakan",
-            assignedContributor: {
-              id: applicant.applicantId,
-              name: applicant.applicantName,
-              avatar: applicant.applicantAvatar,
-              batch: applicant.applicantBatch,
-              phone: applicant.applicantPhone,
-              assignedDate: today(),
-            },
-            applicants: (g.applicants || []).map((app) => (app.id === applicant.id ? { ...app, status: "ACCEPTED" } : app)),
-          };
-        });
-        this.simpanGigs(updated);
-
-        const gig = updated.find((g) => g.id === gigId);
-        const phone = applicant.applicantPhone || "081234567890";
-        const waLink = "https://wa.me/" + phone.replace(/[^0-9]/g, "") + "?text=" + encodeURIComponent(
-          `Halo ${applicant.applicantName}, saya ${gig.ownerName} dari Bengkel Koding. Pengajuan minatmu untuk gig "${gig.title}" sudah saya setujui. Mari kita koordinasi teknis pengerjaannya.`
-        );
-        window.open(waLink, "_blank");
-        this.setToast(`Rekan ${applicant.applicantName} berhasil ditugaskan!`);
+          return { ...g, applicants: (g.applicants || []).map((a) => (a.id === applicant.id ? { ...a, status: "ACCEPTED" } : a)) };
+        }));
+        this.myApplications = this.myApplications.map((app) => (app.gigId === gigId && app.id === applicant.id ? { ...app, status: "ACCEPTED" } : app));
+        if (typeof saveMyApplications === "function") saveMyApplications(this.myApplications);
+        this.setToast(`${applicant.applicantName} diterima. Hubungi lewat WhatsApp untuk koordinasi.`);
       },
 
       rejectApplicant(gigId, applicantId) {
