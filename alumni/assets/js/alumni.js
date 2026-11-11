@@ -500,83 +500,7 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
         </div>
 
             <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              <!-- Avatar + nama (nama disembunyikan di layar < sm), klik membuka menu profil -->
-              <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
-                <button
-                  type="button"
-                  id="profile-menu-btn"
-                  @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
-                  class="flex items-center gap-2.5 rounded-full p-0.5 sm:pr-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group"
-                  :aria-expanded="profileIsOpen"
-                  aria-label="Menu Pengguna"
-                >
-                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs shrink-0">
-                    <template x-if="profile.image">
-                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
-                    </template>
-                    <template x-if="!profile.image">
-                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
-                    </template>
-                  </div>
-                  <span class="hidden sm:block max-w-[180px] truncate font-semibold text-neutral1 group-hover:text-primary1 transition-colors" x-text="profile.name"></span>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="hidden sm:block text-neutral3 transition-transform" :class="profileIsOpen ? 'rotate-180' : ''"><path d="m6 9 6 6 6-6" /></svg>
-                </button>
-
-            <!-- Dropdown Profile Menu -->
-            <div
-              x-show="profileIsOpen"
-              x-cloak
-              class="absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
-              id="dropdown-profile-menu"
-            >
-              <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
-                <div class="flex items-center gap-2.5">
-                  <div class="w-9 h-9 rounded-full overflow-hidden bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
-                    <template x-if="profile.image">
-                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
-                    </template>
-                    <template x-if="!profile.image">
-                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
-                    </template>
-                  </div>
-                  <div class="min-w-0 flex-1">
-                    <p class="!text-sm font-semibold text-white truncate" x-text="profile.name"></p>
-                    <p class="!text-[11px] text-white/80 truncate" x-text="profile.email"></p>
-                  </div>
-                </div>
-              </div>
-              <ul class="py-1.5 text-sm text-neutral1">
-                <li>
-                  <a href="${alumniHref("/dashboard/alumni/profil")}" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
-                    <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
-                      </svg>
-                    </span>
-                    <span>Pengaturan Profil</span>
-                  </a>
-                </li>
-              </ul>
-              <div class="border-t border-neutral4/70"></div>
-              <ul class="py-1.5">
-                <li>
-                  <button type="button" @click="handleLogout()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group cursor-pointer">
-                    <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                      </svg>
-                    </span>
-                    <span>Keluar</span>
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-              <!-- Lonceng notifikasi (paling kanan): badge belum dibaca + dropdown -->
+              <!-- Lonceng notifikasi (paling kiri di grup kanan): badge belum dibaca + dropdown -->
               <div class="relative flex items-center" x-ref="notifDropdownRef">
                 <button
                   type="button"
@@ -638,6 +562,81 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
                   </div>
                 </div>
               </div>
+
+              <!-- Nama + avatar (avatar paling kanan, nama disembunyikan di layar < sm), klik membuka menu profil -->
+              <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
+                <button
+                  type="button"
+                  id="profile-menu-btn"
+                  @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
+                  class="flex items-center gap-2.5 rounded-full p-0.5 sm:pl-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group"
+                  :aria-expanded="profileIsOpen"
+                  aria-label="Menu Pengguna"
+                >
+                  <span class="hidden sm:block max-w-[180px] truncate font-semibold text-neutral1 group-hover:text-primary1 transition-colors" x-text="profile.name"></span>
+                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs shrink-0">
+                    <template x-if="profile.image">
+                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!profile.image">
+                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                    </template>
+                  </div>
+                </button>
+
+            <!-- Dropdown Profile Menu -->
+            <div
+              x-show="profileIsOpen"
+              x-cloak
+              class="absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
+              id="dropdown-profile-menu"
+            >
+              <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-9 h-9 rounded-full overflow-hidden bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
+                    <template x-if="profile.image">
+                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!profile.image">
+                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                    </template>
+                  </div>
+                  <div class="min-w-0 flex-1">
+                    <p class="!text-sm font-semibold text-white truncate" x-text="profile.name"></p>
+                    <p class="!text-[11px] text-white/80 truncate" x-text="profile.email"></p>
+                  </div>
+                </div>
+              </div>
+              <ul class="py-1.5 text-sm text-neutral1">
+                <li>
+                  <a href="${alumniHref("/dashboard/alumni/profil")}" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                    <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    </span>
+                    <span>Pengaturan Profil</span>
+                  </a>
+                </li>
+              </ul>
+              <div class="border-t border-neutral4/70"></div>
+              <ul class="py-1.5">
+                <li>
+                  <button type="button" @click="handleLogout()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group cursor-pointer">
+                    <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                      </svg>
+                    </span>
+                    <span>Keluar</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </div>
             </div>
         </div>
 
