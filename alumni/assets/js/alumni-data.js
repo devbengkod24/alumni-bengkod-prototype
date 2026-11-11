@@ -3003,7 +3003,7 @@ Tanggung Jawab & Fitur Proyek:
     completedDate: null,
     applicants: []
   },
-  // Proyek milik Aisha yang sedang dikerjakan, supaya alur "Tandai Selesai" di Kelola Gigs bisa dicoba
+  // Proyek milik Aisha yang sedang dikerjakan, supaya alur "Tandai Selesai" di tab Proyek Dibuat bisa dicoba
   {
     id: "gig-11",
     title: "Dashboard Rekap Nilai Praktikum Lab Bengkel Koding",
@@ -3203,7 +3203,7 @@ const NOTIFIKASI_AISHA = [
     judul: "Pelamar gigs baru",
     pesan: "Kirana Maheswari mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
     waktu: "2026-11-03T13:40:00",
-    tautan: "gigs-kelola.html?pelamar=gig-1",
+    tautan: "gigs-pelamar.html?id=gig-1",
   },
   {
     id: "notif-gig-101",
@@ -3211,7 +3211,7 @@ const NOTIFIKASI_AISHA = [
     judul: "Pelamar gigs baru",
     pesan: "Dimas Aryo mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
     waktu: "2026-11-02T10:05:00",
-    tautan: "gigs-kelola.html?pelamar=gig-1",
+    tautan: "gigs-pelamar.html?id=gig-1",
   },
   {
     id: "notif-pengumuman-2",

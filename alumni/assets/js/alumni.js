@@ -105,7 +105,6 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
   if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
-  if (link === "/dashboard/alumni/gigs-kelola") return `${base}gigs-kelola.html`;
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
@@ -160,16 +159,6 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Kelola Gigs",
-    link: "/dashboard/alumni/gigs-kelola",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
-          <path d="M8 10v4" />
-          <path d="M12 10v2" />
-          <path d="M16 10v6" />
-        </svg>`,
-  },
-  {
     title: "Generate CV",
     link: "/dashboard/alumni/generate-cv",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -202,12 +191,14 @@ const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/detail-proyek": "Detail Proyek",
   "/dashboard/alumni/pengumuman": "Pengumuman",
   "/dashboard/alumni/tracer": "Status Karir",
+  "/dashboard/alumni/gigs-pelamar": "Pelamar Proyek",
 };
 
 // Halaman turunan menyorot menu induknya di sidebar
 const ALUMNI_NAV_PARENT = {
   "/dashboard/alumni/pengumuman": "/dashboard/alumni",
   "/dashboard/alumni/tracer": "/dashboard/alumni/profil",
+  "/dashboard/alumni/gigs-pelamar": "/dashboard/alumni/gigs",
 };
 
 // Samain route alias ke route utama di ALUMNI_NAVIGATIONS
