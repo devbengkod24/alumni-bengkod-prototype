@@ -138,7 +138,7 @@
                     <div class="space-y-1">
                       <span class="block text-[14px] font-normal text-gray-500">CV Terlampir</span>
                       <template x-if="app.resumeFileName">
-                        <button type="button" @click="openCvPdf(app.applicantName)" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] text-left break-all cursor-pointer">
+                        <button type="button" @click="openCvPdf(app.applicantName, { format: app.resumeFormat || (/_MODERN\.pdf$/.test(app.resumeFileName || '') ? 'modern' : 'ats') })" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] text-left break-all cursor-pointer">
                           <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                           <span x-text="app.resumeFileName"></span>
                           <span class="text-gray-400 text-[12px] shrink-0">(Lihat CV)</span>

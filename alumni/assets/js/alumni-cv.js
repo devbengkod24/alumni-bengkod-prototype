@@ -1,8 +1,9 @@
 /**
  * CV ATS bersama: sumber data, template HTML, dan pembuat PDF.
  *   - generate-cv.html  : pratinjau ATS memakai renderAtsCvHTML (x-html)
- *   - dashboard.html    : "Lihat CV" pelamar referral & "Lihat CV saya" -> openCvPdf
- *   - gigs.html         : kartu "CV terlampir" di modal lamar -> openCvPdf
+ *   - dashboard.html    : "Lihat CV" pelamar referral & "Lihat CV saya" -> openCvPdf (format ATS / Modern)
+ *   - gigs.html         : pilihan versi CV di modal Ajukan Minat -> openCvPdf
+ *   - gigs-pelamar.html : "Lihat CV" pelamar gigs sesuai versi yang dipilih pelamar
  * Butuh alumni-data.js (ALUMNI_DIRECTORY, loadStoredProjects) dan alumni-profile-data.js (INITIAL_*).
  * PDF dibuat di browser dengan html2pdf.js (dimuat saat pertama kali dibutuhkan).
  */
@@ -24,10 +25,10 @@ function cvEscape(value) {
 
 const cvClone = (v) => JSON.parse(JSON.stringify(v));
 
-/** Nama berkas PDF: CV_<Nama_Dengan_Garis_Bawah>_ATS.pdf */
-function cvFileName(name) {
+/** Nama berkas PDF: CV_<Nama_Dengan_Garis_Bawah>_ATS.pdf atau _MODERN.pdf */
+function cvFileName(name, format = "ats") {
   const clean = String(name || "Alumni").trim().replace(/[^\p{L}\p{N}\s.-]/gu, "").replace(/\s+/g, "_");
-  return `CV_${clean || "Alumni"}_ATS.pdf`;
+  return `CV_${clean || "Alumni"}_${format === "modern" ? "MODERN" : "ATS"}.pdf`;
 }
 
 /** Profil sendiri (hasil edit profil.html bila ada) */
@@ -230,6 +231,99 @@ function renderAtsCvHTML(data, options = {}) {
   return html + `</div>`;
 }
 
+/**
+ * Template Modern Clean (aksen navy, dua kolom) — padanan template Modern di generate-cv.html.
+ * Gaya inline supaya sama di PDF tanpa bergantung kelas Tailwind.
+ */
+function renderModernCvHTML(data, options = {}) {
+  const s = { ...CV_DEFAULT_SECTIONS, ...(options.sections || {}) };
+  const p = data.profile || {};
+  const projects = cvFilterProjects(data.projects, options.includeGigs !== false);
+  const e = cvEscape;
+  const stripUrl = (u) => String(u || "").replace(/^https?:\/\/(www\.)?/, "");
+  const NAVY = "#1E3A8A";
+
+  const H = (title) => `<h3 style="margin:0 0 10px;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:${NAVY};"><span style="display:inline-block;width:9px;height:9px;border-radius:999px;background:${NAVY};"></span>${title}</h3>`;
+  const block = (inner) => `<section style="margin-bottom:20px;">${inner}</section>`;
+  const p13 = "margin:0;font-size:12.5px;line-height:1.5;";
+
+  const kontak = [
+    p.email && `<p style="${p13}font-weight:600;color:#111827;">${e(p.email)}</p>`,
+    p.location && `<p style="${p13}color:#4b5563;">${e(p.location)}</p>`,
+    p.linkedin && `<p style="${p13}color:${NAVY};">${e(stripUrl(p.linkedin))}</p>`,
+    p.github && `<p style="${p13}color:#374151;">${e(stripUrl(p.github))}</p>`,
+  ].filter(Boolean).join("");
+
+  let html = `<div class="cv-modern" style="font-family:Poppins, Arial, Helvetica, sans-serif;color:#1f2937;background:#fff;">`;
+  html += `<header style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:18px;border-bottom:1px solid #e5e7eb;">
+    <div style="min-width:0;flex:1;">
+      <h2 style="margin:0;font-size:26px;line-height:1.2;font-weight:800;color:${NAVY};">${e(p.name)}</h2>
+      ${p.headline ? `<p style="margin:6px 0 0;font-size:14px;line-height:1.4;font-weight:600;color:#374151;">${e(p.headline)}</p>` : ""}
+      <p style="margin:4px 0 0;font-size:12px;line-height:1.4;color:#6b7280;">${e((p.university || "Universitas Dian Nuswantoro") + " • Angkatan " + (p.batch || "2024"))}</p>
+    </div>
+    <div style="text-align:right;flex-shrink:0;max-width:45%;">${kontak}</div>
+  </header>`;
+
+  if (s.about && p.about) {
+    html += `<section style="margin:20px 0;">${H("Tentang Saya")}<p style="margin:0;font-size:12.5px;line-height:1.6;color:#374151;text-align:justify;white-space:pre-line;">${e(p.about)}</p></section>`;
+  }
+
+  let kiri = "";
+  if (s.education && (data.educations || []).length) {
+    kiri += block(H("Pendidikan") + data.educations.map((edu) => `
+      <div class="cv-item" style="padding:10px 12px;margin-bottom:8px;background:#f9fafb;border:1px solid #f3f4f6;border-radius:10px;break-inside:avoid;">
+        <p style="${p13}font-weight:700;color:#111827;">${e(edu.name)}</p>
+        <p style="${p13}font-weight:500;color:#374151;">${e(edu.degree ? `${edu.degree} ${edu.major}` : edu.major)}</p>
+        <p style="margin:2px 0 0;font-size:11.5px;line-height:1.4;color:#6b7280;">${e(edu.period)}</p>
+      </div>`).join(""));
+  }
+  if (s.skills && (data.skills || []).length) {
+    kiri += block(H("Keahlian") + `<div style="display:flex;flex-wrap:wrap;gap:6px;">${data.skills.map((sk) => `<span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#eff6ff;border:1px solid #dbeafe;color:${NAVY};font-size:11.5px;font-weight:600;line-height:1.5;">${e(sk.name)}</span>`).join("")}</div>`);
+  }
+  if (s.certifications && (data.certifications || []).length) {
+    kiri += block(H("Sertifikasi") + data.certifications.map((cert) => `
+      <div class="cv-item" style="border-left:2px solid #2563eb;padding:1px 0 1px 10px;margin-bottom:8px;break-inside:avoid;">
+        <p style="${p13}font-weight:600;color:#111827;">${e(cert.name)}</p>
+        <p style="margin:0;font-size:11.5px;line-height:1.4;color:#6b7280;">${e([cert.issuer, cert.date].filter(Boolean).join(" • "))}</p>
+      </div>`).join(""));
+  }
+
+  let kanan = "";
+  if (s.organization && (data.organizations || []).length) {
+    kanan += block(H("Pengalaman Organisasi") + data.organizations.map((org) => `
+      <div class="cv-item" style="padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid #f3f4f6;break-inside:avoid;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
+          <span style="font-size:12.5px;font-weight:700;color:#111827;">${e(org.role)}</span>
+          <span style="flex-shrink:0;font-size:11.5px;color:#6b7280;">${e(org.period)}</span>
+        </div>
+        <p style="${p13}font-weight:600;color:${NAVY};">${e(org.name)}</p>
+        ${org.desc ? `<p style="margin:4px 0 0;font-size:12px;line-height:1.5;color:#4b5563;text-align:justify;">${e(org.desc)}</p>` : ""}
+      </div>`).join(""));
+  }
+  if (s.projects && projects.length) {
+    kanan += block(H("Proyek Unggulan") + projects.map((proj) => `
+      <div class="cv-item" style="padding:10px 12px;margin-bottom:10px;background:#f9fafb;border:1px solid #f3f4f6;border-radius:10px;break-inside:avoid;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;">
+          <span style="font-size:12.5px;font-weight:700;color:#111827;">${e(proj.title)}</span>
+          <span style="flex-shrink:0;font-size:11.5px;color:#6b7280;">${e(proj.period)}</span>
+        </div>
+        ${(proj.desc || proj.description) ? `<p style="margin:4px 0 0;font-size:12px;line-height:1.5;color:#4b5563;text-align:justify;">${e(proj.desc || proj.description)}</p>` : ""}
+        ${proj.tags && proj.tags.length ? `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${proj.tags.map((t) => `<span style="display:inline-block;padding:1px 7px;border-radius:4px;background:#e5e7eb;color:#374151;font-size:10.5px;font-weight:500;line-height:1.6;">${e(t)}</span>`).join("")}</div>` : ""}
+      </div>`).join(""));
+  }
+
+  html += `<div style="display:flex;gap:24px;align-items:flex-start;">
+    <div style="width:40%;flex-shrink:0;">${kiri}</div>
+    <div style="flex:1;min-width:0;">${kanan}</div>
+  </div>`;
+  return html + `</div>`;
+}
+
+/** Pilih template sesuai format: "modern" atau "ats" (bawaan) */
+function renderCvHTML(data, options = {}) {
+  return options.format === "modern" ? renderModernCvHTML(data, options) : renderAtsCvHTML(data, options);
+}
+
 let html2pdfLoader = null;
 function loadHtml2Pdf() {
   if (typeof window.html2pdf === "function") return Promise.resolve(window.html2pdf);
@@ -260,13 +354,13 @@ function cvWaitPageReady(maxMs = 8000) {
   });
 }
 
-/** Buat PDF CV ATS dan kembalikan { url, fileName } (url = blob URL) */
+/** Buat PDF CV (options.format: "ats" | "modern") dan kembalikan { url, fileName } (url = blob URL) */
 async function createCvPdf(applicant, options = {}) {
   const data = alumniCvData(applicant);
-  const fileName = cvFileName(data.profile.name);
+  const fileName = cvFileName(data.profile.name, options.format);
   const html2pdf = await loadHtml2Pdf();
   await cvWaitPageReady();
-  const source = `<div style="padding:4px 2px;background:#fff;">${renderAtsCvHTML(data, options)}</div>`;
+  const source = `<div style="padding:4px 2px;background:#fff;">${renderCvHTML(data, options)}</div>`;
   const url = await html2pdf()
     .set({
       margin: [12, 14, 12, 14],
@@ -281,7 +375,7 @@ async function createCvPdf(applicant, options = {}) {
     .toPdf()
     .get("pdf")
     .then((pdf) => {
-      pdf.setProperties({ title: fileName, subject: `CV ATS ${data.profile.name}`, creator: "Portal Alumni Bengkel Koding" });
+      pdf.setProperties({ title: fileName, subject: `CV ${options.format === "modern" ? "Modern" : "ATS"} ${data.profile.name}`, creator: "Portal Alumni Bengkel Koding" });
     })
     .output("bloburl");
   return { url, fileName };
@@ -304,7 +398,7 @@ function cvPdfTabHTML(fileName, body) {
  * tab dibuka dulu (pesan "menyiapkan"), lalu diisi PDF setelah selesai dibuat.
  */
 async function openCvPdf(applicant, options = {}) {
-  const loadingName = cvFileName(alumniCvData(applicant).profile.name);
+  const loadingName = cvFileName(alumniCvData(applicant).profile.name, options.format);
   const tab = window.open("", "_blank");
   if (tab) {
     tab.document.write(cvPdfTabHTML(loadingName, `<div class="bar"><span>${cvEscape(loadingName)}</span></div><div class="msg">Menyiapkan PDF…</div>`));
@@ -338,5 +432,5 @@ async function openCvPdf(applicant, options = {}) {
 }
 
 if (typeof window !== "undefined") {
-  Object.assign(window, { cvFileName, alumniCvData, renderAtsCvHTML, createCvPdf, openCvPdf });
+  Object.assign(window, { cvFileName, alumniCvData, renderAtsCvHTML, renderModernCvHTML, renderCvHTML, createCvPdf, openCvPdf });
 }

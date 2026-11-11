@@ -741,9 +741,27 @@
               <input type="text" autocomplete="off" x-model="applyContactPhone" placeholder="Contoh: 0812-3456-7890" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
             </div>
 
-            <!-- CV terlampir: selalu ikut, dibuat otomatis dari profil (alumni-cv.js) -->
-            <div class="space-y-1.5">
-              <span class="block text-[14px] font-medium text-gray-700">CV terlampir</span>
+            <!-- CV terlampir: pilih versi dari Generate CV (sama seperti modal Minta Review & Referral) -->
+            <div class="space-y-2">
+              <span class="block text-[14px] font-medium text-gray-700">Versi CV dari Generate CV</span>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
+                  :class="applyResumeFormat === 'ats' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
+                  <input type="radio" name="gig-cv-format" value="ats" x-model="applyResumeFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
+                  <div class="text-[13.5px]">
+                    <p class="leading-none">ATS Standar</p>
+                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Teks bersih terstruktur</p>
+                  </div>
+                </label>
+                <label class="flex items-center gap-2.5 p-3 rounded-xl border cursor-pointer transition-colors"
+                  :class="applyResumeFormat === 'modern' ? 'border-[#1E3A8A] bg-blue-50/50 text-[#1E3A8A] font-semibold' : 'border-gray-200 hover:bg-gray-50 text-gray-700'">
+                  <input type="radio" name="gig-cv-format" value="modern" x-model="applyResumeFormat" class="text-[#1E3A8A] focus:ring-[#1E3A8A]">
+                  <div class="text-[13.5px]">
+                    <p class="leading-none">Modern Clean</p>
+                    <p class="text-[11px] text-gray-500 font-normal mt-0.5">Layout 2-kolom visual</p>
+                  </div>
+                </label>
+              </div>
               <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-3">
                 <div class="flex items-center gap-3 min-w-0">
                   <span class="w-9 h-9 rounded-lg bg-red-50 border border-red-100 text-red-600 flex items-center justify-center shrink-0" aria-hidden="true">
@@ -751,10 +769,10 @@
                   </span>
                   <div class="min-w-0">
                     <p class="text-[14px] font-medium text-gray-900 truncate" x-text="applyResumeFileName"></p>
-                    <p class="text-[12px] text-gray-500">Dibuat otomatis dari profil Anda (format ATS)</p>
+                    <p class="text-[12px] text-gray-500">Dibuat otomatis dari profil Anda</p>
                   </div>
                 </div>
-                <button type="button" @click="openCvPdf()" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline shrink-0 cursor-pointer">Lihat</button>
+                <button type="button" @click="openCvPdf(undefined, { format: applyResumeFormat })" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline shrink-0 cursor-pointer">Lihat CV</button>
               </div>
             </div>
 
@@ -1078,7 +1096,8 @@
       applyPitchMessage: "",
       applyPortfolioUrl: "",
       applyContactPhone: "081234567890",
-      applyResumeFileName: "",
+      applyResumeFormat: "ats",
+      applyCvName: "",
 
       // Create gig modal
       createGigModalOpen: false,
@@ -1162,6 +1181,11 @@
 
       isAppDecided(app) {
         return this.isAppAccepted(app) || app.status === "REJECTED";
+      },
+
+      // Nama berkas CV terlampir mengikuti versi yang dipilih (ATS / Modern)
+      get applyResumeFileName() {
+        return typeof cvFileName === "function" ? cvFileName(this.applyCvName || this.currentUserName, this.applyResumeFormat) : "";
       },
 
       hasAppliedTo(gigId) {
@@ -1260,9 +1284,8 @@
         this.applyPitchMessage = "";
         this.applyPortfolioUrl = "";
         this.applyContactPhone = "081234567890";
-        this.applyResumeFileName = typeof cvFileName === "function"
-          ? cvFileName(typeof alumniCvData === "function" ? alumniCvData().profile.name : this.currentUserName)
-          : "";
+        this.applyResumeFormat = "ats";
+        this.applyCvName = typeof alumniCvData === "function" ? alumniCvData().profile.name : this.currentUserName;
         this.quickApplyModalOpen = true;
       },
 
@@ -1288,6 +1311,7 @@
           pitchMessage: this.applyPitchMessage.trim(),
           portfolioItems: pickedProjects,
           resumeFileName: this.applyResumeFileName,
+          resumeFormat: this.applyResumeFormat,
           appliedDate: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
           status: "PENDING"
         };
@@ -1310,6 +1334,7 @@
           message: this.applyPitchMessage.trim(),
           portfolioItems: pickedProjects,
           resumeFileName: this.applyResumeFileName,
+          resumeFormat: this.applyResumeFormat,
           appliedDate: newApplicant.appliedDate,
           budgetRange: this.targetApplyGig.budgetRange,
           status: "PENDING"
