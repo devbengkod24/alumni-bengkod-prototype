@@ -10,6 +10,7 @@
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
+  <script src="assets/js/alumni-cv.js"></script>
   <script src="../assets/js/store.js"></script>
 </head>
 <body>
@@ -560,7 +561,7 @@
                     </div>
                   </div>
 
-                  <!-- 4 Detail Pelamar: ATAS BAWAH (Font Normal, Tidak Bold, Semua Font 14px Seragam) -->
+                  <!-- Detail Pelamar: ATAS BAWAH (Font Normal, Tidak Bold, Semua Font 14px Seragam) -->
                   <div class="space-y-4 pt-4 border-t border-gray-100 text-[14px]">
                     <!-- 1. Nama Lengkap -->
                     <div class="space-y-1">
@@ -574,9 +575,24 @@
                       <p class="font-normal text-gray-900 text-[14px]" x-text="app.applicantPhone || '-'"></p>
                     </div>
 
-                    <!-- 3. Tautan Portofolio / GitHub Terkait -->
+                    <!-- 3. CV terlampir (resumeFileName disimpan saat melamar) -->
                     <div class="space-y-1">
-                      <span class="block text-[14px] font-normal text-gray-500">Tautan Portofolio / GitHub Terkait</span>
+                      <span class="block text-[14px] font-normal text-gray-500">CV Terlampir</span>
+                      <template x-if="app.resumeFileName">
+                        <button type="button" @click="openCvPdf(app.applicantName)" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] text-left break-all cursor-pointer">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                          <span x-text="app.resumeFileName"></span>
+                          <span class="text-gray-400 text-[12px] shrink-0">(Lihat CV)</span>
+                        </button>
+                      </template>
+                      <template x-if="!app.resumeFileName">
+                        <p class="text-gray-400 font-normal text-[14px] italic">Tidak ada CV terlampir</p>
+                      </template>
+                    </div>
+
+                    <!-- 4. Tautan Portofolio / GitHub Terkait -->
+                    <div class="space-y-1">
+                      <span class="block text-[14px] font-normal text-gray-500">Tautan Portofolio / GitHub Terkait <span class="text-gray-400">(opsional)</span></span>
                       <div>
                         <template x-if="app.portfolioUrl">
                           <a :href="app.portfolioUrl" target="_blank" class="inline-flex items-center gap-1.5 text-[#1E3A8A] hover:underline font-normal text-[14px] break-all">
@@ -600,7 +616,7 @@
                       </div>
                     </div>
 
-                    <!-- 4. Pesan Singkat & Pitching Keahlian * -->
+                    <!-- 5. Pesan Singkat & Pitching Keahlian * -->
                     <div class="space-y-1">
                       <span class="block text-[14px] font-normal text-gray-500">Pesan Singkat &amp; Pitching Keahlian <span class="text-red-500 font-normal">*</span></span>
                       <p class="font-normal text-gray-800 text-[14px] leading-relaxed whitespace-pre-line" x-text="app.pitchMessage || '-'"></p>

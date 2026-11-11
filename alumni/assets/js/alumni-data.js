@@ -2651,8 +2651,9 @@ function mediaToProjectFields(value) {
 // Model Transparan: Budget Range tanpa tracking transaksi uang
 // ============================================================
 
-const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v4";
-const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v4";
+// v5: lamaran menyimpan resumeFileName (CV terlampir)
+const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v5";
+const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v5";
 
 const GIGS_BUDGET_RANGES = [
   "< Rp 1.000.000",
@@ -2697,6 +2698,7 @@ Rekan alumni diharapkan menguasai state management Flutter (BLoC/Provider) serta
         id: "app-101",
         applicantId: "dimas-aryo",
         applicantName: "Dimas Aryo",
+        resumeFileName: "CV_Dimas_Aryo_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=15",
         applicantBatch: "2023",
         applicantPhone: "081298765432",
@@ -2712,6 +2714,7 @@ Rekan alumni diharapkan menguasai state management Flutter (BLoC/Provider) serta
         id: "app-102",
         applicantId: "kirana-maheswari",
         applicantName: "Kirana Maheswari",
+        resumeFileName: "CV_Kirana_Maheswari_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=44",
         applicantBatch: "2024",
         applicantPhone: "081345678901",
@@ -2756,6 +2759,7 @@ Spesifikasi & Kebutuhan Teknis:
         id: "app-201",
         applicantId: "intan-permata",
         applicantName: "Intan Permata",
+        resumeFileName: "CV_Intan_Permata_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=48",
         applicantBatch: "2024",
         applicantPhone: "081987654321",
@@ -2807,6 +2811,7 @@ Tanggung Jawab & Fitur Proyek:
         id: "app-301",
         applicantId: "aisha-dwi-rahmawati",
         applicantName: "Aisha Dwi Rahmawati",
+        resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
         applicantAvatar: DEFAULT_AVATAR,
         applicantBatch: "2024",
         applicantPhone: "081234567890",
@@ -2874,6 +2879,7 @@ Tanggung Jawab & Fitur Proyek:
         id: "app-501",
         applicantId: "dimas-aryo",
         applicantName: "Dimas Aryo",
+        resumeFileName: "CV_Dimas_Aryo_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=15",
         applicantBatch: "2023",
         applicantPhone: "081298765432",
@@ -3035,6 +3041,7 @@ Deliverables:
         id: "app-1101",
         applicantId: "rafi-pratama",
         applicantName: "Rafi Pratama",
+        resumeFileName: "CV_Rafi_Pratama_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=12",
         applicantBatch: "2023",
         applicantPhone: "081311122233",
@@ -3100,6 +3107,7 @@ function loadMyApplications() {
           ownerName: "Clarista",
           ownerPhone: "081555667788",
           message: "Halo Clarista, saya tertarik membantu pipeline data ETL ini. Sebelumnya sudah membuat engine probabilitas UMKM serupa.",
+          resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
           portfolioItems: [
             { title: "UMKM Success Probability Prediction", linkUrl: "https://github.com/aishaadr", stack: "Python · PostgreSQL" }
           ],
@@ -3114,6 +3122,7 @@ function loadMyApplications() {
           ownerName: "Fajar Nugroho",
           ownerPhone: "081777889900",
           message: "Saya siap membantu penyusunan laporan temuan dan data pentest.",
+          resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
           portfolioItems: [],
           appliedDate: "16 Okt 2026",
           status: "COMPLETED",
