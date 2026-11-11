@@ -101,12 +101,18 @@ function alumniHref(link) {
   const root = alumniRootPrefix();
 
   if (link === "/") return `${root}index.html`;
-  if (link === "/dashboard/alumni" || link === "/dashboard/alumni/beranda") return `${base}beranda.html`;
-  if (link === "/dashboard/alumni/direktori" || link === "/dashboard/alumni/alumni") return `${base}direktori.html`;
+  if (link === "/dashboard/alumni" || link === "/dashboard/alumni/beranda") return `${base}dashboard.html`;
+  if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
+  if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
+  if (link === "/dashboard/alumni/detail-proyek" || link === "/dashboard/alumni/proyek") return `${base}detail-proyek.html`;
+
+  // Fallback rute lama
+  if (link === "/dashboard/alumni/lowongan") return `${base}lowongan.html`;
+  if (link === "/dashboard/alumni/pengumuman") return `${base}pengumuman.html`;
 
   const m = /^\/dashboard\/alumni\/([^/]+)$/.exec(link || "");
   if (m) return `${base}detail.html?id=${encodeURIComponent(m[1])}`;
@@ -114,50 +120,61 @@ function alumniHref(link) {
   return "#";
 }
 
+// 5 Navigasi Utama Role Alumni
 const ALUMNI_NAVIGATIONS = [
   {
     title: "Beranda",
     link: "/dashboard/alumni",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-          <polyline points="9 22 9 12 15 12 15 22"/>
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
         </svg>`,
   },
   {
     title: "Alumni",
     link: "/dashboard/alumni/direktori",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>`,
+  },
+  {
+    title: "Showcase",
+    link: "/dashboard/alumni/showcase",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
         </svg>`,
   },
   {
     title: "Gigs & Proyek",
     link: "/dashboard/alumni/gigs",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
-          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
         </svg>`,
   },
   {
     title: "Generate CV",
     link: "/dashboard/alumni/generate-cv",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="16" y1="13" x2="8" y2="13"/>
-          <line x1="16" y1="17" x2="8" y2="17"/>
-          <line x1="10" y1="9" x2="8" y2="9"/>
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <polyline points="14 2 14 8 20 8" />
+          <line x1="16" y1="13" x2="8" y2="13" />
+          <line x1="16" y1="17" x2="8" y2="17" />
+          <line x1="10" y1="9" x2="8" y2="9" />
         </svg>`,
   },
   {
     title: "Profil Saya",
     link: "/dashboard/alumni/profil",
-    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          <circle cx="12" cy="7" r="4"/>
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>`,
   },
 ];
@@ -227,6 +244,10 @@ document.addEventListener("alpine:init", () => {
     notifIsOpen: false,
     notifs: [],
     notifUnreadCount: 0,
+    breadcrumbDropdownOpen: false,
+    navSearchQuery: "",
+    navSearchOpen: false,
+    mobileSearchOpen: false,
     profile: alumniCurrentProfile(),
     init() {
       this.checkMobile();
@@ -240,6 +261,9 @@ document.addEventListener("alpine:init", () => {
         const t = event.target;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
         if (this.$refs.notifDropdownRef && !this.$refs.notifDropdownRef.contains(t)) this.notifIsOpen = false;
+        if (this.$refs.breadcrumbRef && !this.$refs.breadcrumbRef.contains(t)) this.breadcrumbDropdownOpen = false;
+        const inSearch = [this.$refs.navSearchRef, this.$refs.mobileSearchRef, this.$refs.mobileSearchToggle].some((el) => el && el.contains(t));
+        if (!inSearch) this.navSearchOpen = false;
       });
     },
     loadNotifs() {
@@ -272,6 +296,22 @@ document.addEventListener("alpine:init", () => {
           }
         }
       } catch (e) {}
+    },
+    // Pencarian alumni di navbar (selalu terjangkau di semua halaman, desktop & ponsel)
+    get navSearchResults() {
+      const q = this.navSearchQuery.trim();
+      if (!q || typeof searchAlumni !== "function") return [];
+      return searchAlumni(q).slice(0, 6);
+    },
+    navSearchHref(a) {
+      return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
+    },
+    openMobileSearch() {
+      this.mobileSearchOpen = !this.mobileSearchOpen;
+    },
+    submitNavSearch() {
+      const first = this.navSearchResults[0];
+      if (first) window.location.href = this.navSearchHref(first);
     },
     checkMobile() {
       const mobile = window.innerWidth < 1024;
@@ -306,9 +346,27 @@ function alumniAvatarHTML(srcExpr, nameExpr, size, textSize, extraClass = "") {
     </template>`;
 }
 
+// Dropdown hasil pencarian alumni di navbar (dipakai versi desktop & ponsel)
+function alumniNavSearchDropdownHTML() {
+  return `<div x-show="navSearchOpen && navSearchQuery.trim()" x-cloak
+      class="absolute top-[calc(100%+6px)] left-0 right-0 z-[70] bg-white rounded-xl border border-neutral4/70 shadow-xl overflow-hidden">
+      <template x-for="a in navSearchResults" :key="a.id">
+        <a :href="navSearchHref(a)" class="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral5 transition-colors">
+          <img :src="a.avatarUrl" :alt="a.name" class="w-8 h-8 rounded-full object-cover border border-neutral4 shrink-0">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-neutral1 truncate" x-text="a.name"></p>
+            <p class="text-xs text-neutral3 truncate" x-text="a.headline"></p>
+          </div>
+        </a>
+      </template>
+      <template x-if="navSearchResults.length === 0">
+        <p class="px-3.5 py-3 text-sm text-neutral3">Tidak ada alumni untuk "<span class="font-semibold text-neutral1" x-text="navSearchQuery"></span>"</p>
+      </template>
+    </div>`;
+}
+
 function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
   const activeRoute = alumniNormalizeRoute(route);
-
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
     const active = nav.link === activeRoute;
     return `
@@ -351,8 +409,9 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
     </template>
 
     <div class="flex-1 flex flex-col min-h-screen min-w-0 duration-300 ease-in-out" :class="!isMobile && sidebarIsOpen ? 'pl-64' : 'pl-0'" style="transition: padding-left 300ms ease-in-out">
-      <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2 min-w-0 flex-1">
+      <header class="sticky top-0 z-30 bg-white border-b border-neutral4 px-3 lg:px-6">
+        <div class="h-16 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 min-w-0 flex-1">
           <button
             id="sidebar-toggle"
             type="button"
@@ -371,93 +430,39 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
           </nav>
         </div>
 
-        <div class="flex items-center gap-3 shrink-0">
-          <!-- Notifikasi Bell -->
-          <div class="relative flex items-center" x-ref="notifDropdownRef">
-            <button
-              type="button"
-              id="notif-btn"
-              @click="notifIsOpen = !notifIsOpen; profileIsOpen = false"
-              class="relative p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors cursor-pointer"
-              :aria-expanded="notifIsOpen"
-              aria-label="Notifikasi"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/>
-                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
-              </svg>
-              <span
-                x-show="notifUnreadCount > 0"
-                x-text="notifUnreadCount"
-                class="absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-red2 text-white text-[10px] font-semibold leading-4 text-center"
-              ></span>
-            </button>
+            <div class="flex items-center gap-3 shrink-0">
+              <!-- Cari alumni: kolom di desktop -->
+              <form class="relative hidden md:block w-64 lg:w-80" x-ref="navSearchRef" role="search" @submit.prevent="submitNavSearch()">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
+                <input type="search" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false"
+                  placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
+                  class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
+                ${alumniNavSearchDropdownHTML()}
+              </form>
+              <!-- Cari alumni: ikon di ponsel -->
+              <button type="button" x-ref="mobileSearchToggle" class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full text-neutral2 hover:bg-neutral5" @click="openMobileSearch()" :aria-expanded="mobileSearchOpen" aria-label="Cari alumni">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+              </button>
 
-            <!-- Dropdown Panel Notifikasi -->
-            <div
-              x-show="notifIsOpen"
-              x-cloak
-              class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-80 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
-              id="notif-panel"
-            >
-              <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
-                <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
+              <!-- User Menu Button & Dropdown -->
+              <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
                 <button
-                  x-show="notifUnreadCount > 0"
                   type="button"
-                  @click="markAllNotifsRead()"
-                  class="text-xs font-semibold text-primary2 hover:underline cursor-pointer"
+                  id="profile-menu-btn"
+                  @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
+                  class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+                  :aria-expanded="profileIsOpen"
+                  aria-label="Menu Pengguna"
                 >
-                  Tandai semua dibaca
+                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+                    <template x-if="profile.image">
+                      <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!profile.image">
+                      <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
+                    </template>
+                  </div>
                 </button>
-              </div>
-              <div class="max-h-80 overflow-y-auto divide-y divide-neutral4/40">
-                <template x-for="n in notifs" :key="n.id">
-                  <a
-                    :href="n.tautan || '#'"
-                    @click="markNotifRead(n.id)"
-                    class="block px-4 py-3 hover:bg-neutral5 transition-colors"
-                    :class="!n.dibaca ? 'bg-primary5/30' : ''"
-                  >
-                    <div class="flex items-start gap-2.5">
-                      <span class="w-2 h-2 rounded-full bg-primary2 mt-1.5 shrink-0" :class="n.dibaca ? 'invisible' : ''"></span>
-                      <div class="flex-1 min-w-0">
-                        <p class="text-xs text-neutral1 leading-relaxed" x-text="n.pesan"></p>
-                        <p class="text-[10px] text-neutral3 mt-1" x-text="n.waktu"></p>
-                      </div>
-                    </div>
-                  </a>
-                </template>
-                <template x-if="notifs.length === 0">
-                  <p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>
-                </template>
-              </div>
-            </div>
-          </div>
-
-          <!-- User Menu Button & Dropdown -->
-          <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
-            <button
-              type="button"
-              id="profile-menu-btn"
-              @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
-              class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
-              :aria-expanded="profileIsOpen"
-              aria-label="Menu Pengguna"
-            >
-              <div class="text-right hidden sm:block">
-                <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" x-text="profile.name"></div>
-                <div class="text-[11px] text-neutral3">Alumni Asisten Lab</div>
-              </div>
-              <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
-                <template x-if="profile.image">
-                  <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!profile.image">
-                  <span x-text="(profile.name || 'Alumni').slice(0, 2).toUpperCase()"></span>
-                </template>
-              </div>
-            </button>
 
             <!-- Dropdown Profile Menu -->
             <div
@@ -513,6 +518,20 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
             </div>
           </div>
         </div>
+        </div>
+
+        <!-- Cari alumni: baris yang melebar di ponsel -->
+        <template x-if="mobileSearchOpen">
+        <form class="md:hidden px-3 pb-3" x-ref="mobileSearchRef" role="search" @submit.prevent="submitNavSearch()">
+          <div class="relative">
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
+            <input type="search" x-ref="mobileSearchInput" x-init="$nextTick(() => $el.focus())" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="mobileSearchOpen = false"
+              placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
+              class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
+            ${alumniNavSearchDropdownHTML()}
+          </div>
+        </form>
+        </template>
       </header>
       <div class="flex-1 px-6 lg:px-10 py-6" data-main-slot></div>
       <footer class="w-full px-2 lg:px-4 py-4">

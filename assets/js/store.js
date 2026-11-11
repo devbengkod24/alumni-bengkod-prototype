@@ -13,6 +13,7 @@
     FORUM: 'bengkod_shared_forum_v2', // v2: tambah suka & dibagikan untuk feed forum
     LOGS: 'bengkod_shared_activity_logs_v1',
     CV_AUDIT: 'bengkod_shared_cv_audit_v1',
+    LAPORAN: 'bengkod_shared_laporan_v1',
   };
 
   function lsGet(k, def) {
@@ -356,6 +357,22 @@
     { id: 6, waktu: '2026-10-15 08:30', user: 'Super Admin', role: 'SuperAdmin', action: 'Verifikasi Mitra', detail: 'Memverifikasi profil kemitraan PT Solusi Digital Jateng', ip: '10.14.0.1', status: 'Sukses' }
   ];
 
+  const SEED_LAPORAN = [
+    {
+      id: 1,
+      id_post: 3,
+      judul_post: 'Bengkod Git Slicer',
+      penulis_post: 'Dimas Aryo',
+      pelapor: 'Aisha Dwi Rahmawati',
+      peran_pelapor: 'Alumni',
+      alasan: 'Tidak Relevan',
+      catatan: 'Pertanyaan teknis di luar topik diskusi alumni.',
+      status: 'diabaikan',
+      waktu: '2026-11-01T20:30:00',
+      ditinjau: '2026-11-02T09:00:00'
+    }
+  ];
+
   const SEED_FORUM = [
     {
       id: 1,
@@ -506,6 +523,61 @@
         }
       ]
     }
+  ];
+
+  // Postingan contoh feed bersama alumni-koordinator. Ditandai kunci supaya ditambahkan sekali saja
+  // ke data forum yang sudah tersimpan. Field bersama: category (kategori feed Beranda),
+  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), disematkan, tagRekap (tag rekap koordinator).
+  const FORUM_TAMBAHAN = [
+    {
+      kunci: 'sambutan-feed', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-10-20T09:00:00',
+      category: 'Umum', disematkan: true, tags: [], dibagikan: 0,
+      disukai: ['Rizky Pratama', 'Nadia Putri', 'Dimas Arya', 'Salsa Ramadhani', 'Fajar Nugroho'],
+      isi: 'Selamat datang di Beranda Bengkel Koding! Bagikan kabar kerja, karya, info loker, atau pengalaman rekrutmen di sini. Ada urusan administrasi? Pilih "Tanya Koordinator" saat membuat postingan, nanti saya jawab di komentar.',
+      comments: [],
+    },
+    {
+      kunci: 'pertanyaan-stack', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-11-04T08:30:00',
+      category: 'Umum', pertanyaan: true, disematkan: true, tags: [], dibagikan: 0,
+      disukai: ['Nadia Putri', 'Intan Maharani', 'Rizky Pratama'],
+      isi: 'Pertanyaan minggu ini: di kantor kalian sekarang pakai stack apa, dan materi apa yang menurut kalian perlu ditambah di Bengkel Koding? Jawab di kolom komentar ya.',
+      comments: [
+        { id: 9001, penulis: 'Nadia Putri', peran: 'Alumni', waktu: '2026-11-04T09:02:00', isi: 'React dan TypeScript di frontend. Tolong tambahkan TypeScript, di kantor wajib.', disukai: [], balasan: [] },
+        { id: 9002, penulis: 'Dimas Arya', peran: 'Alumni', waktu: '2026-11-04T10:15:00', isi: 'Flutter dan Firebase. Materi state management perlu lebih dalam.', disukai: [], balasan: [] },
+        { id: 9003, penulis: 'Rizky Pratama', peran: 'Alumni', waktu: '2026-11-04T16:05:00', isi: 'Laravel, tapi semua project wajib ada unit test. Materi testing perlu ditambah.', disukai: [], balasan: [] },
+      ],
+    },
+    {
+      kunci: 'tanya-sertifikat', judul: '', penulis: 'Fajar Nugroho', peran: 'Alumni', waktu: '2026-11-01T09:15:00',
+      category: 'Tanya Koordinator', tags: [], dibagikan: 0, disukai: [],
+      isi: 'Bu, sertifikat Bengkel Koding saya hilang. Bisa minta cetak ulang?',
+      comments: [
+        { id: 9004, penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-11-01T10:02:00', isi: 'Bisa. Datang ke sekretariat Bengkel Koding hari Senin sampai Jumat jam 09.00 sampai 15.00, bawa KTM atau ijazah.', disukai: [], balasan: [] },
+      ],
+    },
+    {
+      kunci: 'tanya-tracer', judul: '', penulis: 'Bagas Saputra', peran: 'Alumni', waktu: '2026-11-05T14:30:00',
+      category: 'Tanya Koordinator', tags: [], dibagikan: 0, disukai: [],
+      isi: 'Untuk tracer study lulusan 2026, batas pengisiannya kapan ya?',
+      comments: [],
+    },
+    {
+      kunci: 'diskusi-ai',
+      judul: 'Asisten AI di tempat kerja, membantu atau bikin ketergantungan?',
+      penulis: 'Rizky Pratama',
+      peran: 'Alumni',
+      waktu: '2026-10-31T16:40:00',
+      category: 'Umum',
+      tags: ['AI', 'Diskusi'],
+      dibagikan: 0,
+      disukai: ['Nadia Putri', 'Dimas Arya', 'Dr. Ayu Lestari, M.Kom'],
+      isi: 'Di tim saya sebagian kode awal sudah dibantu asisten AI. Pekerjaan lebih cepat, tetapi review jadi lebih berat. Bagaimana pengalaman di tempat kerja rekan-rekan?',
+      comments: [
+        { id: 9005, penulis: 'Nadia Putri', peran: 'Alumni', waktu: '2026-10-31T18:05:00', isi: 'Di tempat saya aturannya sederhana, semua kode wajib dipahami penulisnya sebelum masuk review.', disukai: ['Dimas Arya'], balasan: [] },
+        { id: 9006, penulis: 'Dimas Arya', peran: 'Alumni', waktu: '2026-10-31T19:30:00', isi: 'Aturan yang bagus. Kami juga mewajibkan tes untuk kode yang dihasilkan AI.', disukai: [], balasan: [] },
+        { id: 9007, penulis: 'Wahyu Hidayat', peran: 'Alumni', waktu: '2026-11-01T20:02:00', isi: 'Mau cepat mahir? Beli paket kursus kilat saya, diskon 70 persen hari ini saja. Hubungi nomor di profil saya.', disukai: [], balasan: [] },
+      ],
+    },
   ];
 
   function normalisasiStatusKarir(val) {
@@ -771,6 +843,12 @@
     // --- FORUM & KOMENTAR ---
     getForum() {
       const list = lsGet(KEYS.FORUM, SEED_FORUM);
+      const kunciAda = new Set(list.map(f => f.kunci).filter(Boolean));
+      const tambahan = FORUM_TAMBAHAN.filter(f => !kunciAda.has(f.kunci));
+      if (tambahan.length) {
+        tambahan.forEach(f => list.push({ ...f, id: list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1 }));
+        lsSet(KEYS.FORUM, list);
+      }
       return list.map(f => ({
         ...f,
         komentar: Array.isArray(f.comments) ? f.comments.length : (f.komentar || 0),
@@ -827,6 +905,49 @@
         this.logActivity('Koordinator', 'Hapus Thread Forum', `Menghapus thread "${target.judul}"`);
       }
       return list;
+    },
+
+    // --- LAPORAN FORUM / FEED ---
+    getLaporan(status = null) {
+      const list = lsGet(KEYS.LAPORAN, SEED_LAPORAN);
+      if (!status) return list;
+      return list.filter(l => l.status === status);
+    },
+    saveLaporan(list) {
+      lsSet(KEYS.LAPORAN, list);
+      window.dispatchEvent(new CustomEvent('bengkod:laporan-updated', { detail: list }));
+    },
+    addLaporan({ id_post, judul_post = '', penulis_post = '', pelapor = 'Alumni', peran_pelapor = 'Alumni', alasan = 'Spam', catatan = '' }) {
+      const list = this.getLaporan();
+      const newId = list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+      const created = {
+        id: newId,
+        id_post: Number(id_post),
+        judul_post,
+        penulis_post,
+        pelapor,
+        peran_pelapor,
+        alasan,
+        catatan,
+        status: 'menunggu',
+        waktu: new Date().toISOString(),
+        ditinjau: ''
+      };
+      list.unshift(created);
+      this.saveLaporan(list);
+      this.logActivity('Alumni', 'Laporan Postingan', `Melaporkan postingan dari ${penulis_post}: "${alasan}"`);
+      return created;
+    },
+    updateLaporanStatus(id, newStatus) {
+      const list = this.getLaporan();
+      const item = list.find(l => l.id === Number(id));
+      if (item) {
+        item.status = newStatus;
+        item.ditinjau = new Date().toISOString();
+        this.saveLaporan(list);
+        this.logActivity('Koordinator', 'Tinjau Laporan', `Meninjau laporan #${id} menjadi ${newStatus}`);
+      }
+      return item;
     },
 
     // --- ACTIVITY LOGS ---

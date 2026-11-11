@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Showcase Alumni | Bengkel Koding UDINUS</title>
+  <meta name="description" content="Etalase software dan aplikasi karya alumni Bengkel Koding Universitas Dian Nuswantoro.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="assets/js/alumni-profile-data.js"></script>
+  <script src="assets/js/alumni-profile-modals.js"></script>
+</head>
+<body>
+<main data-route="showcase">
+  <div x-data="showcasePage" @project-add.window="handleProjectAdd($event.detail)" class="w-full space-y-6 py-2 antialiased">
+    <!-- Toast Notifikasi -->
+    <template x-if="toast">
+      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
+        <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+        <span x-text="toast"></span>
+      </div>
+    </template>
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-gray-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Software &amp; aplikasi karya rekan alumni Bengkel Koding
+        </p>
+      </div>
+      <button
+        type="button"
+        id="btn-showcase-launch"
+        @click="addProjectOpen = true"
+        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+        </svg>
+        <span>Launch Karya</span>
+      </button>
+    </div>
+
+    <!-- Toolbar: jumlah karya, filter stack, pencarian -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <p class="text-[13px] text-gray-500 order-last sm:order-none" x-text="visibleKarya.length + ' karya'"></p>
+
+      <div class="flex items-center gap-3 sm:ml-auto">
+        <div class="relative shrink-0">
+          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
+          <select
+            id="showcase-stack"
+            x-model="stackFilter"
+            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
+            :class="stackFilter ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
+          >
+            <option value="">Semua stack</option>
+            <template x-for="s in allStacks" :key="s">
+              <option :value="s" x-text="s"></option>
+            </template>
+          </select>
+          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="stackFilter ? 'text-[#1E3A8A]' : 'text-gray-400'">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+          </span>
+        </div>
+
+        <div class="relative flex-1 sm:w-64 sm:flex-none">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+          </span>
+          <input
+            type="search"
+            x-model="query"
+            placeholder="Cari karya"
+            aria-label="Cari karya"
+            autocomplete="off"
+            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Karya -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+      <template x-for="k in visibleKarya" :key="k.postId">
+        <a
+          :href="'detail-proyek.html?id=' + k.postId"
+          class="group flex flex-col bg-white rounded-xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-gray-300 transition-all overflow-hidden"
+        >
+          <!-- Banner 16:9 -->
+          <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
+            <template x-if="k.banner">
+              <img :src="k.banner" :alt="'Banner ' + k.nama" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+            </template>
+            <template x-if="!k.banner">
+              <div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
+            </template>
+          </div>
+
+          <div class="flex-1 flex flex-col p-4 gap-3">
+            <div class="flex items-start gap-3">
+              <div class="w-11 h-11 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                <template x-if="k.logo">
+                  <img :src="k.logo" :alt="k.nama" class="w-full h-full object-cover">
+                </template>
+                <template x-if="!k.logo">
+                  <span class="text-sm font-bold text-[#1E3A8A]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></span>
+                </template>
+              </div>
+              <div class="min-w-0 flex-1">
+                <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="k.nama"></h2>
+                <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5" x-text="k.tagline"></p>
+              </div>
+            </div>
+
+            <template x-if="k.stack.length > 0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <template x-for="s in k.stack.slice(0, 3)" :key="s">
+                  <span class="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[12px] font-medium" x-text="s"></span>
+                </template>
+                <template x-if="k.stack.length > 3">
+                  <span class="text-[12px] text-gray-400" x-text="'+' + (k.stack.length - 3)"></span>
+                </template>
+              </div>
+            </template>
+
+            <div class="mt-auto pt-3 border-t border-gray-100 flex items-center gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <template x-if="k.authorAvatar">
+                  <img :src="k.authorAvatar" :alt="k.authorName" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">
+                </template>
+                <span class="text-[13px] text-gray-600 truncate" x-text="k.authorName"></span>
+              </div>
+            </div>
+          </div>
+        </a>
+      </template>
+    </div>
+
+    <!-- Kosong -->
+    <template x-if="visibleKarya.length === 0">
+      <div class="bg-white rounded-xl border border-dashed border-gray-300 p-10 text-center">
+        <p class="text-[15px] font-semibold text-gray-800">Belum ada karya yang cocok</p>
+        <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau stack lain.</p>
+      </div>
+    </template>
+
+    <!-- MODAL: LAUNCH KARYA (form yang sama dengan beranda & profil) -->
+    <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya"></div>
+  </div>
+</main>
+
+<script>
+  function showcasePage() {
+    const currentAlumni = ALUMNI_DIRECTORY[0];
+    return {
+      posts: [],
+      stackFilter: "",
+      query: "",
+      addProjectOpen: false,
+      toast: "",
+      toastTimer: null,
+      profile: {
+        name: currentAlumni.name,
+        headline: currentAlumni.headline,
+        avatarUrl: currentAlumni.avatarUrl || DEFAULT_AVATAR,
+      },
+
+      init() {
+        this.muat();
+        window.addEventListener("bengkod_posts_updated", () => this.muat());
+        try {
+          const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
+          if (saved) {
+            this.profile = {
+              name: saved.name || currentAlumni.name,
+              headline: saved.headline || currentAlumni.headline,
+              avatarUrl: saved.avatarUrl || currentAlumni.avatarUrl || DEFAULT_AVATAR,
+            };
+          }
+        } catch {}
+      },
+
+      muat() {
+        this.posts = typeof loadPosts === "function" ? loadPosts() : [];
+      },
+
+      // Satu baris per karya, diambil dari postingan feed yang membawa data karya
+      get allKarya() {
+        // "Baru saja" = karya yang baru diluncurkan, dianggap paling baru
+        const waktu = (p) => (p.date === "Baru saja" ? p.id : Date.parse(p.date) || 0);
+        return this.posts
+          .filter((p) => p.karya)
+          .map((p) => ({
+            postId: p.id,
+            nama: p.karya.nama,
+            tagline: p.karya.tagline || "",
+            logo: p.karya.logo || "",
+            banner: p.karya.bannerUrl || (p.karya.screenshots || [])[0] || "",
+            stack: p.karya.stack || [],
+            authorName: p.authorName || "Alumni",
+            authorAvatar: p.authorAvatar || "",
+            waktu: waktu(p),
+          }));
+      },
+      get allStacks() {
+        return [...new Set(this.allKarya.flatMap((k) => k.stack))].sort((a, b) => a.localeCompare(b));
+      },
+      get visibleKarya() {
+        const q = this.query.trim().toLowerCase();
+        const list = this.allKarya.filter((k) => {
+          if (this.stackFilter && !k.stack.includes(this.stackFilter)) return false;
+          if (!q) return true;
+          return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
+        });
+        // Karya terbaru tampil paling atas
+        return list.sort((a, b) => b.waktu - a.waktu);
+      },
+
+      handleProjectAdd(detail) {
+        if (!detail || !detail.title) return;
+        if (typeof saveStoredProjects === "function") {
+          const projects = typeof loadStoredProjects === "function" ? loadStoredProjects() : [];
+          saveStoredProjects([detail, ...projects.filter((p) => p.id !== detail.id)]);
+        }
+        if (typeof syncProjectToFeed === "function") {
+          syncProjectToFeed(detail, {
+            name: this.profile.name,
+            avatarUrl: this.profile.avatarUrl,
+            headline: this.profile.headline,
+          });
+        }
+        this.muat();
+        this.addProjectOpen = false;
+        this.setToast(`Karya "${detail.title}" berhasil diluncurkan!`);
+      },
+
+      setToast(msg) {
+        this.toast = msg;
+        clearTimeout(this.toastTimer);
+        this.toastTimer = setTimeout(() => (this.toast = ""), 2600);
+      },
+    };
+  }
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("showcasePage", showcasePage);
+  });
+</script>
+</body>
+</html>

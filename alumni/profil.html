@@ -7,7 +7,6 @@
   <meta name="description" content="Bengkel Koding Universitas Dian Nuswantoro Semarang">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="../assets/js/page-skeleton.js"></script>
-  <script src="assets/js/data.js?v=9"></script>
   <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-profile-data.js"></script>
@@ -15,81 +14,59 @@
   <script src="assets/js/alumni-profile-page.js"></script>
 </head>
 <body>
-<main data-title="Profil Saya" data-route="profil">
+<!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/profil/page.tsx -->
+<main data-route="profil">
   <div x-data="profilPage" class="w-full space-y-6 pb-12 antialiased" @click.window="shareDropdownId = null">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <!-- ======================================================
+          KOLOM UTAMA (KIRI/TENGAH)
+      ====================================================== -->
       <div class="lg:col-span-8 space-y-6">
-        <div data-partial="profile-top" data-variant="profil"></div>
+        <!-- ── SEKSI 1: BIODATA & KONTAK ── -->
+        <div class="space-y-2">
+          <div data-partial="profile-top" data-variant="profil"></div>
+        </div>
 
-        <!-- ======================================================
-            SECTION: STATUS KARIR (TRACER STUDY)
-        ====================================================== -->
-        <div id="section-status-karir" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
-          <div class="flex items-center justify-between pb-4 border-b border-gray-100 flex-wrap gap-3">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#1E3A8A] border border-blue-100 flex items-center justify-center font-bold">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                  <line x1="4" y1="22" x2="4" y2="15"></line>
-                </svg>
-              </div>
+        <!-- ── SEKSI 2: STATUS KARIR & STUDI LANJUT S2 ── -->
+        <div class="space-y-2">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-gray-100">
               <div>
-                <div class="flex items-center gap-2.5">
-                  <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Status Karir &amp; Tracer</h3>
-                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200" x-text="profile.careerStatus || 'Bekerja Full Time'"></span>
-                </div>
-                <p class="text-[14px] text-gray-500 font-medium">Tracer study aktif: status profesi, pekerjaan utama, dan studi lanjut.</p>
+                <h3 class="text-[18px] font-bold text-gray-900 tracking-tight">Status Karir Saat Ini</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Tracer study dan linimasa pekerjaan utama alumni</p>
               </div>
-            </div>
-            <button type="button" @click="openCareerModal()"
-              class="px-4 py-2 rounded-full border border-gray-200 text-[14px] font-semibold text-[#1E3A8A] hover:bg-blue-50/50 flex items-center gap-1.5 transition cursor-pointer">
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
-                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-              </svg>
-              <span>Ubah Status Karir</span>
-            </button>
-          </div>
-
-          <!-- Detail Grid Tracer -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Pekerjaan Utama -->
-            <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 space-y-2">
-              <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Pekerjaan Utama</p>
-              <div class="space-y-1">
-                <p class="text-base font-bold text-gray-900" x-text="profile.jobTitle || 'Junior Data Scientist'"></p>
-                <p class="text-sm font-medium text-gray-700" x-text="profile.companyName || 'PT GoTo Gojek Tokopedia'"></p>
-                <div class="flex flex-wrap gap-2 text-xs text-gray-500 pt-1">
-                  <span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Bidang: ' + (profile.jobField || 'Infokom')"></span>
-                  <span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Kategori: ' + (profile.jobCategory || 'Perusahaan Swasta')"></span>
-                  <span class="px-2.5 py-1 rounded bg-white border border-gray-200" x-text="'Lingkup: ' + (profile.jobScope || 'Nasional')"></span>
-                </div>
-              </div>
+              <button type="button" @click="editCareerOpen = true" class="px-4 py-1.5 rounded-full border border-gray-300 text-xs font-semibold text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer">
+                Ubah Status
+              </button>
             </div>
 
-            <!-- Pekerjaan Sampingan / Studi Lanjut -->
-            <div class="p-4 rounded-xl bg-gray-50/70 border border-gray-100 space-y-2">
-              <template x-if="profile.careerStatus === 'Melanjutkan Pendidikan' || profile.studyUniversity">
-                <div class="space-y-1">
-                  <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Studi Lanjut S2</p>
-                  <p class="text-base font-bold text-gray-900" x-text="profile.studyMajor || 'Magister Ilmu Komputer'"></p>
-                  <p class="text-sm font-medium text-gray-700" x-text="profile.studyUniversity || 'Universitas Dian Nuswantoro'"></p>
-                  <span class="inline-block px-2.5 py-1 rounded bg-white border border-gray-200 text-xs text-gray-500" x-text="'Biaya: ' + (profile.studyFunding || 'Beasiswa')"></span>
-                </div>
-              </template>
-              <template x-if="profile.careerStatus !== 'Melanjutkan Pendidikan' && !profile.studyUniversity">
-                <div class="space-y-1">
-                  <p class="text-xs font-bold uppercase tracking-wider text-[#1E3A8A]">Pekerjaan Sampingan / Freelance</p>
-                  <p class="text-base font-bold text-gray-900" x-text="profile.sideJobRole || 'Technical Curriculum Consultant'"></p>
-                  <p class="text-sm font-medium text-gray-700" x-text="profile.sideJobCompany || 'Bengkel Koding Lab'"></p>
-                  <span class="inline-block px-2.5 py-1 rounded bg-white border border-gray-200 text-xs text-gray-500">Tersinkronisasi ke Profil</span>
-                </div>
-              </template>
+            <!-- Ringkasan Status -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-100">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Status Utama</span>
+                <span class="text-sm font-bold text-[#1E3A8A] mt-1 block" x-text="careerStatus.status"></span>
+                <span class="text-xs text-gray-600 mt-0.5 block" x-text="careerStatus.company"></span>
+              </div>
+
+              <div class="p-4 rounded-xl bg-gray-50 border border-gray-200">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Part-Time / Moonlight</span>
+                <span class="text-sm font-semibold text-gray-800 mt-1 block" x-text="careerStatus.moonlight || 'Tidak ada'"></span>
+                <span class="text-xs text-gray-500 mt-0.5 block" x-text="careerStatus.moonlightRole || '—'"></span>
+              </div>
+
+              <div class="p-4 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                <span class="text-[11px] font-bold text-emerald-600 uppercase tracking-wider block">Studi Lanjut S2</span>
+                <span class="text-sm font-bold text-emerald-800 mt-1 block" x-text="careerStatus.s2Campus || 'Belum Menempuh'"></span>
+                <span class="text-xs text-emerald-700 mt-0.5 block" x-text="careerStatus.s2Major || '—'"></span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div data-partial="profile-bottom" data-variant="profil"></div>
+        <!-- ── SEKSI 3: PORTOFOLIO & BANK KARYA ── -->
+        <div class="space-y-2">
+          <div data-partial="profile-bottom" data-variant="profil"></div>
+        </div>
 
     <!-- ======================================================
         SECTION: ACTIVITY / POSTINGAN (DITARUH DI PALING AKHIR)
@@ -181,10 +158,67 @@
                   <h5 class="text-[17px] font-semibold text-gray-900">Machine Learning Algorithms Cheatsheet</h5>
                 </div>
               </template>
-              <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+              <template x-if="!post.karya && !post.referral">
+                <p class="text-[15px] text-gray-800 leading-relaxed mt-2.5 whitespace-pre-line"><template x-if="post.content.includes('https://')"><span class="contents"><span x-text="post.content.split('https://')[0]"></span><a class="text-[#1E3A8A] font-semibold hover:underline" :href="'https://' + post.content.split('https://')[1]" target="_blank" rel="noreferrer" x-text="'https://' + post.content.split('https://')[1]"></a></span></template><template x-if="!post.content.includes('https://')"><span x-text="post.content"></span></template></p>
+              </template>
+
+              <!-- KARTU REFERRAL (selaras dengan feed dashboard) -->
+              <template x-if="post.referral">
+                <div class="mt-3.5 space-y-2.5">
+                  <p class="text-[15px] text-gray-800 leading-relaxed whitespace-pre-line" x-text="post.content"></p>
+                  <div class="rounded-xl border border-blue-200/90 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 p-4 space-y-2">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wider uppercase bg-[#1E3A8A] text-white">#Referral</span>
+                      <a :href="'dashboard.html#activity-card-' + post.id" class="text-xs font-semibold text-[#1E3A8A] hover:underline flex items-center gap-1">
+                        <span>Kelola Pengajuan di Beranda</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </a>
+                    </div>
+                    <h4 class="text-[16px] font-bold text-gray-900" x-text="post.referral.posisi + ' · ' + post.referral.perusahaan"></h4>
+                    <p class="text-[13px] text-gray-600"><span x-text="post.referral.level"></span> • Batas review: <span x-text="post.referral.batas"></span></p>
+                  </div>
+                </div>
+              </template>
+
+              <!-- KARTU KARYA SHOWCASE (selaras dengan feed dashboard) -->
+              <template x-if="post.karya">
+                <a
+                  :href="'detail-proyek.html?id=' + post.id"
+                  class="mt-4 flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100/70 hover:border-gray-300 transition-all group cursor-pointer w-full text-left"
+                >
+                  <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+                    <template x-if="post.karya.logo">
+                      <img :src="post.karya.logo" :alt="post.karya.nama" class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="!post.karya.logo">
+                      <span class="text-xl font-black text-[#1E3A8A]" x-text="(post.karya.nama || 'A').charAt(0).toUpperCase()"></span>
+                    </template>
+                  </div>
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <h4 class="text-[15px] sm:text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="post.karya.nama"></h4>
+                      <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+                        <span>Detail</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </span>
+                    </div>
+                    <p class="text-xs text-gray-600 line-clamp-1" x-text="post.karya.tagline"></p>
+                    <template x-if="post.karya.stack && post.karya.stack.length > 0">
+                      <div class="flex items-center gap-1.5 pt-1 flex-wrap">
+                        <template x-for="s in post.karya.stack.slice(0, 3)" :key="s">
+                          <span class="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] font-medium" x-text="s"></span>
+                        </template>
+                        <template x-if="post.karya.stack.length > 3">
+                          <span class="text-[10px] text-gray-400" x-text="'+' + (post.karya.stack.length - 3)"></span>
+                        </template>
+                      </div>
+                    </template>
+                  </div>
+                </a>
+              </template>
             </div>
 
-            <template x-if="post.imageUrl">
+            <template x-if="post.imageUrl && !post.karya">
               <div class="px-5 pb-5">
                 <img :src="post.imageUrl" alt="Gambar postingan" class="w-full max-h-[420px] object-cover rounded-xl border border-gray-200/80">
               </div>
@@ -478,6 +512,148 @@
     </div>
 
     <!-- Modals Edit Bahasa & URL Publik -->
+    <!-- ======================================================
+        MODAL: EDIT STATUS KARIR & STUDI LANJUT S2
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="editCareerOpen">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editCareerOpen = false">
+          <div class="bg-white rounded-xl border border-gray-200/90 shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+              <h3 class="text-[17px] font-bold text-gray-900">Edit Status Karir &amp; Tracer</h3>
+              <button type="button" @click="editCareerOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+                ✕
+              </button>
+            </div>
+            <form @submit.prevent="saveCareer()" class="p-6 space-y-4 text-sm">
+              <div>
+                <label class="block font-semibold text-gray-700 mb-1">Status Utama Saat Ini</label>
+                <select x-model="careerDraft.status" class="w-full px-3.5 py-2 rounded-lg border border-gray-300 bg-white">
+                  <option value="Bekerja Full Time">Bekerja Full Time</option>
+                  <option value="Bekerja Part Time">Bekerja Part Time</option>
+                  <option value="Wiraswasta / Founder">Wiraswasta / Founder</option>
+                  <option value="Studi Lanjut S2">Studi Lanjut S2</option>
+                  <option value="Sedang Mencari Kerja">Sedang Mencari Kerja</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block font-semibold text-gray-700 mb-1">Instansi / Perusahaan Utama</label>
+                <input type="text" x-model="careerDraft.company" placeholder="Contoh: PT Solusi Digital / Tokopedia" class="w-full px-3.5 py-2 rounded-lg border border-gray-300">
+              </div>
+
+              <div class="border-t border-gray-100 pt-3 space-y-3">
+                <p class="font-bold text-xs uppercase tracking-wider text-gray-500">Pekerjaan Sampingan / Freelance</p>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Klien / Tempat Part-Time</label>
+                  <input type="text" x-model="careerDraft.moonlight" placeholder="Contoh: Studio Kode / Klien Lepas" class="w-full px-3.5 py-2 rounded-lg border border-gray-300">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Peran Sampingan</label>
+                  <input type="text" x-model="careerDraft.moonlightRole" placeholder="Contoh: Freelance Frontend Developer" class="w-full px-3.5 py-2 rounded-lg border border-gray-300">
+                </div>
+              </div>
+
+              <div class="border-t border-gray-100 pt-3 space-y-3">
+                <p class="font-bold text-xs uppercase tracking-wider text-gray-500">Data Studi Lanjut S2</p>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Perguruan Tinggi Lanjutan</label>
+                  <input type="text" x-model="careerDraft.s2Campus" placeholder="Contoh: Universitas Dian Nuswantoro" class="w-full px-3.5 py-2 rounded-lg border border-gray-300">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-700 mb-1">Program Studi S2</label>
+                  <input type="text" x-model="careerDraft.s2Major" placeholder="Contoh: Magister Teknik Informatika" class="w-full px-3.5 py-2 rounded-lg border border-gray-300">
+                </div>
+              </div>
+
+              <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-gray-100">
+                <button type="button" @click="editCareerOpen = false" class="px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 rounded-full">Batal</button>
+                <button type="submit" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-semibold rounded-full shadow-sm">Simpan Status Karir</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+    </template>
+
+    <!-- ======================================================
+        MODAL: PUBLISH KE BERANDA (HALL OF FAME & BETA TESTING)
+    ====================================================== -->
+    <template x-teleport="body">
+      <template x-if="publishKaryaModalOpen && targetPublishProj">
+        <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="publishKaryaModalOpen = false">
+          <div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl w-full max-w-xl max-h-[92vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
+              <div>
+                <h3 class="text-[17px] font-bold text-gray-900">Publikasikan Karya ke Showcase Beranda</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Pamerkan karya software Anda ke linimasa dan leaderboard Showcase Alumni</p>
+              </div>
+              <button type="button" @click="publishKaryaModalOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors cursor-pointer">
+                ✕
+              </button>
+            </div>
+
+            <form @submit.prevent="submitPublishKarya()" class="p-6 space-y-4 text-sm overflow-y-auto">
+              <div>
+                <label class="block font-semibold text-gray-800 text-xs mb-1">Nama Produk Software <span class="text-red-500">*</span></label>
+                <input type="text" x-model="publishForm.nama" required class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
+              </div>
+
+              <div>
+                <label class="block font-semibold text-gray-800 text-xs mb-1">Tagline Ringkas (1 Baris) <span class="text-red-500">*</span></label>
+                <input type="text" x-model="publishForm.tagline" required placeholder="Contoh: Analisis sentimen otomatis berbasis machine learning" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-semibold text-gray-800 text-xs mb-1">Tautan Staging / Demo / Live URL</label>
+                  <input type="url" x-model="publishForm.url" placeholder="https://..." class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
+                </div>
+                <div>
+                  <label class="block font-semibold text-gray-800 text-xs mb-1">Tech Stack</label>
+                  <input type="text" x-model="publishForm.stack" placeholder="Next.js, Python, PostgreSQL" class="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A]">
+                </div>
+              </div>
+
+              <!-- Tab Feedback Monitoring jika sudah ada masukan -->
+              <template x-if="targetPublishProj.feedbacks && targetPublishProj.feedbacks.length > 0">
+                <div class="pt-3 border-t border-gray-100 space-y-2">
+                  <span class="font-bold text-gray-700 text-xs block">Daftar Masukan &amp; Review Diterima:</span>
+                  <div class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    <template x-for="fb in targetPublishProj.feedbacks" :key="fb.id">
+                      <div class="p-2.5 bg-gray-50 rounded-xl border border-gray-200 text-xs flex items-start justify-between gap-2">
+                        <div>
+                          <div class="flex items-center gap-2">
+                            <span class="font-bold text-gray-900" x-text="fb.author"></span>
+                            <span class="px-2 py-0.2 rounded text-[10px] font-semibold"
+                                  :class="fb.category === 'Bug' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-[#1E3A8A]'"
+                                  x-text="fb.category"></span>
+                          </div>
+                          <p class="text-gray-700 mt-1 leading-relaxed" x-text="fb.text"></p>
+                        </div>
+                        <button
+                          type="button"
+                          @click="toggleFeedbackStatus(targetPublishProj.id, fb.id)"
+                          class="px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 cursor-pointer"
+                          :class="fb.status === 'Diterapkan' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'"
+                          x-text="fb.status === 'Diterapkan' ? '✓ Diterapkan' : 'Tandai Diterapkan'"
+                        ></button>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </template>
+
+              <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
+                <button type="button" @click="publishKaryaModalOpen = false" class="px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-100 rounded-full">Batal</button>
+                <button type="submit" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-xs font-bold rounded-full shadow-sm">Simpan &amp; Publikasikan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </template>
+    </template>
+
     <template x-teleport="body">
       <template x-if="editLanguageModalOpen">
         <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="editLanguageModalOpen = false">
@@ -873,179 +1049,18 @@
     </template>
 
     <div data-partial="profile-preview"></div>
-
-    <!-- ======================================================
-        MODAL: UBAH STATUS KARIR & TRACER
-    ====================================================== -->
-    <template x-teleport="body">
-      <template x-if="editCareerOpen">
-        <div id="modal-edit-career" class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @click.self="editCareerOpen = false">
-          <div class="bg-white rounded-xl border border-gray-200/90 shadow-2xl w-full max-w-lg overflow-hidden flex flex-col" style="max-height: 90vh;">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <span class="w-8 h-8 rounded-lg bg-blue-50 text-[#1E3A8A] flex items-center justify-center font-bold">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                </span>
-                <h3 class="text-lg font-bold text-gray-900">Perbarui Status Karir &amp; Tracer</h3>
-              </div>
-              <button type="button" @click="editCareerOpen = false" class="text-gray-400 hover:text-gray-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-gray-100 transition cursor-pointer">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-              </button>
-            </div>
-
-            <form @submit.prevent="handleSaveCareer()" class="p-6 overflow-y-auto space-y-4 text-sm">
-              <div>
-                <label class="block text-xs font-semibold text-gray-700 mb-1">Status Aktivitas Saat Ini <span class="text-red-500">*</span></label>
-                <select x-model="careerDraft.status" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
-                  <option value="Bekerja Full Time">Bekerja Full Time</option>
-                  <option value="Bekerja Part Time">Bekerja Part Time</option>
-                  <option value="Wiraswasta">Wiraswasta / Software House Mandiri</option>
-                  <option value="Melanjutkan Pendidikan">Melanjutkan Pendidikan (Studi S2)</option>
-                  <option value="Tidak Bekerja Tetapi Sedang Mencari Pekerjaan">Mencari Peluang Karir Baru</option>
-                </select>
-              </div>
-
-              <template x-if="careerDraft.status !== 'Melanjutkan Pendidikan'">
-                <div class="space-y-3">
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Tempat Bekerja / Nama Usaha</label>
-                    <input type="text" x-model="careerDraft.company" placeholder="Contoh: PT GoTo Gojek Tokopedia" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Jabatan / Posisi</label>
-                    <input type="text" x-model="careerDraft.title" placeholder="Contoh: Junior Data Scientist" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div class="grid grid-cols-2 gap-3">
-                    <div>
-                      <label class="block text-xs font-semibold text-gray-700 mb-1">Bidang Pekerjaan</label>
-                      <select x-model="careerDraft.field" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                        <option value="Infokom">Infokom</option>
-                        <option value="Non Infokom">Non Infokom</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label class="block text-xs font-semibold text-gray-700 mb-1">Lingkup Tingkat</label>
-                      <select x-model="careerDraft.scope" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                        <option value="Nasional">Nasional</option>
-                        <option value="Multinasional">Multinasional</option>
-                        <option value="Internasional">Internasional</option>
-                        <option value="Lokal">Lokal</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </template>
-
-              <template x-if="careerDraft.status === 'Melanjutkan Pendidikan'">
-                <div class="space-y-3">
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Perguruan Tinggi S2</label>
-                    <input type="text" x-model="careerDraft.studyUniv" placeholder="Contoh: Universitas Dian Nuswantoro" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Program Studi S2</label>
-                    <input type="text" x-model="careerDraft.studyMajor" placeholder="Contoh: Magister Ilmu Komputer" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-gray-700 mb-1">Sumber Biaya Studi</label>
-                    <select x-model="careerDraft.studyFunding" class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-gray-900 focus:outline-none focus:border-[#1E3A8A]">
-                      <option value="Beasiswa">Beasiswa</option>
-                      <option value="Sendiri">Mandiri / Sendiri</option>
-                    </select>
-                  </div>
-                </div>
-              </template>
-
-              <div class="pt-3 border-t border-gray-100 flex items-center justify-end gap-2.5">
-                <button type="button" @click="editCareerOpen = false" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 font-semibold text-sm hover:bg-gray-50 transition cursor-pointer">Batal</button>
-                <button type="submit" class="px-5 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white rounded-lg font-semibold text-sm transition shadow-sm cursor-pointer">Simpan Status Karir</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </template>
-    </template>
+    
   </div>
 </main>
 
 <script>
   // State tambahan khusus profil/page.tsx: postingan tersimpan, interaksi, PostModal, EditPostModal, bagikan & kirim
   document.addEventListener("alpine:init", () => {
-    // 1. Fetching user aktif & tracer dari DB prototype
-    let SAYA = null;
+    let savedCareer = null;
     try {
-      if (typeof DB !== "undefined" && DB.akun) {
-        SAYA = DB.akun.aktif();
-        if (!SAYA) {
-          const daftar = DB.akun.alumni();
-          if (daftar && daftar.length > 0) {
-            SAYA = daftar[0];
-            localStorage.setItem("alumni_revisi_sesi_v1", String(SAYA.id));
-          }
-        }
-      }
-    } catch (e) {}
-
-    const myTracer = typeof DB !== "undefined" && SAYA && DB.tracer ? DB.tracer.milik(SAYA.id) || {} : {};
-
-    // 2. Cek apakah ada profil tersimpan di localStorage (bengkod_alumni_profile)
-    let savedProfile = null;
-    try {
-      savedProfile = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
-    } catch (e) {}
-
-    // 3. Susun dynamicProfile dari akun aktif & data tracer
-    const dynamicProfile = {
-      ...INITIAL_PROFILE,
-      name: (savedProfile && savedProfile.name) || (SAYA ? SAYA.nama : INITIAL_PROFILE.name),
-      firstName: (savedProfile && savedProfile.firstName) || (SAYA ? SAYA.nama.split(" ")[0] : INITIAL_PROFILE.firstName),
-      lastName: (savedProfile && savedProfile.lastName) || (SAYA ? SAYA.nama.split(" ").slice(1).join(" ") : INITIAL_PROFILE.lastName),
-      nim: (savedProfile && savedProfile.nim) || myTracer.nim || INITIAL_PROFILE.nim,
-      gender: (savedProfile && savedProfile.gender) || myTracer.jns_kelamin || INITIAL_PROFILE.gender,
-      entryYear: String((savedProfile && savedProfile.entryYear) || myTracer.tahun_masuk || INITIAL_PROFILE.entryYear),
-      gradYear: String((savedProfile && savedProfile.gradYear) || myTracer.tahun_lulus || INITIAL_PROFILE.gradYear),
-      batch: String((savedProfile && savedProfile.batch) || myTracer.tahun_lulus || myTracer.tahun_masuk || INITIAL_PROFILE.batch),
-      phone: (savedProfile && savedProfile.phone) || myTracer.no_hp || INITIAL_PROFILE.phone,
-      whatsapp: (savedProfile && savedProfile.whatsapp) || myTracer.no_hp || INITIAL_PROFILE.whatsapp,
-      headline:
-        (savedProfile && savedProfile.headline) ||
-        (myTracer.jabatan_job && myTracer.nama_job
-          ? `${myTracer.jabatan_job} di ${myTracer.nama_job}`
-          : INITIAL_PROFILE.headline || "Alumni Bengkel Koding"),
-      isVerified: true,
-      location: (savedProfile && savedProfile.location) || (myTracer.kota ? `${myTracer.kota}, Indonesia` : INITIAL_PROFILE.location),
-      city: (savedProfile && savedProfile.city) || myTracer.kota || INITIAL_PROFILE.city,
-      countryCode: (savedProfile && savedProfile.countryCode) || "ID",
-      linkedin: (savedProfile && savedProfile.linkedin) || myTracer.linkedin || INITIAL_PROFILE.linkedin,
-      github: (savedProfile && savedProfile.github) || INITIAL_PROFILE.github,
-      website: (savedProfile && savedProfile.website) || INITIAL_PROFILE.website,
-      email: (savedProfile && savedProfile.email) || (SAYA ? SAYA.email : INITIAL_PROFILE.email),
-      careerStatus: (savedProfile && savedProfile.careerStatus) || myTracer.status || INITIAL_PROFILE.careerStatus,
-      jobField: (savedProfile && savedProfile.jobField) || myTracer.bidang_job || INITIAL_PROFILE.jobField,
-      jobCategory: (savedProfile && savedProfile.jobCategory) || myTracer.jns_job || INITIAL_PROFILE.jobCategory,
-      companyName: (savedProfile && savedProfile.companyName) || myTracer.nama_job || INITIAL_PROFILE.companyName,
-      jobTitle: (savedProfile && savedProfile.jobTitle) || myTracer.jabatan_job || INITIAL_PROFILE.jobTitle,
-      jobScope: (savedProfile && savedProfile.jobScope) || myTracer.lingkup_job || INITIAL_PROFILE.jobScope,
-      studyFunding: (savedProfile && savedProfile.studyFunding) || myTracer.biaya_studi || INITIAL_PROFILE.studyFunding,
-      studyUniversity: (savedProfile && savedProfile.studyUniversity) || myTracer.nama_studi || INITIAL_PROFILE.studyUniversity,
-      studyMajor: (savedProfile && savedProfile.studyMajor) || myTracer.prodi || INITIAL_PROFILE.studyMajor,
-      studyStartDate: (savedProfile && savedProfile.studyStartDate) || myTracer.tgl_studi || INITIAL_PROFILE.studyStartDate,
-      sideJobCompany: (savedProfile && savedProfile.sideJobCompany) || myTracer.nama_sampingan || INITIAL_PROFILE.sideJobCompany,
-      sideJobRole: (savedProfile && savedProfile.sideJobRole) || myTracer.peran_sampingan || INITIAL_PROFILE.sideJobRole,
-      avatarUrl: (savedProfile && savedProfile.avatarUrl) || (SAYA && SAYA.foto) || INITIAL_PROFILE.avatarUrl || DEFAULT_AVATAR,
-      coverImageUrl: (savedProfile && savedProfile.coverImageUrl) || INITIAL_PROFILE.coverImageUrl,
-      coverGradient: (savedProfile && savedProfile.coverGradient) || INITIAL_PROFILE.coverGradient,
-    };
-
-    let dynamicSkills = INITIAL_SKILLS;
-    if (myTracer.keahlian && Array.isArray(myTracer.keahlian) && myTracer.keahlian.length > 0) {
-      dynamicSkills = myTracer.keahlian.map((k, i) => ({
-        id: i + 1,
-        name: k,
-        level: "Tingkat Menengah",
-        links: [],
-      }));
-    }
+      const raw = localStorage.getItem("bengkod_alumni_career_v1");
+      if (raw) savedCareer = JSON.parse(raw);
+    } catch {}
 
     Alpine.data("profilPage", () =>
       profilePageData("profil", {
@@ -1055,6 +1070,141 @@
         tempPublicUrl: 'www.bengkelkoding.com/alumni/aisharah',
         editLanguageModalOpen: false,
         editPublicUrlModalOpen: false,
+        editCareerOpen: false,
+        publishKaryaModalOpen: false,
+        targetPublishProj: null,
+        publishForm: {
+          nama: "",
+          tagline: "",
+          url: "",
+          stack: "",
+        },
+        openPublishKaryaModal(proj) {
+          this.targetPublishProj = proj;
+          this.publishForm = {
+            nama: proj.title || "",
+            tagline: proj.tagline || (proj.desc ? proj.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
+            url: proj.linkUrl || "",
+            stack: (proj.tags || []).join(", "),
+          };
+          this.publishKaryaModalOpen = true;
+        },
+        submitPublishKarya() {
+          if (!this.targetPublishProj || !this.publishForm.nama.trim()) return;
+          const pId = this.targetPublishProj.id;
+
+          this.projects = this.projects.map(p => {
+            if (p.id === pId) {
+              return {
+                ...p,
+                title: this.publishForm.nama.trim(),
+                stage: "SHOWCASE",
+                tagline: this.publishForm.tagline.trim(),
+                linkUrl: this.publishForm.url.trim() || p.linkUrl,
+              };
+            }
+            return p;
+          });
+
+          try {
+            const posts = typeof loadPosts === "function" ? loadPosts() : [];
+            const existingPostIdx = posts.findIndex(p => p.karya && (p.karya.projectId === pId || p.karya.nama === this.publishForm.nama.trim()));
+            const karyaData = {
+              projectId: pId,
+              nama: this.publishForm.nama.trim(),
+              tagline: this.publishForm.tagline.trim(),
+              url: this.publishForm.url.trim() || undefined,
+              stack: this.publishForm.stack.split(",").map(s => s.trim()).filter(Boolean),
+              upvotes: 1,
+              isUpvoted: true,
+              feedbacks: this.targetPublishProj.feedbacks || []
+            };
+
+            if (existingPostIdx >= 0) {
+              posts[existingPostIdx].karya = karyaData;
+            } else {
+              const newPost = {
+                id: Date.now(),
+                authorName: this.profile.name,
+                authorAvatar: this.profile.avatarUrl,
+                authorHeadline: this.profile.headline,
+                date: "Baru saja",
+                category: "Karya & Showcase",
+                visibility: "Semua orang",
+                content: "",
+                karya: karyaData,
+                likes: 0,
+                isLiked: false,
+                commentsCount: 0,
+                repostsCount: 0,
+                impressions: 1
+              };
+              posts.unshift(newPost);
+            }
+            if (typeof savePosts === "function") savePosts(posts);
+          } catch (err) {
+            console.warn("Gagal simpan postingan karya:", err);
+          }
+
+          this.publishKaryaModalOpen = false;
+          if (typeof saveStoredProjects === "function") saveStoredProjects(this.projects);
+          this.toast = `Karya "${this.publishForm.nama.trim()}" berhasil dipublikasikan ke Showcase Alumni!`;
+          setTimeout(() => { this.toast = ""; }, 3500);
+        },
+        promoteProjectToLive(proj) {
+          if (!confirm(`Ubah status karya "${proj.title}" menjadi LIVE (Hall of Fame)?`)) return;
+          proj.stage = "LIVE";
+          this.projects = this.projects.map(p => p.id === proj.id ? { ...p, stage: "LIVE" } : p);
+
+          try {
+            const posts = typeof loadPosts === "function" ? loadPosts() : [];
+            const matched = posts.find(p => p.karya && (p.karya.projectId === proj.id || p.karya.nama === proj.title));
+            if (matched) {
+              matched.karya.tahap = "live";
+              if (typeof savePosts === "function") savePosts(posts);
+            }
+          } catch (e) {}
+
+          this.toast = `Karya "${proj.title}" resmi dipromosikan ke etalase utama Hall of Fame!`;
+          setTimeout(() => { this.toast = ""; }, 3500);
+        },
+        toggleFeedbackStatus(projId, fbId) {
+          if (this.targetPublishProj && this.targetPublishProj.feedbacks) {
+            this.targetPublishProj.feedbacks = this.targetPublishProj.feedbacks.map(f => {
+              if (f.id === fbId) {
+                return { ...f, status: f.status === "Diterapkan" ? "Pending" : "Diterapkan" };
+              }
+              return f;
+            });
+            this.toast = "Status masukan diperbarui.";
+            setTimeout(() => { this.toast = ""; }, 2500);
+          }
+        },
+        careerStatus: savedCareer || {
+          status: "Bekerja Full Time",
+          company: "Data Scientist @ Zepto Digital",
+          moonlight: "Studio Kode Semarang",
+          moonlightRole: "Lead Freelance Mentor",
+          s2Campus: "Universitas Dian Nuswantoro",
+          s2Major: "Magister Teknik Informatika (S2)",
+        },
+        careerDraft: savedCareer ? { ...savedCareer } : {
+          status: "Bekerja Full Time",
+          company: "Data Scientist @ Zepto Digital",
+          moonlight: "Studio Kode Semarang",
+          moonlightRole: "Lead Freelance Mentor",
+          s2Campus: "Universitas Dian Nuswantoro",
+          s2Major: "Magister Teknik Informatika (S2)",
+        },
+        saveCareer() {
+          this.careerStatus = { ...this.careerDraft };
+          this.editCareerOpen = false;
+          try {
+            localStorage.setItem("bengkod_alumni_career_v1", JSON.stringify(this.careerStatus));
+          } catch {}
+          this.toast = "Status karir dan tracer study berhasil diperbarui";
+          setTimeout(() => { this.toast = ""; }, 3000);
+        },
         connectedPeopleIds: [],
         toggleConnect(id) {
           if (this.connectedPeopleIds.includes(id)) {
@@ -1178,6 +1328,14 @@
         init() {
           this.posts = loadPosts();
           window.addEventListener("bengkod_posts_updated", () => (this.posts = loadPosts()));
+          if (typeof loadStoredProjects === "function") {
+            this.projects = loadStoredProjects();
+          }
+          window.addEventListener("bengkod_projects_updated", () => {
+            if (typeof loadStoredProjects === "function") {
+              this.projects = loadStoredProjects();
+            }
+          });
         },
 
         readPostImage(e, field, tooBig) {
@@ -1399,67 +1557,6 @@
           this.replyInputs = { ...this.replyInputs, [commentId]: "" };
           this.activeReplyCommentId = null;
         },
-
-        // Status Karir & Tracer Modal
-        editCareerOpen: false,
-        careerDraft: {
-          status: 'Bekerja Full Time',
-          company: '',
-          title: '',
-          field: 'Infokom',
-          scope: 'Nasional',
-          studyUniv: '',
-          studyMajor: '',
-          studyFunding: 'Beasiswa'
-        },
-        openCareerModal() {
-          this.careerDraft = {
-            status: this.profile.careerStatus || 'Bekerja Full Time',
-            company: this.profile.companyName || '',
-            title: this.profile.jobTitle || '',
-            field: this.profile.jobField || 'Infokom',
-            scope: this.profile.jobScope || 'Nasional',
-            studyUniv: this.profile.studyUniversity || '',
-            studyMajor: this.profile.studyMajor || '',
-            studyFunding: this.profile.studyFunding || 'Beasiswa'
-          };
-          this.editCareerOpen = true;
-        },
-        handleSaveCareer() {
-          this.profile.careerStatus = this.careerDraft.status;
-          this.profile.companyName = this.careerDraft.company;
-          this.profile.jobTitle = this.careerDraft.title;
-          this.profile.jobField = this.careerDraft.field;
-          this.profile.jobScope = this.careerDraft.scope;
-          this.profile.studyUniversity = this.careerDraft.studyUniv;
-          this.profile.studyMajor = this.careerDraft.studyMajor;
-          this.profile.studyFunding = this.careerDraft.studyFunding;
-          try {
-            localStorage.setItem("bengkod_alumni_profile", JSON.stringify(this.profile));
-            if (typeof DB !== "undefined" && DB.tracer) {
-              const u = SAYA || DB.akun.aktif();
-              if (u) {
-                const cur = DB.tracer.milik(u.id) || {};
-                DB.tracer.simpan(u.id, {
-                  ...cur,
-                  status: this.careerDraft.status,
-                  nama_job: this.careerDraft.company,
-                  jabatan_job: this.careerDraft.title,
-                  bidang_job: this.careerDraft.field,
-                  lingkup_job: this.careerDraft.scope,
-                  nama_studi: this.careerDraft.studyUniv,
-                  prodi: this.careerDraft.studyMajor,
-                  biaya_studi: this.careerDraft.studyFunding,
-                });
-              }
-            }
-          } catch (e) {}
-          this.editCareerOpen = false;
-          this.toast = "Status karir berhasil diperbarui";
-        },
-      }, {
-        profile: dynamicProfile,
-        skills: dynamicSkills
       })
     );
   });

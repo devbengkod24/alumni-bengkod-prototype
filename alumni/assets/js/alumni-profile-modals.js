@@ -1072,26 +1072,65 @@ document.addEventListener("alpine:init", () => {
   }));
 
   // Proyek
-  const EMPTY_PROJECT = () => ({ title: "", period: "", desc: "", contributors: [], skills: [], media: { linkUrl: "", imageUrl: "" } });
+  const EMPTY_PROJECT = () => ({
+    title: "",
+    tagline: "",
+    category: "",
+    period: "",
+    demoUrl: "",
+    logoUrl: "",
+    bannerUrl: "",
+    desc: "",
+    contributors: [],
+    skills: [],
+    media: { linkUrl: "", imageUrl: "" },
+  });
   const projectToDraft = (p) => ({
-    title: p.title,
-    period: p.period,
-    desc: p.desc,
+    title: p.title || "",
+    tagline: p.tagline || (p.desc ? p.desc.slice(0, 100) : ""),
+    category: p.category || (p.categoryTags && p.categoryTags[0]) || "",
+    period: p.period || "",
+    demoUrl: p.demoUrl || p.linkUrl || "",
+    logoUrl: p.logoUrl || "",
+    bannerUrl: p.bannerUrl || p.imageUrl || "",
+    desc: p.desc || "",
     contributors: contributorsFromProject(p),
     skills: p.tags || [],
     media: projectToMediaValue(p),
   });
-  const projectFields = (f) => ({
-    title: f.title.trim(),
-    period: f.period.trim(),
-    desc: f.desc.trim(),
-    tags: f.skills.length ? f.skills : ["Umum"],
-    contributor: f.contributors[0] ? f.contributors[0].name : undefined,
-    contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
-    contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
-    contributors: f.contributors,
-    ...mediaToProjectFields(f.media),
-  });
+  const projectFields = (f) => {
+    const demo = (f.demoUrl || "").trim();
+    const logo = (f.logoUrl || "").trim();
+    const banner = (f.bannerUrl || "").trim();
+    const mediaObj = { ...f.media };
+    if (demo && !mediaObj.linkUrl) {
+      mediaObj.linkUrl = demo;
+    }
+    if (banner && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = banner;
+    } else if (logo && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = logo;
+    }
+    const mediaRes = mediaToProjectFields(mediaObj);
+    return {
+      title: f.title.trim(),
+      tagline: (f.tagline || "").trim() || (f.desc ? f.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
+      category: (f.category || "").trim(),
+      period: f.period.trim(),
+      demoUrl: demo || mediaRes.linkUrl || "",
+      logoUrl: logo || "",
+      bannerUrl: banner || mediaRes.imageUrl || "",
+      desc: f.desc.trim(),
+      tags: f.skills.length ? f.skills : ["Umum"],
+      contributor: f.contributors[0] ? f.contributors[0].name : undefined,
+      contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
+      contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
+      contributors: f.contributors,
+      ...mediaRes,
+      linkUrl: demo || mediaRes.linkUrl || "",
+      imageUrl: banner || mediaRes.imageUrl || logo || "",
+    };
+  };
 
   Alpine.data("addProjectModal", () => ({
     ...modalLifecycle(true),
@@ -1102,13 +1141,43 @@ document.addEventListener("alpine:init", () => {
       this._lock();
       setTimeout(() => this.$refs.projectTitle && this.$refs.projectTitle.focus(), 50);
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
-      const mediaFilled = Boolean(normalizeUrl(this.form.media.linkUrl) || this.form.media.imageUrl);
+      const mediaFilled = Boolean(
+        normalizeUrl(this.form.demoUrl) ||
+        normalizeUrl(this.form.media.linkUrl) ||
+        this.form.bannerUrl ||
+        this.form.logoUrl ||
+        this.form.media.imageUrl
+      );
       return {
-        title: this.form.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: this.form.period.trim() ? "" : "Periode wajib diisi.",
-        desc: this.form.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Isi tautan proyek atau unggah gambar.",
+        title: this.form.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: this.form.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: this.form.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Tambahkan tautan demo / live URL atau unggah banner/logo aplikasi.",
       };
     },
     showErr(key) {
@@ -1135,20 +1204,46 @@ document.addEventListener("alpine:init", () => {
     init() {
       const projects = JSON.parse(JSON.stringify(this.$data.projects));
       this.draftList = projects;
-      const first = projects[0] ? projects[0].id : null;
-      this.selectedId = first;
-      const found = projects.find((p) => p.id === first) || null;
+      const target = projects.find((p) => p.id === this.$data.editProjectId) || projects[0] || null;
+      this.selectedId = target ? target.id : null;
+      const found = target;
       this.form = found ? projectToDraft(found) : null;
       this._lock();
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
       const f = this.form;
-      const mediaFilled = Boolean(f && (f.media.linkUrl || f.media.imageUrl));
+      const mediaFilled = Boolean(
+        f && (normalizeUrl(f.demoUrl) || normalizeUrl(f.media.linkUrl) || f.bannerUrl || f.logoUrl || f.media.imageUrl)
+      );
       return {
-        title: f && f.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: f && f.period.trim() ? "" : "Periode wajib diisi.",
-        desc: f && f.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Tambahkan minimal satu media (link atau gambar).",
+        title: f && f.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: f && f.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: f && f.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Tambahkan minimal satu media (link demo, banner, atau logo).",
       };
     },
     showErr(key) {
@@ -1163,6 +1258,11 @@ document.addEventListener("alpine:init", () => {
       this.touched = {};
       this.submitted = false;
       setTimeout(() => this.$refs.projectEditTitle && this.$refs.projectEditTitle.focus(), 30);
+    },
+    removeSelected() {
+      if (this.selectedId === null) return;
+      if (!confirm("Hapus proyek ini dari profil Anda?")) return;
+      this.$dispatch("projects-save", this.draftList.filter((p) => p.id !== this.selectedId));
     },
     removeProject(id) {
       const next = this.draftList.filter((p) => p.id !== id);
@@ -1895,32 +1995,186 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
 
 // Form Proyek
 function projectFieldsHTML(edit) {
+  const p = (k) => (edit ? `edit-project-${k}` : `project-${k}`);
   const inputCls = (k) => `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" :class="${errInputClass(`showErr('${k}')`)}"`;
+  const plainInputCls = `class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"`;
   const textareaCls = `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed" :class="${errInputClass(`showErr('desc')`)}"`;
   const star = '<span class="text-red-500 font-bold">*</span>';
-  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Judul proyek", required: true, star, err: "showErr('title')" })}
-      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" ${edit ? "" : 'placeholder="Contoh: Sistem Prediksi UMKM"'} ${inputCls("title")}></div><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode", required: true, star, err: "showErr('period')" })}
-      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" ${edit ? "" : 'placeholder="Contoh: Jun 2026 – Jun 2026"'} ${inputCls("period")}></div><div class="space-y-1.5 sm:col-span-2">
+  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Judul / Nama Karya -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Nama karya", required: true, star, err: "showErr('title')" })}
+      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" placeholder="Contoh: Sentimeter AI" ${inputCls("title")}>
+    </div>
+    <!-- Periode -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode pengerjaan", required: true, star, err: "showErr('period')" })}
+      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" placeholder="Contoh: Jun 2026 – Sekarang" ${inputCls("period")}>
+    </div>
+
+    <!-- Tagline 1 Baris (Showcase & Feed) -->
+    <div class="space-y-1.5 sm:col-span-2">
+      <div class="flex items-center justify-between">
+        <label for="${p("tagline")}" class="block text-[14px] font-medium text-gray-700">Tagline</label>
+        <span class="text-[11px] text-gray-400">Tampil di kartu feed &amp; widget Showcase</span>
+      </div>
+      <input id="${p("tagline")}" type="text" autocomplete="off" x-model="form.tagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" ${plainInputCls}>
+    </div>
+
+    <!-- Demo URL & Kategori Software -->
+    <div class="space-y-1.5">
+      <label for="${p("demo-url")}" class="block text-[14px] font-medium text-gray-700">URL Website</label>
+      <input id="${p("demo-url")}" type="url" autocomplete="off" x-model="form.demoUrl" placeholder="https://aplikasi-anda.com" ${plainInputCls}>
+    </div>
+    <div class="space-y-1.5">
+      <label for="${p("category")}" class="block text-[14px] font-medium text-gray-700">Kategori software</label>
+      <input id="${p("category")}" type="text" autocomplete="off" x-model="form.category" placeholder="Contoh: AI Analytics, Developer Tools, POS" ${plainInputCls}>
+    </div>
+
+    <!-- Deskripsi Lengkap -->
+    <div class="space-y-1.5 sm:col-span-2">
       ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi", required: true, star, err: "showErr('desc')" })}
-      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" ${edit ? "" : 'placeholder="Jelaskan tujuan, teknologi, dan hasil dari proyek ini..."'} style="resize: none" ${textareaCls}></textarea></div><div class="sm:col-span-2">${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}</div><div class="sm:col-span-2">
-      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills" })}
-    </div><div class="sm:col-span-2 space-y-1.5">
-      ${mediaPickerHTML({ model: "form.media" })}
-      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template></div></div>`;
+      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" placeholder="Jelaskan problem yang dipecahkan, fitur utama, dan hasil dari karya ini..." style="resize: none" ${textareaCls}></textarea>
+    </div>
+
+    <!-- Kontributor -->
+    <div class="sm:col-span-2">
+      ${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}
+    </div>
+
+    <!-- Keahlian / Tech Stack -->
+    <div class="sm:col-span-2">
+      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
+    </div>
+
+    <!-- 1. Logo / Ikon Aplikasi (Rasio 1:1 Squircle - Murni Unggah Berkas) -->
+    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
+      <div class="flex items-center justify-between">
+        <label class="block text-[14px] font-semibold text-gray-800">Logo / Ikon Aplikasi</label>
+        <span class="text-[11px] text-gray-500">Ikon di kartu feed &amp; sidebar showcase</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <!-- Squircle Preview Box (Bisa Diklik Langsung) -->
+        <div
+          @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
+          class="w-16 h-16 rounded-xl border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs cursor-pointer transition-colors group relative"
+          title="Klik untuk memilih logo"
+        >
+          <template x-if="form.logoUrl">
+            <img :src="form.logoUrl" alt="Logo preview" class="w-full h-full object-cover">
+          </template>
+          <template x-if="!form.logoUrl">
+            <div class="flex flex-col items-center justify-center text-gray-400 group-hover:text-[#1E3A8A] transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                <circle cx="8.5" cy="8.5" r="1.5"/>
+                <polyline points="21 15 16 10 5 21"/>
+              </svg>
+              <span class="text-[10px] font-bold mt-0.5">Logo</span>
+            </div>
+          </template>
+        </div>
+
+        <div class="flex-1 min-w-0 space-y-1.5">
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              @click="$refs.${edit ? "editLogoFile" : "logoFile"}.click()"
+              class="h-[38px] px-4 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 text-[13px] font-semibold text-gray-700 hover:text-[#1E3A8A] hover:border-[#1E3A8A] transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+              <span x-text="form.logoUrl ? 'Ganti Logo' : 'Pilih Logo Aplikasi'"></span>
+            </button>
+
+            <template x-if="form.logoUrl">
+              <button
+                type="button"
+                @click="form.logoUrl = ''"
+                class="h-[38px] px-3 rounded-lg text-[13px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                Hapus
+              </button>
+            </template>
+          </div>
+          <p class="text-[12px] text-gray-500">Format PNG, JPG, atau WEBP. Otomatis menggunakan monogram inisial jika tidak diunggah.</p>
+        </div>
+      </div>
+      <input x-ref="${edit ? "editLogoFile" : "logoFile"}" type="file" accept="image/*" class="hidden" @change="onPickLogo($event)">
+    </div>
+
+    <!-- 2. Banner / Screenshot UI Aplikasi (Rasio 16:9 Memanjang - Murni Unggah Berkas) -->
+    <div class="space-y-2 sm:col-span-2 p-4 rounded-xl border border-gray-200 bg-gray-50/50">
+      <div class="flex items-center justify-between">
+        <label class="block text-[14px] font-semibold text-gray-800">Banner</label>
+        <span class="text-[11px] text-gray-500">Tampilan utama di halaman detail proyek</span>
+      </div>
+
+      <!-- Jika sudah ada banner terunggah -->
+      <template x-if="form.bannerUrl">
+        <div class="relative rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] max-h-56 group shadow-2xs">
+          <img :src="form.bannerUrl" alt="Banner preview" class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+            <button
+              type="button"
+              @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
+              class="px-3.5 py-1.5 rounded-lg bg-white/95 text-gray-900 text-xs font-semibold hover:bg-white transition-colors cursor-pointer shadow-sm"
+            >
+              Ganti Gambar
+            </button>
+            <button
+              type="button"
+              @click="form.bannerUrl = ''"
+              class="px-3.5 py-1.5 rounded-lg bg-red-600 text-white text-xs font-semibold hover:bg-red-700 transition-colors cursor-pointer shadow-sm"
+            >
+              Hapus
+            </button>
+          </div>
+        </div>
+      </template>
+
+      <!-- Jika belum ada banner: Area Upload Bersih -->
+      <template x-if="!form.bannerUrl">
+        <div
+          @click="$refs.${edit ? "editBannerFile" : "bannerFile"}.click()"
+          class="border-2 border-dashed border-gray-300 hover:border-[#1E3A8A] rounded-xl p-6 text-center cursor-pointer transition-colors bg-white hover:bg-blue-50/20 group space-y-2"
+        >
+          <div class="w-10 h-10 rounded-full bg-blue-50 text-[#1E3A8A] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-[13px] font-semibold text-gray-800 group-hover:text-[#1E3A8A] transition-colors">
+              Klik untuk mengunggah tangkapan layar antarmuka aplikasi
+            </p>
+            <p class="text-[11px] text-gray-400 mt-0.5">Mendukung format PNG, JPG, atau WEBP (Rasio 16:9 disarankan)</p>
+          </div>
+        </div>
+      </template>
+
+      <input x-ref="${edit ? "editBannerFile" : "bannerFile"}" type="file" accept="image/*" class="hidden" @change="onPickBanner($event)">
+      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium mt-1" x-text="showErr('media')"></p></template>
+    </div>
+  </div>`;
 }
 
 // Modal: Tambah & Edit Proyek
-ALUMNI_PARTIALS["modal-add-project"] = () => {
+ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
   const close = "addProjectOpen = false";
+  const title = (dataset && dataset.title) || "Tambah proyek";
   return formModalHTML({
     open: "addProjectOpen",
     close,
     formId: "modalAddProjectForm",
     labelledby: "add-project-title",
     xdata: "addProjectModal",
-    title: "Tambah proyek",
+    title,
     titleId: "add-project-title",
     headerShrink: false,
     footerShrink: false,
@@ -1931,9 +2185,9 @@ ALUMNI_PARTIALS["modal-add-project"] = () => {
 
 ALUMNI_PARTIALS["modal-edit-project"] = () => {
   const close = "editProjectOpen = false";
-  const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
-    Pilih proyek yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus proyek dari daftar.
-  </p><template x-if="draftList.length === 0"><p class="text-[14px] text-gray-500 italic">Belum ada proyek untuk diedit.</p></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Proyek Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(p, idx) in draftList" :key="p.id"><div class="${PC.listRow}" :class="p.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectProject(p)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="p.title"></p><p class="text-[12px] text-gray-500 truncate" x-text="p.period"></p></div><template x-if="p.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeProject(p.id)" class="${PC.listTrash}" title="Hapus proyek">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail proyek terpilih</h3>${projectFieldsHTML(true)}</div></template></div></template>`;
+  // Edit satu proyek dari tombol Edit di kartunya; form sama dengan Tambah Proyek / Karya
+  const body = `<template x-if="form">${projectFieldsHTML(true)}</template>`;
+  const footer = `<button type="button" @click="removeSelected()" class="mr-auto px-4 py-2.5 rounded-full text-red-600 font-semibold text-[14.5px] hover:bg-red-50 transition-colors cursor-pointer">Hapus proyek</button>${defaultFooter(close)}`;
 
   return formModalHTML({
     open: "editProjectOpen",
@@ -1941,12 +2195,12 @@ ALUMNI_PARTIALS["modal-edit-project"] = () => {
     formId: "modalEditProjectForm",
     labelledby: "edit-project-title",
     xdata: "editProjectModal",
-    title: "Edit proyek",
+    title: "Edit Proyek / Karya",
     titleId: "edit-project-title",
     headerShrink: false,
     footerShrink: false,
     body,
-    footer: defaultFooter(close, "draftList.length === 0"),
+    footer,
   });
 };
 

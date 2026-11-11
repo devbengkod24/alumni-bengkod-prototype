@@ -107,6 +107,7 @@ const INITIAL_PROJECTS = [
     contributorAvatar: "https://i.pravatar.cc/150?img=45",
     linkUrl: "https://github.com/aishaadr",
     imageUrl: "assets/img/kursus-1.png",
+    stage: "LIVE", // BETA | LIVE | null
   },
   {
     id: 2,
@@ -116,6 +117,7 @@ const INITIAL_PROJECTS = [
     tags: ["Deep Learning & Natural Language Processing"],
     linkUrl: "https://github.com/aishaadr",
     imageUrl: "assets/img/kursus-2.png",
+    stage: "BETA",
   },
 ];
 

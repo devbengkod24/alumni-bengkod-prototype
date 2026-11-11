@@ -47,7 +47,7 @@ const DASHBOARD = { alumni: 'beranda.html', admin: '../koordinator/dashboard.htm
 const NAMA_FILE = location.pathname.split('/').pop() || 'dashboard.html';
 
 if (ROLE_HALAMAN && SAYA?.role !== ROLE_HALAMAN) {
-  location.replace(ROLE_HALAMAN === 'admin' ? '../alumni/login.html' : 'login.html');
+  location.replace(ROLE_HALAMAN === 'admin' ? '../koordinator/login.html' : 'login.html');
 } else if (ROLE_HALAMAN === 'alumni' && NAMA_FILE !== 'isi-data.html' && !DB.tracer.milik(SAYA.id)) {
   // First login: alumni mengisi data dulu sebelum masuk portal
   location.replace('isi-data.html');

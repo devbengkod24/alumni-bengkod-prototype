@@ -3,82 +3,235 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Karya Alumni | Koordinator Bengkel Koding</title>
+  <title>Showcase Alumni | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
   <script src="../alumni/assets/js/data.js?v=9"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/store.js?v=2"></script>
+  <script src="../alumni/assets/js/alumni-data.js"></script>
+  <script src="../assets/js/feed-bersama.js"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Karya Alumni">
-  <div>
-    <h2 class="!text-2xl font-semibold text-neutral1">Hall of Fame dan Beta Testing</h2>
-    <p class="!text-sm text-neutral2 mt-1">Karya yang dipublikasikan alumni di Beranda. Sematkan karya Live unggulan ke Spotlight paling atas Beranda selama 30 hari.</p>
-  </div>
-
-  <section class="bg-white rounded-xl border border-neutral4 elevation2 overflow-hidden">
-    <div id="tab" class="p-4 border-b border-neutral4 flex gap-2 overflow-x-auto no-scrollbar" role="group" aria-label="Saring tahap karya"></div>
-    <div class="overflow-x-auto">
-      <table class="w-full">
-        <thead><tr><th class="th">Karya</th><th class="th">Pembuat</th><th class="th text-right">Dukungan</th><th class="th">Feedback</th><th class="th">Spotlight</th><th class="th text-right">Aksi</th></tr></thead>
-        <tbody id="baris"></tbody>
-      </table>
+  <div class="w-full space-y-6 py-2 antialiased">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-gray-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Software &amp; aplikasi karya rekan alumni Bengkel Koding
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-200">
+          <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
+          <span id="badge-total-karya">0 Karya Terbit</span>
+        </span>
+      </div>
     </div>
-  </section>
+
+    <!-- Toolbar: jumlah karya, filter stack, pencarian -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+      <p id="label-jumlah" class="text-[13px] text-gray-500 order-last sm:order-none"></p>
+
+      <div class="flex items-center gap-3 sm:ml-auto w-full sm:w-auto">
+        <div class="relative shrink-0">
+          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
+          <select
+            id="showcase-stack"
+            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
+          >
+            <option value="">Semua stack</option>
+          </select>
+          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </span>
+        </div>
+
+        <div class="relative flex-1 sm:w-64 sm:flex-none">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </span>
+          <input
+            id="cari"
+            type="search"
+            placeholder="Cari karya atau stack..."
+            aria-label="Cari karya"
+            autocomplete="off"
+            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- Grid Card Karya Showcase -->
+    <div id="grid-karya" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden bg-white rounded-xl border border-dashed border-gray-300 p-10 text-center">
+      <p class="text-[15px] font-semibold text-gray-800">Belum ada karya yang cocok</p>
+      <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau filter stack lain.</p>
+    </div>
+  </div>
 </main>
 
 <script>
-  const TAB = [['live', 'Live Product'], ['beta', 'Beta Testing']];
-  let tahap = 'live';
+  let stackFilter = "";
+  let query = "";
 
-  const disorot = p => p.spotlight_sampai > new Date().toISOString();
-  // Karya yang sedang di-spotlight paling atas, sisanya urut dukungan terbanyak
-  const daftar = () => DB.feed.semua()
-    .filter(p => p.karya?.tahap === tahap)
-    .sort((a, b) => disorot(b) - disorot(a) || b.suka.length - a.suka.length);
+  function ambilSemuaKarya() {
+    const posts = typeof loadPosts === "function" ? loadPosts() : [];
+    const waktu = p => (p.date === "Baru saja" ? p.id : (Date.parse(p.waktu || p.date) || 0));
+
+    return posts
+      .filter(p => p.karya)
+      .map(p => ({
+        postId: p.id,
+        nama: p.karya.nama,
+        tagline: p.karya.tagline || "",
+        logo: p.karya.logo || "",
+        banner: p.karya.bannerUrl || (p.karya.screenshots || [])[0] || "",
+        stack: p.karya.stack || [],
+        authorName: p.authorName || "Alumni",
+        authorAvatar: p.authorAvatar || "",
+        waktu: waktu(p),
+      }));
+  }
+
+  function kartuKarya(k) {
+    const detailUrl = `../alumni/detail-proyek.html?id=${k.postId}`;
+    const monogram = (k.nama || "A").charAt(0).toUpperCase();
+
+    const bannerHtml = k.banner
+      ? `<img src="${esc(k.banner)}" alt="Banner ${esc(k.nama)}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">`
+      : `<div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30">${esc(monogram)}</div>`;
+
+    const logoHtml = k.logo
+      ? `<img src="${esc(k.logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">`
+      : `<span class="text-sm font-bold text-[#1E3A8A]">${esc(monogram)}</span>`;
+
+    const stackHtml = (k.stack && k.stack.length > 0)
+      ? `<div class="flex items-center gap-1.5 flex-wrap">
+          ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[12px] font-medium">${esc(s)}</span>`).join("")}
+          ${k.stack.length > 3 ? `<span class="text-[12px] text-gray-400">+${k.stack.length - 3}</span>` : ""}
+        </div>`
+      : "";
+
+    const authorAvatarHtml = k.authorAvatar
+      ? `<img src="${esc(k.authorAvatar)}" alt="${esc(k.authorName)}" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">`
+      : `<div class="w-6 h-6 rounded-full bg-[#1E3A8A] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(k.authorName.slice(0, 2).toUpperCase())}</div>`;
+
+    return `
+      <a
+        href="${detailUrl}"
+        class="group flex flex-col bg-white rounded-xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-gray-300 transition-all overflow-hidden"
+      >
+        <!-- Banner 16:9 -->
+        <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
+          ${bannerHtml}
+        </div>
+
+        <div class="flex-1 flex flex-col p-4 gap-3">
+          <div class="flex items-start gap-3">
+            <div class="w-11 h-11 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden">
+              ${logoHtml}
+            </div>
+            <div class="min-w-0 flex-1">
+              <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate">${esc(k.nama)}</h2>
+              <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5">${esc(k.tagline)}</p>
+            </div>
+          </div>
+
+          ${stackHtml}
+
+          <div class="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 min-w-0">
+              ${authorAvatarHtml}
+              <span class="text-[13px] text-gray-600 truncate">${esc(k.authorName)}</span>
+            </div>
+            <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+              <span>Detail</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </span>
+          </div>
+        </div>
+      </a>`;
+  }
+
+  function isiOpsiStack(semuaKarya) {
+    const select = document.getElementById("showcase-stack");
+    const stackSet = [...new Set(semuaKarya.flatMap(k => k.stack))].sort((a, b) => a.localeCompare(b));
+    const currentValue = select.value;
+
+    select.innerHTML = `<option value="">Semua stack</option>` +
+      stackSet.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join("");
+
+    if (currentValue && stackSet.includes(currentValue)) {
+      select.value = currentValue;
+    }
+  }
 
   function render() {
-    document.getElementById('tab').innerHTML = TAB.map(([nilai, label]) => `
-      <button type="button" data-tahap="${nilai}" aria-pressed="${tahap === nilai}" class="shrink-0 whitespace-nowrap px-3.5 py-1.5 rounded-full border text-sm font-medium transition-colors ${tahap === nilai ? 'bg-primary1 border-primary1 text-white' : 'bg-white border-neutral4 text-neutral2 hover:bg-primary5 hover:text-primary1'}">${label} <span class="text-xs opacity-70">${DB.feed.semua().filter(p => p.karya?.tahap === nilai).length}</span></button>`).join('');
+    const semuaKarya = ambilSemuaKarya();
+    document.getElementById("badge-total-karya").textContent = `${semuaKarya.length} Karya Terbit`;
 
-    document.getElementById('baris').innerHTML = daftar().map(p => {
-      const k = p.karya;
-      const pembuat = DB.akun.cari(p.id_alumni);
-      const aktif = disorot(p);
-      const ditanggapi = p.feedback.filter(f => f.status).length;
-      return `
-        <tr class="tr">
-          <td class="td min-w-56">
-            <div class="font-medium">${esc(k.nama)}</div>
-            <div class="text-xs text-neutral3">${esc(k.tagline)}</div>
-            ${tautanAman(k.link) ? `<a href="${esc(tautanAman(k.link))}" target="_blank" rel="noreferrer" class="text-xs text-primary2 hover:underline">Buka aplikasi</a>` : ''}
-          </td>
-          <td class="td">
-            <div class="flex items-center gap-2.5 min-w-40">${fotoBulat(pembuat, 'w-8 h-8')}<span>${esc(pembuat.nama)}</span></div>
-          </td>
-          <td class="td text-right tabular-nums">${p.suka.length}</td>
-          <td class="td whitespace-nowrap">${p.feedback.length} masuk · ${ditanggapi} ditanggapi${tahap === 'beta' ? `<div class="text-xs text-neutral3">Fokus: ${esc(k.fokus.join(', '))}</div>` : ''}</td>
-          <td class="td whitespace-nowrap">${aktif ? `${badge('Aktif', 'green')}<div class="text-xs text-neutral3 mt-1">Sampai ${fmtDate(p.spotlight_sampai)}</div>` : '<span class="text-neutral3">-</span>'}</td>
-          <td class="td text-right">${tahap === 'live' ? `<button type="button" data-spotlight="${p.id}" class="${aktif ? 'btn-outline' : 'btn-primary'} !px-3 !py-1.5 !text-xs">${aktif ? 'Lepas Spotlight' : 'Sematkan 30 Hari'}</button>` : '<span class="text-xs text-neutral3">Menunggu rilis</span>'}</td>
-        </tr>`;
-    }).join('') || `<tr><td colspan="6" class="td text-center text-neutral3 py-8">Belum ada karya ${tahap === 'live' ? 'Live' : 'Beta'}.</td></tr>`;
+    // Filter list
+    const q = query.trim().toLowerCase();
+    const filtered = semuaKarya.filter(k => {
+      if (stackFilter && !k.stack.includes(stackFilter)) return false;
+      if (!q) return true;
+      return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
+    }).sort((a, b) => b.waktu - a.waktu);
+
+    document.getElementById("label-jumlah").textContent = `${filtered.length} karya`;
+
+    // Grid rendering
+    const grid = document.getElementById("grid-karya");
+    const empty = document.getElementById("empty-state");
+
+    if (filtered.length === 0) {
+      grid.innerHTML = "";
+      empty.classList.remove("hidden");
+    } else {
+      empty.classList.add("hidden");
+      grid.innerHTML = filtered.map(kartuKarya).join("");
+    }
+
+    // Update style select
+    const selectStack = document.getElementById("showcase-stack");
+    selectStack.className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors ${
+      stackFilter ? "border-blue-200 bg-blue-50 text-[#1E3A8A]" : "border-gray-200 text-gray-700 hover:border-gray-300"
+    }`;
+
     refreshIcons();
   }
 
-  document.querySelector('main').addEventListener('click', e => {
-    const tombol = e.target.closest('[data-tahap], [data-spotlight]');
-    if (!tombol) return;
-    if (tombol.dataset.tahap) tahap = tombol.dataset.tahap;
-    if (tombol.dataset.spotlight) {
-      DB.feed.spotlight(tombol.dataset.spotlight, SAYA.id);
-      showToast('Spotlight diperbarui. Pembuat karya diberi tahu saat karyanya disematkan.');
-    }
+  // Event listeners
+  document.getElementById("cari").addEventListener("input", e => {
+    query = e.target.value;
     render();
   });
+
+  document.getElementById("showcase-stack").addEventListener("change", e => {
+    stackFilter = e.target.value;
+    render();
+  });
+
+  // Init
+  const initialKarya = ambilSemuaKarya();
+  isiOpsiStack(initialKarya);
   render();
+
+  // Sinkronisasi bila ada karya baru diluncurkan alumni
+  window.addEventListener("bengkod_posts_updated", () => {
+    const update = ambilSemuaKarya();
+    isiOpsiStack(update);
+    render();
+  });
 </script>
 </body>
 </html>
