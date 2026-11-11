@@ -525,7 +525,7 @@
     }
   ];
 
-  const SAMBUTAN_ISI = 'Selamat datang di Beranda Bengkel Koding! Bagikan kabar kerja, karya, info loker, atau pengalaman rekrutmen di sini. Survei dari koordinator ada di tab "Survei Koordinator", jawab lewat kolom komentar ya.';
+  const SAMBUTAN_ISI = 'Selamat datang di Beranda Bengkel Koding! Bagikan kabar kerja, karya, info loker, atau pengalaman rekrutmen di sini.';
 
   // Seed lama yang sudah dihapus (Tanya Koordinator dari alumni) ikut dibuang dari data forum tersimpan
   const KUNCI_FORUM_DIHAPUS = ['tanya-sertifikat', 'tanya-tracer'];
@@ -838,8 +838,8 @@
       const list = tersimpan
         .filter(f => !KUNCI_FORUM_DIHAPUS.includes(f.kunci))
         .map(f => {
-          // Teks sambutan versi lama masih mengarahkan ke tombol "Tanya Koordinator" yang sudah dihapus
-          if (f.kunci === 'sambutan-feed' && String(f.isi || '').includes('Tanya Koordinator')) {
+          // Teks sambutan versi lama masih menyebut "Tanya Koordinator" / tab "Survei Koordinator" yang sudah dihapus
+          if (f.kunci === 'sambutan-feed' && /Tanya Koordinator|Survei Koordinator/.test(String(f.isi || ''))) {
             berubah = true;
             return { ...f, isi: SAMBUTAN_ISI };
           }

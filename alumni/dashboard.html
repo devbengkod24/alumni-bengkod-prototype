@@ -73,7 +73,7 @@
         <!-- ── TAB KATEGORI FEED ── -->
         <div class="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar text-sm">
           <div class="flex items-center gap-2 shrink-0">
-            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral', 'Survei Koordinator']"
+            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral']"
               :key="cat">
               <button type="button" @click="selectedCategory = cat"
                 class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
@@ -1652,8 +1652,6 @@
             return this.posts.filter((p) => {
               const c = (p.category || "").toLowerCase();
               const target = this.selectedCategory.toLowerCase();
-              // Survei/pertanyaan dari koordinator (koordinator/forum.html "Pertanyaan ke Alumni")
-              if (target.includes("survei")) return Boolean(p.pertanyaan) || c === "tanya koordinator";
               if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
               // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
               if (target === "internal referral") return c.includes("referral") || c.includes("loker") || Boolean(p.referral) || (!p.category && (p.content || "").toLowerCase().includes("referral"));
@@ -1779,7 +1777,6 @@
                 content: [f.judul, f.isi].filter(Boolean).join("\n\n"),
                 // Field bersama yang diatur koordinator dari halaman Forum (lihat assets/js/feed-bersama.js)
                 category: f.category,
-                pertanyaan: !!f.pertanyaan,
                 disematkan: !!f.disematkan,
                 visibility: "Semua orang",
                 imageUrl: f.gambar,
