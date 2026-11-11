@@ -2996,6 +2996,57 @@ Tanggung Jawab & Fitur Proyek:
     endorsement: "",
     completedDate: null,
     applicants: []
+  },
+  // Proyek milik Aisha yang sedang dikerjakan, supaya alur "Tandai Selesai" di Kelola Gigs bisa dicoba
+  {
+    id: "gig-11",
+    title: "Dashboard Rekap Nilai Praktikum Lab Bengkel Koding",
+    ownerId: "aisha-dwi-rahmawati",
+    ownerName: "Aisha Dwi Rahmawati",
+    ownerAvatar: DEFAULT_AVATAR,
+    ownerRole: "Alumni 2024 · Lab Bengkel Koding",
+    ownerPhone: "081234567890",
+    category: "Data Science",
+    rolesNeeded: ["Data Analyst", "Frontend Dashboard"],
+    techStack: ["Python", "Streamlit", "Google Sheets API"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-11-28",
+    quota: 1,
+    status: "Sedang Dikerjakan",
+    postedDate: "20 Okt 2026",
+    description: `Membuat dashboard rekap nilai praktikum per kelas dari Google Sheets asisten, lengkap dengan grafik sebaran nilai dan ekspor laporan PDF untuk koordinator lab.
+
+Deliverables:
+1. Script sinkronisasi Google Sheets ke dataset terstruktur.
+2. Dashboard Streamlit berisi filter kelas, grafik distribusi nilai, dan daftar mahasiswa remedial.
+3. Ekspor ringkasan nilai per kelas ke PDF.`,
+    assignedContributor: {
+      id: "rafi-pratama",
+      name: "Rafi Pratama",
+      avatar: "https://i.pravatar.cc/150?img=12",
+      batch: "2023",
+      phone: "081311122233",
+      assignedDate: "24 Okt 2026"
+    },
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-1101",
+        applicantId: "rafi-pratama",
+        applicantName: "Rafi Pratama",
+        applicantAvatar: "https://i.pravatar.cc/150?img=12",
+        applicantBatch: "2023",
+        applicantPhone: "081311122233",
+        skills: ["Python", "Streamlit", "Pandas"],
+        pitchMessage: "Saya pernah membuat dashboard nilai serupa untuk asisten praktikum Basis Data. Bisa mulai minggu ini.",
+        portfolioItems: [
+          { title: "Lab Grade Dashboard", linkUrl: "https://github.com/rafipratama", stack: "Python · Streamlit" }
+        ],
+        appliedDate: "21 Okt 2026",
+        status: "ACCEPTED"
+      }
+    ]
   }
 ];
 

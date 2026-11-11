@@ -105,6 +105,7 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
   if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
+  if (link === "/dashboard/alumni/gigs-kelola") return `${base}gigs-kelola.html`;
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
@@ -120,7 +121,7 @@ function alumniHref(link) {
   return "#";
 }
 
-// 5 Navigasi Utama Role Alumni
+// Navigasi utama role alumni
 const ALUMNI_NAVIGATIONS = [
   {
     title: "Beranda",
@@ -156,6 +157,16 @@ const ALUMNI_NAVIGATIONS = [
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
           <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>`,
+  },
+  {
+    title: "Kelola Gigs",
+    link: "/dashboard/alumni/gigs-kelola",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z" />
+          <path d="M8 10v4" />
+          <path d="M12 10v2" />
+          <path d="M16 10v6" />
         </svg>`,
   },
   {

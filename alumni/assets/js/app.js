@@ -373,6 +373,7 @@ const NAV = {
     { href: 'direktori.html', icon: 'users', label: 'Alumni' },
     { href: 'showcase.html', icon: 'rocket', label: 'Showcase' },
     { href: 'gigs.html', icon: 'briefcase-business', label: 'Gigs & Proyek' },
+    { href: 'gigs-kelola.html', icon: 'folder-kanban', label: 'Kelola Gigs' },
     { href: 'generate-cv.html', icon: 'file-text', label: 'Generate CV' },
     { href: 'profil.html', icon: 'user-round', label: 'Profil Saya' },
   ],
