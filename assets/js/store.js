@@ -525,6 +525,11 @@
     }
   ];
 
+  const SAMBUTAN_ISI = 'Selamat datang di Beranda Bengkel Koding! Bagikan kabar kerja, karya, info loker, atau pengalaman rekrutmen di sini. Survei dari koordinator ada di tab "Survei Koordinator", jawab lewat kolom komentar ya.';
+
+  // Seed lama yang sudah dihapus (Tanya Koordinator dari alumni) ikut dibuang dari data forum tersimpan
+  const KUNCI_FORUM_DIHAPUS = ['tanya-sertifikat', 'tanya-tracer'];
+
   // Postingan contoh feed bersama alumni-koordinator. Ditandai kunci supaya ditambahkan sekali saja
   // ke data forum yang sudah tersimpan. Field bersama: category (kategori feed Beranda),
   // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), disematkan, tagRekap (tag rekap koordinator).
@@ -533,7 +538,7 @@
       kunci: 'sambutan-feed', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-10-20T09:00:00',
       category: 'Umum', disematkan: true, tags: [], dibagikan: 0,
       disukai: ['Rizky Pratama', 'Nadia Putri', 'Dimas Arya', 'Salsa Ramadhani', 'Fajar Nugroho'],
-      isi: 'Selamat datang di Beranda Bengkel Koding! Bagikan kabar kerja, karya, info loker, atau pengalaman rekrutmen di sini. Ada urusan administrasi? Pilih "Tanya Koordinator" saat membuat postingan, nanti saya jawab di komentar.',
+      isi: SAMBUTAN_ISI,
       comments: [],
     },
     {
@@ -546,20 +551,6 @@
         { id: 9002, penulis: 'Dimas Arya', peran: 'Alumni', waktu: '2026-11-04T10:15:00', isi: 'Flutter dan Firebase. Materi state management perlu lebih dalam.', disukai: [], balasan: [] },
         { id: 9003, penulis: 'Rizky Pratama', peran: 'Alumni', waktu: '2026-11-04T16:05:00', isi: 'Laravel, tapi semua project wajib ada unit test. Materi testing perlu ditambah.', disukai: [], balasan: [] },
       ],
-    },
-    {
-      kunci: 'tanya-sertifikat', judul: '', penulis: 'Fajar Nugroho', peran: 'Alumni', waktu: '2026-11-01T09:15:00',
-      category: 'Tanya Koordinator', tags: [], dibagikan: 0, disukai: [],
-      isi: 'Bu, sertifikat Bengkel Koding saya hilang. Bisa minta cetak ulang?',
-      comments: [
-        { id: 9004, penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-11-01T10:02:00', isi: 'Bisa. Datang ke sekretariat Bengkel Koding hari Senin sampai Jumat jam 09.00 sampai 15.00, bawa KTM atau ijazah.', disukai: [], balasan: [] },
-      ],
-    },
-    {
-      kunci: 'tanya-tracer', judul: '', penulis: 'Bagas Saputra', peran: 'Alumni', waktu: '2026-11-05T14:30:00',
-      category: 'Tanya Koordinator', tags: [], dibagikan: 0, disukai: [],
-      isi: 'Untuk tracer study lulusan 2026, batas pengisiannya kapan ya?',
-      comments: [],
     },
     {
       kunci: 'diskusi-ai',
@@ -842,10 +833,22 @@
 
     // --- FORUM & KOMENTAR ---
     getForum() {
-      const list = lsGet(KEYS.FORUM, SEED_FORUM);
+      const tersimpan = lsGet(KEYS.FORUM, SEED_FORUM);
+      let berubah = false;
+      const list = tersimpan
+        .filter(f => !KUNCI_FORUM_DIHAPUS.includes(f.kunci))
+        .map(f => {
+          // Teks sambutan versi lama masih mengarahkan ke tombol "Tanya Koordinator" yang sudah dihapus
+          if (f.kunci === 'sambutan-feed' && String(f.isi || '').includes('Tanya Koordinator')) {
+            berubah = true;
+            return { ...f, isi: SAMBUTAN_ISI };
+          }
+          return f;
+        });
+      if (list.length !== tersimpan.length) berubah = true;
       const kunciAda = new Set(list.map(f => f.kunci).filter(Boolean));
       const tambahan = FORUM_TAMBAHAN.filter(f => !kunciAda.has(f.kunci));
-      if (tambahan.length) {
+      if (tambahan.length || berubah) {
         tambahan.forEach(f => list.push({ ...f, id: list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1 }));
         lsSet(KEYS.FORUM, list);
       }

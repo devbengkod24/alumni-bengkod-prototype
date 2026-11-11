@@ -253,8 +253,41 @@ function alumniCurrentProfile() {
   return base;
 }
 
+/* ------------------------------------------------------------------ */
+/* Pencarian alumni bersama (kolom "Cari alumni" di Beranda)           */
+/* ------------------------------------------------------------------ */
+
+// State + aksi pencarian. Pakai lewat alumniWithNavSearch({...}) supaya getter tidak ikut dievaluasi.
+function alumniNavSearch() {
+  return {
+    navSearchQuery: "",
+    navSearchOpen: false,
+    get navSearchResults() {
+      const q = this.navSearchQuery.trim();
+      if (!q || typeof searchAlumni !== "function") return [];
+      return searchAlumni(q).slice(0, 6);
+    },
+    navSearchHref(a) {
+      return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
+    },
+    submitNavSearch() {
+      const first = this.navSearchResults[0];
+      if (first) window.location.href = this.navSearchHref(first);
+    },
+  };
+}
+
+function alumniWithNavSearch(component) {
+  return Object.defineProperties(component, Object.getOwnPropertyDescriptors(alumniNavSearch()));
+}
+
+// Dropdown hasil pencarian bisa disisipkan di HTML halaman: <div data-partial="navSearchDropdown"></div>
+window.ALUMNI_PARTIALS = Object.assign(window.ALUMNI_PARTIALS || {}, {
+  navSearchDropdown: () => alumniNavSearchDropdownHTML(),
+});
+
 document.addEventListener("alpine:init", () => {
-  Alpine.data("alumniLayout", () => ({
+  Alpine.data("alumniLayout", () => alumniWithNavSearch({
     sidebarIsOpen: true,
     isMobile: false,
     isHydrated: false,
@@ -263,8 +296,6 @@ document.addEventListener("alpine:init", () => {
     notifs: [],
     notifUnreadCount: 0,
     breadcrumbDropdownOpen: false,
-    navSearchQuery: "",
-    navSearchOpen: false,
     mobileSearchOpen: false,
     profile: alumniCurrentProfile(),
     init() {
@@ -315,21 +346,8 @@ document.addEventListener("alpine:init", () => {
         }
       } catch (e) {}
     },
-    // Pencarian alumni di navbar (selalu terjangkau di semua halaman, desktop & ponsel)
-    get navSearchResults() {
-      const q = this.navSearchQuery.trim();
-      if (!q || typeof searchAlumni !== "function") return [];
-      return searchAlumni(q).slice(0, 6);
-    },
-    navSearchHref(a) {
-      return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
-    },
     openMobileSearch() {
       this.mobileSearchOpen = !this.mobileSearchOpen;
-    },
-    submitNavSearch() {
-      const first = this.navSearchResults[0];
-      if (first) window.location.href = this.navSearchHref(first);
     },
     checkMobile() {
       const mobile = window.innerWidth < 1024;

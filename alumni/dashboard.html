@@ -13,7 +13,7 @@
   <script src="assets/js/alumni-profile-data.js"></script>
   <script src="assets/js/alumni-profile-modals.js"></script>
   <script src="assets/js/alumni-cv.js"></script>
-  <script src="../assets/js/store.js?v=2"></script>
+  <script src="../assets/js/store.js?v=3"></script>
 </head>
 
 <body>
@@ -35,131 +35,45 @@
     ====================================================== -->
       <div class="lg:col-span-8 flex flex-col gap-6">
 
-        <!-- Header Beranda Feed Alumni -->
-        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+        <!-- Header Beranda: baris 1 judul, baris 2 cari alumni + tombol Buat Postingan (bertumpuk di ponsel) -->
+        <div class="pb-4 border-b border-gray-200 space-y-4">
           <div>
             <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Beranda Aktivitas Alumni</h1>
             <p class="text-sm text-gray-500 mt-0.5">
               Linimasa forum diskusi, karya, dan info loker bersama rekan alumni &amp; koordinator
             </p>
           </div>
-        </div>
 
-        <!-- ── COMPOSER: BUAT POSTINGAN (MURNI GAYA X) ── -->
-        <form id="form-buat-postingan" @submit.prevent="handlePostModalSubmit()" autocomplete="off"
-          class="bg-white rounded-xl border border-gray-200/90 shadow-xs p-4 sm:p-5 flex gap-3.5">
-          <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name"
-            class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <!-- Cari alumni: state & dropdown dari helper bersama alumniNavSearch (alumni.js) -->
+            <form class="relative flex-1 min-w-0" role="search" @submit.prevent="submitNavSearch()"
+              @click.outside="navSearchOpen = false">
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+              </span>
+              <input type="search" id="beranda-cari-alumni" x-model="navSearchQuery" @focus="navSearchOpen = true"
+                @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false" placeholder="Cari alumni…"
+                aria-label="Cari alumni" autocomplete="off"
+                class="w-full pl-11 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-[14.5px] text-gray-900 placeholder:text-gray-400 shadow-2xs focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-all">
+              <div data-partial="navSearchDropdown"></div>
+            </form>
 
-          <div class="flex-1 min-w-0 flex flex-col">
-            <textarea id="post-content" x-ref="postTextarea" rows="1" x-model="pmContent"
-              @input="$el.style.height = 'auto'; $el.style.height = Math.max(38, $el.scrollHeight) + 'px'"
-              :placeholder="pmIsTanya ? 'Tulis pertanyaan untuk koordinator...' : 'Bagikan kabar, pertanyaan, atau ide ke rekan alumni...'"
-              class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed overflow-hidden"
-              style="min-height: 38px;"></textarea>
-
-            <!-- Pratinjau media -->
-            <template x-if="pmImageUrl">
-              <div class="relative mt-2.5 rounded-xl overflow-hidden border border-gray-200">
-                <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[300px] object-cover">
-                <button type="button" @click="pmImageUrl = ''" aria-label="Hapus media"
-                  class="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white flex items-center justify-center transition-colors cursor-pointer">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </template>
-
-            <!-- Petunjuk mode tanya koordinator -->
-            <template x-if="pmIsTanya">
-              <p class="mt-2.5 text-[12px] text-amber-800 bg-amber-50 border border-amber-100 rounded-lg px-3 py-1.5">
-                Pertanyaan ini masuk tab <span class="font-semibold">Tanya Koordinator</span> dan akan dijawab
-                koordinator di kolom komentar.
-              </p>
-            </template>
-
-            <!-- Toolbar: tombol media di kiri, tombol posting di kanan -->
-            <div class="flex items-center justify-between gap-3 pt-2.5 mt-2.5 border-t border-gray-100 flex-wrap">
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- Tombol Tambah Media Foto -->
-                <button type="button" id="btn-add-post-media" @click="$refs.pmFileInput.click()" title="Tambahkan foto"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                  <span>Foto</span>
-                </button>
-
-                <!-- Tombol Luncurkan Karya: hasilnya kartu karya, bukan postingan teks -->
-                <button type="button" id="btn-composer-karya" @click="openLaunchModal()"
-                  title="Luncurkan karya sebagai kartu showcase"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-                    <path
-                      d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-                    <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-                    <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-                  </svg>
-                  <span>Karya</span>
-                </button>
-
-                <!-- Tombol Referral: membuka modal Bagikan Info Referral -->
-                <button type="button" id="btn-composer-referral" @click.stop="openReferralModal()"
-                  title="Bagikan info referral di kantor Anda"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-transparent hover:border-gray-300">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                      d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0l-4.3 4.3a1 1 0 0 0 0 1.4Z" />
-                    <path d="m14 14 2.5 2.5" />
-                    <path d="m17.5 10.5 2 2" />
-                    <path d="m2 10 7-7 4.5 4.5" />
-                    <path d="m16 21 5-5" />
-                    <path
-                      d="m7.5 14.5-2 2a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 1 0 1.4Z" />
-                  </svg>
-                  <span>Referral</span>
-                </button>
-
-                <!-- Tombol Tanya Koordinator: pertanyaan administrasi untuk koordinator, dijawab di komentar -->
-                <button type="button" id="btn-composer-tanya"
-                  @click="pmIsTanya = !pmIsTanya; pmIsLoker = false; $refs.postTextarea.focus()"
-                  :aria-pressed="pmIsTanya.toString()" title="Ajukan pertanyaan ke koordinator"
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-colors cursor-pointer border"
-                  :class="pmIsTanya ? 'bg-amber-50 border-amber-200 text-amber-800' : 'border-gray-200 bg-transparent text-gray-600 hover:text-[#1E3A8A] hover:border-gray-300'">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                    <path d="M12 17h.01" />
-                  </svg>
-                  <span>Tanya Koordinator</span>
-                </button>
-              </div>
-
-              <button type="submit" id="btn-save-post" style="background-color: #1E3A8A; color: #ffffff;"
-                @mouseenter="$el.style.backgroundColor = '#1D4ED8'" @mouseleave="$el.style.backgroundColor = '#1E3A8A'"
-                class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[15px] font-semibold shadow-sm transition-all cursor-pointer flex items-center justify-center">
-                Posting
-              </button>
-            </div>
+            <button type="button" id="btn-buat-postingan" @click="openComposer()"
+              class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14.5px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap">
+              <span class="text-base leading-none font-bold">+</span>
+              <span>Buat Postingan</span>
+            </button>
           </div>
-
-          <input type="file" x-ref="pmFileInput" accept="image/*" class="hidden"
-            @change="handlePmImageFileChange($event)">
-        </form>
+        </div>
 
         <!-- ── TAB KATEGORI FEED ── -->
         <div class="flex items-center justify-between gap-3 overflow-x-auto pb-1 no-scrollbar text-sm">
           <div class="flex items-center gap-2 shrink-0">
-            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral', 'Tanya Koordinator & Survei']"
+            <template x-for="cat in ['Semua', 'Karya & Showcase', 'Internal Referral', 'Survei Koordinator']"
               :key="cat">
               <button type="button" @click="selectedCategory = cat"
                 class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer"
@@ -176,7 +90,7 @@
         <div class="space-y-6">
           <template x-if="filteredPosts.length === 0">
             <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-[15px]">
-              Belum ada postingan untuk kategori ini. Klik tombol &quot;Buat Post&quot; untuk mempublikasikan aktivitas
+              Belum ada postingan untuk kategori ini. Klik tombol &quot;Buat Postingan&quot; untuk mempublikasikan aktivitas
               pertama Anda!
             </div>
           </template>
@@ -940,6 +854,124 @@
 
 
       <!-- ======================================================
+        MODAL: BUAT POSTINGAN (dibuka tombol "+ Buat Postingan" di header)
+        Teks + Foto langsung diposting; Karya & Referral membuka modal masing-masing.
+    ====================================================== -->
+      <template x-teleport="body">
+        <template x-if="composerOpen">
+          <div
+            class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 overflow-y-auto"
+            @click.self="closeComposer()" @keydown.window.escape="closeComposer()">
+            <form id="form-buat-postingan" @submit.prevent="handlePostModalSubmit()" autocomplete="off"
+              style="width: 90vw; max-width: 640px; max-height: 92vh;"
+              class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col min-h-0 overflow-hidden my-auto"
+              role="dialog" aria-modal="true" aria-labelledby="judul-buat-postingan">
+              <!-- Header Modal -->
+              <div class="px-5 sm:px-6 py-4 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
+                <h2 id="judul-buat-postingan" class="text-[18px] font-bold text-gray-900 tracking-tight">Buat Postingan</h2>
+                <button type="button" @click="closeComposer()"
+                  class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
+                  aria-label="Tutup modal">
+                  <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Body -->
+              <div class="flex-1 min-h-0 overflow-y-auto px-5 sm:px-6 py-5">
+                <div class="flex items-center gap-3 mb-3">
+                  <img :src="profile.avatarUrl || 'assets/img/user.png'" :alt="profile.name"
+                    class="w-11 h-11 rounded-full object-cover border border-gray-200 shrink-0">
+                  <div class="min-w-0">
+                    <p class="text-[15px] font-semibold text-gray-900 truncate" x-text="profile.name"></p>
+                    <p class="text-[12.5px] text-gray-500">Diposting ke Beranda · Semua orang</p>
+                  </div>
+                </div>
+
+                <textarea id="post-content" rows="5" x-model="pmContent" x-init="$nextTick(() => $el.focus())"
+                  placeholder="Bagikan kabar, ide, atau pengalaman ke rekan alumni..." aria-label="Isi postingan"
+                  class="w-full resize-none bg-transparent py-1 text-[15px] sm:text-[16px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed"></textarea>
+
+                <!-- Pratinjau media -->
+                <template x-if="pmImageUrl">
+                  <div class="relative mt-2.5 rounded-xl overflow-hidden border border-gray-200">
+                    <img :src="pmImageUrl" alt="Pratinjau media" class="w-full max-h-[300px] object-cover">
+                    <button type="button" @click="pmImageUrl = ''" aria-label="Hapus media"
+                      class="absolute top-2 right-2 w-8 h-8 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white flex items-center justify-center transition-colors cursor-pointer">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Footer: Foto / Karya / Referral di kiri, Posting di kanan -->
+              <div class="border-t border-gray-200 px-5 sm:px-6 py-3.5 bg-gray-50/50 flex items-center justify-between gap-3 flex-wrap flex-shrink-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button type="button" id="btn-add-post-media"
+                    @click="$el.closest('form').querySelector('input[type=file]').click()" title="Tambahkan foto"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-white hover:border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                    <span>Foto</span>
+                  </button>
+
+                  <!-- Karya: hasilnya kartu karya (modal tambah proyek) -->
+                  <button type="button" id="btn-composer-karya" @click="closeComposer(); openLaunchModal()"
+                    title="Luncurkan karya sebagai kartu showcase"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-white hover:border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                      <path
+                        d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                      <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+                      <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+                    </svg>
+                    <span>Karya</span>
+                  </button>
+
+                  <!-- Referral: modal Bagikan Info Referral -->
+                  <button type="button" id="btn-composer-referral" @click.stop="closeComposer(); openReferralModal()"
+                    title="Bagikan info referral di kantor Anda"
+                    class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-600 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-white hover:border-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path
+                        d="m11 17 2 2a1 1 0 0 0 1.4 0l4.3-4.3a1 1 0 0 0 0-1.4l-2-2a1 1 0 0 0-1.4 0l-4.3 4.3a1 1 0 0 0 0 1.4Z" />
+                      <path d="m14 14 2.5 2.5" />
+                      <path d="m17.5 10.5 2 2" />
+                      <path d="m2 10 7-7 4.5 4.5" />
+                      <path d="m16 21 5-5" />
+                      <path
+                        d="m7.5 14.5-2 2a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4l4.3-4.3a1 1 0 0 1 1.4 0l2 2a1 1 0 0 1 0 1.4Z" />
+                    </svg>
+                    <span>Referral</span>
+                  </button>
+                </div>
+
+                <button type="submit" id="btn-save-post" :disabled="!canPost"
+                  class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14.5px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  Posting
+                </button>
+              </div>
+
+              <input type="file" accept="image/*" class="hidden" @change="handlePmImageFileChange($event)">
+            </form>
+          </div>
+        </template>
+      </template>
+
+      <!-- ======================================================
         MODAL: TAMBAH PROYEK / LAUNCH KARYA (SELARAS FORM PROFIL)
     ====================================================== -->
       <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya"></div>
@@ -1219,7 +1251,8 @@
     document.addEventListener("alpine:init", () => {
       Alpine.data("feedPage", () => {
         const currentAlumni = ALUMNI_DIRECTORY[0];
-        return {
+        // Pencarian alumni di header memakai helper bersama dari alumni.js
+        return alumniWithNavSearch({
           DEFAULT_AVATAR,
           profile: {
             name: currentAlumni.name,
@@ -1265,7 +1298,6 @@
           pmContent: "",
           pmImageUrl: "",
           pmIsLoker: false,
-          pmIsTanya: false,
           selectedCategory: "Semua",
 
           // Modal Tambah Proyek / Launch Karya (State selaras form proyek profil)
@@ -1620,7 +1652,8 @@
             return this.posts.filter((p) => {
               const c = (p.category || "").toLowerCase();
               const target = this.selectedCategory.toLowerCase();
-              if (target.includes("tanya")) return c === "tanya koordinator" || Boolean(p.pertanyaan);
+              // Survei/pertanyaan dari koordinator (koordinator/forum.html "Pertanyaan ke Alumni")
+              if (target.includes("survei")) return Boolean(p.pertanyaan) || c === "tanya koordinator";
               if (target === "karya & showcase") return c.includes("proyek") || c.includes("showcase") || c.includes("karya") || Boolean(p.karya);
               // Post forum (Koordinator/Mitra) belum punya kategori, jadi masih dikenali dari isi teks
               if (target === "internal referral") return c.includes("referral") || c.includes("loker") || Boolean(p.referral) || (!p.category && (p.content || "").toLowerCase().includes("referral"));
@@ -1746,10 +1779,14 @@
           },
           // Tulis balik: post forum (id < 0) ke BengkodStore, sisanya ke penyimpanan alumni
           simpan() {
+            // Snapshot dulu: saveForum/savePosts memicu event yang memanggil muat() dan menimpa this.posts
+            // dari storage. Tanpa snapshot, postingan baru & like di post alumni hilang sebelum sempat disimpan.
+            const posts = this.posts;
+            const alumniPosts = posts.filter((p) => p.id > 0).map(({ waktu, ...p }) => p);
             try {
               if (typeof BengkodStore !== "undefined" && typeof BengkodStore.getForum === "function") {
                 const forum = BengkodStore.getForum().map((f) => {
-                  const p = this.posts.find((x) => x.id === -f.id);
+                  const p = posts.find((x) => x.id === -f.id);
                   if (!p) return f;
                   const disukai = (Array.isArray(f.disukai) ? f.disukai : []).filter((n) => n !== this.profile.name);
                   if (p.isLiked) disukai.push(this.profile.name);
@@ -1763,7 +1800,7 @@
               console.warn("Gagal simpan forum:", err);
             }
             if (typeof savePosts === "function") {
-              savePosts(this.posts.filter((p) => p.id > 0).map(({ waktu, ...p }) => p));
+              savePosts(alumniPosts);
             }
           },
 
@@ -1794,14 +1831,17 @@
           get canPost() {
             return !!this.pmContent.trim() || !!this.pmImageUrl;
           },
+          openComposer() {
+            this.composerOpen = true;
+          },
+          // Menutup modal tanpa membuang draf (mis. saat pindah ke modal Karya / Referral)
+          closeComposer() {
+            this.composerOpen = false;
+          },
           resetComposer() {
             this.pmContent = "";
             this.pmImageUrl = "";
             this.pmIsLoker = false;
-            this.pmIsTanya = false;
-            if (this.$refs.postTextarea) {
-              this.$refs.postTextarea.style.height = "auto";
-            }
           },
           handlePmImageFileChange(e) {
             const file = e.target.files && e.target.files[0];
@@ -1823,8 +1863,8 @@
               return;
             }
 
-            // Kategori dipilih penulis lewat tombol Loker atau Tanya Koordinator, tidak ditebak dari isi teks
-            const resolvedCategory = this.pmIsTanya ? "Tanya Koordinator" : this.pmIsLoker ? "Internal Referral" : "Umum";
+            // Kategori tidak ditebak dari isi teks; referral & karya punya modal sendiri
+            const resolvedCategory = this.pmIsLoker ? "Internal Referral" : "Umum";
 
             const newPost = {
               id: Date.now(),
@@ -1847,6 +1887,7 @@
             this.simpan();
             this.setToast("Postingan berhasil diterbitkan");
             this.resetComposer();
+            this.composerOpen = false;
           },
 
           addComment(postId) {
@@ -1917,7 +1958,7 @@
             if (found) return 'detail.html?id=' + encodeURIComponent(found.id);
             return 'detail.html?id=' + encodeURIComponent(name.toLowerCase().replace(/[^a-z0-9]+/g, '-'));
           },
-        };
+        });
       });
     });
   </script>
