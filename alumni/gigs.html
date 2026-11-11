@@ -359,7 +359,7 @@
             <!-- Rows -->
             <div class="divide-y divide-gray-100">
               <template x-for="g in myGigs" :key="g.id">
-                <div class="flex flex-col xl:flex-row xl:items-center gap-4 xl:gap-5 px-4 sm:px-6 py-5 hover:bg-blue-50/30 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 px-4 sm:px-6 py-5 hover:bg-blue-50/30 transition-colors">
                   <div class="flex items-start gap-4 min-w-0 flex-1">
                     <!-- Icon -->
                     <div class="w-11 h-11 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 text-[#1E3A8A]">
@@ -368,14 +368,14 @@
 
                     <!-- Info -->
                     <div class="min-w-0 flex-1">
-                      <h3 class="text-[15px] font-semibold text-gray-900 leading-snug xl:truncate" x-text="g.title"></h3>
+                      <h3 class="text-[15px] font-semibold text-gray-900 leading-snug sm:truncate" x-text="g.title"></h3>
                       <p class="text-[14px] text-gray-600 font-medium mt-0.5 truncate" x-text="g.category + ' · ' + g.budgetRange"></p>
                       <p class="text-[13px] text-gray-400 mt-0.5" x-text="'Dibuat ' + g.postedDate + ' · Tenggat ' + g.deadline"></p>
                     </div>
                   </div>
 
                   <!-- Aksi -->
-                  <div class="flex-shrink-0 flex flex-wrap items-center gap-2.5 sm:pl-[60px] xl:pl-0">
+                  <div class="flex-shrink-0 flex items-center gap-2.5 pl-[60px] sm:pl-0">
                     <!-- Lihat Pelamar: pindah ke halaman gigs-pelamar.html (bukan modal) -->
                     <a
                         :href="'gigs-pelamar.html?id=' + encodeURIComponent(g.id)"
