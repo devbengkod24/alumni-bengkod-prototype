@@ -12,6 +12,7 @@
   <script src="assets/js/alumni-profile-data.js"></script>
   <script src="assets/js/alumni-profile-modals.js"></script>
   <script src="assets/js/alumni-profile-page.js"></script>
+  <script src="assets/js/alumni-cv.js"></script>
 </head>
 <body>
 <!-- Konversi HTML dari lms-bengkod-web: app/(dashboard)/dashboard/alumni/profil/page.tsx -->
@@ -92,53 +93,49 @@
       ====================================================== -->
       <div class="lg:col-span-4 space-y-6 self-stretch relative">
 
-        <!-- ── CARD: REKOMENDASI TEMAN ALUMNI (1 Card Utuh Bergaya Bersih) ── -->
-        <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
-          <!-- Header Card (Simpel, Tanpa Icon & Tanpa Badge '8 Teman') -->
-          <div class="pb-3">
-            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
-            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
+        <!-- ── CARD: KELENGKAPAN PROFIL (dihitung dari state profil; item belum lengkap membuka modal edit terkait) ── -->
+        <div id="kelengkapan-profil" class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
+          <div class="pb-3 flex items-start justify-between gap-3">
+            <div>
+              <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Kelengkapan Profil</h3>
+              <p class="text-[13px] text-gray-500 font-medium mt-0.5">Profil lengkap lebih mudah ditemukan rekan &amp; mitra</p>
+            </div>
+            <span class="text-[22px] font-bold text-[#1E3A8A] leading-none shrink-0" x-text="profileCompleteness.percent + '%'"></span>
           </div>
 
-          <!-- Daftar 8 Rekomendasi Teman (Menyatu dalam 1 card, tanpa garis-garis, tanpa box terpisah per item) -->
-          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
-            <template x-for="person in recommendedPeople" :key="person.id">
-              <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
-                <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <h4 class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] cursor-pointer transition-colors truncate" x-text="person.name"></h4>
-                    <template x-if="person.verified">
-                      <svg class="w-3.5 h-3.5 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-                      </svg>
-                    </template>
-                  </div>
-                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="person.headline"></p>
-                  <button type="button" @click="toggleConnect(person.id)"
-                    class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer shadow-2xs"
-                    :class="connectedPeopleIds.includes(person.id)
-                      ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
-                      : 'border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-white active:scale-95'">
-                    <template x-if="connectedPeopleIds.includes(person.id)">
-                      <span class="inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Terkirim</span>
-                      </span>
-                    </template>
-                    <template x-if="!connectedPeopleIds.includes(person.id)">
-                      <span class="inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                        <span>Hubungkan</span>
-                      </span>
-                    </template>
-                  </button>
+          <div class="h-2 rounded-full bg-gray-100 overflow-hidden" role="progressbar" aria-label="Kelengkapan profil"
+            aria-valuemin="0" aria-valuemax="100" :aria-valuenow="profileCompleteness.percent">
+            <div class="h-full rounded-full bg-[#1E3A8A] transition-all duration-300" :style="'width: ' + profileCompleteness.percent + '%'"></div>
+          </div>
+          <p class="text-[12px] text-gray-500 mt-2" x-text="profileCompleteness.done + ' dari ' + profileCompleteness.items.length + ' bagian sudah lengkap'"></p>
+
+          <ul class="mt-3 space-y-0.5">
+            <template x-for="item in profileCompleteness.items" :key="item.key">
+              <li class="flex items-center gap-3 p-2.5 -mx-1.5 rounded-lg" :class="item.done ? '' : 'hover:bg-gray-50/90'">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                  :class="item.done ? 'bg-[#1E3A8A] text-white' : 'border-2 border-gray-300 bg-white'">
+                  <template x-if="item.done">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                  </template>
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-[14px] font-semibold leading-snug" :class="item.done ? 'text-gray-500' : 'text-gray-900'" x-text="item.label"></p>
+                  <p class="text-[12px] text-gray-500 leading-snug" x-text="item.hint"></p>
                 </div>
-              </div>
+                <template x-if="!item.done">
+                  <button type="button" @click="openCompletenessItem(item.key)"
+                    class="px-3 py-1 rounded-full border border-gray-300 hover:border-[#1E3A8A] text-[12px] font-semibold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer shrink-0">
+                    Lengkapi
+                  </button>
+                </template>
+                <template x-if="item.done && item.key === 'cv'">
+                  <button type="button" @click="openCvPdf()"
+                    class="text-[12px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer shrink-0">Lihat CV</button>
+                </template>
+              </li>
             </template>
-          </div>
+          </ul>
         </div>
-
       </div>
     </div>
 
@@ -1316,12 +1313,31 @@
           this.toast = "Status karir dan tracer study berhasil diperbarui";
           setTimeout(() => { this.toast = ""; }, 3000);
         },
-        connectedPeopleIds: [],
-        toggleConnect(id) {
-          if (this.connectedPeopleIds.includes(id)) {
-            this.connectedPeopleIds = this.connectedPeopleIds.filter(i => i !== id);
-          } else {
-            this.connectedPeopleIds.push(id);
+        // Kelengkapan profil: foto, tentang, pengalaman, proyek, skill, CV
+        get profileCompleteness() {
+          const about = String(this.profile.about || "").trim();
+          const items = [
+            { key: "foto", label: "Foto profil", hint: "Pasang foto yang jelas", done: !!this.profile.avatarUrl && !this.avatarBroken },
+            { key: "tentang", label: "Tentang", hint: "Ringkasan diri minimal 50 karakter", done: about.length >= 50 },
+            { key: "pengalaman", label: "Pengalaman", hint: "Minimal 1 pengalaman kerja / magang", done: (this.experiences || []).length > 0 },
+            { key: "proyek", label: "Proyek", hint: "Minimal 1 proyek / portofolio", done: (this.projects || []).length > 0 },
+            { key: "skill", label: "Keahlian", hint: "Minimal 3 keahlian", done: (this.skills || []).length >= 3 },
+            { key: "cv", label: "CV", hint: "Headline & pendidikan untuk CV ATS", done: !!String(this.profile.headline || "").trim() && (this.educations || []).length > 0 },
+          ];
+          const done = items.filter((i) => i.done).length;
+          return { items, done, percent: Math.round((done / items.length) * 100) };
+        },
+        openCompletenessItem(key) {
+          if (key === "foto") {
+            this.avatarUrlDraft = this.profile.avatarUrl;
+            this.avatarModalOpen = true;
+          } else if (key === "tentang") this.editAboutOpen = true;
+          else if (key === "pengalaman") this.openAddExperienceModal();
+          else if (key === "proyek") this.addProjectOpen = true;
+          else if (key === "skill") this.addSkillsOpen = true;
+          else if (key === "cv") {
+            if (!String(this.profile.headline || "").trim()) this.editProfileOpen = true;
+            else this.addEducationOpen = true;
           }
         },
         saveLanguage() {
@@ -1332,64 +1348,6 @@
           this.profilePublicUrl = this.tempPublicUrl;
           this.editPublicUrlModalOpen = false;
         },
-        recommendedPeople: [
-          {
-            id: 1,
-            name: 'Muhammad Rizal Pratama',
-            avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80',
-            headline: 'iOS Engineer @ Tokopedia | SwiftUI • Kotlin • Flutter | Apple Dev Academy',
-            verified: true,
-          },
-          {
-            id: 2,
-            name: 'Azmi Khofipah',
-            avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80',
-            headline: 'Product Designer @ Blibli | Design Systems & UX Research Enthusiast',
-            verified: false,
-          },
-          {
-            id: 3,
-            name: 'Chandra Lukita Buana',
-            avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-            headline: 'PhD Researcher @ UTeM | Explainable AI & Machine Learning',
-            verified: true,
-          },
-          {
-            id: 4,
-            name: 'Tri Yuliana',
-            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-            headline: 'Frontend Engineer @ Firstudio | React.js • Next.js & TypeScript',
-            verified: false,
-          },
-          {
-            id: 5,
-            name: 'Muhammad Rakha Keanura',
-            avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-            headline: 'Cloud & DevOps Engineer @ Telkom Indonesia | AWS Certified Solutions',
-            verified: false,
-          },
-          {
-            id: 6,
-            name: 'Nadjwa Salsabila',
-            avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
-            headline: 'Associate Product Manager @ GoTo | Alumna Bengkel Koding 2023',
-            verified: true,
-          },
-          {
-            id: 7,
-            name: 'Sindu Aditya Putra',
-            avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80',
-            headline: 'Backend Engineer @ Shopee | Golang • Microservices & Distributed Systems',
-            verified: false,
-          },
-          {
-            id: 8,
-            name: 'Maulidya Ayu Pratiwi',
-            avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=200&q=80',
-            headline: 'Data Scientist @ Traveloka | Deep Learning & Big Data Analytics',
-            verified: false,
-          },
-        ],
         postModalOpen: false,
         editingPost: null,
         pmContent: "",

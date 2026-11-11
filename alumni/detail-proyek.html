@@ -52,7 +52,7 @@
             <!-- Logo Squircle Besar (Persis Product Hunt) -->
             <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border border-gray-200 ring-2 ring-blue-50/80 flex items-center justify-center shrink-0 overflow-hidden bg-gray-50 shadow-xs">
               <template x-if="product.logo">
-                <img :src="product.logo" :alt="product.nama" class="w-full h-full object-cover">
+                <img :src="product.logo" :alt="product.nama" @error="$el.src = 'assets/img/gambar-kosong.png'" class="w-full h-full object-cover">
               </template>
               <template x-if="!product.logo">
                 <span class="text-2xl font-black text-[#1E3A8A]" x-text="(product.nama || '').charAt(0).toUpperCase() || 'P'"></span>
@@ -87,6 +87,7 @@
           <template x-if="product.screenshots && product.screenshots.length > 0">
             <div class="rounded-xl border border-gray-200 overflow-hidden bg-gray-100 aspect-[16/9] shadow-2xs relative group">
               <img
+                @error="$el.src = 'assets/img/gambar-kosong.png'"
                 :src="product.screenshots[0]"
                 :alt="product.nama"
                 class="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
@@ -487,7 +488,41 @@
           try {
             const posts = typeof loadPosts === "function" ? loadPosts() : [];
             let matched = null;
-            if (targetId) {
+
+            // Proyek profil alumni (dari kartu "Karya lain dari alumni ini" di detail.html): ?alumni=<id>&proyek=<id>
+            const alumniParam = urlParams.get("alumni");
+            const proyekParam = urlParams.get("proyek");
+            if (alumniParam && proyekParam && typeof getAlumniFullProfile === "function") {
+              const full = getAlumniFullProfile(alumniParam);
+              const proj = (full.projects || []).find((p) => String(p.id) === String(proyekParam));
+              if (proj) {
+                matched = posts.find((p) => p.karya && p.karya.nama && p.karya.nama.toLowerCase() === String(proj.title).toLowerCase()) || null;
+                if (!matched) {
+                  this.product = {
+                    postId: null,
+                    nama: proj.title,
+                    tagline: proj.tagline || (proj.desc ? proj.desc.slice(0, 110) : "Proyek alumni Bengkel Koding"),
+                    pitch: proj.desc || proj.title,
+                    logo: proj.imageUrl || "",
+                    categoryTags: proj.tags && proj.tags.length ? proj.tags : ["Proyek"],
+                    url: proj.linkUrl || "",
+                    stack: proj.tags || [],
+                    screenshots: proj.imageUrl ? [proj.imageUrl] : ["https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1000&auto=format&fit=crop&q=80"],
+                    overview: proj.desc || "",
+                    authorName: full.profile.name,
+                    authorAvatar: full.profile.avatarUrl,
+                    authorHeadline: full.profile.headline,
+                    content: proj.desc || "",
+                    upvotes: 0,
+                    isUpvoted: false,
+                    feedbacks: [],
+                  };
+                  return;
+                }
+              }
+            }
+
+            if (!matched && targetId) {
               matched = posts.find(p => p.id == targetId && p.karya) || posts.find(p => p.karya && p.karya.nama.toLowerCase().includes(targetId.toLowerCase()));
             }
             if (!matched) {
