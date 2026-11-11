@@ -260,17 +260,36 @@ function pasangToolsTabel(idWadah, namaFile, ambilBaris) {
 // Navigasi halaman untuk daftar
 function renderPager(idWadah, total, perHalaman, halaman, keHalaman) {
   const el = document.getElementById(idWadah);
+  if (!el) return;
   const jumlah = Math.max(1, Math.ceil(total / perHalaman));
   if (total <= perHalaman) { el.innerHTML = ''; return; }
+
+  const awal = (halaman - 1) * perHalaman + 1;
+  const akhir = Math.min(halaman * perHalaman, total);
+
   el.innerHTML = `
-    <div class="flex items-center justify-between gap-3">
-      <span class="text-sm text-neutral2">Halaman ${halaman} dari ${jumlah}</span>
-      <div class="flex gap-2">
-        <button type="button" class="btn-outline" data-ke="${halaman - 1}" ${halaman <= 1 ? 'disabled' : ''}>Sebelumnya</button>
-        <button type="button" class="btn-outline" data-ke="${halaman + 1}" ${halaman >= jumlah ? 'disabled' : ''}>Berikutnya</button>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+      <p class="text-xs sm:text-[13px] text-gray-500 order-last sm:order-none">
+        Menampilkan <span class="font-semibold text-gray-800">${awal}</span>–<span class="font-semibold text-gray-800">${akhir}</span> dari <span class="font-semibold text-gray-800">${total}</span> data
+      </p>
+      <div class="flex items-center gap-1.5 self-center sm:self-auto">
+        <button type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer" data-ke="${halaman - 1}" ${halaman <= 1 ? 'disabled' : ''}>
+          <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+          <span>Sebelumnya</span>
+        </button>
+        <span class="px-2.5 py-1 text-xs font-semibold text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg">
+          ${halaman} / ${jumlah}
+        </span>
+        <button type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer" data-ke="${halaman + 1}" ${halaman >= jumlah ? 'disabled' : ''}>
+          <span>Berikutnya</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+        </button>
       </div>
     </div>`;
-  el.querySelectorAll('[data-ke]').forEach(b => b.addEventListener('click', () => keHalaman(Number(b.dataset.ke))));
+  el.querySelectorAll('[data-ke]').forEach(b => b.addEventListener('click', () => {
+    if (!b.disabled) keHalaman(Number(b.dataset.ke));
+  }));
+  refreshIcons();
 }
 
 function potong(list, halaman, perHalaman) {
@@ -380,14 +399,29 @@ const NAV = {
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
     { href: 'laporan-forum.html', icon: 'flag', label: 'Laporan Forum' },
-    { href: 'statistik.html', icon: 'chart-column', label: 'Statistik Data Alumni' },
-    { href: 'tracer.html', icon: 'clipboard-list', label: 'Analitik Tracer' },
+    { href: 'tracer.html', icon: 'chart-column', label: 'Statistik & Tracer' },
     { href: 'data-alumni.html', icon: 'id-card', label: 'Data Alumni' },
     { href: 'karya.html', icon: 'trophy', label: 'Karya Alumni' },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
   ],
 };
 const NAMA_ROLE = { alumni: 'Alumni', admin: 'Koordinator Alumni' };
+
+function hitungLaporanMenunggu() {
+  const listBaru = (typeof BengkodStore !== 'undefined' && BengkodStore.getLaporan)
+    ? BengkodStore.getLaporan('menunggu') : [];
+  const listLama = (typeof DB !== 'undefined' && DB.forum?.laporan)
+    ? DB.forum.laporan('menunggu') : [];
+  return listBaru.length + listLama.length;
+}
+
+window.segarkanBadgeSidebar = function () {
+  const el = document.getElementById('badge-laporan-sidebar');
+  if (!el) return;
+  const count = hitungLaporanMenunggu();
+  el.textContent = count;
+  el.classList.toggle('hidden', count === 0);
+};
 
 function keluar() {
   DB.akun.keluar();
@@ -413,28 +447,129 @@ function pasangDropdown(tombol, panel) {
   });
 }
 
+let notifHalaman = 1;
+const NOTIF_PER_HALAMAN = 5;
+let filterModalNotif = 'semua';
+let halModalNotif = 1;
+const NOTIF_MODAL_PER_HAL = 6;
+
+function bukaModalSemuaNotif() {
+  document.getElementById('notif-panel')?.classList.add('hidden');
+  renderModalSemuaNotif();
+  openModal('modal-semua-notif');
+}
+
+function renderModalSemuaNotif() {
+  const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
+  const terfilter = filterModalNotif === 'belum' ? list.filter(n => !n.dibaca) : list;
+  const belum = list.filter(n => !n.dibaca).length;
+  const total = terfilter.length;
+  const awal = (halModalNotif - 1) * NOTIF_MODAL_PER_HAL;
+  const itemDitampilkan = terfilter.slice(awal, awal + NOTIF_MODAL_PER_HAL);
+
+  const btnSemua = document.getElementById('btn-tab-notif-semua');
+  const btnBelum = document.getElementById('btn-tab-notif-belum');
+  if (btnSemua && btnBelum) {
+    const isSemua = filterModalNotif === 'semua';
+    btnSemua.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${isSemua ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
+    btnBelum.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${!isSemua ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
+  }
+
+  const wadah = document.getElementById('modal-notif-daftar');
+  if (!wadah) return;
+
+  wadah.innerHTML = itemDitampilkan.map(n => `
+    <div class="flex items-start gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/70 transition-colors ${n.dibaca ? 'bg-white' : 'bg-blue-50/30 border-blue-100'}">
+      <span class="w-9 h-9 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'} flex items-center justify-center shrink-0 mt-0.5">
+        <i data-lucide="${esc(n.ikon)}" class="w-4 h-4"></i>
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <a href="${esc(n.tautan)}" onclick="DB.notifikasi.baca(${n.id})" class="text-[14px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-bold'} hover:text-[#1E3A8A] leading-snug">
+            ${esc(n.pesan)}
+          </a>
+          ${!n.dibaca ? '<span class="px-2 py-0.5 rounded-full bg-blue-100 text-[#1E3A8A] text-[10.5px] font-bold shrink-0">Baru</span>' : ''}
+        </div>
+        <p class="text-xs text-gray-400 mt-1">${waktuLalu(n.waktu)}</p>
+        <div class="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-100/80">
+          ${!n.dibaca ? `<button type="button" onclick="DB.notifikasi.baca(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai telah dibaca</button>` : ''}
+          <button type="button" onclick="DB.notifikasi.hapus(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto flex items-center gap-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Hapus</span>
+          </button>
+        </div>
+      </div>
+    </div>`).join('') || `<div class="p-12 text-center text-gray-400"><i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-sm">Tidak ada notifikasi ${filterModalNotif === 'belum' ? 'yang belum dibaca' : ''}.</p></div>`;
+
+  renderPager('modal-notif-pager', total, NOTIF_MODAL_PER_HAL, halModalNotif, ke => {
+    halModalNotif = ke;
+    renderModalSemuaNotif();
+  });
+  refreshIcons();
+}
+
 function renderNotifikasi() {
-  // Alumni tidak punya menu Forum, jadi notifikasi diskusi forum tidak ditampilkan
   const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
   const belum = list.filter(n => !n.dibaca).length;
   const jumlah = document.getElementById('notif-jumlah');
-  jumlah.textContent = belum;
-  jumlah.classList.toggle('hidden', !belum);
-  document.getElementById('notif-panel').innerHTML = `
-    <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-neutral4/70">
-      <p class="!text-sm font-semibold text-neutral1">Notifikasi</p>
-      ${belum ? '<button type="button" data-baca-semua class="text-xs font-semibold text-primary2 hover:underline">Tandai semua dibaca</button>' : ''}
+  if (jumlah) {
+    jumlah.textContent = belum > 9 ? '9+' : belum;
+    jumlah.classList.toggle('hidden', !belum);
+  }
+
+  const panel = document.getElementById('notif-panel');
+  if (!panel) return;
+
+  const total = list.length;
+  const totalHalaman = Math.max(1, Math.ceil(total / NOTIF_PER_HALAMAN));
+  if (notifHalaman > totalHalaman) notifHalaman = totalHalaman;
+  if (notifHalaman < 1) notifHalaman = 1;
+
+  const awal = (notifHalaman - 1) * NOTIF_PER_HALAMAN;
+  const itemDitampilkan = list.slice(awal, awal + NOTIF_PER_HALAMAN);
+
+  panel.innerHTML = `
+    <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-gray-100 bg-white">
+      <div class="flex items-center gap-2">
+        <p class="!text-sm font-bold text-gray-900">Notifikasi</p>
+        ${belum ? `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[11px] font-bold">${belum} baru</span>` : ''}
+      </div>
+      <div class="flex items-center gap-2">
+        ${belum ? '<button type="button" data-baca-semua class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>' : ''}
+        ${total ? '<button type="button" data-hapus-semua class="text-xs text-gray-400 hover:text-red-600 transition-colors cursor-pointer" title="Hapus semua notifikasi"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' : ''}
+      </div>
     </div>
-    <div class="max-h-80 overflow-y-auto">
-      ${list.slice(0, 15).map(n => `
-        <a href="${esc(n.tautan)}" data-notif="${n.id}" class="flex items-start gap-2.5 px-4 py-2.5 hover:bg-primary5 transition-colors ${n.dibaca ? '' : 'bg-primary5/40'}">
-          <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center shrink-0"><i data-lucide="${esc(n.ikon)}" class="w-3.5 h-3.5"></i></span>
-          <span class="min-w-0">
-            <span class="block text-xs text-neutral1 leading-snug">${esc(n.pesan)}</span>
-            <span class="block text-[11px] text-neutral3 mt-0.5">${waktuLalu(n.waktu)}</span>
+    <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+      ${itemDitampilkan.map(n => `
+        <div class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${n.dibaca ? 'bg-white' : 'bg-blue-50/40'}">
+          <span class="w-8 h-8 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'} flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="${esc(n.ikon)}" class="w-4 h-4"></i>
           </span>
-        </a>`).join('') || '<p class="!text-sm text-neutral3 px-4 py-8 text-center">Belum ada notifikasi.</p>'}
-    </div>`;
+          <div class="min-w-0 flex-1">
+            <a href="${esc(n.tautan)}" data-notif="${n.id}" class="block group/link">
+              <span class="block text-[13px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-semibold'} leading-snug group-hover/link:text-[#1E3A8A] transition-colors">${esc(n.pesan)}</span>
+              <span class="block text-[11px] text-gray-400 mt-1">${waktuLalu(n.waktu)}</span>
+            </a>
+            <div class="flex items-center gap-3 mt-1.5 pt-0.5">
+              ${!n.dibaca ? `<button type="button" data-baca-item="${n.id}" class="text-[11px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai dibaca</button>` : ''}
+              <button type="button" data-hapus-item="${n.id}" class="text-[11px] font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto">Hapus</button>
+            </div>
+          </div>
+          ${!n.dibaca ? '<span class="w-2 h-2 rounded-full bg-[#1E3A8A] shrink-0 mt-1.5" aria-label="Belum dibaca"></span>' : ''}
+        </div>`).join('') || '<div class="p-8 text-center text-gray-400"><i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i><p class="text-sm">Belum ada notifikasi.</p></div>'}
+    </div>
+    ${total > 0 ? `
+      <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs text-gray-600">
+        <button type="button" data-lihat-semua class="font-semibold text-[#1E3A8A] hover:underline cursor-pointer">
+          Lihat semua notif (${total})
+        </button>
+        ${totalHalaman > 1 ? `
+          <div class="flex items-center gap-1.5">
+            <button type="button" data-notif-ke="${notifHalaman - 1}" ${notifHalaman <= 1 ? 'disabled' : ''} class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
+            <span class="tabular-nums font-semibold text-gray-800">${notifHalaman}/${totalHalaman}</span>
+            <button type="button" data-notif-ke="${notifHalaman + 1}" ${notifHalaman >= totalHalaman ? 'disabled' : ''} class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Berikutnya"><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i></button>
+          </div>` : ''}
+      </div>` : ''}
+  `;
   refreshIcons();
 }
 
@@ -448,9 +583,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const navItems = nav.map(n => {
     const active = n.href === activeHref;
+    let badgeHTML = '';
+    if (n.href === 'laporan-forum.html') {
+      const count = hitungLaporanMenunggu();
+      badgeHTML = `<span id="badge-laporan-sidebar" class="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold ${active ? 'bg-white text-primary1' : 'bg-red2 text-white'} ${count === 0 ? 'hidden' : ''}">${count}</span>`;
+    }
     return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
       class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
-      <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span>${n.label}</span></a>`;
+      <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span class="truncate">${n.label}</span>${badgeHTML}</a>`;
   }).join('');
 
   document.body.insertAdjacentHTML('afterbegin', `
@@ -460,25 +600,56 @@ document.addEventListener('DOMContentLoaded', () => {
         <a href="${nav[0].href}" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
           <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
         </a>
-        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors" aria-label="Tutup menu">
+        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors cursor-pointer" aria-label="Tutup menu">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
-        <button type="button" onclick="keluar()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <button type="button" onclick="keluar()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors cursor-pointer">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></button>
       </div>
     </aside>`);
 
   const beranda = nav[0].href;
   const judulHalaman = esc(main.dataset.title);
+  const urlParams = new URLSearchParams(location.search);
+  const idParam = urlParams.get('id');
 
-  // Format baku sesuai arahan: Role -> Nama Halaman (Alumni › [Judul Halaman])
-  const breadcrumbHTML = `
-    <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
-    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-    <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
+  // Breadcrumb dinamis: halaman berbasis ID mengambil nama entitas asli
+  let breadcrumbHTML = '';
+  if (NAMA_FILE === 'profil-alumni.html' && idParam) {
+    const a = DB.akun.cari(idParam);
+    const namaAlumni = a ? esc(a.nama) : `Alumni #${esc(idParam)}`;
+    breadcrumbHTML = `
+      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <a href="data-alumni.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Data Alumni</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <span class="font-medium text-neutral1 truncate">${namaAlumni}</span>`;
+  } else if (NAMA_FILE === 'forum-detail.html' && idParam) {
+    const p = (typeof FeedBersama !== 'undefined' ? FeedBersama.cari(idParam) : null) || (DB.forum ? DB.forum.cari(idParam) : null);
+    const judul = p ? esc(p.judul || (p.isi ? (p.isi.slice(0, 32) + (p.isi.length > 32 ? '…' : '')) : 'Detail Diskusi')) : 'Detail Diskusi';
+    breadcrumbHTML = `
+      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <a href="forum.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Forum</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <span class="font-medium text-neutral1 truncate">${judul}</span>`;
+  } else if (NAMA_FILE === 'detail-kelulusan.html') {
+    const thn = esc(urlParams.get('tahun') || '2026');
+    breadcrumbHTML = `
+      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <a href="tracer.html?tab=statistik" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Statistik & Tracer</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <span class="font-medium text-neutral1 truncate">Tahun Lulus ${thn}</span>`;
+  } else {
+    breadcrumbHTML = `
+      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
+  }
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
@@ -489,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button
           id="sidebar-toggle"
           type="button"
-          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0"
+          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0 cursor-pointer"
           aria-label="Toggle sidebar"
           aria-expanded="true"
         >
@@ -501,16 +672,16 @@ document.addEventListener('DOMContentLoaded', () => {
         <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">${breadcrumbHTML}</nav>
       </div>
 
-      <div class="flex items-center gap-3 shrink-0">
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
         <div class="relative flex items-center">
-          <button type="button" id="notif-btn" class="relative p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors" aria-expanded="false" aria-label="Notifikasi">
+          <button type="button" id="notif-btn" class="relative w-10 h-10 inline-flex items-center justify-center rounded-full text-neutral2 hover:bg-neutral5 hover:text-neutral1 focus:outline-none focus:ring-4 focus:ring-primary5 transition-colors cursor-pointer" aria-expanded="false" aria-label="Notifikasi">
             <i data-lucide="bell" class="w-5 h-5"></i>
-            <span id="notif-jumlah" class="hidden absolute top-0.5 right-0.5 min-w-4 h-4 px-1 rounded-full bg-red2 text-white text-[10px] font-semibold leading-4 text-center"></span>
+            <span id="notif-jumlah" class="hidden absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red2 text-white text-[10.5px] font-bold leading-[18px] text-center ring-2 ring-white"></span>
           </button>
-          <div id="notif-panel" class="hidden fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-80 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"></div>
+          <div id="notif-panel" class="hidden fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"></div>
         </div>
         <div class="relative flex items-center" id="profile-dropdown-wrapper">
-          <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group" aria-expanded="false" aria-label="Menu Pengguna">
+          <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 rounded-full p-0.5 sm:pl-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group" aria-expanded="false" aria-label="Menu Pengguna">
             <div class="text-right hidden sm:block">
               <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" data-nama-saya>${esc(SAYA.nama)}</div>
               <div class="text-[11px] text-neutral3">${SAYA.role === 'admin' ? NAMA_ROLE.admin : 'Alumni Asisten Lab'}</div>
@@ -539,7 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="border-t border-neutral4/70"></div>
             <ul class="py-1.5">
               <li>
-                <button type="button" onclick="keluar()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                <button type="button" onclick="keluar()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group cursor-pointer">
                   <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></span>
                   <span>Keluar</span>
                 </button>
@@ -560,9 +731,37 @@ document.addEventListener('DOMContentLoaded', () => {
         <h3 id="confirm-title" class="font-semibold text-base text-neutral1"></h3>
         <p id="confirm-message" class="!text-sm text-neutral2 mt-2"></p>
         <div class="mt-6 flex justify-end gap-2">
-          <button onclick="closeModal('confirm-modal')" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5">Batal</button>
-          <button id="confirm-ok"></button>
+          <button onclick="closeModal('confirm-modal')" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5 cursor-pointer">Batal</button>
+          <button id="confirm-ok" class="cursor-pointer"></button>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal Lihat Semua Notifikasi -->
+    <div id="modal-semua-notif" data-modal-backdrop class="modal-backdrop">
+      <div class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="modal-notif-title">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+          <div>
+            <h3 id="modal-notif-title" class="text-lg font-bold text-gray-900 tracking-tight">Semua Notifikasi</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola seluruh riwayat notifikasi dan pemberitahuan Anda</p>
+          </div>
+          <button type="button" onclick="closeModal('modal-semua-notif')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap">
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="btn-tab-notif-semua" onclick="filterModalNotif = 'semua'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#1E3A8A] text-white transition-colors cursor-pointer">Semua</button>
+            <button type="button" id="btn-tab-notif-belum" onclick="filterModalNotif = 'belum'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer">Belum Dibaca</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="DB.notifikasi.bacaSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
+            <span class="text-gray-300">•</span>
+            <button type="button" onclick="confirmAction({ title: 'Hapus semua notifikasi?', message: 'Seluruh riwayat notifikasi Anda akan dibersihkan.', okLabel: 'Hapus Semua', danger: true }, () => { DB.notifikasi.hapusSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif(); });" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Hapus semua</button>
+          </div>
+        </div>
+
+        <div id="modal-notif-daftar" class="space-y-2.5 py-3 min-h-[240px]"></div>
+        <div id="modal-notif-pager" class="pt-3 border-t border-gray-100"></div>
       </div>
     </div>`);
 
@@ -577,11 +776,60 @@ document.addEventListener('DOMContentLoaded', () => {
   const panelNotifikasi = document.getElementById('notif-panel');
   pasangDropdown(document.getElementById('notif-btn'), panelNotifikasi);
   panelNotifikasi.addEventListener('click', e => {
+    // Cegah penutupan dropdown saat paginasi, hapus item, atau tandai dibaca
+    if (!e.target.closest('[data-lihat-semua]') && !e.target.closest('[data-hapus-semua]') && !e.target.closest('[data-notif]')) {
+      e.stopPropagation();
+    }
+
     const item = e.target.closest('[data-notif]');
     if (item) DB.notifikasi.baca(item.dataset.notif);
+
+    const bacaItem = e.target.closest('[data-baca-item]');
+    if (bacaItem) {
+      e.preventDefault();
+      DB.notifikasi.baca(bacaItem.dataset.bacaItem);
+      renderNotifikasi();
+      return;
+    }
+
+    const hapusItem = e.target.closest('[data-hapus-item]');
+    if (hapusItem) {
+      e.preventDefault();
+      DB.notifikasi.hapus(hapusItem.dataset.hapusItem);
+      renderNotifikasi();
+      return;
+    }
+
     if (e.target.closest('[data-baca-semua]')) {
+      e.preventDefault();
       DB.notifikasi.bacaSemua(SAYA.id);
       renderNotifikasi();
+      return;
+    }
+
+    if (e.target.closest('[data-hapus-semua]')) {
+      confirmAction({
+        title: 'Hapus semua notifikasi?',
+        message: 'Seluruh riwayat notifikasi akan dihapus.',
+        okLabel: 'Hapus Semua',
+        danger: true
+      }, () => {
+        DB.notifikasi.hapusSemua(SAYA.id);
+        renderNotifikasi();
+      });
+      return;
+    }
+
+    const tombolHal = e.target.closest('[data-notif-ke]');
+    if (tombolHal && !tombolHal.disabled) {
+      e.preventDefault();
+      notifHalaman = Number(tombolHal.dataset.notifKe);
+      renderNotifikasi();
+      return;
+    }
+
+    if (e.target.closest('[data-lihat-semua]')) {
+      bukaModalSemuaNotif();
     }
   });
   renderNotifikasi();
