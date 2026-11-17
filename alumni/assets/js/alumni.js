@@ -276,7 +276,7 @@ function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel(), r
       return `
         <a href="${alumniHref("/dashboard/alumni")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${role}</a>
         <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-        <a href="${alumniHref("/dashboard/alumni/direktori")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Detail Alumni</a>
+        <a href="${alumniHref("/dashboard/alumni/direktori")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Direktori Alumni</a>
         <span class="mx-2 text-neutral3 select-none font-normal">›</span>
         <span class="font-medium text-neutral1 truncate">${alumniName}</span>`;
     }
