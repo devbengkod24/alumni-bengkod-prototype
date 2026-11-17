@@ -31,10 +31,9 @@
           Software &amp; aplikasi karya rekan alumni Bengkel Koding
         </p>
       </div>
-      <button
-        type="button"
+      <a
+        href="launch-karya.html"
         id="btn-showcase-launch"
-        @click="addProjectOpen = true"
         class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0"
       >
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -44,7 +43,7 @@
           <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
         </svg>
         <span>Launch Karya</span>
-      </button>
+      </a>
     </div>
 
     <!-- Toolbar: jumlah karya, filter stack, pencarian -->
@@ -150,9 +149,6 @@
         <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau stack lain.</p>
       </div>
     </template>
-
-    <!-- MODAL: LAUNCH KARYA (form yang sama dengan beranda & profil) -->
-    <div data-partial="modal-add-project" data-title="Tambah Proyek / Karya" data-size="post"></div>
   </div>
 </main>
 
@@ -163,7 +159,6 @@
       posts: [],
       stackFilter: "",
       query: "",
-      addProjectOpen: false,
       toast: "",
       toastTimer: null,
       profile: {
@@ -175,6 +170,16 @@
       init() {
         this.muat();
         window.addEventListener("bengkod_posts_updated", () => this.muat());
+
+        // Cek toast tertunda dari halaman launch-karya.html
+        try {
+          const pendingToast = sessionStorage.getItem("bengkod_toast");
+          if (pendingToast) {
+            this.setToast(pendingToast);
+            sessionStorage.removeItem("bengkod_toast");
+          }
+        } catch {}
+
         try {
           const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
           if (saved) {

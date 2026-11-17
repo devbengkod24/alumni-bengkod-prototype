@@ -208,7 +208,8 @@ const INITIAL_CERTIFICATIONS = [
 
 const INITIAL_SKILLS = [
   { id: "1", name: "Data Analysis & Visualization", level: "Tingkat Mahir", links: [{ type: "project", id: "1" }] },
-  { id: "2", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
+  { id: "2", name: "Python & Machine Learning", level: "Tingkat Mahir", links: [{ type: "project", id: "2" }] },
+  { id: "3", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
 ];
 
 const INITIAL_EXPERIENCES = [

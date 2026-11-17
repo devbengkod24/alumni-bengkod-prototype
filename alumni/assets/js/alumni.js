@@ -123,8 +123,11 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni" || link === "/dashboard/alumni/beranda") return `${base}dashboard.html`;
   if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
   if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
+  if (link === "/dashboard/alumni/launch-karya") return `${base}launch-karya.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
+  if (link === "/dashboard/alumni/lempar-proyek") return `${base}lempar-proyek.html`;
   if (link === "/dashboard/alumni/referral") return `${base}referral.html`;
+  if (link === "/dashboard/alumni/bagikan-referral") return `${base}bagikan-referral.html`;
   if (link === "/dashboard/alumni/referral-pengajuan") return `${base}referral-pengajuan.html`;
   if (link === "/dashboard/alumni/data-cv" || link === "/dashboard/alumni/generate-cv") return `${base}data-cv.html`;
   if (link === "/dashboard/alumni/profil" || link.startsWith("/dashboard/alumni/profil?")) return `${base}profil.html` + (link.includes("?") ? link.slice(link.indexOf("?")) : "");
@@ -225,6 +228,9 @@ const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/tracer": "Status Karir",
   "/dashboard/alumni/gigs-pelamar": "Pelamar Proyek",
   "/dashboard/alumni/referral-pengajuan": "Pengajuan Referral",
+  "/dashboard/alumni/launch-karya": "Launch Karya",
+  "/dashboard/alumni/lempar-proyek": "Lempar Proyek",
+  "/dashboard/alumni/bagikan-referral": "Bagikan Referral",
 };
 
 // Halaman turunan menyorot menu induknya di sidebar
@@ -233,6 +239,9 @@ const ALUMNI_NAV_PARENT = {
   "/dashboard/alumni/tracer": "/dashboard/alumni/profil",
   "/dashboard/alumni/gigs-pelamar": "/dashboard/alumni/gigs",
   "/dashboard/alumni/referral-pengajuan": "/dashboard/alumni/referral",
+  "/dashboard/alumni/launch-karya": "/dashboard/alumni/showcase",
+  "/dashboard/alumni/lempar-proyek": "/dashboard/alumni/gigs",
+  "/dashboard/alumni/bagikan-referral": "/dashboard/alumni/referral",
 };
 
 // Samain route alias ke route utama di ALUMNI_NAVIGATIONS
@@ -280,6 +289,17 @@ function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel(), r
         <span class="mx-2 text-neutral3 select-none font-normal">›</span>
         <span class="font-medium text-neutral1 truncate">${alumniName}</span>`;
     }
+  }
+
+  const parentRoute = ALUMNI_NAV_PARENT[norm];
+  if (parentRoute) {
+    const parentTitle = alumniPageTitle(parentRoute);
+    return `
+      <a href="${alumniHref("/dashboard/alumni")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${role}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <a href="${alumniHref(parentRoute)}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${parentTitle}</a>
+      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+      <span class="font-medium text-neutral1 truncate">${title}</span>`;
   }
 
   return `

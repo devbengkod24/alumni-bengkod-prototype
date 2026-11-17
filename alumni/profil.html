@@ -1325,7 +1325,7 @@
             { key: "tentang", label: "Tentang", hint: "Ringkasan diri minimal 50 karakter", done: about.length >= 50 },
             { key: "pengalaman", label: "Pengalaman", hint: "Minimal 1 pengalaman kerja / magang", done: (this.experiences || []).length > 0 },
             { key: "proyek", label: "Proyek", hint: "Minimal 1 proyek / portofolio", done: (this.projects || []).length > 0 },
-            { key: "skill", label: "Keahlian", hint: "Minimal 3 keahlian", done: (this.skills || []).length >= 3 },
+            { key: "skill", label: "Keahlian", hint: "Minimal 1 keahlian", done: (this.skills || []).length > 0 },
             { key: "cv", label: "CV", hint: "Headline & pendidikan untuk CV ATS", done: !!String(this.profile.headline || "").trim() && (this.educations || []).length > 0 },
           ];
           const done = items.filter((i) => i.done).length;
