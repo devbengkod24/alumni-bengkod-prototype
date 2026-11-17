@@ -342,49 +342,36 @@
           KOLOM SAMPING (KANAN) — IDENTIK 100% PERSIS PROFIL
       ====================================================== -->
       <div class="lg:col-span-4 space-y-6 self-stretch relative">
-        <!-- CARD: REKOMENDASI TEMAN ALUMNI -->
+        <!-- CARD: KARYA LAIN DARI ALUMNI INI (karya Showcase + proyek profil, ke detail-proyek.html) -->
         <div class="sticky top-[80px] bg-white rounded-xl border border-gray-200/80 shadow-sm p-5 sm:p-6">
           <div class="pb-3">
-            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Orang yang mungkin Anda kenal</h3>
-            <p class="text-[13px] text-gray-500 font-medium mt-0.5">Dari Bengkel Koding</p>
+            <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Karya lain dari alumni ini</h3>
+            <p class="text-[13px] text-gray-500 font-medium mt-0.5" x-text="'Proyek & karya ' + (profile.firstName || profile.name)"></p>
           </div>
 
-          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto pr-0.5">
-            <template x-for="person in recommendedPeople" :key="person.id">
-              <div class="p-2.5 -mx-1.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
-                <a :href="'detail.html?id=' + (person.alumniId || person.id)" class="flex-shrink-0">
-                  <img :src="person.avatar" :alt="person.name" class="w-12 h-12 rounded-full object-cover border border-gray-200/80 shadow-2xs flex-shrink-0 mt-0.5">
-                </a>
+          <template x-if="otherWorks.length === 0">
+            <p class="text-[13px] text-gray-500 py-6 text-center">Belum ada karya yang dipublikasikan.</p>
+          </template>
+
+          <div class="space-y-1 mt-1 max-h-[640px] overflow-y-auto overflow-x-hidden -mx-2.5">
+            <template x-for="work in otherWorks" :key="work.key">
+              <a :href="work.href" class="p-2.5 rounded-lg hover:bg-gray-50/90 transition-colors group flex items-start gap-3">
+                <img :src="work.image || 'assets/img/gambar-kosong.png'" :alt="work.title"
+                  @error="$el.src = 'assets/img/gambar-kosong.png'"
+                  class="w-14 h-14 rounded-lg object-cover border border-gray-200/80 bg-gray-50 shadow-2xs flex-shrink-0 mt-0.5">
                 <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <a :href="'detail.html?id=' + (person.alumniId || person.id)" class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] cursor-pointer transition-colors truncate" x-text="person.name"></a>
-                    <template x-if="person.verified">
-                      <svg class="w-3.5 h-3.5 text-blue-600 inline flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
-                      </svg>
+                  <p class="text-[14px] font-semibold text-gray-900 leading-snug group-hover:text-[#1E3A8A] transition-colors line-clamp-2" x-text="work.title"></p>
+                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="work.desc"></p>
+                  <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    <template x-if="work.showcase">
+                      <span class="px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-100">Showcase</span>
+                    </template>
+                    <template x-for="tag in work.tags.slice(0, 2)" :key="tag">
+                      <span class="px-2 py-0.5 rounded-full text-[10.5px] font-medium bg-gray-100 text-gray-600" x-text="tag"></span>
                     </template>
                   </div>
-                  <p class="text-[12px] text-gray-500 leading-snug line-clamp-2 mt-0.5 font-normal" x-text="person.headline"></p>
-                  <button type="button" @click="toggleConnect(person.id)"
-                    class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[12px] font-semibold transition-all duration-150 cursor-pointer shadow-2xs"
-                    :class="connectedPeopleIds.includes(person.id)
-                      ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200'
-                      : 'border border-gray-300 hover:border-[#1E3A8A] text-gray-700 hover:text-[#1E3A8A] hover:bg-white active:scale-95'">
-                    <template x-if="connectedPeopleIds.includes(person.id)">
-                      <span class="inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span>Terkirim</span>
-                      </span>
-                    </template>
-                    <template x-if="!connectedPeopleIds.includes(person.id)">
-                      <span class="inline-flex items-center gap-1">
-                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                        <span>Hubungkan</span>
-                      </span>
-                    </template>
-                  </button>
                 </div>
-              </div>
+              </a>
             </template>
           </div>
         </div>
@@ -554,7 +541,6 @@
     Alpine.data("detailPage", () => {
       return profilePageData("detail", {
         isDetailConnected: false,
-        connectedPeopleIds: [],
         activeCommentId: null,
         commentInputs: {},
         activeReplyCommentId: null,
@@ -605,6 +591,36 @@
           });
         },
 
+        // Karya Showcase (post karya milik alumni ini) + proyek profil yang belum dipublikasikan
+        get otherWorks() {
+          const name = String(this.profile.name || "").toLowerCase();
+          const posts = typeof loadPosts === "function" ? loadPosts() : [];
+          const karya = posts
+            .filter((p) => p.karya && String(p.authorName || "").toLowerCase() === name)
+            .map((p) => ({
+              key: "post-" + p.id,
+              title: p.karya.nama,
+              desc: p.karya.tagline || "",
+              image: p.karya.logo || p.karya.bannerUrl || "",
+              tags: p.karya.categoryTags || p.karya.stack || [],
+              showcase: true,
+              href: "detail-proyek.html?id=" + encodeURIComponent(p.id),
+            }));
+          const sudah = new Set(karya.map((k) => String(k.title).toLowerCase()));
+          const proyek = (this.projects || [])
+            .filter((pr) => pr.title && !sudah.has(pr.title.toLowerCase()))
+            .map((pr) => ({
+              key: "proj-" + pr.id,
+              title: pr.title,
+              desc: pr.desc || "",
+              image: pr.imageUrl || "",
+              tags: pr.tags || [],
+              showcase: false,
+              href: "detail-proyek.html?alumni=" + encodeURIComponent(this.profile.id || targetAlumniId) + "&proyek=" + encodeURIComponent(pr.id),
+            }));
+          return [...karya, ...proyek];
+        },
+
         toggleConnectDetail() {
           this.isDetailConnected = !this.isDetailConnected;
           this.toast = this.isDetailConnected
@@ -616,16 +632,6 @@
           this.toast = "Tautan profil alumni berhasil disalin ke clipboard!";
           if (navigator.clipboard) {
             navigator.clipboard.writeText(window.location.href);
-          }
-        },
-
-        toggleConnect(personId) {
-          if (this.connectedPeopleIds.includes(personId)) {
-            this.connectedPeopleIds = this.connectedPeopleIds.filter((id) => id !== personId);
-            this.toast = "Permintaan koneksi dibatalkan.";
-          } else {
-            this.connectedPeopleIds.push(personId);
-            this.toast = "Permintaan koneksi berhasil dikirim!";
           }
         },
 

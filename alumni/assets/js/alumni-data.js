@@ -205,7 +205,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
     date: "03 Nov 2026",
     content: "Halo rekan-rekan asisten Bengkel Koding! Divisi AI/Data di kantor kami sedang membuka posisi Backend Developer Intern untuk menangani pipeline ETL dan microservices analitik. Kriteria utama: familiar dengan Python/Node.js, paham REST API dan siap belajar arsitektur cloud. Silakan kirimkan CV dan perkenalan singkat lewat tombol di bawah!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 8,
@@ -226,7 +226,6 @@ const INITIAL_POSTS = [
         authorName: "Yoga Kurniawan",
         authorAvatar: "https://i.pravatar.cc/150?img=33",
         authorHeadline: "Backend Developer · Batch 2023",
-        format: "ats",
         pesan: "Halo Aisha! Saya sangat tertarik dengan posisi Backend Developer Intern ini. Saya sudah terbiasa membangun API dengan Node.js dan PostgreSQL di berbagai proyek lab dan siap kerja hybrid di Semarang.",
         status: "menunggu",
         masukan: "",
@@ -243,7 +242,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Backend Engineer | Golang, Node.js & Cloud Infrastructure · Batch 2023",
     date: "02 Nov 2026",
     content: "Di PT Awan Nusantara ada lowongan Junior Mobile Developer untuk proyek aplikasi mobile logistik. Dibutuhkan yang punya dasar Flutter atau React Native dan terbiasa consume API. Boleh langsung minta referral di bawah!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 12,
@@ -267,7 +266,7 @@ const INITIAL_POSTS = [
     authorHeadline: "Frontend Engineer | React, Vue & Design Systems · Batch 2024",
     date: "25 Okt 2026",
     content: "Info referral untuk posisi UI/UX Designer di Studio Inovasi sudah ditutup ya rekan-rekan. Terima kasih banyak untuk rekan alumni yang sudah mengajukan!",
-    category: "Internal Referral",
+    category: "Referral",
     visibility: "Semua orang",
     imageUrl: "",
     likes: 5,
@@ -284,11 +283,54 @@ const INITIAL_POSTS = [
     },
     pengajuan: [],
   },
+  {
+    // Referral milik alumni lain yang sudah diajukan Aisha (mengisi tab Pengajuan Terkirim di referral.html)
+    id: 8,
+    authorName: "Rafi Pratama",
+    authorAvatar: "https://i.pravatar.cc/150?img=12",
+    authorHeadline: "Fullstack Web Developer | Next.js, TypeScript & Laravel",
+    date: "05 Nov 2026",
+    content: "Tim data di PT Kreasi Data Nusantara butuh Data Analyst junior untuk dashboard penjualan dan analisis kohort. Kriteria: kuat di SQL, terbiasa Python (pandas), dan bisa menyajikan insight dengan Looker Studio atau Power BI. Silakan minta referral lewat tombol di bawah!",
+    category: "Referral",
+    visibility: "Semua orang",
+    imageUrl: "",
+    likes: 10,
+    isLiked: false,
+    commentsCount: 3,
+    repostsCount: 2,
+    impressions: 260,
+    jenis: "referral",
+    referral: {
+      perusahaan: "PT Kreasi Data Nusantara",
+      posisi: "Data Analyst",
+      level: "Junior (1-2 tahun)",
+      batas: "2026-11-27",
+    },
+    pengajuan: [
+      {
+        id: 801,
+        authorName: "Aisha Dwi Rahmawati",
+        authorAvatar: DEFAULT_AVATAR,
+        authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
+        pesan: "Halo Rafi! Saya tertarik dengan posisi Data Analyst ini. Saya terbiasa mengolah data dengan Python dan SQL, dan pernah membangun dashboard analisis sentimen untuk proyek Sentimeter AI.",
+        status: "masukan",
+        masukan: "Profilmu kuat di analisis data. Tambahkan contoh dashboard bisnis (SQL + BI) di portofolio, lalu ajukan lagi di periode berikutnya ya.",
+        waktu: "2026-11-06T10:20:00",
+        no_hp: "081234567890",
+        linkedin: "https://www.linkedin.com/in/aisharah",
+      },
+    ],
+  },
 ];
 
 const OPSI_LEVEL_REFERRAL = ["Magang/Freshgrad", "Junior (1-2 tahun)", "Mid"];
 
 const STORAGE_KEY = "bengkod_alumni_posts_v2";
+
+// Kategori lama "Internal Referral" sekarang cukup "Referral" (data tersimpan ikut dinormalkan saat dibaca)
+function normalisasiKategoriPost(posts) {
+  return posts.map((p) => (p && p.category === "Internal Referral" ? { ...p, category: "Referral" } : p));
+}
 
 function loadPosts() {
   if (typeof window === "undefined") return INITIAL_POSTS;
@@ -298,7 +340,8 @@ function loadPosts() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_POSTS));
       return INITIAL_POSTS;
     }
-    const parsed = JSON.parse(raw);
+    const mentah = JSON.parse(raw);
+    const parsed = Array.isArray(mentah) ? normalisasiKategoriPost(mentah) : mentah;
     if (Array.isArray(parsed) && parsed.length > 0) {
       // Auto-merge if new seed posts are not present
       const existingIds = new Set(parsed.map(p => p.id));
@@ -2651,8 +2694,9 @@ function mediaToProjectFields(value) {
 // Model Transparan: Budget Range tanpa tracking transaksi uang
 // ============================================================
 
-const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v4";
-const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v4";
+// v5: lamaran menyimpan resumeFileName (CV terlampir)
+const GIGS_STORAGE_KEY = "bengkod_alumni_gigs_v5";
+const GIGS_APPLY_KEY = "bengkod_alumni_gigs_apply_v5";
 
 const GIGS_BUDGET_RANGES = [
   "< Rp 1.000.000",
@@ -2697,6 +2741,7 @@ Rekan alumni diharapkan menguasai state management Flutter (BLoC/Provider) serta
         id: "app-101",
         applicantId: "dimas-aryo",
         applicantName: "Dimas Aryo",
+        resumeFileName: "CV_Dimas_Aryo_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=15",
         applicantBatch: "2023",
         applicantPhone: "081298765432",
@@ -2712,6 +2757,7 @@ Rekan alumni diharapkan menguasai state management Flutter (BLoC/Provider) serta
         id: "app-102",
         applicantId: "kirana-maheswari",
         applicantName: "Kirana Maheswari",
+        resumeFileName: "CV_Kirana_Maheswari_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=44",
         applicantBatch: "2024",
         applicantPhone: "081345678901",
@@ -2756,6 +2802,7 @@ Spesifikasi & Kebutuhan Teknis:
         id: "app-201",
         applicantId: "intan-permata",
         applicantName: "Intan Permata",
+        resumeFileName: "CV_Intan_Permata_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=48",
         applicantBatch: "2024",
         applicantPhone: "081987654321",
@@ -2807,6 +2854,7 @@ Tanggung Jawab & Fitur Proyek:
         id: "app-301",
         applicantId: "aisha-dwi-rahmawati",
         applicantName: "Aisha Dwi Rahmawati",
+        resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
         applicantAvatar: DEFAULT_AVATAR,
         applicantBatch: "2024",
         applicantPhone: "081234567890",
@@ -2874,6 +2922,7 @@ Tanggung Jawab & Fitur Proyek:
         id: "app-501",
         applicantId: "dimas-aryo",
         applicantName: "Dimas Aryo",
+        resumeFileName: "CV_Dimas_Aryo_ATS.pdf",
         applicantAvatar: "https://i.pravatar.cc/150?img=15",
         applicantBatch: "2023",
         applicantPhone: "081298765432",
@@ -2996,6 +3045,58 @@ Tanggung Jawab & Fitur Proyek:
     endorsement: "",
     completedDate: null,
     applicants: []
+  },
+  // Proyek kedua milik Aisha (tab Proyek Dibuat & halaman pelamar)
+  {
+    id: "gig-11",
+    title: "Dashboard Rekap Nilai Praktikum Lab Bengkel Koding",
+    ownerId: "aisha-dwi-rahmawati",
+    ownerName: "Aisha Dwi Rahmawati",
+    ownerAvatar: DEFAULT_AVATAR,
+    ownerRole: "Alumni 2024 · Lab Bengkel Koding",
+    ownerPhone: "081234567890",
+    category: "Data Science",
+    rolesNeeded: ["Data Analyst", "Frontend Dashboard"],
+    techStack: ["Python", "Streamlit", "Google Sheets API"],
+    budgetRange: "Rp 1.000.000 - Rp 3.000.000",
+    deadline: "2026-11-28",
+    quota: 1,
+    status: "Sedang Dikerjakan",
+    postedDate: "20 Okt 2026",
+    description: `Membuat dashboard rekap nilai praktikum per kelas dari Google Sheets asisten, lengkap dengan grafik sebaran nilai dan ekspor laporan PDF untuk koordinator lab.
+
+Deliverables:
+1. Script sinkronisasi Google Sheets ke dataset terstruktur.
+2. Dashboard Streamlit berisi filter kelas, grafik distribusi nilai, dan daftar mahasiswa remedial.
+3. Ekspor ringkasan nilai per kelas ke PDF.`,
+    assignedContributor: {
+      id: "rafi-pratama",
+      name: "Rafi Pratama",
+      avatar: "https://i.pravatar.cc/150?img=12",
+      batch: "2023",
+      phone: "081311122233",
+      assignedDate: "24 Okt 2026"
+    },
+    endorsement: "",
+    completedDate: null,
+    applicants: [
+      {
+        id: "app-1101",
+        applicantId: "rafi-pratama",
+        applicantName: "Rafi Pratama",
+        resumeFileName: "CV_Rafi_Pratama_ATS.pdf",
+        applicantAvatar: "https://i.pravatar.cc/150?img=12",
+        applicantBatch: "2023",
+        applicantPhone: "081311122233",
+        skills: ["Python", "Streamlit", "Pandas"],
+        pitchMessage: "Saya pernah membuat dashboard nilai serupa untuk asisten praktikum Basis Data. Bisa mulai minggu ini.",
+        portfolioItems: [
+          { title: "Lab Grade Dashboard", linkUrl: "https://github.com/rafipratama", stack: "Python · Streamlit" }
+        ],
+        appliedDate: "21 Okt 2026",
+        status: "ACCEPTED"
+      }
+    ]
   }
 ];
 
@@ -3049,6 +3150,7 @@ function loadMyApplications() {
           ownerName: "Clarista",
           ownerPhone: "081555667788",
           message: "Halo Clarista, saya tertarik membantu pipeline data ETL ini. Sebelumnya sudah membuat engine probabilitas UMKM serupa.",
+          resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
           portfolioItems: [
             { title: "UMKM Success Probability Prediction", linkUrl: "https://github.com/aishaadr", stack: "Python · PostgreSQL" }
           ],
@@ -3063,6 +3165,7 @@ function loadMyApplications() {
           ownerName: "Fajar Nugroho",
           ownerPhone: "081777889900",
           message: "Saya siap membantu penyusunan laporan temuan dan data pentest.",
+          resumeFileName: "CV_Aisha_Dwi_Rahmawati_ATS.pdf",
           portfolioItems: [],
           appliedDate: "16 Okt 2026",
           status: "COMPLETED",
@@ -3095,36 +3198,57 @@ function formatWaUrl(phone, text) {
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text || "")}`;
 }
 
-/** Auto-publish gig yang selesai ke Feed Beranda */
-function publishGigCompletionToFeed(gig, endorsement) {
-  try {
-    const posts = typeof loadPosts === "function" ? loadPosts() : [];
-    const contributorName = (gig.assignedContributor && gig.assignedContributor.name) || "Rekan Kontributor";
-    const newPost = {
-      id: Date.now(),
-      authorName: gig.ownerName,
-      authorAvatar: gig.ownerAvatar,
-      authorHeadline: gig.ownerRole,
-      date: "Baru saja",
-      category: "Karya & Showcase",
-      visibility: "Semua orang",
-      content: `🎉 Kolaborasi Bengkod Gigs Selesai!\n\nProyek "${gig.title}" telah rampung dikerjakan bersama @${contributorName}.\n\n⭐ Catatan Rekomendasi:\n"${endorsement || 'Pengerjaan berkualitas, komunikasi profesional, dan serah terima tepat waktu.'}"\n\n#BengkodGigs #KolaborasiAlumni`,
-      likes: 1,
-      isLiked: false,
-      commentsCount: 0,
-      repostsCount: 0,
-      impressions: 1,
-    };
-    if (typeof savePosts === "function") {
-      savePosts([newPost, ...posts]);
-    }
-  } catch (err) {
-    console.warn("Gagal auto-publish ke feed:", err);
-  }
-}
+// ============================================================
+// NOTIFIKASI AISHA (lonceng di topbar alumni.js)
+// Status baca disimpan terpisah di localStorage (lihat alumniNotifReadIds di alumni.js).
+// tautan relatif terhadap folder alumni/.
+// ============================================================
+const NOTIFIKASI_AISHA = [
+  {
+    id: "notif-referral-101",
+    jenis: "referral",
+    judul: "Pengajuan referral baru",
+    pesan: "Yoga Kurniawan meminta review & referral untuk Backend Developer Intern di PT Solusi Digital Jateng.",
+    waktu: "2026-11-04T09:15:00",
+    tautan: "referral-pengajuan.html?id=5",
+  },
+  {
+    id: "notif-gig-102",
+    jenis: "gigs",
+    judul: "Pelamar gigs baru",
+    pesan: "Kirana Maheswari mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
+    waktu: "2026-11-03T13:40:00",
+    tautan: "gigs-pelamar.html?id=gig-1",
+  },
+  {
+    id: "notif-gig-101",
+    jenis: "gigs",
+    judul: "Pelamar gigs baru",
+    pesan: "Dimas Aryo mengajukan minat di \"Sistem Presensi QR Code Mobile App untuk Event Komunitas\".",
+    waktu: "2026-11-02T10:05:00",
+    tautan: "gigs-pelamar.html?id=gig-1",
+  },
+  {
+    id: "notif-pengumuman-2",
+    jenis: "pengumuman",
+    judul: "Pengumuman koordinator",
+    pesan: "Pengisian Data Alumni Terbaru: perbarui profil, keahlian, dan tracer study Anda.",
+    waktu: "2026-10-21T08:00:00",
+    tautan: "pengumuman.html#pengumuman-2",
+  },
+  {
+    id: "notif-pengumuman-1",
+    jenis: "pengumuman",
+    judul: "Pengumuman koordinator",
+    pesan: "Jadwal Pelepasan Alumni Angkatan 2024 sudah terbit.",
+    waktu: "2026-10-24T08:00:00",
+    tautan: "pengumuman.html#pengumuman-1",
+  },
+];
 
 // Expose globals for Alpine.js & pages
 if (typeof window !== "undefined") {
+  window.NOTIFIKASI_AISHA = NOTIFIKASI_AISHA;
   window.GIGS_BUDGET_RANGES = GIGS_BUDGET_RANGES;
   window.INITIAL_GIGS = INITIAL_GIGS;
   window.loadGigs = loadGigs;
@@ -3132,5 +3256,4 @@ if (typeof window !== "undefined") {
   window.loadMyApplications = loadMyApplications;
   window.saveMyApplications = saveMyApplications;
   window.formatWaUrl = formatWaUrl;
-  window.publishGigCompletionToFeed = publishGigCompletionToFeed;
 }

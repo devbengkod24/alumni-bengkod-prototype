@@ -92,6 +92,25 @@ function alumniBasePrefix() {
   return isAlumniSubdir() ? "../" : "";
 }
 
+// First login: arahkan alumni yang sudah login tapi belum mengisi data tracer ke isi-data.html
+(function guardFirstLoginTracer() {
+  try {
+    const sesiId = Number(localStorage.getItem("alumni_revisi_sesi_v1"));
+    if (!sesiId) return;
+    const raw = localStorage.getItem("alumni_revisi_data_v5");
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const user = Array.isArray(data?.users) ? data.users.find((u) => u.id === sesiId) : null;
+    if (!user || user.role !== "alumni") return;
+    const sudahIsi = Array.isArray(data?.tracer) && data.tracer.some((t) => t.id_alumni === sesiId);
+    if (!sudahIsi) {
+      location.replace(alumniBasePrefix() + "isi-data.html");
+    }
+  } catch {
+    /* abaikan jika storage tidak tersedia / rusak */
+  }
+})();
+
 function alumniRootPrefix() {
   return isAlumniSubdir() ? "../../" : "../";
 }
@@ -105,6 +124,8 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/direktori") return `${base}direktori.html`;
   if (link === "/dashboard/alumni/showcase") return `${base}showcase.html`;
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
+  if (link === "/dashboard/alumni/referral") return `${base}referral.html`;
+  if (link === "/dashboard/alumni/referral-pengajuan") return `${base}referral-pengajuan.html`;
   if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
   if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
@@ -120,7 +141,7 @@ function alumniHref(link) {
   return "#";
 }
 
-// 5 Navigasi Utama Role Alumni
+// Navigasi utama role alumni
 const ALUMNI_NAVIGATIONS = [
   {
     title: "Beranda",
@@ -159,6 +180,17 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
+    title: "Referral",
+    link: "/dashboard/alumni/referral",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m11 17 2 2a1 1 0 1 0 3-3" />
+          <path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.88-3.88a3 3 0 0 0-4.24 0l-.88.88a1 1 0 1 1-3-3l2.81-2.81a5.79 5.79 0 0 1 7.06-.87l.47.28a2 2 0 0 0 1.42.25L21 4" />
+          <path d="m21 3 1 11h-2" />
+          <path d="M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3" />
+          <path d="M3 4h8" />
+        </svg>`,
+  },
+  {
     title: "Generate CV",
     link: "/dashboard/alumni/generate-cv",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -188,6 +220,19 @@ const ALWAYS_SHOW_MOBILE = ["Alumni", "Student", "Admin", "Superadmin", "Dosen",
 // Halaman yang nggak ada di sidebar tapi tetap butuh judul breadcrumb
 const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/detail": "Detail Alumni",
+  "/dashboard/alumni/detail-proyek": "Detail Proyek",
+  "/dashboard/alumni/pengumuman": "Pengumuman",
+  "/dashboard/alumni/tracer": "Status Karir",
+  "/dashboard/alumni/gigs-pelamar": "Pelamar Proyek",
+  "/dashboard/alumni/referral-pengajuan": "Pengajuan Referral",
+};
+
+// Halaman turunan menyorot menu induknya di sidebar
+const ALUMNI_NAV_PARENT = {
+  "/dashboard/alumni/pengumuman": "/dashboard/alumni",
+  "/dashboard/alumni/tracer": "/dashboard/alumni/profil",
+  "/dashboard/alumni/gigs-pelamar": "/dashboard/alumni/gigs",
+  "/dashboard/alumni/referral-pengajuan": "/dashboard/alumni/referral",
 };
 
 // Samain route alias ke route utama di ALUMNI_NAVIGATIONS
@@ -218,15 +263,13 @@ function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel()) {
     <span class="font-medium text-neutral1 truncate">${title}</span>`;
 }
 
+// Identitas di topbar selalu dari data profil Aisha (alumni-profile-data.js / hasil edit di profil.html)
 function alumniCurrentProfile() {
-  let user = null;
-  try {
-    if (typeof DB !== "undefined" && DB.akun) user = DB.akun.aktif();
-  } catch {}
+  const seed = typeof INITIAL_PROFILE !== "undefined" ? INITIAL_PROFILE : null;
   const base = {
-    name: user ? user.nama : "Aisha Dwi Rahmawati",
-    email: user ? user.email : "aisha.rahma@alumni.dinus.ac.id",
-    image: user ? (user.foto || "") : "",
+    name: seed ? seed.name : "Aisha Dwi Rahmawati",
+    email: seed ? seed.email : "aisha.rahma@alumni.dinus.ac.id",
+    image: seed ? (seed.avatarUrl || "") : (typeof DEFAULT_AVATAR !== "undefined" ? DEFAULT_AVATAR : ""),
   };
   try {
     const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
@@ -234,6 +277,124 @@ function alumniCurrentProfile() {
   } catch {}
   return base;
 }
+
+/* ------------------------------------------------------------------ */
+/* Pencarian alumni bersama (kolom "Cari alumni" di Beranda)           */
+/* ------------------------------------------------------------------ */
+
+// State + aksi pencarian. Pakai lewat alumniWithNavSearch({...}) supaya getter tidak ikut dievaluasi.
+// Mencari alumni (nama/keahlian) dan, bila komponen punya searchFeedPosts(q) & focusFeedPost(id),
+// juga postingan feed berdasarkan topik/isi.
+function alumniNavSearch() {
+  return {
+    navSearchQuery: "",
+    navSearchOpen: false,
+    get navSearchResults() {
+      const q = this.navSearchQuery.trim();
+      if (!q || typeof searchAlumni !== "function") return [];
+      return searchAlumni(q).slice(0, 4);
+    },
+    get navSearchPostResults() {
+      const q = this.navSearchQuery.trim();
+      if (!q || typeof this.searchFeedPosts !== "function") return [];
+      return this.searchFeedPosts(q).slice(0, 5);
+    },
+    navSearchHref(a) {
+      return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
+    },
+    openNavSearchPost(p) {
+      this.navSearchOpen = false;
+      if (typeof this.focusFeedPost === "function") this.focusFeedPost(p.id);
+    },
+    submitNavSearch() {
+      const first = this.navSearchResults[0];
+      if (first) {
+        window.location.href = this.navSearchHref(first);
+        return;
+      }
+      const post = this.navSearchPostResults[0];
+      if (post) this.openNavSearchPost(post);
+    },
+  };
+}
+
+function alumniWithNavSearch(component) {
+  return Object.defineProperties(component, Object.getOwnPropertyDescriptors(alumniNavSearch()));
+}
+
+// Dropdown hasil pencarian bisa disisipkan di HTML halaman: <div data-partial="navSearchDropdown"></div>
+window.ALUMNI_PARTIALS = Object.assign(window.ALUMNI_PARTIALS || {}, {
+  navSearchDropdown: () => alumniNavSearchDropdownHTML(),
+});
+
+/* ------------------------------------------------------------------ */
+/* Notifikasi lonceng: seed NOTIFIKASI_AISHA (alumni-data.js),         */
+/* status baca & notifikasi yang dihapus disimpan di localStorage.     */
+/* Desain (dropdown + modal Semua Notifikasi) mengikuti role           */
+/* koordinator di alumni/assets/js/app.js.                             */
+/* ------------------------------------------------------------------ */
+
+const ALUMNI_NOTIF_READ_KEY = "bengkod_alumni_notif_read_v1";
+const ALUMNI_NOTIF_HAPUS_KEY = "bengkod_alumni_notif_hapus_v1";
+const ALUMNI_NOTIF_PER_HALAMAN = 5;
+const ALUMNI_NOTIF_MODAL_PER_HAL = 6;
+
+function alumniNotifHapusIds() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(ALUMNI_NOTIF_HAPUS_KEY) || "[]");
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+}
+
+function alumniSaveNotifHapusIds(ids) {
+  try {
+    localStorage.setItem(ALUMNI_NOTIF_HAPUS_KEY, JSON.stringify([...new Set(ids)]));
+  } catch {}
+}
+
+// Ikon lucide (stroke) yang dipakai lonceng koordinator, ditulis inline karena halaman alumni tidak memuat lucide
+const alumniLucide = (size, paths) => `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const ALUMNI_NOTIF_SVG = {
+  trash: alumniLucide(14, '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>'),
+  chevronLeft: alumniLucide(14, '<path d="m15 18-6-6 6-6"/>'),
+  chevronRight: alumniLucide(14, '<path d="m9 18 6-6-6-6"/>'),
+  x: alumniLucide(20, '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>'),
+  bellOff: (size) => alumniLucide(size, '<path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/>'),
+};
+
+function alumniNotifReadIds() {
+  try {
+    const ids = JSON.parse(localStorage.getItem(ALUMNI_NOTIF_READ_KEY) || "[]");
+    return Array.isArray(ids) ? ids : [];
+  } catch {
+    return [];
+  }
+}
+
+function alumniSaveNotifReadIds(ids) {
+  try {
+    localStorage.setItem(ALUMNI_NOTIF_READ_KEY, JSON.stringify([...new Set(ids)]));
+  } catch {}
+}
+
+function alumniWaktuLalu(iso) {
+  const t = Date.parse(iso);
+  if (isNaN(t)) return "";
+  const menit = Math.floor((Date.now() - t) / 60000);
+  if (menit < 1) return "baru saja";
+  if (menit < 60) return `${menit} menit lalu`;
+  if (menit < 1440) return `${Math.floor(menit / 60)} jam lalu`;
+  if (menit < 10080) return `${Math.floor(menit / 1440)} hari lalu`;
+  return new Date(t).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+}
+
+const ALUMNI_NOTIF_ICONS = {
+  referral: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>`,
+  gigs: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>`,
+  pengumuman: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z" /><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" /></svg>`,
+};
 
 document.addEventListener("alpine:init", () => {
   Alpine.data("alumniLayout", () => ({
@@ -243,11 +404,13 @@ document.addEventListener("alpine:init", () => {
     profileIsOpen: false,
     notifIsOpen: false,
     notifs: [],
-    notifUnreadCount: 0,
+    notifHalaman: 1,
+    notifModalOpen: false,
+    notifModalFilter: "semua",
+    notifModalHal: 1,
+    notifConfirmOpen: false,
+    NOTIF_MODAL_PER_HAL: ALUMNI_NOTIF_MODAL_PER_HAL,
     breadcrumbDropdownOpen: false,
-    navSearchQuery: "",
-    navSearchOpen: false,
-    mobileSearchOpen: false,
     profile: alumniCurrentProfile(),
     init() {
       this.checkMobile();
@@ -256,62 +419,92 @@ document.addEventListener("alpine:init", () => {
       this.$watch("sidebarIsOpen", (v) => {
         if (this.isHydrated && !this.isMobile) localStorage.setItem("sidebar_open", String(v));
       });
+      // Status baca ikut berubah kalau ditandai dari tab lain
+      window.addEventListener("storage", (e) => {
+        if (e.key === ALUMNI_NOTIF_READ_KEY || e.key === ALUMNI_NOTIF_HAPUS_KEY) this.loadNotifs();
+      });
       // Tutup dropdown kalau klik di luar (satu-satunya handler click-away)
       document.addEventListener("mousedown", (event) => {
         const t = event.target;
         if (this.$refs.dropdownRef && !this.$refs.dropdownRef.contains(t)) this.profileIsOpen = false;
         if (this.$refs.notifDropdownRef && !this.$refs.notifDropdownRef.contains(t)) this.notifIsOpen = false;
         if (this.$refs.breadcrumbRef && !this.$refs.breadcrumbRef.contains(t)) this.breadcrumbDropdownOpen = false;
-        const inSearch = [this.$refs.navSearchRef, this.$refs.mobileSearchRef, this.$refs.mobileSearchToggle].some((el) => el && el.contains(t));
-        if (!inSearch) this.navSearchOpen = false;
       });
     },
+    get notifUnreadCount() {
+      return this.notifs.filter((n) => !n.dibaca).length;
+    },
     loadNotifs() {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
-          const user = DB.akun.aktif();
-          if (user) {
-            const list = DB.notifikasi.milik(user.id).filter((n) => user.role !== "alumni" || !n.tautan.startsWith("forum"));
-            this.notifs = list;
-            this.notifUnreadCount = list.filter((n) => !n.dibaca).length;
-          }
-        }
-      } catch (e) {}
+      const seed = typeof NOTIFIKASI_AISHA !== "undefined" ? NOTIFIKASI_AISHA : [];
+      const read = alumniNotifReadIds();
+      const dihapus = alumniNotifHapusIds();
+      this.notifs = seed
+        .filter((n) => !dihapus.includes(n.id))
+        .map((n) => ({ ...n, dibaca: read.includes(n.id) }))
+        .sort((a, b) => String(b.waktu).localeCompare(String(a.waktu)));
     },
     markNotifRead(id) {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi) {
-          DB.notifikasi.baca(id);
-          this.loadNotifs();
-        }
-      } catch (e) {}
+      alumniSaveNotifReadIds([...alumniNotifReadIds(), id]);
+      this.loadNotifs();
     },
     markAllNotifsRead() {
-      try {
-        if (typeof DB !== "undefined" && DB.notifikasi && DB.akun) {
-          const user = DB.akun.aktif();
-          if (user) {
-            DB.notifikasi.bacaSemua(user.id);
-            this.loadNotifs();
-          }
-        }
-      } catch (e) {}
+      alumniSaveNotifReadIds([...alumniNotifReadIds(), ...this.notifs.map((n) => n.id)]);
+      this.loadNotifs();
     },
-    // Pencarian alumni di navbar (selalu terjangkau di semua halaman, desktop & ponsel)
-    get navSearchResults() {
-      const q = this.navSearchQuery.trim();
-      if (!q || typeof searchAlumni !== "function") return [];
-      return searchAlumni(q).slice(0, 6);
+    hapusNotif(id) {
+      alumniSaveNotifHapusIds([...alumniNotifHapusIds(), id]);
+      this.loadNotifs();
     },
-    navSearchHref(a) {
-      return alumniBasePrefix() + "detail.html?id=" + encodeURIComponent(a.id);
+    mintaHapusSemuaNotif() {
+      this.notifIsOpen = false;
+      this.notifConfirmOpen = true;
     },
-    openMobileSearch() {
-      this.mobileSearchOpen = !this.mobileSearchOpen;
+    hapusSemuaNotif() {
+      alumniSaveNotifHapusIds([...alumniNotifHapusIds(), ...this.notifs.map((n) => n.id)]);
+      this.notifConfirmOpen = false;
+      this.loadNotifs();
     },
-    submitNavSearch() {
-      const first = this.navSearchResults[0];
-      if (first) window.location.href = this.navSearchHref(first);
+    bukaSemuaNotif() {
+      this.notifIsOpen = false;
+      this.notifModalFilter = "semua";
+      this.notifModalHal = 1;
+      this.notifModalOpen = true;
+    },
+    // Dropdown: 5 per halaman (halaman dijaga tetap valid setelah ada yang dihapus)
+    get notifTotalHalaman() {
+      return Math.max(1, Math.ceil(this.notifs.length / ALUMNI_NOTIF_PER_HALAMAN));
+    },
+    get notifHalamanAktif() {
+      return Math.min(Math.max(1, this.notifHalaman), this.notifTotalHalaman);
+    },
+    get notifHalamanIni() {
+      const awal = (this.notifHalamanAktif - 1) * ALUMNI_NOTIF_PER_HALAMAN;
+      return this.notifs.slice(awal, awal + ALUMNI_NOTIF_PER_HALAMAN);
+    },
+    // Modal Semua Notifikasi: tab Semua / Belum Dibaca, 6 per halaman
+    get notifModalList() {
+      return this.notifModalFilter === "belum" ? this.notifs.filter((n) => !n.dibaca) : this.notifs;
+    },
+    get notifModalTotalHal() {
+      return Math.max(1, Math.ceil(this.notifModalList.length / ALUMNI_NOTIF_MODAL_PER_HAL));
+    },
+    get notifModalHalAktif() {
+      return Math.min(Math.max(1, this.notifModalHal), this.notifModalTotalHal);
+    },
+    get notifModalAwal() {
+      return (this.notifModalHalAktif - 1) * ALUMNI_NOTIF_MODAL_PER_HAL;
+    },
+    get notifModalItems() {
+      return this.notifModalList.slice(this.notifModalAwal, this.notifModalAwal + ALUMNI_NOTIF_MODAL_PER_HAL);
+    },
+    notifHref(n) {
+      return alumniBasePrefix() + (n.tautan || "dashboard.html");
+    },
+    notifIcon(n) {
+      return ALUMNI_NOTIF_ICONS[n.jenis] || ALUMNI_NOTIF_ICONS.pengumuman;
+    },
+    notifTime(n) {
+      return alumniWaktuLalu(n.waktu);
     },
     checkMobile() {
       const mobile = window.innerWidth < 1024;
@@ -323,12 +516,12 @@ document.addEventListener("alpine:init", () => {
     toggleProfile() {
       this.profileIsOpen = !this.profileIsOpen;
     },
+    // Sesi login disimpan data.js (tidak dimuat di sini), jadi login.html yang menghapusnya lewat ?keluar
     handleLogout() {
       try {
         if (typeof DB !== "undefined" && DB.akun) DB.akun.keluar();
-        localStorage.removeItem("bengkod_alumni_profile");
       } catch {}
-      window.location.href = "login.html";
+      window.location.href = alumniBasePrefix() + "login.html?keluar=1";
     },
   }));
 });
@@ -346,10 +539,13 @@ function alumniAvatarHTML(srcExpr, nameExpr, size, textSize, extraClass = "") {
     </template>`;
 }
 
-// Dropdown hasil pencarian alumni di navbar (dipakai versi desktop & ponsel)
+// Dropdown hasil pencarian: grup Alumni lalu grup Postingan
 function alumniNavSearchDropdownHTML() {
   return `<div x-show="navSearchOpen && navSearchQuery.trim()" x-cloak
-      class="absolute top-[calc(100%+6px)] left-0 right-0 z-[70] bg-white rounded-xl border border-neutral4/70 shadow-xl overflow-hidden">
+      class="absolute top-[calc(100%+6px)] left-0 right-0 z-[70] bg-white rounded-xl border border-neutral4/70 shadow-xl overflow-hidden max-h-[440px] overflow-y-auto">
+      <template x-if="navSearchResults.length > 0">
+        <p class="px-3.5 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral3">Alumni</p>
+      </template>
       <template x-for="a in navSearchResults" :key="a.id">
         <a :href="navSearchHref(a)" class="flex items-center gap-3 px-3.5 py-2.5 hover:bg-neutral5 transition-colors">
           <img :src="a.avatarUrl" :alt="a.name" class="w-8 h-8 rounded-full object-cover border border-neutral4 shrink-0">
@@ -359,14 +555,27 @@ function alumniNavSearchDropdownHTML() {
           </div>
         </a>
       </template>
-      <template x-if="navSearchResults.length === 0">
-        <p class="px-3.5 py-3 text-sm text-neutral3">Tidak ada alumni untuk "<span class="font-semibold text-neutral1" x-text="navSearchQuery"></span>"</p>
+      <template x-if="navSearchPostResults.length > 0">
+        <p class="px-3.5 pt-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-neutral3 border-t border-neutral4/60">Postingan</p>
+      </template>
+      <template x-for="p in navSearchPostResults" :key="'post-' + p.id">
+        <button type="button" @click="openNavSearchPost(p)" class="w-full text-left flex items-start gap-3 px-3.5 py-2.5 hover:bg-neutral5 transition-colors cursor-pointer">
+          <img :src="p.avatar || 'assets/img/user.png'" :alt="p.author" class="w-8 h-8 rounded-full object-cover border border-neutral4 shrink-0 mt-0.5">
+          <div class="min-w-0">
+            <p class="text-sm font-semibold text-neutral1 truncate" x-text="p.title"></p>
+            <p class="text-xs text-neutral3 leading-snug line-clamp-2" x-text="p.snippet"></p>
+          </div>
+        </button>
+      </template>
+      <template x-if="navSearchResults.length === 0 && navSearchPostResults.length === 0">
+        <p class="px-3.5 py-3 text-sm text-neutral3">Tidak ada alumni atau postingan untuk "<span class="font-semibold text-neutral1" x-text="navSearchQuery"></span>"</p>
       </template>
     </div>`;
 }
 
 function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
-  const activeRoute = alumniNormalizeRoute(route);
+  const normalized = alumniNormalizeRoute(route);
+  const activeRoute = ALUMNI_NAV_PARENT[normalized] || normalized;
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
     const active = nav.link === activeRoute;
     return `
@@ -393,14 +602,14 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
         </ul>
       </nav>
       <div class="p-3 border-t border-neutral4 shrink-0">
-        <a href="${alumniRootPrefix()}index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <button type="button" @click="handleLogout()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors cursor-pointer">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 shrink-0">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
           <span>Keluar</span>
-        </a>
+        </button>
       </div>
     </aside>
 
@@ -430,31 +639,108 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
           </nav>
         </div>
 
-            <div class="flex items-center gap-3 shrink-0">
-              <!-- Cari alumni: kolom di desktop -->
-              <form class="relative hidden md:block w-64 lg:w-80" x-ref="navSearchRef" role="search" @submit.prevent="submitNavSearch()">
-                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
-                <input type="search" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="navSearchOpen = false"
-                  placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
-                  class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
-                ${alumniNavSearchDropdownHTML()}
-              </form>
-              <!-- Cari alumni: ikon di ponsel -->
-              <button type="button" x-ref="mobileSearchToggle" class="md:hidden inline-flex items-center justify-center w-9 h-9 rounded-full text-neutral2 hover:bg-neutral5" @click="openMobileSearch()" :aria-expanded="mobileSearchOpen" aria-label="Cari alumni">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-              </button>
+            <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              <!-- Lonceng notifikasi (paling kiri di grup kanan): badge belum dibaca + dropdown -->
+              <div class="relative flex items-center" x-ref="notifDropdownRef">
+                <button
+                  type="button"
+                  id="notif-btn"
+                  @click="notifIsOpen = !notifIsOpen; profileIsOpen = false"
+                  class="relative w-10 h-10 inline-flex items-center justify-center rounded-full text-neutral2 hover:bg-neutral5 hover:text-neutral1 focus:outline-none focus:ring-4 focus:ring-primary5 transition-colors cursor-pointer"
+                  :aria-expanded="notifIsOpen"
+                  :aria-label="notifUnreadCount ? 'Notifikasi, ' + notifUnreadCount + ' belum dibaca' : 'Notifikasi'"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                    <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                  </svg>
+                  <span
+                    x-show="notifUnreadCount > 0"
+                    x-cloak
+                    id="notif-badge"
+                    class="absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red2 text-white text-[10.5px] font-bold leading-[18px] text-center ring-2 ring-white"
+                    x-text="notifUnreadCount > 9 ? '9+' : notifUnreadCount"
+                  ></span>
+                </button>
 
-              <!-- User Menu Button & Dropdown -->
+                <!-- Panel notifikasi: desain sama dengan lonceng role koordinator (alumni/assets/js/app.js renderNotifikasi) -->
+                <div
+                  x-show="notifIsOpen"
+                  x-cloak
+                  id="notif-panel"
+                  class="fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"
+                >
+                  <div class="px-4 py-3 flex items-center justify-between gap-3 border-b border-gray-100 bg-white">
+                    <div class="flex items-center gap-2">
+                      <p class="!text-sm font-bold text-gray-900">Notifikasi</p>
+                      <template x-if="notifUnreadCount > 0">
+                        <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[11px] font-bold" x-text="notifUnreadCount + ' baru'"></span>
+                      </template>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <template x-if="notifUnreadCount > 0">
+                        <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
+                      </template>
+                      <template x-if="notifs.length > 0">
+                        <button type="button" @click="mintaHapusSemuaNotif()" class="text-xs text-gray-400 hover:text-red-600 transition-colors cursor-pointer" title="Hapus semua notifikasi" aria-label="Hapus semua notifikasi">${ALUMNI_NOTIF_SVG.trash}</button>
+                      </template>
+                    </div>
+                  </div>
+                  <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
+                    <template x-for="n in notifHalamanIni" :key="n.id">
+                      <div class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors" :class="n.dibaca ? 'bg-white' : 'bg-blue-50/40'">
+                        <span class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5" :class="n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'" x-html="notifIcon(n)"></span>
+                        <div class="min-w-0 flex-1">
+                          <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="block group/link">
+                            <span class="block text-[13px] leading-snug group-hover/link:text-[#1E3A8A] transition-colors" :class="n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-semibold'" x-text="n.pesan"></span>
+                            <span class="block text-[11px] text-gray-400 mt-1" x-text="n.judul + ' · ' + notifTime(n)"></span>
+                          </a>
+                          <div class="flex items-center gap-3 mt-1.5 pt-0.5">
+                            <template x-if="!n.dibaca">
+                              <button type="button" @click="markNotifRead(n.id)" class="text-[11px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai dibaca</button>
+                            </template>
+                            <button type="button" @click="hapusNotif(n.id)" class="text-[11px] font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto">Hapus</button>
+                          </div>
+                        </div>
+                        <template x-if="!n.dibaca">
+                          <span class="w-2 h-2 rounded-full bg-[#1E3A8A] shrink-0 mt-1.5" aria-label="Belum dibaca"></span>
+                        </template>
+                      </div>
+                    </template>
+                    <template x-if="notifs.length === 0">
+                      <div class="p-8 text-center text-gray-400">
+                        <span class="flex justify-center mb-2 text-gray-300">${ALUMNI_NOTIF_SVG.bellOff(32)}</span>
+                        <p class="!text-sm">Belum ada notifikasi.</p>
+                      </div>
+                    </template>
+                  </div>
+                  <template x-if="notifs.length > 0">
+                    <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs text-gray-600">
+                      <button type="button" @click="bukaSemuaNotif()" class="font-semibold text-[#1E3A8A] hover:underline cursor-pointer" x-text="'Lihat semua notif (' + notifs.length + ')'"></button>
+                      <template x-if="notifTotalHalaman > 1">
+                        <div class="flex items-center gap-1.5">
+                          <button type="button" @click="notifHalaman = notifHalamanAktif - 1" :disabled="notifHalamanAktif <= 1" class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Sebelumnya" aria-label="Halaman sebelumnya">${ALUMNI_NOTIF_SVG.chevronLeft}</button>
+                          <span class="tabular-nums font-semibold text-gray-800" x-text="notifHalamanAktif + '/' + notifTotalHalaman"></span>
+                          <button type="button" @click="notifHalaman = notifHalamanAktif + 1" :disabled="notifHalamanAktif >= notifTotalHalaman" class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Berikutnya" aria-label="Halaman berikutnya">${ALUMNI_NOTIF_SVG.chevronRight}</button>
+                        </div>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </div>
+
+              <!-- Nama + avatar (avatar paling kanan, nama disembunyikan di layar < sm), klik membuka menu profil -->
               <div class="relative flex items-center" id="profile-dropdown-wrapper" x-ref="dropdownRef">
                 <button
                   type="button"
                   id="profile-menu-btn"
                   @click="profileIsOpen = !profileIsOpen; notifIsOpen = false"
-                  class="flex items-center text-sm rounded-full focus:ring-4 focus:ring-primary5 p-0.5 transition-all cursor-pointer group"
+                  class="flex items-center gap-2.5 rounded-full p-0.5 sm:pl-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group"
                   :aria-expanded="profileIsOpen"
                   aria-label="Menu Pengguna"
                 >
-                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">
+                  <span class="hidden sm:block max-w-[180px] truncate font-semibold text-neutral1 group-hover:text-primary1 transition-colors" x-text="profile.name"></span>
+                  <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs shrink-0">
                     <template x-if="profile.image">
                       <img :src="profile.image" :alt="profile.name" class="w-full h-full object-cover">
                     </template>
@@ -517,21 +803,9 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
               </ul>
             </div>
           </div>
-        </div>
+            </div>
         </div>
 
-        <!-- Cari alumni: baris yang melebar di ponsel -->
-        <template x-if="mobileSearchOpen">
-        <form class="md:hidden px-3 pb-3" x-ref="mobileSearchRef" role="search" @submit.prevent="submitNavSearch()">
-          <div class="relative">
-            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral3 pointer-events-none"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg></span>
-            <input type="search" x-ref="mobileSearchInput" x-init="$nextTick(() => $el.focus())" x-model="navSearchQuery" @focus="navSearchOpen = true" @input="navSearchOpen = true" @keydown.escape="mobileSearchOpen = false"
-              placeholder="Cari alumni" aria-label="Cari alumni" autocomplete="off"
-              class="w-full pl-10 pr-4 py-2 rounded-full bg-neutral5 border border-transparent text-sm text-neutral1 placeholder:text-neutral3 focus:outline-none focus:bg-white focus:border-primary2 focus:ring-2 focus:ring-primary2/15 transition-all">
-            ${alumniNavSearchDropdownHTML()}
-          </div>
-        </form>
-        </template>
       </header>
       <div class="flex-1 px-6 lg:px-10 py-6" data-main-slot></div>
       <footer class="w-full px-2 lg:px-4 py-4">
@@ -542,7 +816,93 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
           </div>
         </div>
       </footer>
-    </div>`;
+    </div>
+
+    <!-- Modal Semua Notifikasi + konfirmasi hapus: desain sama dengan role koordinator -->
+    <template x-if="notifModalOpen">
+      <div class="fixed inset-0 z-[80] bg-neutral1/60 backdrop-blur-sm flex items-center justify-center p-4" @mousedown.self="notifModalOpen = false" @keydown.window.escape="if (!notifConfirmOpen) notifModalOpen = false">
+        <div class="bg-white rounded-2xl w-full max-w-2xl p-6 max-h-[90vh] overflow-y-auto elevation5" role="dialog" aria-modal="true" aria-labelledby="modal-notif-title">
+          <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+            <div>
+              <h3 id="modal-notif-title" class="text-lg font-bold text-gray-900 tracking-tight">Semua Notifikasi</h3>
+              <p class="!text-xs text-gray-500 mt-0.5">Kelola seluruh riwayat notifikasi dan pemberitahuan Anda</p>
+            </div>
+            <button type="button" @click="notifModalOpen = false" class="p-2 rounded-lg text-neutral2 hover:bg-primary5 hover:text-primary1 focus:outline-none focus:ring-2 focus:ring-primary3 cursor-pointer" aria-label="Tutup">${ALUMNI_NOTIF_SVG.x}</button>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap">
+            <div class="flex items-center gap-1.5">
+              <button type="button" @click="notifModalFilter = 'semua'; notifModalHal = 1" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer" :class="notifModalFilter === 'semua' ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'">Semua</button>
+              <button type="button" @click="notifModalFilter = 'belum'; notifModalHal = 1" class="px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer" :class="notifModalFilter === 'belum' ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'">Belum Dibaca</button>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" @click="markAllNotifsRead()" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
+              <span class="text-gray-300">•</span>
+              <button type="button" @click="mintaHapusSemuaNotif()" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Hapus semua</button>
+            </div>
+          </div>
+
+          <div class="space-y-2.5 py-3 min-h-[240px]">
+            <template x-for="n in notifModalItems" :key="'m-' + n.id">
+              <div class="flex items-start gap-3 p-4 rounded-xl border hover:border-gray-200 hover:bg-gray-50/70 transition-colors" :class="n.dibaca ? 'bg-white border-gray-100' : 'bg-blue-50/30 border-blue-100'">
+                <span class="w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5" :class="n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'" x-html="notifIcon(n)"></span>
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <a :href="notifHref(n)" @click="markNotifRead(n.id)" class="text-[14px] hover:text-[#1E3A8A] leading-snug" :class="n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-bold'" x-text="n.pesan"></a>
+                    <template x-if="!n.dibaca">
+                      <span class="px-2 py-0.5 rounded-full bg-blue-100 text-[#1E3A8A] text-[10.5px] font-bold shrink-0">Baru</span>
+                    </template>
+                  </div>
+                  <p class="!text-xs text-gray-400 mt-1" x-text="n.judul + ' · ' + notifTime(n)"></p>
+                  <div class="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-100/80">
+                    <template x-if="!n.dibaca">
+                      <button type="button" @click="markNotifRead(n.id)" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai telah dibaca</button>
+                    </template>
+                    <button type="button" @click="hapusNotif(n.id)" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto flex items-center gap-1">
+                      ${ALUMNI_NOTIF_SVG.trash}<span>Hapus</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template x-if="notifModalList.length === 0">
+              <div class="p-12 text-center text-gray-400">
+                <span class="flex justify-center mb-2 text-gray-300">${ALUMNI_NOTIF_SVG.bellOff(40)}</span>
+                <p class="!text-sm" x-text="'Tidak ada notifikasi' + (notifModalFilter === 'belum' ? ' yang belum dibaca' : '') + '.'"></p>
+              </div>
+            </template>
+          </div>
+
+          <template x-if="notifModalList.length > NOTIF_MODAL_PER_HAL">
+            <div class="pt-3 border-t border-gray-100">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
+                <p class="!text-xs sm:!text-[13px] text-gray-500 order-last sm:order-none">
+                  Menampilkan <span class="font-semibold text-gray-800" x-text="notifModalAwal + 1"></span>–<span class="font-semibold text-gray-800" x-text="notifModalAwal + notifModalItems.length"></span> dari <span class="font-semibold text-gray-800" x-text="notifModalList.length"></span> data
+                </p>
+                <div class="flex items-center gap-1.5 self-center sm:self-auto">
+                  <button type="button" @click="notifModalHal = notifModalHalAktif - 1" :disabled="notifModalHalAktif <= 1" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer">${ALUMNI_NOTIF_SVG.chevronLeft}<span>Sebelumnya</span></button>
+                  <span class="px-2.5 py-1 text-xs font-semibold text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg" x-text="notifModalHalAktif + ' / ' + notifModalTotalHal"></span>
+                  <button type="button" @click="notifModalHal = notifModalHalAktif + 1" :disabled="notifModalHalAktif >= notifModalTotalHal" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer"><span>Berikutnya</span>${ALUMNI_NOTIF_SVG.chevronRight}</button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <template x-if="notifConfirmOpen">
+      <div class="fixed inset-0 z-[90] bg-neutral1/60 backdrop-blur-sm flex items-center justify-center p-4" @mousedown.self="notifConfirmOpen = false" @keydown.window.escape="notifConfirmOpen = false">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="notif-confirm-title" aria-describedby="notif-confirm-message">
+          <h3 id="notif-confirm-title" class="font-semibold text-base text-neutral1">Hapus semua notifikasi?</h3>
+          <p id="notif-confirm-message" class="!text-sm text-neutral2 mt-2">Seluruh riwayat notifikasi akan dihapus.</p>
+          <div class="mt-6 flex justify-end gap-2">
+            <button type="button" @click="notifConfirmOpen = false" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5 cursor-pointer">Batal</button>
+            <button type="button" @click="hapusSemuaNotif()" class="px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-4 bg-red2 hover:bg-red1 focus:ring-red3 cursor-pointer">Hapus Semua</button>
+          </div>
+        </div>
+      </div>
+    </template>`;
 }
 
 function expandAlumniPartials(root) {

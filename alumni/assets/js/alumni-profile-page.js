@@ -118,16 +118,13 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
             </div>
           </div>
 
-          <div class="mt-4 space-y-3.5">
+          <div class="mt-4 space-y-2">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
               <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap min-w-0">
                 <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-900 tracking-tight leading-tight shrink-0" x-text="profile.name"></h2>
                 <span class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold bg-[#1E3A8A] text-white shadow-sm shrink-0 self-center leading-normal">
                   <span x-text="'Alumni ' + (profile.batch || '2024')"></span>
                 </span>
-                <template x-if="profile.nim">
-                  <span class="inline-flex items-center justify-center px-4 py-2 rounded-full text-[13px] font-semibold bg-gray-100 text-gray-700 border border-gray-200/90 shadow-xs shrink-0 self-center leading-normal" x-text="'NIM: ' + profile.nim"></span>
-                </template>
               </div>
               ${detail ? `<button type="button" @click="toggleConnectDetail()"
                   class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-all shadow-sm cursor-pointer shrink-0 leading-normal"
@@ -156,9 +153,16 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
               </div>`}
             </div>
 
+            <!-- NIM di bawah nama (edit intro), font dan spasi persis sama dengan headline -->
+            <template x-if="profile.nim">
+              <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed" x-text="'NIM: ' + profile.nim"></p>
+            </template>
+
+            <!-- Headline Profesi -->
             <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
 
-            <div class="flex flex-col gap-1 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
+            <!-- Lokasi & Koneksi (spasi didempetkan gap-0.5 agar rapi dan proporsional) -->
+            <div class="flex flex-col gap-0.5 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
               <div class="flex items-center gap-1.5"><span x-text="profile.location"></span></div>
               ${detail ? "" : `<div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>`}
             </div>
@@ -448,7 +452,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
           </div>`;
 
   const projects = `<div id="section-projects" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-        ${sectionHead("Proyek &amp; Portofolio", "projects.length", SECTION_ADD_BTN("btn-add-project", "addProjectOpen", "Tambah proyek"))}
+        ${sectionHead("Proyek &amp; Portofolio", "projects.length", SECTION_ADD_BTN("btn-add-project", "addProjectOpen", "Tambah proyek") + SECTION_EDIT_BTN("btn-edit-project", "editProjectOpen", "Edit proyek"))}
         <div class="space-y-4 pt-4">
           <template x-if="projects.length === 0">
             <p class="text-center text-[15px] text-gray-500 py-8">${detail ? 'Belum ada proyek yang dipublikasikan.' : 'Belum ada proyek. Klik tanda + untuk menambahkan.'}</p>
@@ -493,10 +497,17 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 </div>
 
                 <div class="flex-1 min-w-0 text-left">
-                  <h4 class="text-[17px] font-semibold text-gray-900 leading-snug">
-                    <template x-if="proj.linkUrl"><a :href="normalizeUrl(proj.linkUrl)" target="_blank" rel="noopener noreferrer" class="hover:text-[#1E3A8A] transition-colors" x-text="proj.title"></a></template>
-                    <template x-if="!proj.linkUrl"><span x-text="proj.title"></span></template>
-                  </h4>
+                  <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <h4 class="text-[17px] font-semibold text-gray-900 leading-snug">
+                      <template x-if="proj.linkUrl"><a :href="normalizeUrl(proj.linkUrl)" target="_blank" rel="noopener noreferrer" class="hover:text-[#1E3A8A] transition-colors" x-text="proj.title"></a></template>
+                      <template x-if="!proj.linkUrl"><span x-text="proj.title"></span></template>
+                    </h4>
+                    ${detail ? "" : `
+                      <button type="button" @click="openPublishKaryaModal(proj)" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer transition-colors shrink-0" title="Publish ke Showcase">
+                        Publish
+                      </button>
+                    `}
+                  </div>
                   <div class="flex items-center gap-2 mt-1">
                     <span class="text-[14px] text-gray-500 font-medium" x-text="proj.period"></span>
                   </div>
@@ -526,19 +537,6 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                       <span class="${CHIP}" x-text="tag"></span>
                     </template>
                   </div>
-                  ${detail ? "" : `
-                    <div class="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-end gap-2 text-xs flex-wrap">
-                      <template x-if="!proj.stage">
-                        <button type="button" @click="openPublishKaryaModal(proj)" class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold text-gray-600 bg-white hover:bg-gray-50 border border-gray-200 transition-colors cursor-pointer">
-                          Publish ke Showcase
-                        </button>
-                      </template>
-                      <button type="button" @click="openEditProject(proj)" :aria-label="'Edit proyek ' + proj.title" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-[#1E3A8A] bg-white hover:bg-blue-50 border border-blue-200 transition-colors cursor-pointer shadow-2xs">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Edit
-                      </button>
-                    </div>
-                  `}
                 </div>
               </div>
             </article>

@@ -91,7 +91,7 @@
   document.getElementById('banner').innerHTML = bannerSapaan(SAYA.nama, 'Pantau kondisi lulusan, jumlah alumni yang sudah terdeteksi, serta kontak dan tempat kerja alumni.');
 
   document.getElementById('pintasan').innerHTML = [
-    kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Analitik Tracer', nilai: DB.tracer.semua().length, sub: 'Jawaban masuk', warna: 'biru' }),
+    kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Statistik & Tracer', nilai: DB.tracer.semua().length, sub: 'Jawaban masuk', warna: 'biru' }),
     kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau' }),
     kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: `${DB.feed.spotlightAktif().length} spotlight`, sub: `${DB.feed.semua().filter(p => p.karya?.tahap === 'live').length} karya Live siap kurasi`, warna: 'oranye' }),
     kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu' }),
