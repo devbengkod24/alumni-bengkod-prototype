@@ -21,28 +21,7 @@
 <main data-route="profil">
   <div x-data="profilPage" class="w-full space-y-6 pb-12 antialiased" @click.window="shareDropdownId = null">
 
-    <!-- Tab Navigasi Halaman Profil -->
-    <div class="flex items-center gap-2 p-1.5 bg-gray-100/90 rounded-2xl w-fit border border-gray-200/80">
-      <button type="button" @click="setTab('profil')" role="tab" :aria-selected="activeTab === 'profil'"
-        :class="activeTab === 'profil' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
-        class="px-5 py-2.5 rounded-xl text-sm transition-all inline-flex items-center gap-2 cursor-pointer">
-        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-        </svg>
-        <span>Profil &amp; Portofolio</span>
-      </button>
-      <button type="button" @click="setTab('pengaturan')" role="tab" :aria-selected="activeTab === 'pengaturan'"
-        :class="activeTab === 'pengaturan' ? 'bg-white text-[#1E3A8A] font-semibold shadow-xs' : 'text-gray-600 hover:text-gray-900'"
-        class="px-5 py-2.5 rounded-xl text-sm transition-all inline-flex items-center gap-2 cursor-pointer">
-        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-        <span>Pengaturan &amp; Keamanan</span>
-      </button>
-    </div>
-
-    <!-- TAB 1: PROFIL & PORTOFOLIO -->
-    <div x-show="activeTab === 'profil'" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
       <!-- ======================================================
           KOLOM UTAMA (KIRI/TENGAH)
       ====================================================== -->
@@ -163,113 +142,7 @@
       </div>
     </div>
 
-    <!-- TAB 2: PENGATURAN & KEAMANAN -->
-    <div x-show="activeTab === 'pengaturan'" x-cloak class="max-w-3xl space-y-6">
 
-      <!-- Header Ringkas Pengaturan Akun -->
-      <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-gray-100">
-          <div>
-            <h2 class="text-[20px] font-bold text-gray-900 tracking-tight">Pengaturan Akun &amp; Keamanan</h2>
-            <p class="text-[14px] text-gray-500 mt-0.5">Kelola kredensial akun dan perbarui kata sandi login Anda.</p>
-          </div>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            Alumni Terverifikasi
-          </span>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-5 text-sm">
-          <div class="p-4 rounded-xl bg-gray-50/80 border border-gray-100">
-            <span class="text-xs font-medium text-gray-500 block mb-1">Nama Lengkap</span>
-            <p class="font-semibold text-gray-900 text-[15px]" x-text="profile.name || 'Alumni'"></p>
-          </div>
-          <div class="p-4 rounded-xl bg-gray-50/80 border border-gray-100">
-            <span class="text-xs font-medium text-gray-500 block mb-1">Alamat Email</span>
-            <p class="font-semibold text-gray-900 text-[15px]" x-text="profile.email || '-'"></p>
-          </div>
-          <template x-if="profile.nim">
-            <div class="p-4 rounded-xl bg-gray-50/80 border border-gray-100">
-              <span class="text-xs font-medium text-gray-500 block mb-1">Nomor Induk Mahasiswa (NIM)</span>
-              <p class="font-semibold text-gray-900 text-[15px]" x-text="profile.nim"></p>
-            </div>
-          </template>
-          <div class="p-4 rounded-xl bg-gray-50/80 border border-gray-100">
-            <span class="text-xs font-medium text-gray-500 block mb-1">Program Studi / Kampus</span>
-            <p class="font-semibold text-gray-900 text-[15px]">Teknik Informatika · UDINUS</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kartu Formulir Ganti Password -->
-      <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-        <div class="flex items-center gap-3 pb-4 mb-5 border-b border-gray-100">
-          <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
-          </div>
-          <div>
-            <h3 class="text-[18px] font-bold text-gray-900 tracking-tight">Ganti Kata Sandi</h3>
-            <p class="text-[13px] text-gray-500">Pastikan kata sandi baru terdiri dari minimal 8 karakter yang aman.</p>
-          </div>
-        </div>
-
-        <form @submit.prevent="submitGantiPassword()" class="space-y-4 max-w-xl">
-          <div>
-            <label for="pwd-lama" class="block text-xs font-semibold text-gray-700 mb-1.5">Kata Sandi Saat Ini <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input :type="showOldPwd ? 'text' : 'password'" id="pwd-lama" x-model="pwdForm.lama" required autocomplete="current-password" placeholder="Masukkan kata sandi lama" class="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10" :class="pwdErrors.lama ? 'border-red-400 bg-red-50/20' : ''">
-              <button type="button" @click="showOldPwd = !showOldPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer" aria-label="Toggle password lama">
-                <svg x-show="!showOldPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg x-show="showOldPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              </button>
-            </div>
-            <template x-if="pwdErrors.lama">
-              <p class="text-xs text-red-600 mt-1 font-medium" x-text="pwdErrors.lama"></p>
-            </template>
-          </div>
-
-          <div>
-            <label for="pwd-baru" class="block text-xs font-semibold text-gray-700 mb-1.5">Kata Sandi Baru <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input :type="showNewPwd ? 'text' : 'password'" id="pwd-baru" x-model="pwdForm.baru" required minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter" class="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10" :class="pwdErrors.baru ? 'border-red-400 bg-red-50/20' : ''">
-              <button type="button" @click="showNewPwd = !showNewPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer" aria-label="Toggle password baru">
-                <svg x-show="!showNewPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg x-show="showNewPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              </button>
-            </div>
-            <template x-if="pwdErrors.baru">
-              <p class="text-xs text-red-600 mt-1 font-medium" x-text="pwdErrors.baru"></p>
-            </template>
-          </div>
-
-          <div>
-            <label for="pwd-konfirmasi" class="block text-xs font-semibold text-gray-700 mb-1.5">Konfirmasi Kata Sandi Baru <span class="text-red-500">*</span></label>
-            <div class="relative">
-              <input :type="showConfirmPwd ? 'text' : 'password'" id="pwd-konfirmasi" x-model="pwdForm.konfirmasi" required minlength="8" autocomplete="new-password" placeholder="Ulangi kata sandi baru" class="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-gray-300 text-sm focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10" :class="pwdErrors.konfirmasi ? 'border-red-400 bg-red-50/20' : ''">
-              <button type="button" @click="showConfirmPwd = !showConfirmPwd" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer" aria-label="Toggle konfirmasi password">
-                <svg x-show="!showConfirmPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                <svg x-show="showConfirmPwd" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              </button>
-            </div>
-            <template x-if="pwdErrors.konfirmasi">
-              <p class="text-xs text-red-600 mt-1 font-medium" x-text="pwdErrors.konfirmasi"></p>
-            </template>
-          </div>
-
-          <div class="pt-2">
-            <button type="submit"
-              class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold transition-colors shadow-sm cursor-pointer inline-flex items-center gap-2">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Simpan Kata Sandi</span>
-            </button>
-          </div>
-        </form>
-      </div>
-
-    </div>
 
     <!-- Modals Edit Bahasa & URL Publik -->
     <!-- ======================================================
@@ -1142,59 +1015,6 @@
 
     Alpine.data("profilPage", () =>
       profilePageData("profil", {
-        activeTab: (new URLSearchParams(window.location.search).get("tab") === "pengaturan") ? "pengaturan" : "profil",
-        setTab(tab) {
-          this.activeTab = tab;
-          const url = new URL(window.location.href);
-          if (tab === "pengaturan") {
-            url.searchParams.set("tab", "pengaturan");
-          } else {
-            url.searchParams.delete("tab");
-          }
-          window.history.replaceState({}, "", url.pathname + (url.search ? url.search : ""));
-        },
-        showOldPwd: false,
-        showNewPwd: false,
-        showConfirmPwd: false,
-        pwdForm: {
-          lama: "",
-          baru: "",
-          konfirmasi: "",
-        },
-        pwdErrors: {
-          lama: "",
-          baru: "",
-          konfirmasi: "",
-        },
-        submitGantiPassword() {
-          this.pwdErrors = { lama: "", baru: "", konfirmasi: "" };
-          if (!this.pwdForm.lama) {
-            this.pwdErrors.lama = "Password lama wajib diisi.";
-            return;
-          }
-          if (!this.pwdForm.baru || this.pwdForm.baru.length < 8) {
-            this.pwdErrors.baru = "Password baru harus minimal 8 karakter.";
-            return;
-          }
-          if (this.pwdForm.baru !== this.pwdForm.konfirmasi) {
-            this.pwdErrors.konfirmasi = "Konfirmasi password baru tidak cocok.";
-            return;
-          }
-          if (typeof DB !== "undefined" && DB.akun) {
-            const user = (typeof SAYA !== "undefined" && SAYA) ? SAYA : DB.akun.aktif();
-            const userId = user ? user.id : 2;
-            const res = DB.akun.gantiPassword(userId, this.pwdForm.lama, this.pwdForm.baru);
-            if (!res.ok) {
-              if (res.field === "lama") this.pwdErrors.lama = res.error;
-              else if (res.field === "baru") this.pwdErrors.baru = res.error;
-              else this.pwdErrors.konfirmasi = res.error;
-              return;
-            }
-          }
-          this.pwdForm = { lama: "", baru: "", konfirmasi: "" };
-          this.toast = "Password berhasil diperbarui!";
-          setTimeout(() => { if (this.toast === "Password berhasil diperbarui!") this.toast = ""; }, 3000);
-        },
         profileLanguage: 'Bahasa Indonesia',
         profilePublicUrl: 'www.bengkelkoding.com/alumni/aisharah',
         tempLanguage: 'Bahasa Indonesia',
