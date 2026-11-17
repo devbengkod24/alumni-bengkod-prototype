@@ -573,14 +573,47 @@
       try { localStorage.removeItem(KEY_SESI); } catch { /* storage diblokir */ }
     },
 
-    daftar({ nama, email, password }) {
-      if (!bersih(nama)) return gagal('Nama wajib diisi.', 'nama');
-      if (akun.cariEmail(email)) return gagal('Alamat email sudah terdaftar, silakan gunakan email lain.', 'email');
-      if (String(password).length < 8) return gagal('Password harus terdiri dari minimal 8 karakter.', 'password');
+    nimContoh(limit = 3) {
       const data = muat();
+      const dipakai = new Set([
+        ...data.users.map(u => (u.nim || '').toUpperCase()),
+        ...data.tracer.map(t => (t.nim || '').toUpperCase()),
+      ].filter(Boolean));
+      const hasil = [];
+      for (const s of statistik.semua()) {
+        for (const a of statistik.detailAngkatan(s.tahun_lulus).asisten) {
+          if (!a.terdaftar && !dipakai.has(a.nim.toUpperCase())) {
+            hasil.push({ nim: a.nim, nama: a.nama, email: a.email });
+            if (hasil.length >= limit) return hasil;
+          }
+        }
+      }
+      return hasil;
+    },
+
+    daftar({ nama, nim, email, password, password_confirm }) {
+      if (!bersih(nama)) return gagal('Nama lengkap wajib diisi.', 'nama');
+      const nimNorm = bersih(nim).toUpperCase();
+      if (!nimNorm) return gagal('NIM wajib diisi.', 'nim');
+      const data = muat();
+      const sudahDipakai =
+        data.users.some(u => (u.nim || '').toUpperCase() === nimNorm) ||
+        data.tracer.some(t => (t.nim || '').toUpperCase() === nimNorm);
+      if (sudahDipakai) return gagal('NIM sudah terdaftar sebagai akun alumni.', 'nim');
+      const asistenLms = statistik.semua()
+        .flatMap(s => statistik.detailAngkatan(s.tahun_lulus).asisten)
+        .find(a => a.nim.toUpperCase() === nimNorm && !a.terdaftar);
+      if (!asistenLms) return gagal('NIM tidak ditemukan pada data alumni asisten lab Bengkel Koding.', 'nim');
+      const emailBersih = bersih(email);
+      if (!/^\S+@\S+\.\S+$/.test(emailBersih)) return gagal('Format email tidak valid.', 'email');
+      if (akun.cariEmail(emailBersih)) return gagal('Alamat email sudah terdaftar, silakan gunakan email lain.', 'email');
+      if (String(password).length < 8) return gagal('Password harus terdiri dari minimal 8 karakter.', 'password');
+      if (password_confirm !== undefined && password !== password_confirm) {
+        return gagal('Konfirmasi password tidak cocok.', 'password_confirm');
+      }
       const user = {
-        id: idBaru(data.users), nama: bersih(nama), email: bersih(email), password,
-        role: 'alumni', status: 'notverified', code: kodeAcak(), foto: '',
+        id: idBaru(data.users), nama: bersih(nama), nim: nimNorm, email: emailBersih, password,
+        role: 'alumni', status: 'verified', code: '', foto: '',
       };
       data.users.push(user);
       simpan();

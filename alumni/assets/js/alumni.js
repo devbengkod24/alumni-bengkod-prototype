@@ -92,6 +92,25 @@ function alumniBasePrefix() {
   return isAlumniSubdir() ? "../" : "";
 }
 
+// First login: arahkan alumni yang sudah login tapi belum mengisi data tracer ke isi-data.html
+(function guardFirstLoginTracer() {
+  try {
+    const sesiId = Number(localStorage.getItem("alumni_revisi_sesi_v1"));
+    if (!sesiId) return;
+    const raw = localStorage.getItem("alumni_revisi_data_v5");
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    const user = Array.isArray(data?.users) ? data.users.find((u) => u.id === sesiId) : null;
+    if (!user || user.role !== "alumni") return;
+    const sudahIsi = Array.isArray(data?.tracer) && data.tracer.some((t) => t.id_alumni === sesiId);
+    if (!sudahIsi) {
+      location.replace(alumniBasePrefix() + "isi-data.html");
+    }
+  } catch {
+    /* abaikan jika storage tidak tersedia / rusak */
+  }
+})();
+
 function alumniRootPrefix() {
   return isAlumniSubdir() ? "../../" : "../";
 }
