@@ -48,14 +48,13 @@
 
       <!-- Tombol Lempar Proyek (CTA Utama di kanan atas) -->
       <div class="shrink-0">
-        <button
-          type="button"
-          @click="openCreateGigModal()"
+        <a
+          href="lempar-proyek.html"
           class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer whitespace-nowrap"
         >
           <span class="text-base leading-none font-bold">+</span>
           <span>Lempar Proyek</span>
-        </button>
+        </a>
       </div>
     </div>
 
@@ -339,13 +338,12 @@
               Lempar tender atau side-project ke Papan Gigs dan temukan rekan kolaborasi dari ekosistem alumni Bengkel Koding.
             </p>
             <div class="pt-2">
-              <button
-                type="button"
-                @click="openCreateGigModal()"
+              <a
+                href="lempar-proyek.html"
                 class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-[14px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] shadow-sm transition-colors cursor-pointer"
               >
                 + Lempar Proyek Pertama
-              </button>
+              </a>
             </div>
           </div>
         </template>
@@ -745,7 +743,7 @@
             <div class="space-y-1.5">
               <div class="flex items-baseline justify-between gap-3">
                 <span class="block text-[14px] font-medium text-gray-700">CV Terlampir</span>
-                <a href="generate-cv.html" class="text-[12px] font-medium text-gray-500 hover:text-[#1E3A8A] hover:underline shrink-0">Perbarui di Generate CV</a>
+                <a href="data-cv.html" class="text-[12px] font-medium text-gray-500 hover:text-[#1E3A8A] hover:underline shrink-0">Perbarui di Data CV</a>
               </div>
               <div class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50/70 px-3.5 py-3">
                 <div class="flex items-center gap-3 min-w-0 flex-1 basis-60">
@@ -789,121 +787,6 @@
               class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Kirim Pengajuan
-            </button>
-          </div>
-        </div>
-      </div>
-    </template>
-
-    <!-- ============================================================
-        MODAL: BUAT PROYEK BARU (LEMPAR PROYEK)
-    ============================================================ -->
-    <template x-if="createGigModalOpen">
-      <div
-        class="fixed inset-0 z-[80] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200"
-        @mousedown.self="createGigModalOpen = false"
-      >
-        <div
-          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)"
-          class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
-          role="dialog"
-          aria-modal="true"
-        >
-          <!-- Header Modal -->
-          <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0 bg-white">
-            <h2 class="text-[20px] font-bold text-gray-900 tracking-tight">Lempar Proyek Baru</h2>
-            <button
-              type="button"
-              @click="createGigModalOpen = false"
-              class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer flex-shrink-0"
-              aria-label="Tutup modal"
-            >
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          </div>
-
-          <!-- Body Form -->
-          <div class="flex-1 overflow-y-auto px-6 sm:px-8 py-6 space-y-4">
-            <div class="space-y-1.5">
-              <label class="block text-[14px] font-medium text-gray-700">Judul Proyek / Kebutuhan <span class="text-red-500 font-bold">*</span></label>
-              <input type="text" autocomplete="off" x-model="newGigForm.title" placeholder="Contoh: Pembuatan Landing Page Startup IoT Berbasis Next.js" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" required>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <label class="block text-[14px] font-medium text-gray-700">Kategori <span class="text-red-500 font-bold">*</span></label>
-                <div class="relative">
-                  <select x-model="newGigForm.category" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
-                    <option value="Mobile App">Mobile App</option>
-                    <option value="Frontend">Frontend Development</option>
-                    <option value="Backend">Backend API</option>
-                    <option value="UI/UX">UI/UX &amp; Web Design</option>
-                    <option value="Data Science">Data Science &amp; AI</option>
-                    <option value="QA">QA &amp; Testing</option>
-                  </select>
-                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                  </span>
-                </div>
-              </div>
-
-              <div class="space-y-1.5">
-                <label class="block text-[14px] font-medium text-gray-700">Rentang Budget / Kompensasi <span class="text-red-500 font-bold">*</span></label>
-                <div class="relative">
-                  <select x-model="newGigForm.budgetRange" class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer">
-                    <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
-                      <option :value="b" :selected="b === newGigForm.budgetRange" x-text="b"></option>
-                    </template>
-                  </select>
-                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <label class="block text-[14px] font-medium text-gray-700">Peran yang Dicari (Pisahkan koma)</label>
-                <input type="text" autocomplete="off" x-model="newGigForm.rolesNeeded" placeholder="Frontend React, UI Designer" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
-              </div>
-
-              <div class="space-y-1.5">
-                <label class="block text-[14px] font-medium text-gray-700">Target Tanggal Selesai</label>
-                <input type="date" x-model="newGigForm.deadline" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all">
-              </div>
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-[14px] font-medium text-gray-700">Tech Stack yang Digunakan (Pisahkan koma)</label>
-              <input type="text" autocomplete="off" x-model="newGigForm.techStack" placeholder="React, Tailwind CSS, TypeScript, Supabase" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all">
-            </div>
-
-            <div class="space-y-1.5">
-              <label class="block text-[14px] font-medium text-gray-700">Deskripsi Kebutuhan &amp; Deliverables <span class="text-red-500 font-bold">*</span></label>
-              <textarea rows="4" x-model="newGigForm.description" placeholder="Jelaskan ruang lingkup proyek, target deliverables, serta ekspektasi kontribusi rekan alumni..." style="resize: none" class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"></textarea>
-            </div>
-          </div>
-
-          <!-- Footer Actions -->
-          <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
-            <button
-              type="button"
-              @click="createGigModalOpen = false"
-              class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors cursor-pointer"
-            >
-              Batal
-            </button>
-            <button
-              type="button"
-              :disabled="!newGigForm.title.trim() || !newGigForm.description.trim()"
-              @click="submitCreateGig()"
-              class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Terbitkan Proyek
             </button>
           </div>
         </div>
@@ -1118,6 +1001,15 @@
           if (rawSaved) this.savedGigIds = JSON.parse(rawSaved);
         } catch {}
 
+        // Cek toast tertunda dari halaman lempar-proyek.html
+        try {
+          const pendingToast = sessionStorage.getItem("bengkod_toast");
+          if (pendingToast) {
+            this.setToast(pendingToast);
+            sessionStorage.removeItem("bengkod_toast");
+          }
+        } catch {}
+
         const loaded = typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []);
         // ?gig=<id> membuka rincian proyek tertentu, ?tab=my_gigs membuka tab Proyek Dibuat (kembali dari halaman pelamar)
         const params = new URLSearchParams(window.location.search);
@@ -1130,6 +1022,15 @@
       },
 
       muat() {
+        // Cek toast tertunda dari halaman lempar-proyek.html
+        try {
+          const pendingToast = sessionStorage.getItem("bengkod_toast");
+          if (pendingToast) {
+            this.setToast(pendingToast);
+            sessionStorage.removeItem("bengkod_toast");
+          }
+        } catch {}
+
         const loaded = typeof loadGigs === "function" ? loadGigs() : (window.INITIAL_GIGS || []);
         this.gigs = Array.isArray(loaded) && loaded.length > 0 ? loaded : (window.INITIAL_GIGS || []);
         this.myApplications = typeof loadMyApplications === "function" ? loadMyApplications() : [];

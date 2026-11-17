@@ -393,7 +393,7 @@ const NAV = {
     { href: 'showcase.html', icon: 'rocket', label: 'Showcase' },
     { href: 'gigs.html', icon: 'briefcase-business', label: 'Gigs & Proyek' },
     { href: 'referral.html', icon: 'handshake', label: 'Referral' },
-    { href: 'generate-cv.html', icon: 'file-text', label: 'Generate CV' },
+    { href: 'data-cv.html', icon: 'file-text', label: 'Data CV' },
     { href: 'profil.html', icon: 'user-round', label: 'Profil Saya' },
   ],
   admin: [

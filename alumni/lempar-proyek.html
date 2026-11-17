@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lempar Proyek Baru | Bengkod Gigs &amp; Projects</title>
+  <meta name="description" content="Publikasikan tawaran kolaborasi proyek, tender freelance, atau pembentukan tim untuk sesama alumni Bengkel Koding UDINUS.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="assets/js/alumni-profile-data.js"></script>
+  <script src="assets/js/alumni-cv.js"></script>
+  <script src="../assets/js/store.js"></script>
+</head>
+<body>
+<main data-route="lempar-proyek">
+  <div x-data="lemparProyekPage()" class="w-full space-y-6 py-2 antialiased">
+
+    <!-- Tombol Kembali -->
+    <div>
+      <a href="gigs.html" class="inline-flex items-center gap-2 text-[14px] font-semibold text-gray-500 hover:text-[#1E3A8A] transition-colors w-fit">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+        </svg>
+        <span>Kembali ke Gigs &amp; Proyek</span>
+      </a>
+    </div>
+
+    <!-- Header Halaman -->
+    <div class="pb-4 border-b border-gray-200">
+      <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Lempar Proyek Baru</h1>
+      <p class="text-[14px] sm:text-[15px] text-gray-500 mt-1 font-normal">
+        Buka peluang kolaborasi side-project, tender freelance, atau rekrutmen tim internal untuk rekan alumni Bengkel Koding.
+      </p>
+    </div>
+
+    <!-- Container Form Utama -->
+    <form @submit.prevent="submitForm()" class="bg-white rounded-xl border border-gray-200/90 shadow-xs max-w-3xl overflow-hidden">
+      <div class="p-6 sm:p-8 space-y-8">
+
+        <!-- Seksi 1: Ringkasan Kebutuhan -->
+        <div class="space-y-4">
+          <div class="pb-2 border-b border-gray-100">
+            <h2 class="text-[17px] font-bold text-gray-900 tracking-tight">1. Informasi Pokok Proyek</h2>
+            <p class="text-[13px] text-gray-500 mt-0.5">Tentukan fokus pekerjaan dan estimasi anggaran yang disediakan.</p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label for="gig-title" class="block text-[14px] font-medium text-gray-700">
+                Judul Proyek / Kebutuhan Kolaborasi <span class="text-red-500 font-bold">*</span>
+              </label>
+              <input
+                id="gig-title"
+                type="text"
+                x-model="form.title"
+                placeholder="Contoh: Pembuatan Landing Page & Dashboard Monitoring IoT Berbasis Next.js"
+                required
+                class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"
+              >
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label for="gig-category" class="block text-[14px] font-medium text-gray-700">
+                  Kategori Utama <span class="text-red-500 font-bold">*</span>
+                </label>
+                <div class="relative">
+                  <select
+                    id="gig-category"
+                    x-model="form.category"
+                    class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer"
+                  >
+                    <option value="Mobile App">Mobile App Development</option>
+                    <option value="Frontend">Frontend Web Development</option>
+                    <option value="Backend">Backend API &amp; Server</option>
+                    <option value="UI/UX">UI/UX &amp; Product Design</option>
+                    <option value="Data Science">Data Science &amp; AI Analytics</option>
+                    <option value="QA">QA &amp; Automated Testing</option>
+                  </select>
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="gig-budget" class="block text-[14px] font-medium text-gray-700">
+                  Rentang Budget / Kompensasi <span class="text-red-500 font-bold">*</span>
+                </label>
+                <div class="relative">
+                  <select
+                    id="gig-budget"
+                    x-model="form.budgetRange"
+                    class="w-full appearance-none rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white pl-3.5 pr-10 py-2.5 text-[15px] text-gray-900 outline-none transition-all cursor-pointer"
+                  >
+                    <template x-for="b in budgetOptions" :key="b">
+                      <option :value="b" :selected="b === form.budgetRange" x-text="b"></option>
+                    </template>
+                  </select>
+                  <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                  </span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="gig-deadline" class="block text-[14px] font-medium text-gray-700">
+                  Target Tanggal Selesai (Deadline)
+                </label>
+                <input
+                  id="gig-deadline"
+                  type="date"
+                  x-model="form.deadline"
+                  :min="todayStr"
+                  class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all"
+                >
+              </div>
+
+              <div class="space-y-1.5">
+                <label for="gig-quota" class="block text-[14px] font-medium text-gray-700">
+                  Kuota Rekan yang Dibutuhkan
+                </label>
+                <input
+                  id="gig-quota"
+                  type="number"
+                  min="1"
+                  max="10"
+                  x-model="form.quota"
+                  class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 outline-none transition-all"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seksi 2: Spesifikasi Tim & Teknologi -->
+        <div class="space-y-4">
+          <div class="pb-2 border-b border-gray-100">
+            <h2 class="text-[17px] font-bold text-gray-900 tracking-tight">2. Spesifikasi Tim &amp; Teknologi</h2>
+            <p class="text-[13px] text-gray-500 mt-0.5">Rincian peran dan tumpukan teknologi yang diharapkan.</p>
+          </div>
+
+          <div class="space-y-4">
+            <div class="space-y-1.5">
+              <label for="gig-roles" class="block text-[14px] font-medium text-gray-700">
+                Peran yang Dicari
+              </label>
+              <input
+                id="gig-roles"
+                type="text"
+                x-model="form.rolesNeeded"
+                placeholder="Contoh: Frontend React, UI/UX Designer (pisahkan dengan koma)"
+                class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"
+              >
+            </div>
+
+            <div class="space-y-1.5">
+              <label for="gig-stack" class="block text-[14px] font-medium text-gray-700">
+                Tech Stack yang Digunakan
+              </label>
+              <input
+                id="gig-stack"
+                type="text"
+                x-model="form.techStack"
+                placeholder="Contoh: Next.js 15, Tailwind CSS, TypeScript, Supabase (pisahkan dengan koma)"
+                class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Seksi 3: Ruang Lingkup & Deliverables -->
+        <div class="space-y-4">
+          <div class="pb-2 border-b border-gray-100">
+            <h2 class="text-[17px] font-bold text-gray-900 tracking-tight">3. Lingkup Kerja &amp; Deliverables</h2>
+            <p class="text-[13px] text-gray-500 mt-0.5">Jelaskan target hasil kerja yang diharapkan secara rinci dan terukur.</p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label for="gig-desc" class="block text-[14px] font-medium text-gray-700">
+              Deskripsi Kebutuhan &amp; Target Hasil <span class="text-red-500 font-bold">*</span>
+            </label>
+            <textarea
+              id="gig-desc"
+              rows="5"
+              x-model="form.description"
+              placeholder="Jelaskan latar belakang proyek, fitur inti yang harus selesai, timeline kerja sama, serta ekspektasi komunikasi antar-anggota tim..."
+              required
+              style="resize: none"
+              class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed"
+            ></textarea>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Action Footer Bar -->
+      <div class="px-6 sm:px-8 py-4 bg-gray-50/80 border-t border-gray-200 flex flex-col-reverse sm:flex-row sm:items-center justify-end gap-3">
+        <a
+          href="gigs.html"
+          class="inline-flex items-center justify-center px-5 py-2.5 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors text-center cursor-pointer"
+        >
+          Batal
+        </a>
+        <button
+          type="submit"
+          :disabled="!isValid"
+          class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <span class="text-base leading-none font-bold">+</span>
+          <span>Terbitkan Proyek</span>
+        </button>
+      </div>
+    </form>
+
+  </div>
+</main>
+
+<script>
+  function lemparProyekPage() {
+    const budgetList = typeof GIGS_BUDGET_RANGES !== "undefined"
+      ? GIGS_BUDGET_RANGES
+      : ["< Rp 1.000.000", "Rp 1.000.000 - Rp 3.000.000", "Rp 3.000.000 - Rp 5.000.000", "> Rp 5.000.000", "Bagi Hasil / Equity"];
+
+    const currentAlumni = (typeof ALUMNI_DIRECTORY !== "undefined" && ALUMNI_DIRECTORY[0]) || {
+      id: "alumni-1",
+      name: "Aisha Dwi Rahmawati",
+      headline: "Ex-Asisten Lab Software Engineering Bengkod UDINUS",
+      avatarUrl: "assets/img/avatars/alumni-1.png",
+    };
+
+    return {
+      budgetOptions: budgetList,
+      todayStr: new Date().toISOString().slice(0, 10),
+      currentUserId: currentAlumni.id || "alumni-1",
+      currentUserName: currentAlumni.name,
+      currentUserAvatar: currentAlumni.avatarUrl || "assets/img/avatars/alumni-1.png",
+      currentUserRole: "Ex-Asisten Software Engineering",
+
+      form: {
+        title: "",
+        category: "Frontend",
+        budgetRange: budgetList[1] || "Rp 1.000.000 - Rp 3.000.000",
+        quota: 1,
+        deadline: new Date(Date.now() + 25 * 86400000).toISOString().slice(0, 10),
+        rolesNeeded: "",
+        techStack: "",
+        description: "",
+      },
+
+      init() {
+        try {
+          const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
+          if (saved) {
+            this.currentUserName = saved.name || this.currentUserName;
+            this.currentUserAvatar = saved.avatarUrl || this.currentUserAvatar;
+            this.currentUserRole = saved.headline || this.currentUserRole;
+          }
+        } catch {}
+      },
+
+      get isValid() {
+        return Boolean(this.form.title.trim() && this.form.description.trim());
+      },
+
+      submitForm() {
+        if (!this.isValid) return;
+
+        const newGig = {
+          id: "gig-" + Date.now(),
+          title: this.form.title.trim(),
+          ownerId: this.currentUserId,
+          ownerName: this.currentUserName,
+          ownerAvatar: this.currentUserAvatar,
+          ownerRole: this.currentUserRole,
+          ownerPhone: "081234567890",
+          category: this.form.category,
+          rolesNeeded: this.form.rolesNeeded.split(",").map((s) => s.trim()).filter(Boolean),
+          techStack: this.form.techStack.split(",").map((s) => s.trim()).filter(Boolean),
+          budgetRange: this.form.budgetRange,
+          deadline: this.form.deadline,
+          quota: Number(this.form.quota) || 1,
+          postedDate: new Date().toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }),
+          description: this.form.description.trim(),
+          applicants: [],
+        };
+
+        const existing = typeof loadGigs === "function" ? loadGigs() : [];
+        const updated = [newGig, ...existing];
+        if (typeof saveGigs === "function") {
+          saveGigs(updated);
+        }
+
+        sessionStorage.setItem("bengkod_toast", "Tender proyek berhasil diterbitkan ke Papan Gigs!");
+        window.location.href = "gigs.html?tab=my_gigs";
+      },
+    };
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("lemparProyekPage", lemparProyekPage);
+  });
+</script>
+</body>
+</html>
