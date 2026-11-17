@@ -152,7 +152,7 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Alumni",
+    title: "Direktori Alumni",
     link: "/dashboard/alumni/direktori",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -257,7 +257,31 @@ function alumniRoleLabel() {
   return isAlumniSubdir() ? "Mitra" : "Alumni";
 }
 
-function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel()) {
+function alumniBreadcrumbHTML(title = "Profil Saya", role = alumniRoleLabel(), route = "") {
+  const norm = alumniNormalizeRoute(route);
+  const m = /^\/dashboard\/alumni\/([^/]+)$/.exec(norm);
+  const isAlumniDetail = (m && !ALUMNI_NAVIGATIONS.some((n) => n.link === norm) && !ALUMNI_EXTRA_TITLES[norm]) || norm === "/dashboard/alumni/detail";
+
+  if (isAlumniDetail) {
+    let alumniName = "";
+    const id = m ? m[1] : (typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("id") : "");
+    if (id && typeof findAlumni === "function") {
+      const a = findAlumni(id);
+      if (a) alumniName = a.name;
+    }
+    if (!alumniName && title !== "Detail Alumni") {
+      alumniName = title;
+    }
+    if (alumniName) {
+      return `
+        <a href="${alumniHref("/dashboard/alumni")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${role}</a>
+        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+        <a href="${alumniHref("/dashboard/alumni/direktori")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Detail Alumni</a>
+        <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+        <span class="font-medium text-neutral1 truncate">${alumniName}</span>`;
+    }
+  }
+
   return `
     <a href="${alumniHref("/dashboard/alumni")}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${role}</a>
     <span class="mx-2 text-neutral3 select-none font-normal">›</span>
@@ -576,7 +600,12 @@ function alumniNavSearchDropdownHTML() {
 
 function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
   const normalized = alumniNormalizeRoute(route);
-  const activeRoute = ALUMNI_NAV_PARENT[normalized] || normalized;
+  let activeRoute = ALUMNI_NAV_PARENT[normalized] || normalized;
+  if (/^\/dashboard\/alumni\/[^/]+$/.test(normalized) && !ALUMNI_NAVIGATIONS.some((n) => n.link === normalized) && !ALUMNI_EXTRA_TITLES[normalized]) {
+    activeRoute = "/dashboard/alumni/direktori";
+  } else if (normalized === "/dashboard/alumni/detail") {
+    activeRoute = "/dashboard/alumni/direktori";
+  }
   const navItems = ALUMNI_NAVIGATIONS.map((nav) => {
     const active = nav.link === activeRoute;
     return `
@@ -636,7 +665,7 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
             </svg>
           </button>
           <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">
-            ${alumniBreadcrumbHTML(pageTitle)}
+            ${alumniBreadcrumbHTML(pageTitle, alumniRoleLabel(), route)}
           </nav>
         </div>
 
