@@ -759,6 +759,16 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
   const certsSrc = (initialData && initialData.certifications) ? initialData.certifications : INITIAL_CERTIFICATIONS;
   const skillsSrc = (initialData && initialData.skills) ? initialData.skills : INITIAL_SKILLS;
   const honorsSrc = (initialData && initialData.honors) ? initialData.honors : [];
+  const storedExperiences = (variant !== "detail") ? (() => {
+    try {
+      const raw = localStorage.getItem("bengkod_alumni_experiences_v1");
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  })() : null;
+  const experiencesSrc = (initialData && initialData.experiences)
+    ? initialData.experiences
+    : (storedExperiences || (typeof INITIAL_EXPERIENCES !== "undefined" ? INITIAL_EXPERIENCES : []));
 
   const base = {
     COVER_THEMES,
@@ -774,6 +784,7 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     certifications: JSON.parse(JSON.stringify(certsSrc)),
     skills: JSON.parse(JSON.stringify(skillsSrc)),
     honors: JSON.parse(JSON.stringify(honorsSrc)),
+    experiences: JSON.parse(JSON.stringify(experiencesSrc)),
     recommendedPeople: (initialData && initialData.recommendedPeople) ? initialData.recommendedPeople : [],
 
     addOrgOpen: false,

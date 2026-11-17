@@ -212,6 +212,36 @@ const INITIAL_SKILLS = [
   { id: "2", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
 ];
 
+const INITIAL_EXPERIENCES = [
+  {
+    key: "exp-1",
+    title: "Junior Data Scientist & Analyst",
+    place: "PT GoTo Gojek Tokopedia · Jakarta Selatan",
+    type: "Pekerjaan Purnawaktu",
+    period: "2024 – Sekarang",
+    isCurrent: true,
+    note: "Membangun predictive model, exploratory data analysis, dan pipeline analytics untuk ekosistem produk rekomendasi."
+  },
+  {
+    key: "exp-2",
+    title: "Technical Curriculum Consultant",
+    place: "Bengkel Koding Lab · Semarang",
+    type: "Paruh Waktu",
+    period: "2023 – Sekarang",
+    isCurrent: true,
+    note: "Merancang kurikulum pembelajaran pemrograman web modern, Next.js, dan Data Science untuk mahasiswa."
+  },
+  {
+    key: "exp-3",
+    title: "Koordinator Asisten Praktikum",
+    place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+    type: "Magang",
+    period: "2022 – 2024",
+    isCurrent: false,
+    note: "Memimpin tim asisten praktikum dalam mengampu mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web bagi 150+ mahasiswa."
+  }
+];
+
 const POSTS_PREVIEW = 1;
 const SKILLS_PREVIEW = 3;
 const PROJECTS_PREVIEW = 3;

@@ -1997,6 +1997,137 @@ function getAlumniFullProfile(id) {
     ];
   }
 
+  // Pengalaman Kerja & Magang
+  let experiences = [];
+  if (isAisha) {
+    try {
+      const raw = localStorage.getItem("bengkod_alumni_experiences_v1");
+      if (raw) experiences = JSON.parse(raw);
+    } catch (e) {}
+    if (!experiences || experiences.length === 0) {
+      experiences = typeof INITIAL_EXPERIENCES !== "undefined"
+        ? JSON.parse(JSON.stringify(INITIAL_EXPERIENCES))
+        : [
+            {
+              key: "exp-1",
+              title: "Junior Data Scientist & Analyst",
+              place: "PT GoTo Gojek Tokopedia · Jakarta Selatan",
+              type: "Pekerjaan Purnawaktu",
+              period: "2024 – Sekarang",
+              isCurrent: true,
+              note: "Membangun predictive model, exploratory data analysis, dan pipeline analytics untuk ekosistem produk rekomendasi."
+            },
+            {
+              key: "exp-2",
+              title: "Technical Curriculum Consultant",
+              place: "Bengkel Koding Lab · Semarang",
+              type: "Paruh Waktu",
+              period: "2023 – Sekarang",
+              isCurrent: true,
+              note: "Merancang kurikulum pembelajaran pemrograman web modern, Next.js, dan Data Science untuk mahasiswa."
+            },
+            {
+              key: "exp-3",
+              title: "Koordinator Asisten Praktikum",
+              place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+              type: "Magang",
+              period: "2022 – 2024",
+              isCurrent: false,
+              note: "Memimpin tim asisten praktikum dalam mengampu mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web bagi 150+ mahasiswa."
+            }
+          ];
+    }
+  } else if (alumni.experiences) {
+    experiences = JSON.parse(JSON.stringify(alumni.experiences));
+  } else {
+    const h = (alumni.headline || "").toLowerCase();
+    if (h.includes("ui/ux") || h.includes("design")) {
+      experiences = [
+        {
+          key: "exp-ui-1",
+          title: "Product Designer",
+          place: "PT Bukalapak · Jakarta Selatan",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Merancang checkout experience dan design token system untuk aplikasi mobile dan web."
+        },
+        {
+          key: "exp-ui-2",
+          title: "UI/UX Design Intern",
+          place: "Bengkel Koding Lab · Semarang",
+          type: "Magang",
+          period: "2023 – 2024",
+          isCurrent: false,
+          note: "Membantu riset pengguna, wireframing, dan usability testing modul-modul praktikum mahasiswa."
+        }
+      ];
+    } else if (h.includes("data") || h.includes("machine learning") || h.includes("ai")) {
+      experiences = [
+        {
+          key: "exp-ml-1",
+          title: "Machine Learning Engineer",
+          place: "PT Zepto Digital Solusindo · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Mengembangkan model NLP dan sentiment intelligence untuk produk analisis sentimen ulasan."
+        },
+        {
+          key: "exp-ml-2",
+          title: "Asisten Laboratorium Data Science",
+          place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+          type: "Magang",
+          period: "2022 – 2024",
+          isCurrent: false,
+          note: "Membimbing praktikum Machine Learning, Python, dan pemodelan prediktif."
+        }
+      ];
+    } else if (h.includes("devops") || h.includes("cloud") || h.includes("iot")) {
+      experiences = [
+        {
+          key: "exp-infra-1",
+          title: "Cloud & DevOps Engineer",
+          place: "PT Telkom Indonesia (DigitLab) · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Mengelola cluster Kubernetes, CI/CD pipeline, dan monitoring infrastruktur cloud."
+        },
+        {
+          key: "exp-infra-2",
+          title: "Asisten Lab Jaringan & Infrastruktur",
+          place: "Bengkel Koding Lab · Semarang",
+          type: "Magang",
+          period: "2023 – 2024",
+          isCurrent: false,
+          note: "Pemeliharaan server laboratorium dan asisten mata kuliah Jaringan Komputer."
+        }
+      ];
+    } else {
+      experiences = [
+        {
+          key: "exp-dev-1",
+          title: "Fullstack Web Developer",
+          place: "PT Solusi Digital Jateng · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Membangun aplikasi web enterprise berbasis Next.js, TypeScript, dan backend Laravel."
+        },
+        {
+          key: "exp-dev-2",
+          title: "Asisten Praktikum Pemrograman Web",
+          place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+          type: "Magang",
+          period: "2022 – 2024",
+          isCurrent: false,
+          note: "Mengampu asistensi praktikum pemrograman web modern bagi 100+ mahasiswa."
+        }
+      ];
+    }
+  }
+
   // Rekomendasi alumni lain (kecuali alumni ini)
   const recommendedPeople = ALUMNI_DIRECTORY
     .filter((a) => a.id !== alumni.id)
@@ -2020,6 +2151,7 @@ function getAlumniFullProfile(id) {
     honors,
     posts,
     recommendedPeople,
+    experiences,
   };
 }
 
