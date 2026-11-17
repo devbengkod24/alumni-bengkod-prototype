@@ -126,22 +126,7 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                   <span x-text="'Alumni ' + (profile.batch || '2024')"></span>
                 </span>
               </div>
-              ${detail ? `<button type="button" @click="toggleConnectDetail()"
-                  class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-all shadow-sm cursor-pointer shrink-0 leading-normal"
-                  :class="isDetailConnected ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200' : 'bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white'">
-                  <template x-if="isDetailConnected">
-                    <span class="inline-flex items-center gap-2">
-                      <svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span>Terhubung</span>
-                    </span>
-                  </template>
-                  <template x-if="!isDetailConnected">
-                    <span class="inline-flex items-center gap-2">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                      <span>Hubungkan</span>
-                    </span>
-                  </template>
-                </button>` : `<div class="shrink-0">
+              ${detail ? "" : `<div class="shrink-0">
                 <button id="btn-edit-profil" @click="editProfileOpen = true"
                   class="inline-flex items-center justify-center bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-colors shadow-sm cursor-pointer shrink-0 leading-normal" title="Edit Profil">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -161,10 +146,9 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
             <!-- Headline Profesi -->
             <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
 
-            <!-- Lokasi & Koneksi (spasi didempetkan gap-0.5 agar rapi dan proporsional) -->
-            <div class="flex flex-col gap-0.5 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
-              <div class="flex items-center gap-1.5"><span x-text="profile.location"></span></div>
-              ${detail ? "" : `<div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>`}
+            <!-- Lokasi -->
+            <div class="flex items-center gap-1.5 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
+              <span x-text="profile.location"></span>
             </div>
 
             <template x-if="profile.linkedin || profile.github || profile.website || profile.email || profile.whatsapp">

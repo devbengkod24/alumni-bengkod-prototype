@@ -31,7 +31,6 @@ const INITIAL_PROFILE = {
   city: "Kota Kudus, Jawa Tengah",
   industry: "Teknologi, Informasi, dan Internet",
   university: "Universitas Dian Nuswantoro",
-  connections: 75,
   followers: 77,
   linkedin: "https://www.linkedin.com/in/aisharah",
   github: "https://github.com/aishaadr",

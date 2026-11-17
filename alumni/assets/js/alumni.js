@@ -126,8 +126,8 @@ function alumniHref(link) {
   if (link === "/dashboard/alumni/gigs") return `${base}gigs.html`;
   if (link === "/dashboard/alumni/referral") return `${base}referral.html`;
   if (link === "/dashboard/alumni/referral-pengajuan") return `${base}referral-pengajuan.html`;
-  if (link === "/dashboard/alumni/generate-cv") return `${base}generate-cv.html`;
-  if (link === "/dashboard/alumni/profil") return `${base}profil.html`;
+  if (link === "/dashboard/alumni/data-cv" || link === "/dashboard/alumni/generate-cv") return `${base}data-cv.html`;
+  if (link === "/dashboard/alumni/profil" || link.startsWith("/dashboard/alumni/profil?")) return `${base}profil.html` + (link.includes("?") ? link.slice(link.indexOf("?")) : "");
   if (link === "/dashboard/alumni/detail") return `${base}detail.html`;
   if (link === "/dashboard/alumni/detail-proyek" || link === "/dashboard/alumni/proyek") return `${base}detail-proyek.html`;
 
@@ -191,8 +191,8 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Generate CV",
-    link: "/dashboard/alumni/generate-cv",
+    title: "Data CV",
+    link: "/dashboard/alumni/data-cv",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
           <polyline points="14 2 14 8 20 8" />
@@ -239,6 +239,7 @@ const ALUMNI_NAV_PARENT = {
 function alumniNormalizeRoute(route) {
   if (route === "/dashboard/alumni/beranda") return "/dashboard/alumni";
   if (route === "/dashboard/alumni/alumni") return "/dashboard/alumni/direktori";
+  if (route === "/dashboard/alumni/generate-cv") return "/dashboard/alumni/data-cv";
   return route;
 }
 
@@ -775,11 +776,11 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
               </div>
               <ul class="py-1.5 text-sm text-neutral1">
                 <li>
-                  <a href="${alumniHref("/dashboard/alumni/profil")}" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                  <a href="${alumniHref("/dashboard/alumni/profil?tab=pengaturan")}" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
                     <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                        <circle cx="12" cy="7" r="4"/>
+                        <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                        <circle cx="12" cy="12" r="3"/>
                       </svg>
                     </span>
                     <span>Pengaturan Profil</span>

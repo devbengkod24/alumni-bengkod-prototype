@@ -572,7 +572,6 @@
 
     Alpine.data("detailPage", () => {
       return profilePageData("detail", {
-        isDetailConnected: false,
         activeCommentId: null,
         commentInputs: {},
         activeReplyCommentId: null,
@@ -651,13 +650,6 @@
               href: "detail-proyek.html?alumni=" + encodeURIComponent(this.profile.id || targetAlumniId) + "&proyek=" + encodeURIComponent(pr.id),
             }));
           return [...karya, ...proyek];
-        },
-
-        toggleConnectDetail() {
-          this.isDetailConnected = !this.isDetailConnected;
-          this.toast = this.isDetailConnected
-            ? `Permintaan koneksi ke ${this.profile.name} terkirim!`
-            : `Koneksi dengan ${this.profile.name} dibatalkan.`;
         },
 
         handleCopyProfileLink() {
