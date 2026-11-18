@@ -6,7 +6,7 @@
   <title>Forum &amp; Linimasa | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <link rel="stylesheet" href="../assets/css/style.css?v=6">
   <script src="../alumni/assets/js/data.js?v=9"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
@@ -19,7 +19,7 @@
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Forum">
   <!-- Layout 12-kolom seragam dengan Beranda Alumni -->
-  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased items-start">
+  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
     <!-- KOLOM UTAMA (FEED) -->
     <div class="lg:col-span-8 flex flex-col gap-6 min-w-0">
       <!-- Header Forum: Judul + Search bar + Tombol Buat Postingan -->
@@ -67,8 +67,8 @@
     </div>
 
     <!-- KOLOM SAMPING (KANAN) -->
-    <div class="lg:col-span-4">
-      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto no-scrollbar pr-0.5" aria-label="Profil dan rekap forum"></aside>
+    <div class="lg:col-span-4 h-full">
+      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto no-scrollbar overscroll-contain scroll-smooth pr-0.5 pb-6" aria-label="Profil dan rekap forum"></aside>
     </div>
   </div>
 </main>
@@ -140,9 +140,8 @@
 </div>
 
 <script>
-  // Filter kategori resmi: Hapus Tanya Koordinator, Koor hanya melihat referral
+  // Filter kategori resmi: Hanya Karya & Showcase dan Referral (tipe umum dihapus dari filter)
   const KATEGORI = {
-    umum: { label: 'Umum', ikon: 'globe' },
     karya: { label: 'Karya & Showcase', ikon: 'rocket' },
     referral: { label: 'Referral', ikon: 'briefcase' },
   };
@@ -482,7 +481,7 @@
   const jumlahKomentar = p => p.komentar.reduce((n, k) => n + 1 + (k.balasan || []).length, 0);
 
   function kartuPost(p) {
-    const kat = KATEGORI[p.kategori] || KATEGORI.umum;
+    const kat = KATEGORI[p.kategori] || { label: 'Umum', ikon: 'globe' };
     const buka = terbuka.has(p.id);
     const jumlah = jumlahKomentar(p);
     const tombol = 'flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors cursor-pointer';
@@ -598,7 +597,6 @@
   }
 
   function renderKanan(list) {
-    const rekap = Object.fromEntries(Object.keys(TAG).map(k => [k, list.filter(p => p.tag === k).length]));
     const pengumuman = typeof DB !== 'undefined' && DB.pengumuman ? DB.pengumuman.semua().slice(0, 3) : [];
     const gigs = typeof DB !== 'undefined' && DB.gigs ? DB.gigs.semua().slice(0, 3) : [];
 
@@ -637,22 +635,6 @@
                 <span>${esc((g.peran || []).join(', '))}</span>
               </div>
             </div>`).join('') || '<p class="text-xs text-gray-400">Belum ada tender gigs.</p>'}
-        </div>
-      </section>`,
-
-      // Widget Tag Rekap Koordinator
-      `
-      <section class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
-        <div class="pb-2 border-b border-gray-100">
-          <h3 class="text-[15px] font-bold text-gray-900">Rekap Kategori Tag</h3>
-          <p class="text-[11px] text-gray-400 mt-0.5">Filter postingan berdasarkan tag catatan koordinator</p>
-        </div>
-        <div class="space-y-1 mt-1">
-          ${Object.entries(TAG).map(([k, t]) => `
-            <button type="button" data-saring-tag="${k}" aria-pressed="${saringTag === k}" class="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg transition-colors cursor-pointer ${saringTag === k ? 'bg-blue-50 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-800'}">
-              <span class="flex items-center gap-2.5 text-[13px]"><i data-lucide="${t.ikon}" class="w-4 h-4 ${saringTag === k ? 'text-[#1E3A8A]' : 'text-gray-400'}"></i>${t.label}</span>
-              <span class="text-[12px] font-semibold tabular-nums text-gray-500">${rekap[k]}</span>
-            </button>`).join('')}
         </div>
       </section>`,
     ].join('');
