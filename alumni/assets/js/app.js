@@ -702,9 +702,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <ul class="py-1.5 text-sm text-neutral1">
               <li>
-                <a href="profil.html" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                <a href="pengaturan.html" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
                   <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors"><i data-lucide="settings" class="w-3.5 h-3.5"></i></span>
-                  <span>Pengaturan Profil</span>
+                  <span>Pengaturan Akun</span>
                 </a>
               </li>
             </ul>

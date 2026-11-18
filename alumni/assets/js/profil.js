@@ -48,7 +48,7 @@ function pasangHalamanProfil(isiTambahan = '') {
             <h3 class="!text-base font-semibold text-neutral1">Ganti Password</h3>
           </div>
           <div><label for="f-lama" class="label">Password Lama</label><input id="f-lama" name="lama" type="password" class="input" required autocomplete="current-password"></div>
-          <div><label for="f-baru" class="label">Password Baru</label><input id="f-baru" name="baru" type="password" class="input" required minlength="7" autocomplete="new-password" placeholder="Minimal 7 karakter"></div>
+          <div><label for="f-baru" class="label">Password Baru</label><input id="f-baru" name="baru" type="password" class="input" required minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter"></div>
           <div><label for="f-konfirmasi" class="label">Konfirmasi Password Baru</label><input id="f-konfirmasi" name="konfirmasi" type="password" class="input" required autocomplete="new-password"></div>
           <p id="password-error" class="hidden !text-sm text-red1" role="alert"></p>
           <div class="flex justify-end"><button type="submit" class="btn-primary">Ganti Password</button></div>
