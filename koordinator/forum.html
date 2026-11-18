@@ -6,7 +6,7 @@
   <title>Forum &amp; Linimasa | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <link rel="stylesheet" href="../assets/css/style.css?v=6">
   <script src="../alumni/assets/js/data.js?v=9"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
@@ -19,7 +19,7 @@
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Forum">
   <!-- Layout 12-kolom seragam dengan Beranda Alumni -->
-  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased items-start">
+  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
     <!-- KOLOM UTAMA (FEED) -->
     <div class="lg:col-span-8 flex flex-col gap-6 min-w-0">
       <!-- Header Forum: Judul + Search bar + Tombol Buat Postingan -->
@@ -67,8 +67,8 @@
     </div>
 
     <!-- KOLOM SAMPING (KANAN) -->
-    <div class="lg:col-span-4">
-      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto no-scrollbar pr-0.5" aria-label="Profil dan rekap forum"></aside>
+    <div class="lg:col-span-4 h-full">
+      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto custom-scrollbar overscroll-contain scroll-smooth pr-2 pb-6" aria-label="Profil dan rekap forum"></aside>
     </div>
   </div>
 </main>
