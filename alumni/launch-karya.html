@@ -13,7 +13,7 @@
 </head>
 <body>
 <main data-route="launch-karya">
-  <div x-data="launchKaryaPage()" class="w-full space-y-6 py-2 antialiased">
+  <div x-data="launchKaryaPage()" class="w-full max-w-3xl mx-auto space-y-6 py-2 antialiased">
 
     <!-- Tombol Kembali -->
     <div>
@@ -34,7 +34,7 @@
     </div>
 
     <!-- Container Form Utama -->
-    <form @submit.prevent="submitForm()" class="bg-white rounded-xl border border-gray-200/90 shadow-xs max-w-4xl overflow-hidden">
+    <form @submit.prevent="submitForm()" class="bg-white rounded-xl border border-gray-200/90 shadow-xs w-full overflow-hidden">
       <div class="p-6 sm:p-8 space-y-8">
 
         <!-- Seksi 1: Informasi Dasar -->
