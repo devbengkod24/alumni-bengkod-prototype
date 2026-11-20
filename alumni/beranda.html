@@ -228,9 +228,9 @@
     modalBesar('ajukan-modal', 'Minta Review dan Referral', `
       <input type="hidden" name="id">
       <p id="ajukan-info" class="!text-sm text-neutral2"></p>
-      <fieldset><legend class="label">Versi CV dari Generate CV</legend>
+      <fieldset><legend class="label">Versi CV dari Data CV</legend>
         <div class="grid grid-cols-2 gap-2">${pilihanPil('radio', 'format', 'ats', 'ATS Standar', 'file-text')}${pilihanPil('radio', 'format', 'modern', 'Modern Clean', 'layout-template')}</div>
-        <a href="generate-cv.html" target="_blank" class="inline-block mt-1.5 text-xs font-semibold text-primary2 hover:underline">Lihat CV saya</a>
+        <a href="data-cv.html" target="_blank" class="inline-block mt-1.5 text-xs font-semibold text-primary2 hover:underline">Lihat CV saya</a>
       </fieldset>
       <div><label for="a-pesan" class="label">Pesan Perkenalan <span class="text-red1">*</span></label><textarea id="a-pesan" name="pesan" rows="4" class="input resize-none" maxlength="250" required placeholder="Perkenalkan diri dan alasan Anda cocok"></textarea>
         <p class="!text-xs text-neutral3 mt-1">Maksimal 250 karakter.</p></div>`, 'Kirim Pengajuan', 'max-w-lg'),
@@ -635,7 +635,7 @@
         <div class="mt-3 py-1.5 border-t border-neutral4/70">
           ${baris('profil.html', 'user-round', 'Profil dan portofolio', `${jumlahCv} data`)}
           ${baris('tracer.html', 'clipboard-list', 'Status karir', 'Perbarui')}
-          ${baris('generate-cv.html', 'file-text', 'Generate CV', 'ATS dan Modern')}
+          ${baris('data-cv.html', 'file-text', 'Data CV', 'ATS dan Modern')}
           ${baris('gigs.html', 'briefcase-business', 'Lamaran gigs', `${DB.gigs.dilamar(SAYA.id).length} aktif`)}
         </div>
       </section>`,

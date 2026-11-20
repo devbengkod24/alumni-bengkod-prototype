@@ -483,9 +483,7 @@ const ALUMNI_DIRECTORY = [
     industry: "Teknologi, Informasi, dan Internet",
     email: "aisha.rahma@alumni.dinus.ac.id",
     linkedin: "https://www.linkedin.com/in/aisharah",
-    github: "https://github.com/aishaadr",
-    connections: 75,
-    followers: 77,
+    github: "https://github.com/aishaadr",    followers: 77,
     isVerified: true,
     about:
       "Motivated Informatics Engineering student at Universitas Dian Nuswantoro Semarang with a strong passion for data science and business analysis. Berpengalaman mendalami arsitektur sistem Next.js, TypeScript, Python, dan Laravel.",
@@ -500,9 +498,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=45",
     industry: "Teknologi, Informasi, dan Internet",
     email: "clarista@alumni.dinus.ac.id",
-    github: "https://github.com/clarista",
-    connections: 128,
-    followers: 143,
+    github: "https://github.com/clarista",    followers: 143,
     isVerified: true,
     about:
       "Fokus pada pengembangan model prediktif dan interpretasi model (SHAP) untuk menyelesaikan permasalahan nyata di industri UMKM dan kesehatan.",
@@ -517,9 +513,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=12",
     industry: "Teknologi, Informasi, dan Internet",
     email: "rafi.pratama@alumni.dinus.ac.id",
-    github: "https://github.com/rafipratama",
-    connections: 96,
-    followers: 88,
+    github: "https://github.com/rafipratama",    followers: 88,
     isVerified: true,
     about:
       "Membangun aplikasi web berskala produksi dengan fokus pada performa, aksesibilitas, dan pengalaman pengguna.",
@@ -534,9 +528,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=32",
     industry: "Desain",
     email: "nadia.safira@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/nadiasafira",
-    connections: 152,
-    followers: 201,
+    linkedin: "https://www.linkedin.com/in/nadiasafira",    followers: 201,
     isVerified: true,
     about:
       "Merancang antarmuka yang bersih dan berpusat pada pengguna, mulai dari riset, wireframe, hingga design system yang konsisten.",
@@ -551,9 +543,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=13",
     industry: "Perangkat Keras & IoT",
     email: "bagas.wicaksono@alumni.dinus.ac.id",
-    github: "https://github.com/bagaswic",
-    connections: 64,
-    followers: 71,
+    github: "https://github.com/bagaswic",    followers: 71,
     about:
       "Mengembangkan sistem monitoring berbasis IoT dengan integrasi sensor, mikrokontroler, dan dashboard real-time.",
   },
@@ -566,9 +556,7 @@ const ALUMNI_DIRECTORY = [
     university: "Universitas Dian Nuswantoro",
     avatarUrl: "https://i.pravatar.cc/150?img=47",
     industry: "Teknologi, Informasi, dan Internet",
-    email: "salsabila.putri@alumni.dinus.ac.id",
-    connections: 87,
-    followers: 95,
+    email: "salsabila.putri@alumni.dinus.ac.id",    followers: 95,
     isVerified: true,
     about:
       "Membangun aplikasi mobile lintas platform dengan pengalaman pengguna yang halus dan arsitektur yang mudah dirawat.",
@@ -583,9 +571,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=15",
     industry: "Teknologi, Informasi, dan Internet",
     email: "dimas.aryo@alumni.dinus.ac.id",
-    github: "https://github.com/dimasaryo",
-    connections: 110,
-    followers: 102,
+    github: "https://github.com/dimasaryo",    followers: 102,
     about:
       "Merancang API berperforma tinggi dan infrastruktur cloud yang andal untuk aplikasi berskala besar.",
   },
@@ -598,9 +584,7 @@ const ALUMNI_DIRECTORY = [
     university: "Universitas Dian Nuswantoro",
     avatarUrl: "https://i.pravatar.cc/150?img=44",
     industry: "Teknologi, Informasi, dan Internet",
-    email: "kirana.maheswari@alumni.dinus.ac.id",
-    connections: 73,
-    followers: 80,
+    email: "kirana.maheswari@alumni.dinus.ac.id",    followers: 80,
     about:
       "Mengubah data mentah menjadi wawasan bisnis melalui dashboard interaktif dan analisis statistik.",
   },
@@ -614,9 +598,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=33",
     industry: "Keamanan Siber",
     email: "fajar.nugroho@alumni.dinus.ac.id",
-    github: "https://github.com/fajarn",
-    connections: 58,
-    followers: 66,
+    github: "https://github.com/fajarn",    followers: 66,
     about:
       "Berfokus pada pengujian penetrasi, hardening sistem, dan peningkatan kesadaran keamanan informasi.",
   },
@@ -630,9 +612,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=48",
     industry: "Teknologi, Informasi, dan Internet",
     email: "intan.permata@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/intanpermata",
-    connections: 91,
-    followers: 104,
+    linkedin: "https://www.linkedin.com/in/intanpermata",    followers: 104,
     isVerified: true,
     about:
       "Menerjemahkan desain menjadi antarmuka yang responsif dan aksesibel dengan komponen yang dapat digunakan ulang.",
@@ -647,9 +627,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=25",
     industry: "E-Commerce & Digital Design",
     email: "nadjwa.salsabila@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/nadjwasalsabila",
-    connections: 210,
-    followers: 245,
+    linkedin: "https://www.linkedin.com/in/nadjwasalsabila",    followers: 245,
     isVerified: true,
     about:
       "Product Designer yang berfokus pada checkout experience dan design token system di e-commerce platform. Alumnus Bengkel Koding angkatan 2023.",
@@ -665,9 +643,7 @@ const ALUMNI_DIRECTORY = [
     industry: "Teknologi, Informasi, dan Internet",
     email: "maulidya.ayu@alumni.dinus.ac.id",
     linkedin: "https://www.linkedin.com/in/maulidyaayu",
-    github: "https://github.com/maulidyaayu",
-    connections: 184,
-    followers: 198,
+    github: "https://github.com/maulidyaayu",    followers: 198,
     isVerified: true,
     about:
       "Mengembangkan performant merchant web application di ekosistem GoTo. Berpengalaman dengan modern React, Tailwind CSS, dan testing.",
@@ -682,9 +658,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=11",
     industry: "Online Travel & Lifestyle",
     email: "alvyan.anantama@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/alvyananantama",
-    connections: 165,
-    followers: 178,
+    linkedin: "https://www.linkedin.com/in/alvyananantama",    followers: 178,
     isVerified: true,
     about:
       "Menganalisis funnel konversi pengguna dan mengoptimalkan performa kampanye promosi menggunakan SQL, Python, dan Tableau di Traveloka.",
@@ -699,9 +673,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=60",
     industry: "Cloud & DevOps Infrastructure",
     email: "budi.santoso@alumni.dinus.ac.id",
-    github: "https://github.com/budisantoso-dev",
-    connections: 140,
-    followers: 155,
+    github: "https://github.com/budisantoso-dev",    followers: 155,
     isVerified: true,
     about:
       "Merancang pipeline CI/CD otomatis, containerization dengan Kubernetes, dan sistem observabilitas monitoring 24/7.",
@@ -716,9 +688,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=68",
     industry: "Finansial & Teknologi (Fintech)",
     email: "rizky.firmansyah@alumni.dinus.ac.id",
-    github: "https://github.com/rizkyfirman",
-    connections: 132,
-    followers: 147,
+    github: "https://github.com/rizkyfirman",    followers: 147,
     isVerified: true,
     about:
       "Mengembangkan layanan pembayaran digital dan arsitektur microservices yang aman dan dapat diskalakan.",
@@ -733,9 +703,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=49",
     industry: "Fintech & Software QA",
     email: "dewi.rahmawati@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/dewirahmawati-qa",
-    connections: 118,
-    followers: 129,
+    linkedin: "https://www.linkedin.com/in/dewirahmawati-qa",    followers: 129,
     isVerified: true,
     about:
       "Spesialis dalam pengujian otomatis E2E menggunakan Playwright dan Cypress untuk memastikan kualitas rilis aplikasi kredit digital.",
@@ -751,9 +719,7 @@ const ALUMNI_DIRECTORY = [
     industry: "E-Commerce & Logistik Digital",
     email: "sindu.aditya@alumni.dinus.ac.id",
     linkedin: "https://www.linkedin.com/in/sinduaditya",
-    github: "https://github.com/sinduaditya",
-    connections: 195,
-    followers: 215,
+    github: "https://github.com/sinduaditya",    followers: 215,
     isVerified: true,
     about:
       "Fokus pada perancangan arsitektur backend berkapasitas throughput tinggi, message queue Kafka, dan integrasi payment gateway ShopeePay.",
@@ -768,9 +734,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=47",
     industry: "Internet & Layanan On-Demand",
     email: "taliya.maharani@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/taliyamaharani",
-    connections: 230,
-    followers: 260,
+    linkedin: "https://www.linkedin.com/in/taliyamaharani",    followers: 260,
     isVerified: true,
     about:
       "Mengelola siklus pengembangan produk digital mulai dari user problem validation, roadmap per kuartal, hingga peluncuran fitur driver and merchant app di Gojek.",
@@ -785,9 +749,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=18",
     industry: "E-Commerce & Mobile Apps",
     email: "andi.pratama@alumni.dinus.ac.id",
-    github: "https://github.com/andipratama-dev",
-    connections: 142,
-    followers: 156,
+    github: "https://github.com/andipratama-dev",    followers: 156,
     isVerified: true,
     about:
       "Mobile engineer dengan pengalaman merilis aplikasi berskala jutaan unduhan. Penggemar Clean Architecture, Jetpack Compose, dan Flutter cross-platform.",
@@ -802,9 +764,7 @@ const ALUMNI_DIRECTORY = [
     avatarUrl: "https://i.pravatar.cc/150?img=41",
     industry: "Ride-Hailing & Layanan Data",
     email: "siti.nuraini@alumni.dinus.ac.id",
-    linkedin: "https://www.linkedin.com/in/sitinuraini-ds",
-    connections: 180,
-    followers: 204,
+    linkedin: "https://www.linkedin.com/in/sitinuraini-ds",    followers: 204,
     isVerified: true,
     about:
       "Menganalisis elastisitas harga demand-supply dan mengembangkan model prediktif machine learning untuk estimasi waktu kedatangan mitra pengemudi.",
@@ -1763,7 +1723,6 @@ function getAlumniFullProfile(id) {
     city: (alumni.location || "Kota Semarang").split(",")[0],
     industry: alumni.industry || "Teknologi, Informasi, dan Internet",
     university: alumni.university || "Universitas Dian Nuswantoro",
-    connections: alumni.connections || 85,
     followers: alumni.followers || 92,
     linkedin: alumni.linkedin || "",
     github: alumni.github || "",
@@ -1997,6 +1956,137 @@ function getAlumniFullProfile(id) {
     ];
   }
 
+  // Pengalaman Kerja & Magang
+  let experiences = [];
+  if (isAisha) {
+    try {
+      const raw = localStorage.getItem("bengkod_alumni_experiences_v1");
+      if (raw) experiences = JSON.parse(raw);
+    } catch (e) {}
+    if (!experiences || experiences.length === 0) {
+      experiences = typeof INITIAL_EXPERIENCES !== "undefined"
+        ? JSON.parse(JSON.stringify(INITIAL_EXPERIENCES))
+        : [
+            {
+              key: "exp-1",
+              title: "Junior Data Scientist & Analyst",
+              place: "PT GoTo Gojek Tokopedia · Jakarta Selatan",
+              type: "Pekerjaan Purnawaktu",
+              period: "2024 – Sekarang",
+              isCurrent: true,
+              note: "Membangun predictive model, exploratory data analysis, dan pipeline analytics untuk ekosistem produk rekomendasi."
+            },
+            {
+              key: "exp-2",
+              title: "Technical Curriculum Consultant",
+              place: "Bengkel Koding Lab · Semarang",
+              type: "Paruh Waktu",
+              period: "2023 – Sekarang",
+              isCurrent: true,
+              note: "Merancang kurikulum pembelajaran pemrograman web modern, Next.js, dan Data Science untuk mahasiswa."
+            },
+            {
+              key: "exp-3",
+              title: "Koordinator Asisten Praktikum",
+              place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+              type: "Magang",
+              period: "2022 – 2024",
+              isCurrent: false,
+              note: "Memimpin tim asisten praktikum dalam mengampu mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web bagi 150+ mahasiswa."
+            }
+          ];
+    }
+  } else if (alumni.experiences) {
+    experiences = JSON.parse(JSON.stringify(alumni.experiences));
+  } else {
+    const h = (alumni.headline || "").toLowerCase();
+    if (h.includes("ui/ux") || h.includes("design")) {
+      experiences = [
+        {
+          key: "exp-ui-1",
+          title: "Product Designer",
+          place: "PT Bukalapak · Jakarta Selatan",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Merancang checkout experience dan design token system untuk aplikasi mobile dan web."
+        },
+        {
+          key: "exp-ui-2",
+          title: "UI/UX Design Intern",
+          place: "Bengkel Koding Lab · Semarang",
+          type: "Magang",
+          period: "2023 – 2024",
+          isCurrent: false,
+          note: "Membantu riset pengguna, wireframing, dan usability testing modul-modul praktikum mahasiswa."
+        }
+      ];
+    } else if (h.includes("data") || h.includes("machine learning") || h.includes("ai")) {
+      experiences = [
+        {
+          key: "exp-ml-1",
+          title: "Machine Learning Engineer",
+          place: "PT Zepto Digital Solusindo · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Mengembangkan model NLP dan sentiment intelligence untuk produk analisis sentimen ulasan."
+        },
+        {
+          key: "exp-ml-2",
+          title: "Asisten Laboratorium Data Science",
+          place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+          type: "Magang",
+          period: "2022 – 2024",
+          isCurrent: false,
+          note: "Membimbing praktikum Machine Learning, Python, dan pemodelan prediktif."
+        }
+      ];
+    } else if (h.includes("devops") || h.includes("cloud") || h.includes("iot")) {
+      experiences = [
+        {
+          key: "exp-infra-1",
+          title: "Cloud & DevOps Engineer",
+          place: "PT Telkom Indonesia (DigitLab) · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Mengelola cluster Kubernetes, CI/CD pipeline, dan monitoring infrastruktur cloud."
+        },
+        {
+          key: "exp-infra-2",
+          title: "Asisten Lab Jaringan & Infrastruktur",
+          place: "Bengkel Koding Lab · Semarang",
+          type: "Magang",
+          period: "2023 – 2024",
+          isCurrent: false,
+          note: "Pemeliharaan server laboratorium dan asisten mata kuliah Jaringan Komputer."
+        }
+      ];
+    } else {
+      experiences = [
+        {
+          key: "exp-dev-1",
+          title: "Fullstack Web Developer",
+          place: "PT Solusi Digital Jateng · Semarang",
+          type: "Pekerjaan Purnawaktu",
+          period: "2024 – Sekarang",
+          isCurrent: true,
+          note: "Membangun aplikasi web enterprise berbasis Next.js, TypeScript, dan backend Laravel."
+        },
+        {
+          key: "exp-dev-2",
+          title: "Asisten Praktikum Pemrograman Web",
+          place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+          type: "Magang",
+          period: "2022 – 2024",
+          isCurrent: false,
+          note: "Mengampu asistensi praktikum pemrograman web modern bagi 100+ mahasiswa."
+        }
+      ];
+    }
+  }
+
   // Rekomendasi alumni lain (kecuali alumni ini)
   const recommendedPeople = ALUMNI_DIRECTORY
     .filter((a) => a.id !== alumni.id)
@@ -2020,6 +2110,7 @@ function getAlumniFullProfile(id) {
     honors,
     posts,
     recommendedPeople,
+    experiences,
   };
 }
 

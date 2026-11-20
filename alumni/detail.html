@@ -36,6 +36,38 @@
         <div data-partial="profile-top" data-variant="detail"></div>
 
         <!-- ======================================================
+            SECTION 2: PENGALAMAN KERJA & MAGANG (READ-ONLY)
+            Desain 100% persis seperti di profil.html, tanpa tombol tambah/edit
+        ====================================================== -->
+        <div id="section-experience" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-2.5">
+              <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Pengalaman Kerja &amp; Magang</h3>
+              <span class="w-7 h-7 rounded-full bg-blue-50 border border-blue-200 text-[#1E3A8A] font-bold text-[13px] flex items-center justify-center shrink-0" x-text="experiences.length"></span>
+            </div>
+          </div>
+          <div class="divide-y divide-gray-100 pt-2">
+            <template x-if="experiences.length === 0">
+              <div class="text-center py-6 text-gray-400 text-[15px]">Alumni ini belum menambahkan riwayat pengalaman kerja atau magang.</div>
+            </template>
+            <template x-for="(exp, idx) in experiences" :key="exp.key || idx">
+              <div class="py-5" :class="[idx === 0 ? 'pt-2' : '', idx === experiences.length - 1 ? 'pb-0' : '']">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                  <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="exp.title"></h4>
+                  <template x-if="exp.isCurrent || (exp.period && exp.period.toLowerCase().includes('sekarang'))">
+                    <span class="text-[13px] font-semibold text-[#1E3A8A]">Saat ini</span>
+                  </template>
+                </div>
+                <!-- Perusahaan · Lokasi · Tipe (e.g. Magang / Purnawaktu) -->
+                <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="[exp.place, exp.type].filter(Boolean).join(' · ')"></p>
+                <p class="text-[14px] text-gray-500 mt-1" x-text="exp.period"></p>
+                <template x-if="exp.note"><p class="text-[15px] text-gray-600 mt-2.5 leading-relaxed" x-text="exp.note"></p></template>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- ======================================================
             SECTION 3: ACTIVITY / POSTINGAN (CARD KETIGA)
             Desain sama persis dengan profil, tanpa tombol Edit & Buat Post, tanpa hapus postingan
         ====================================================== -->
@@ -540,7 +572,6 @@
 
     Alpine.data("detailPage", () => {
       return profilePageData("detail", {
-        isDetailConnected: false,
         activeCommentId: null,
         commentInputs: {},
         activeReplyCommentId: null,
@@ -619,13 +650,6 @@
               href: "detail-proyek.html?alumni=" + encodeURIComponent(this.profile.id || targetAlumniId) + "&proyek=" + encodeURIComponent(pr.id),
             }));
           return [...karya, ...proyek];
-        },
-
-        toggleConnectDetail() {
-          this.isDetailConnected = !this.isDetailConnected;
-          this.toast = this.isDetailConnected
-            ? `Permintaan koneksi ke ${this.profile.name} terkirim!`
-            : `Koneksi dengan ${this.profile.name} dibatalkan.`;
         },
 
         handleCopyProfileLink() {

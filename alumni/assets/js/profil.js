@@ -48,8 +48,8 @@ function pasangHalamanProfil(isiTambahan = '') {
             <h3 class="!text-base font-semibold text-neutral1">Ganti Password</h3>
           </div>
           <div><label for="f-lama" class="label">Password Lama</label><input id="f-lama" name="lama" type="password" class="input" required autocomplete="current-password"></div>
-          <div><label for="f-baru" class="label">Password Baru</label><input id="f-baru" name="baru" type="password" class="input" required minlength="7" autocomplete="new-password" placeholder="Minimal 7 karakter"></div>
-          <div><label for="f-konfirmasi" class="label">Konfirmasi Password Baru</label><input id="f-konfirmasi" name="konfirmasi" type="password" class="input" required autocomplete="new-password"></div>
+          <div><label for="f-baru" class="label">Password Baru</label><input id="f-baru" name="baru" type="password" class="input" required minlength="8" autocomplete="new-password" placeholder="Minimal 8 karakter"></div>
+          <div><label for="f-konfirmasi" class="label">Konfirmasi Password Baru</label><input id="f-konfirmasi" name="konfirmasi" type="password" class="input" required minlength="8" autocomplete="new-password" placeholder="Ulangi password baru"></div>
           <p id="password-error" class="hidden !text-sm text-red1" role="alert"></p>
           <div class="flex justify-end"><button type="submit" class="btn-primary">Ganti Password</button></div>
         </form>
@@ -80,7 +80,22 @@ function pasangHalamanProfil(isiTambahan = '') {
     const pesan = document.getElementById('password-error');
     const { lama, baru, konfirmasi } = Object.fromEntries(new FormData(form));
     pesan.classList.add('hidden');
-    const hasil = baru === konfirmasi ? DB.akun.gantiPassword(SAYA.id, lama, baru) : { ok: false, error: 'Konfirmasi password tidak sama.' };
+    if (!baru) {
+      pesan.textContent = 'Password baru wajib diisi.';
+      pesan.classList.remove('hidden');
+      return;
+    }
+    if (baru.length < 8) {
+      pesan.textContent = 'Password baru minimal 8 karakter.';
+      pesan.classList.remove('hidden');
+      return;
+    }
+    if (baru !== konfirmasi) {
+      pesan.textContent = 'Konfirmasi password tidak sama.';
+      pesan.classList.remove('hidden');
+      return;
+    }
+    const hasil = DB.akun.gantiPassword(SAYA.id, lama, baru);
     if (!hasil.ok) {
       pesan.textContent = hasil.error;
       pesan.classList.remove('hidden');
