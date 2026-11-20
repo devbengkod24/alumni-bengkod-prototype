@@ -55,14 +55,18 @@ const modalLifecycle = (lockScroll = true) => ({
 });
 
 // Modal wrapper standar
-function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, submit = "submit()", title, titleId, headerExtra = "", headerShrink = true, body, footer, footerShrink = true, footerCls }) {
+// Ukuran modal tambah postingan di Beranda (Postingan, Karya, Referral) disamakan
+const POST_MODAL_STYLE = "width: 90vw; max-width: 720px; height: min(92vh, 680px)";
+const FORM_MODAL_STYLE = "width: 90vw; max-width: 1024px; height: min(92vh, 720px)";
+
+function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, submit = "submit()", title, titleId, headerExtra = "", headerShrink = true, body, footer, footerShrink = true, footerCls, style = FORM_MODAL_STYLE }) {
   return `<template x-teleport="body">
     <template x-if="${open}">
       <div class="fixed inset-0 z-[100] bg-gray-900/60 backdrop-blur-[2px] flex items-center justify-center p-4" @mousedown.self="${close}">
         <form ${formId ? `id="${formId}"` : ""} role="dialog" aria-modal="true" ${labelledby ? `aria-labelledby="${labelledby}"` : ""} ${ariaLabel ? `aria-label="${ariaLabel}"` : ""}
           novalidate autocomplete="off" x-data="${xdata}" @submit.prevent="${submit}" @keydown.window.escape="${close}"
           class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden"
-          style="width: 90vw; max-width: 1024px; height: min(92vh, 720px)">
+          style="${style}">
           <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between${headerShrink ? " flex-shrink-0" : ""}">
             ${headerExtra || `<h2 ${titleId ? `id="${titleId}"` : ""} class="text-[20px] font-bold text-gray-900 tracking-tight">${title}</h2>`}
             <button type="button" @click="${close}" class="${PC.closeBtn}" aria-label="Tutup modal">${PI.close()}</button>
@@ -77,6 +81,10 @@ function formModalHTML({ open, close, formId, labelledby, ariaLabel, xdata, subm
 
 function defaultFooter(close, submitDisabled = "") {
   return `<button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" ${submitDisabled ? `:disabled="${submitDisabled}"` : ""} class="${submitDisabled ? PC.btnPrimaryDis : PC.btnPrimary}">Simpan</button>`;
+}
+
+function editListFooter(close, removeAction = "removeSelected()", removeDisabled = "", submitDisabled = "") {
+  return `<button type="button" @click="${removeAction}" ${removeDisabled ? `:disabled="${removeDisabled}"` : ""} class="mr-auto px-5 py-2.5 rounded-full border border-red-200 bg-red-50 hover:bg-red-100 text-red-600 text-[14px] font-semibold transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">Hapus perubahan</button><button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" ${submitDisabled ? `:disabled="${submitDisabled}"` : ""} class="${submitDisabled ? PC.btnPrimaryDis : PC.btnPrimary}">Simpan</button>`;
 }
 
 function labelRow({ forId, label, required = false, star = '<span class="text-red-500">*</span>', err }) {
@@ -168,8 +176,9 @@ document.addEventListener("alpine:init", () => {
     draft: {},
     touched: {},
     submitted: false,
+    passwordApiError: "",
     init() {
-      this.draft = initProfileDraft(this.$data.profile);
+      this.draft = { ...initProfileDraft(this.$data.profile), skills: this.$data.skills.map((sk) => sk.name) };
       this._lock();
       this.$watch("draft.countryCode", (code, old) => {
         if (code !== old) this.draft.city = "";
@@ -177,6 +186,27 @@ document.addEventListener("alpine:init", () => {
     },
     get cityOptions() {
       return (CITIES[this.draft.countryCode] || []).map((c) => ({ value: c, label: c }));
+    },
+    // Tahun lulus tidak boleh lebih awal dari tahun masuk dan tidak melewati tahun ini
+    get gradYearOptions() {
+      const akhir = new Date().getFullYear();
+      const awal = Number(this.$data.profile.entryYear) || akhir - 15;
+      return Array.from({ length: Math.max(akhir - awal + 1, 1) }, (_, i) => String(akhir - i));
+    },
+    // Keahlian diketik lalu Enter/koma, atau dipilih dari saran
+    skillQuery: "",
+    SKILL_SUGGESTIONS: SKILL_OPTIONS.flatMap((g) => g.items),
+    addSkill() {
+      const nama = this.skillQuery.trim().replace(/,+$/, "").trim();
+      this.skillQuery = "";
+      if (!nama) return;
+      this.touch("skills");
+      if (this.draft.skills.some((sk) => sk.toLowerCase() === nama.toLowerCase())) return;
+      this.draft.skills = [...this.draft.skills, nama];
+    },
+    removeSkill(i) {
+      this.touch("skills");
+      this.draft.skills = this.draft.skills.filter((_, idx) => idx !== i);
     },
     urlError(v, domain, name) {
       if (!v.trim()) return "";
@@ -187,14 +217,24 @@ document.addEventListener("alpine:init", () => {
     },
     get errors() {
       const d = this.draft;
+      const pwdBaru = (d.newPassword || "").trim();
       return {
         fullName: d.fullName.trim() ? "" : "Nama lengkap wajib diisi.",
+        gradYear: !d.gradYear
+          ? "Tahun lulus wajib dipilih."
+          : Number(d.gradYear) < Number(this.$data.profile.entryYear || 0)
+            ? "Tahun lulus tidak boleh lebih awal dari tahun masuk."
+            : "",
+        skills: d.skills.length > 10 ? "Maksimal 10 keahlian." : d.skills.some((sk) => sk.length > 40) ? "Nama keahlian maksimal 40 karakter." : "",
         headline: d.headline.trim() ? "" : "Moto profesional tidak boleh kosong.",
         countryCode: d.countryCode ? "" : "Pilih negara atau wilayah Anda.",
         linkedin: this.urlError(d.linkedin, "linkedin.com", "LinkedIn"),
         github: this.urlError(d.github, "github.com", "GitHub"),
         website: this.urlError(d.website),
         email: !d.email.trim() || isEmail(d.email) ? "" : "Format email belum sesuai.",
+        oldPassword: pwdBaru && !d.oldPassword ? "Password lama wajib diisi." : "",
+        newPassword: pwdBaru && pwdBaru.length < 8 ? "Password baru harus minimal 8 karakter." : "",
+        confirmPassword: pwdBaru && pwdBaru !== (d.confirmPassword || "").trim() ? "Konfirmasi password tidak cocok." : "",
       };
     },
     showErr(key) {
@@ -205,8 +245,22 @@ document.addEventListener("alpine:init", () => {
     },
     submit() {
       this.submitted = true;
+      this.passwordApiError = "";
       if (Object.values(this.errors).some(Boolean)) return;
       const d = this.draft;
+      const pwdBaru = (d.newPassword || "").trim();
+
+      // Jika user mengisi password baru
+      if (pwdBaru) {
+        if (typeof DB !== "undefined" && DB.akun && typeof SAYA !== "undefined" && SAYA) {
+          const resPwd = DB.akun.gantiPassword(SAYA.id, d.oldPassword, pwdBaru);
+          if (!resPwd.ok) {
+            this.passwordApiError = resPwd.error || "Password lama tidak sesuai.";
+            return;
+          }
+        }
+      }
+
       const countryName = (COUNTRIES.find((c) => c.value === d.countryCode) || {}).label || "";
       const name = d.fullName.trim().split(/\s+/).join(" ");
       const parts = name.split(" ");
@@ -216,6 +270,12 @@ document.addEventListener("alpine:init", () => {
         firstName: parts.length > 1 ? parts.slice(0, -1).join(" ") : name,
         lastName: parts.length > 1 ? parts[parts.length - 1] : "",
         name,
+        nim: (d.nim || "").trim(),
+        gradYear: d.gradYear,
+        batch: d.gradYear,
+        skillNames: [...d.skills],
+        whatsapp: (d.whatsapp || "").trim(),
+        phone: (d.whatsapp || "").trim(),
         headline: d.headline.trim(),
         countryCode: d.countryCode,
         city,
@@ -224,6 +284,7 @@ document.addEventListener("alpine:init", () => {
         github: profileNormalizeUrl(d.github),
         website: profileNormalizeUrl(d.website),
         email: d.email.trim(),
+        passwordUpdated: Boolean(pwdBaru),
       });
     },
   }));
@@ -383,6 +444,10 @@ document.addEventListener("alpine:init", () => {
         this.error = "";
       }
       this.$dispatch("skill-delete", s.id);
+    },
+    removeSelected() {
+      const s = this.list.find((x) => x.id === this.selectedId);
+      if (s) this.deleteSkill(s);
     },
     submit() {
       if (this.form && this.selectedId) {
@@ -735,6 +800,12 @@ document.addEventListener("alpine:init", () => {
         this.submitted = false;
       }
     },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus penghargaan ini dari profil Anda?")) return;
+        this.removeHonor(this.selectedId);
+      }
+    },
     rowSubtitle(h) {
       if (h.id === this.selectedId && this.form) {
         const f = this.form;
@@ -867,6 +938,12 @@ document.addEventListener("alpine:init", () => {
         this.form = fallback ? orgToDraft(fallback) : null;
         this.touched = {};
         this.submitted = false;
+      }
+    },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus organisasi ini dari profil Anda?")) return;
+        this.removeOrg(this.selectedId);
       }
     },
     rowStart(org) {
@@ -1003,6 +1080,12 @@ document.addEventListener("alpine:init", () => {
         this.submitted = false;
       }
     },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus riwayat pendidikan ini dari profil Anda?")) return;
+        this.removeEdu(this.selectedId);
+      }
+    },
     rowStart(e) {
       const src = e.id === this.selectedId && this.form ? this.form : e;
       return [src.startMonth, src.startYear].filter(Boolean).join(" ");
@@ -1019,26 +1102,65 @@ document.addEventListener("alpine:init", () => {
   }));
 
   // Proyek
-  const EMPTY_PROJECT = () => ({ title: "", period: "", desc: "", contributors: [], skills: [], media: { linkUrl: "", imageUrl: "" } });
+  const EMPTY_PROJECT = () => ({
+    title: "",
+    tagline: "",
+    category: "",
+    period: "",
+    demoUrl: "",
+    logoUrl: "",
+    bannerUrl: "",
+    desc: "",
+    contributors: [],
+    skills: [],
+    media: { linkUrl: "", imageUrl: "" },
+  });
   const projectToDraft = (p) => ({
-    title: p.title,
-    period: p.period,
-    desc: p.desc,
+    title: p.title || "",
+    tagline: p.tagline || (p.desc ? p.desc.slice(0, 100) : ""),
+    category: p.category || (p.categoryTags && p.categoryTags[0]) || "",
+    period: p.period || "",
+    demoUrl: p.demoUrl || p.linkUrl || "",
+    logoUrl: p.logoUrl || "",
+    bannerUrl: p.bannerUrl || p.imageUrl || "",
+    desc: p.desc || "",
     contributors: contributorsFromProject(p),
     skills: p.tags || [],
     media: projectToMediaValue(p),
   });
-  const projectFields = (f) => ({
-    title: f.title.trim(),
-    period: f.period.trim(),
-    desc: f.desc.trim(),
-    tags: f.skills.length ? f.skills : ["Umum"],
-    contributor: f.contributors[0] ? f.contributors[0].name : undefined,
-    contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
-    contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
-    contributors: f.contributors,
-    ...mediaToProjectFields(f.media),
-  });
+  const projectFields = (f) => {
+    const demo = (f.demoUrl || "").trim();
+    const logo = (f.logoUrl || "").trim();
+    const banner = (f.bannerUrl || "").trim();
+    const mediaObj = { ...f.media };
+    if (demo && !mediaObj.linkUrl) {
+      mediaObj.linkUrl = demo;
+    }
+    if (banner && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = banner;
+    } else if (logo && !mediaObj.imageUrl) {
+      mediaObj.imageUrl = logo;
+    }
+    const mediaRes = mediaToProjectFields(mediaObj);
+    return {
+      title: f.title.trim(),
+      tagline: (f.tagline || "").trim() || (f.desc ? f.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
+      category: (f.category || "").trim(),
+      period: f.period.trim(),
+      demoUrl: demo || mediaRes.linkUrl || "",
+      logoUrl: logo || "",
+      bannerUrl: banner || mediaRes.imageUrl || "",
+      desc: f.desc.trim(),
+      tags: f.skills.length ? f.skills : ["Umum"],
+      contributor: f.contributors[0] ? f.contributors[0].name : undefined,
+      contributorId: (f.contributors[0] && f.contributors[0].id) || undefined,
+      contributorAvatar: (f.contributors[0] && f.contributors[0].avatarUrl) || undefined,
+      contributors: f.contributors,
+      ...mediaRes,
+      linkUrl: demo || mediaRes.linkUrl || "",
+      imageUrl: banner || mediaRes.imageUrl || logo || "",
+    };
+  };
 
   Alpine.data("addProjectModal", () => ({
     ...modalLifecycle(true),
@@ -1049,13 +1171,43 @@ document.addEventListener("alpine:init", () => {
       this._lock();
       setTimeout(() => this.$refs.projectTitle && this.$refs.projectTitle.focus(), 50);
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
-      const mediaFilled = Boolean(normalizeUrl(this.form.media.linkUrl) || this.form.media.imageUrl);
+      const mediaFilled = Boolean(
+        normalizeUrl(this.form.demoUrl) ||
+        normalizeUrl(this.form.media.linkUrl) ||
+        this.form.bannerUrl ||
+        this.form.logoUrl ||
+        this.form.media.imageUrl
+      );
       return {
-        title: this.form.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: this.form.period.trim() ? "" : "Periode wajib diisi.",
-        desc: this.form.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Isi tautan proyek atau unggah gambar.",
+        title: this.form.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: this.form.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: this.form.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Tambahkan tautan demo / live URL atau unggah banner/logo aplikasi.",
       };
     },
     showErr(key) {
@@ -1082,20 +1234,46 @@ document.addEventListener("alpine:init", () => {
     init() {
       const projects = JSON.parse(JSON.stringify(this.$data.projects));
       this.draftList = projects;
-      const first = projects[0] ? projects[0].id : null;
-      this.selectedId = first;
-      const found = projects.find((p) => p.id === first) || null;
+      const target = projects.find((p) => p.id === this.$data.editProjectId) || projects[0] || null;
+      this.selectedId = target ? target.id : null;
+      const found = target;
       this.form = found ? projectToDraft(found) : null;
       this._lock();
     },
+    async onPickLogo(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.logoUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar logo.");
+      }
+    },
+    async onPickBanner(e) {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = "";
+      if (!file) return;
+      const err = validateImageFile(file);
+      if (err) return alert(err);
+      try {
+        if (this.form) this.form.bannerUrl = await readFileAsDataUrl(file);
+      } catch (err) {
+        alert("Gagal membaca berkas gambar banner.");
+      }
+    },
     get errors() {
       const f = this.form;
-      const mediaFilled = Boolean(f && (f.media.linkUrl || f.media.imageUrl));
+      const mediaFilled = Boolean(
+        f && (normalizeUrl(f.demoUrl) || normalizeUrl(f.media.linkUrl) || f.bannerUrl || f.logoUrl || f.media.imageUrl)
+      );
       return {
-        title: f && f.title.trim() ? "" : "Judul proyek wajib diisi.",
-        period: f && f.period.trim() ? "" : "Periode wajib diisi.",
-        desc: f && f.desc.trim() ? "" : "Deskripsi wajib diisi.",
-        media: mediaFilled ? "" : "Tambahkan minimal satu media (link atau gambar).",
+        title: f && f.title.trim() ? "" : "Nama karya / judul proyek wajib diisi.",
+        period: f && f.period.trim() ? "" : "Periode pengerjaan wajib diisi.",
+        desc: f && f.desc.trim() ? "" : "Deskripsi lengkap wajib diisi.",
+        media: mediaFilled ? "" : "Tambahkan minimal satu media (link demo, banner, atau logo).",
       };
     },
     showErr(key) {
@@ -1110,6 +1288,12 @@ document.addEventListener("alpine:init", () => {
       this.touched = {};
       this.submitted = false;
       setTimeout(() => this.$refs.projectEditTitle && this.$refs.projectEditTitle.focus(), 30);
+    },
+    removeSelected() {
+      if (this.selectedId === null) return;
+      if (!confirm("Hapus proyek ini dari profil Anda?")) return;
+      this.removeProject(this.selectedId);
+      this.$dispatch("projects-save", this.draftList);
     },
     removeProject(id) {
       const next = this.draftList.filter((p) => p.id !== id);
@@ -1223,6 +1407,12 @@ document.addEventListener("alpine:init", () => {
         this.form = fallback ? certToDraft(fallback) : null;
         this.touched = {};
         this.submitted = false;
+      }
+    },
+    removeSelected() {
+      if (this.selectedId) {
+        if (!confirm("Hapus sertifikasi ini dari profil Anda?")) return;
+        this.removeCert(this.selectedId);
       }
     },
     buildUpdated(c) {
@@ -1417,12 +1607,123 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
     err: "''",
     hint: "draft.countryCode ? 'Daftar disesuaikan dengan negara yang dipilih. Jika kota Anda belum ada, ketik nama kota lalu pilih.' : ''",
   })}
-  <div class="border-t border-gray-200 pt-5 space-y-4"><div><h3 class="text-[16px] font-semibold text-gray-900">Informasi kontak</h3><p class="text-[13px] text-gray-500 mt-0.5">Tambahkan atau edit URL profil, email, dan lainnya.</p></div><div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-      ${profileFieldHTML({ label: "LinkedIn", forId: "ep-linkedin", err: "showErr('linkedin')", body: iconInput("ep-linkedin", "linkedin", "text", "https://www.linkedin.com/in/username", "bg-[#0A66C2]", `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>`) })}
-      ${profileFieldHTML({ label: "GitHub", forId: "ep-github", err: "showErr('github')", body: iconInput("ep-github", "github", "text", "https://github.com/username", "bg-gray-900", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg>`) })}
-      ${profileFieldHTML({ label: "Website / Portofolio", forId: "ep-website", err: "showErr('website')", body: iconInput("ep-website", "website", "text", "portofolioanda.com", "bg-gray-700", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>`) })}
-      ${profileFieldHTML({ label: "Email", forId: "ep-email", err: "showErr('email')", body: iconInput("ep-email", "email", "email", "nama@alumni.dinus.ac.id", "bg-[#1E3A8A]", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>`, "") })}
-    </div></div>`;
+  ${profileFieldHTML({
+    label: "Keahlian",
+    forId: "ep-skills",
+    err: "showErr('skills')",
+    body: `<div class="flex flex-wrap items-center gap-1.5 rounded-md border bg-white px-2.5 py-2 cursor-text transition-all focus-within:ring-1" :class="showErr('skills') ? 'border-red-500 focus-within:ring-red-500' : 'border-gray-300 hover:border-gray-400 focus-within:border-[#1E3A8A] focus-within:ring-[#1E3A8A]'" @click="$refs.skillInput.focus()">
+      <template x-for="(sk, i) in draft.skills" :key="sk">
+        <span class="inline-flex items-center gap-1 pl-3 pr-1 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#1E3A8A]">
+          <span x-text="sk"></span>
+          <button type="button" @click.stop="removeSkill(i)" class="w-5 h-5 rounded-full flex items-center justify-center text-[#1E3A8A]/70 hover:bg-blue-100 hover:text-[#1E3A8A] cursor-pointer" :aria-label="'Hapus keahlian ' + sk">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </span>
+      </template>
+      <input id="ep-skills" x-ref="skillInput" type="text" list="ep-skill-list" autocomplete="off" maxlength="40" x-model="skillQuery"
+        @keydown.enter.prevent="addSkill()" @keydown.comma.prevent="addSkill()" @blur="addSkill()"
+        @keydown.backspace="if (!skillQuery && draft.skills.length) removeSkill(draft.skills.length - 1)"
+        @input="if ($event.inputType === 'insertReplacementText' || !$event.inputType) addSkill()"
+        :placeholder="draft.skills.length ? 'Tambah keahlian lain...' : 'Contoh: Laravel, MySQL, Flutter'"
+        class="flex-1 min-w-[160px] border-0 bg-transparent px-1 py-1 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none focus:ring-0">
+      <datalist id="ep-skill-list">
+        <template x-for="opt in SKILL_SUGGESTIONS" :key="opt"><option :value="opt"></option></template>
+      </datalist>
+    </div>
+    <p class="text-[12px] text-gray-500 leading-relaxed">Tekan Enter atau koma untuk menambahkan. Keahlian tampil di halaman Alumni dan bisa dicari rekan alumni.</p>`,
+  })}
+  <div class="border-t border-gray-200 pt-6 space-y-5">
+    <div>
+      <h3 class="text-[17px] font-bold text-gray-900 tracking-tight">Pengaturan Akun &amp; Keamanan</h3>
+      <p class="text-[13px] text-gray-500 mt-0.5">Informasi kredensial profil dan pembaruan kata sandi akun alumni.</p>
+    </div>
+
+    <!-- Informasi Pribadi & Akun -->
+    <div class="p-5 rounded-xl bg-gray-50/80 border border-gray-200/80 space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="text-[13px] font-bold uppercase tracking-wider text-gray-700">Informasi Pribadi &amp; Akun</h4>
+        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-200">Alumni Asisten Lab</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+        ${profileFieldHTML({ label: "NIM Mahasiswa", forId: "ep-nim", err: "showErr('nim')", body: `<input id="ep-nim" type="text" autocomplete="off" x-model="draft.nim" placeholder="Contoh: A11.2020.12345" ${inputCls("nim")}>` })}
+        ${profileFieldHTML({
+    label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
+          <option value="">Pilih tahun lulus</option>
+          <template x-for="y in gradYearOptions" :key="y"><option :value="y" :selected="y === draft.gradYear" x-text="y"></option></template>
+        </select>` })}
+        ${profileFieldHTML({ label: "Nomor WhatsApp / HP", forId: "ep-whatsapp", err: "showErr('whatsapp')", body: iconInput("ep-whatsapp", "whatsapp", "text", "081234567890", "bg-emerald-600", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>`, "") })}
+        ${profileFieldHTML({ label: "Alamat Email", forId: "ep-email", err: "showErr('email')", body: iconInput("ep-email", "email", "email", "nama@alumni.dinus.ac.id", "bg-[#1E3A8A]", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>`, "") })}
+        <div>
+          <label class="block text-[14px] font-semibold text-gray-800 mb-1.5">Peran / Hak Akses</label>
+          <div class="px-3.5 py-2.5 rounded-md border border-gray-200 bg-gray-100/80 text-[14px] text-gray-700 font-medium flex items-center justify-between">
+            <span>Alumni Asisten Lab Bengkel Koding</span>
+            <span class="text-xs text-gray-400 font-normal">Otomatis</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tautan Profesional -->
+    <div class="space-y-3">
+      <h4 class="text-[13px] font-bold uppercase tracking-wider text-gray-700">Tautan Portofolio &amp; Media</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        ${profileFieldHTML({ label: "LinkedIn", forId: "ep-linkedin", err: "showErr('linkedin')", body: iconInput("ep-linkedin", "linkedin", "text", "https://linkedin.com/in/username", "bg-[#0A66C2]", `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>`) })}
+        ${profileFieldHTML({ label: "GitHub", forId: "ep-github", err: "showErr('github')", body: iconInput("ep-github", "github", "text", "https://github.com/username", "bg-gray-900", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg>`) })}
+        ${profileFieldHTML({ label: "Website", forId: "ep-website", err: "showErr('website')", body: iconInput("ep-website", "website", "text", "https://portofolio.com", "bg-gray-700", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>`) })}
+      </div>
+    </div>
+
+    <!-- Ganti Password -->
+    <div class="p-5 rounded-xl bg-white border border-gray-200/90 shadow-2xs space-y-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-6 h-6 rounded-md bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          </span>
+          <h4 class="text-[14px] font-bold text-gray-900">Ganti Password</h4>
+        </div>
+        <span class="text-[11px] font-semibold text-amber-600 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">Minimal 8 Karakter</span>
+      </div>
+      <p class="text-[12px] text-gray-500 -mt-2">Kosongkan jika tidak ingin mengganti kata sandi akun.</p>
+
+      <div class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-gray-700 mb-1">Password Lama <span class="text-gray-400 font-normal">(jika ingin ganti)</span></label>
+          <input type="password" x-model="draft.oldPassword" autocomplete="current-password"
+            placeholder="Masukkan password saat ini"
+            class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+          <template x-if="showErr('oldPassword')">
+            <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('oldPassword')"></p>
+          </template>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Password Baru</label>
+            <input type="password" x-model="draft.newPassword" minlength="8" autocomplete="new-password"
+              placeholder="Minimal 8 karakter"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+            <template x-if="showErr('newPassword')">
+              <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('newPassword')"></p>
+            </template>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-700 mb-1">Konfirmasi Password Baru</label>
+            <input type="password" x-model="draft.confirmPassword" minlength="8" autocomplete="new-password"
+              placeholder="Ulangi password baru"
+              class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
+            <template x-if="showErr('confirmPassword')">
+              <p class="text-xs text-red-600 mt-1 font-medium" x-text="showErr('confirmPassword')"></p>
+            </template>
+          </div>
+        </div>
+
+        <template x-if="passwordApiError">
+          <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 text-xs text-red-600 font-medium" x-text="passwordApiError"></div>
+        </template>
+      </div>
+    </div>
+  </div>`;
 
   return formModalHTML({
     open: "editProfileOpen",
@@ -1523,16 +1824,16 @@ ALUMNI_PARTIALS["modal-add-skills"] = () => {
 ALUMNI_PARTIALS["modal-edit-skill"] = () => {
   const close = "editSkillOpen = false";
   const body = `<template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada keahlian untuk diedit.</p></template><template x-if="list.length > 0"><div class="space-y-5"><div><p class="text-[13px] font-bold text-gray-400 uppercase tracking-widest mb-2.5">Pilih keahlian yang ingin diedit</p><div class="space-y-1.5"><template x-for="(s, idx) in list" :key="s.id"><div class="${PC.listRow}" :class="s.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectSkill(s)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><span class="w-6 h-6 rounded-full text-[12px] font-semibold flex items-center justify-center flex-shrink-0"
-                  :class="s.id === selectedId ? 'bg-[#1E3A8A] text-white' : 'bg-white border border-gray-300 text-gray-500'" x-text="idx + 1"></span><span class="min-w-0 flex-1"><span class="block text-[14px] font-medium truncate text-gray-900" x-text="s.id === selectedId && form ? form.name || s.name : s.name"></span><span class="block text-[12px] text-gray-500 truncate" x-text="s.id === selectedId && form ? form.level : s.level || DEFAULT_SKILL_LEVEL"></span></span><template x-if="countLinks(s) > 0"><span class="flex items-center gap-1 text-[12px] text-gray-400 flex-shrink-0 mr-2">${PI.folder("w-3.5 h-3.5")}<span x-text="countLinks(s)"></span></span></template><template x-if="s.id === selectedId"><span class="flex-shrink-0 mr-1"><svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span></template></button><button type="button" @click="deleteSkill(s)" class="${PC.listTrash}" title="Hapus keahlian">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="rounded-xl border border-gray-200 bg-white overflow-hidden"><div class="px-4 pt-4 pb-0"><p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detail keahlian terpilih</p></div><div class="px-4 pt-3 pb-5 space-y-5">
+                  :class="s.id === selectedId ? 'bg-[#1E3A8A] text-white' : 'bg-white border border-gray-300 text-gray-500'" x-text="idx + 1"></span><span class="min-w-0 flex-1"><span class="block text-[14px] font-medium truncate text-gray-900" x-text="s.id === selectedId && form ? form.name || s.name : s.name"></span><span class="block text-[12px] text-gray-500 truncate" x-text="s.id === selectedId && form ? form.level : s.level || DEFAULT_SKILL_LEVEL"></span></span><template x-if="countLinks(s) > 0"><span class="flex items-center gap-1 text-[12px] text-gray-400 flex-shrink-0 mr-2">${PI.folder("w-3.5 h-3.5")}<span x-text="countLinks(s)"></span></span></template><template x-if="s.id === selectedId"><span class="flex-shrink-0 mr-1"><svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span></template></button></div></template></div></div><template x-if="form"><div class="rounded-xl border border-gray-200 bg-white overflow-hidden"><div class="px-4 pt-4 pb-0"><p class="text-[12px] font-bold text-gray-400 uppercase tracking-widest">Detail keahlian terpilih</p></div><div class="px-4 pt-3 pb-5 space-y-5">
             ${skillFieldHTML({
-              label: "Nama keahlian",
-              forId: "'edit-skill-name'",
-              required: true,
-              error: "error",
-              body: `<input id="edit-skill-name" type="text" autocomplete="off" x-model="form.name" @input="if (error) error = ''" placeholder="Nama keahlian"
+    label: "Nama keahlian",
+    forId: "'edit-skill-name'",
+    required: true,
+    error: "error",
+    body: `<input id="edit-skill-name" type="text" autocomplete="off" x-model="form.name" @input="if (error) error = ''" placeholder="Nama keahlian"
                 class="w-full rounded-lg border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"
                 :class="error ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/20'">`,
-            })}
+  })}
             ${skillFieldHTML({ label: "Tingkat keahlian", body: levelSelectorHTML("form.level") })}
             ${skillFieldHTML({ label: "Terkait dengan", hint: "Item yang dipilih akan muncul di bawah nama keahlian ini.", body: skillLinkChecklistHTML("form.links", "'edit-' + selectedId") })}
           </div></div></template></div></template>`;
@@ -1545,7 +1846,7 @@ ALUMNI_PARTIALS["modal-edit-skill"] = () => {
     description: "Pilih keahlian yang ingin diperbarui. Ubah tingkat atau item terkait, lalu simpan.",
     xdata: "editSkillModal",
     body,
-    footer: `<button type="button" @click="${close}" class="${PC.btnOutline}">Batal</button><button type="submit" :disabled="list.length === 0" class="${PC.btnPrimaryDis}">Simpan</button>`,
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
@@ -1604,7 +1905,7 @@ ALUMNI_PARTIALS["modal-edit-honors"] = () => {
   </p><template x-if="draftList.length === 0"><div class="py-8 text-center"><p class="text-[14px] text-gray-500 italic mb-4">Belum ada penghargaan. Tambahkan yang pertama.</p><button type="button" @click="addNew()" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">
         ${PI.plus("w-4 h-4")}
         Tambah penghargaan
-      </button></div></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Penghargaan Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(h, idx) in draftList" :key="h.id"><div class="${PC.listRow}" :class="h.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectHonor(h)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="h.id === selectedId && form ? (form.title || 'Penghargaan baru') : (h.title || 'Penghargaan baru')"></p><p class="text-[12px] text-gray-500 truncate" x-text="rowSubtitle(h)"></p></div><template x-if="h.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeHonor(h.id)" class="${PC.listTrash}" title="Hapus penghargaan">${PI.trash()}</button></div></template></div><button type="button" @click="addNew()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 text-[13px] font-semibold text-gray-600 hover:bg-gray-50 hover:border-[#1E3A8A]/40 hover:text-[#1E3A8A] transition-colors cursor-pointer">
+      </button></div></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Penghargaan Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(h, idx) in draftList" :key="h.id"><div class="${PC.listRow}" :class="h.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectHonor(h)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="h.id === selectedId && form ? (form.title || 'Penghargaan baru') : (h.title || 'Penghargaan baru')"></p><p class="text-[12px] text-gray-500 truncate" x-text="rowSubtitle(h)"></p></div><template x-if="h.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div><button type="button" @click="addNew()" class="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-300 text-[13px] font-semibold text-gray-600 hover:bg-gray-50 hover:border-[#1E3A8A]/40 hover:text-[#1E3A8A] transition-colors cursor-pointer">
           ${PI.plus("w-3.5 h-3.5")}
           Tambah penghargaan baru
         </button></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail penghargaan terpilih</h3>${detailForm}</div></template></div></template>`;
@@ -1620,7 +1921,7 @@ ALUMNI_PARTIALS["modal-edit-honors"] = () => {
     headerShrink: false,
     footerShrink: false,
     body,
-    footer: defaultFooter(close, "draftList.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "draftList.length === 0", "draftList.length === 0"),
   });
 };
 
@@ -1661,7 +1962,7 @@ ALUMNI_PARTIALS["modal-edit-org"] = () => {
   const close = "editOrgOpen = false";
   const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
     Pilih organisasi yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus organisasi dari daftar.
-  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada organisasi untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Organisasi Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(org, idx) in list" :key="org.id"><div class="${PC.listRow}" :class="org.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectOrg(org)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="org.id === selectedId && form ? (form.name || org.name) : org.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="org.id === selectedId && form ? (form.role || org.role) : org.role"></span><template x-if="rowStart(org)"><span class="ml-1" x-text="'· ' + rowStart(org)"></span></template></p></div><template x-if="org.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeOrg(org.id)" class="${PC.listTrash}" title="Hapus organisasi">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail organisasi terpilih</h3>${orgFieldsHTML("edit", "orgEditName")}</div></template></div></template>`;
+  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada organisasi untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Organisasi Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(org, idx) in list" :key="org.id"><div class="${PC.listRow}" :class="org.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectOrg(org)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="org.id === selectedId && form ? (form.name || org.name) : org.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="org.id === selectedId && form ? (form.role || org.role) : org.role"></span><template x-if="rowStart(org)"><span class="ml-1" x-text="'· ' + rowStart(org)"></span></template></p></div><template x-if="org.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail organisasi terpilih</h3>${orgFieldsHTML("edit", "orgEditName")}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editOrgOpen",
@@ -1671,7 +1972,7 @@ ALUMNI_PARTIALS["modal-edit-org"] = () => {
     title: "Edit organisasi",
     titleId: "edit-org-title",
     body,
-    footer: defaultFooter(close, "list.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
@@ -1716,7 +2017,7 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
   const close = "editEducationOpen = false";
   const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
     Pilih pendidikan yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus pendidikan dari daftar.
-  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada pendidikan untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Pendidikan Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(e, idx) in list" :key="e.id"><div class="${PC.listRow}" :class="e.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectEdu(e)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="e.id === selectedId && form ? (form.name || e.name) : e.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="e.id === selectedId && form ? (form.major || e.major) : e.major"></span><template x-if="rowStart(e)"><span class="ml-1" x-text="'· ' + rowStart(e)"></span></template></p></div><template x-if="e.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeEdu(e.id)" class="${PC.listTrash}" title="Hapus pendidikan">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail pendidikan terpilih</h3>${eduFieldsHTML(true)}</div></template></div></template>`;
+  </p><template x-if="list.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada pendidikan untuk diedit.</p></template><template x-if="list.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Pendidikan Anda (' + list.length + ')'"></h3><div class="space-y-2"><template x-for="(e, idx) in list" :key="e.id"><div class="${PC.listRow}" :class="e.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectEdu(e)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="e.id === selectedId && form ? (form.name || e.name) : e.name"></p><p class="text-[12px] text-gray-500 truncate"><span x-text="e.id === selectedId && form ? (form.major || e.major) : e.major"></span><template x-if="rowStart(e)"><span class="ml-1" x-text="'· ' + rowStart(e)"></span></template></p></div><template x-if="e.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail pendidikan terpilih</h3>${eduFieldsHTML(true)}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editEducationOpen",
@@ -1726,43 +2027,89 @@ ALUMNI_PARTIALS["modal-edit-edu"] = () => {
     title: "Edit pendidikan",
     titleId: "edit-edu-title",
     body,
-    footer: defaultFooter(close, "list.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };
 
 // Form Proyek
 function projectFieldsHTML(edit) {
+  const p = (k) => (edit ? `edit-project-${k}` : `project-${k}`);
   const inputCls = (k) => `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all" :class="${errInputClass(`showErr('${k}')`)}"`;
+  const plainInputCls = `class="w-full rounded-md border border-gray-300 hover:border-gray-400 focus:border-[#1E3A8A] focus:ring-1 focus:ring-[#1E3A8A] bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all"`;
   const textareaCls = `class="w-full rounded-md border bg-white px-3.5 py-2.5 text-[15px] text-gray-900 placeholder:text-gray-400 outline-none transition-all leading-relaxed" :class="${errInputClass(`showErr('desc')`)}"`;
   const star = '<span class="text-red-500 font-bold">*</span>';
-  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4"><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Judul proyek", required: true, star, err: "showErr('title')" })}
-      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" ${edit ? "" : 'placeholder="Contoh: Sistem Prediksi UMKM"'} ${inputCls("title")}></div><div class="space-y-1.5">
-      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode", required: true, star, err: "showErr('period')" })}
-      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" ${edit ? "" : 'placeholder="Contoh: Jun 2026 – Jun 2026"'} ${inputCls("period")}></div><div class="space-y-1.5 sm:col-span-2">
+  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <!-- Judul / Nama Karya -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-title-input" : "project-title", label: "Nama karya", required: true, star, err: "showErr('title')" })}
+      <input id="${edit ? "edit-project-title-input" : "project-title"}" x-ref="${edit ? "projectEditTitle" : "projectTitle"}" type="text" autocomplete="off" x-model="form.title" @blur="blur('title')" placeholder="Contoh: Sentimeter AI" ${inputCls("title")}>
+    </div>
+    <!-- Periode -->
+    <div class="space-y-1.5">
+      ${labelRow({ forId: edit ? "edit-project-period" : "project-period", label: "Periode pengerjaan", required: true, star, err: "showErr('period')" })}
+      <input id="${edit ? "edit-project-period" : "project-period"}" type="text" autocomplete="off" x-model="form.period" @blur="blur('period')" placeholder="Contoh: Jun 2026 – Sekarang" ${inputCls("period")}>
+    </div>
+
+    <!-- Tagline 1 Baris (Showcase & Feed) -->
+    <div class="space-y-1.5 sm:col-span-2">
+      <div class="flex items-center justify-between">
+        <label for="${p("tagline")}" class="block text-[14px] font-medium text-gray-700">Tagline</label>
+        <span class="text-[11px] text-gray-400">Tampil di kartu feed &amp; widget Showcase</span>
+      </div>
+      <input id="${p("tagline")}" type="text" autocomplete="off" x-model="form.tagline" placeholder="Contoh: Engine analisis sentimen ulasan publik multi-bahasa" ${plainInputCls}>
+    </div>
+
+    <!-- Demo URL & Kategori Software -->
+    <div class="space-y-1.5">
+      <label for="${p("demo-url")}" class="block text-[14px] font-medium text-gray-700">URL Website</label>
+      <input id="${p("demo-url")}" type="url" autocomplete="off" x-model="form.demoUrl" placeholder="https://aplikasi-anda.com" ${plainInputCls}>
+    </div>
+    <div class="space-y-1.5">
+      <label for="${p("category")}" class="block text-[14px] font-medium text-gray-700">Kategori software</label>
+      <input id="${p("category")}" type="text" autocomplete="off" x-model="form.category" placeholder="Contoh: AI Analytics, Developer Tools, POS" ${plainInputCls}>
+    </div>
+
+    <!-- Deskripsi Lengkap -->
+    <div class="space-y-1.5 sm:col-span-2">
       ${labelRow({ forId: edit ? "edit-project-desc" : "project-desc", label: "Deskripsi", required: true, star, err: "showErr('desc')" })}
-      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" ${edit ? "" : 'placeholder="Jelaskan tujuan, teknologi, dan hasil dari proyek ini..."'} style="resize: none" ${textareaCls}></textarea></div><div class="sm:col-span-2">${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}</div><div class="sm:col-span-2">
-      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills" })}
-    </div><div class="sm:col-span-2 space-y-1.5">
-      ${mediaPickerHTML({ model: "form.media" })}
-      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template></div></div>`;
+      <textarea id="${edit ? "edit-project-desc" : "project-desc"}" rows="3" x-model="form.desc" @blur="blur('desc')" placeholder="Jelaskan problem yang dipecahkan, fitur utama, dan hasil dari karya ini..." style="resize: none" ${textareaCls}></textarea>
+    </div>
+
+    <!-- Kontributor -->
+    <div class="sm:col-span-2">
+      ${contributorPickerHTML(edit ? "edit-project-contributor" : "project-contributor", "form.contributors")}
+    </div>
+
+    <!-- Keahlian / Tech Stack -->
+    <div class="sm:col-span-2">
+      ${skillPickerHTML({ id: edit ? "edit-project-skills" : "project-skills", model: "form.skills", label: "Tech stack &amp; keahlian relevan", placeholder: "Cari teknologi, misal: Next.js, Python, Tailwind..." })}
+    </div>
+
+    <!-- Media -->
+    <div class="sm:col-span-2 space-y-1.5">
+      ${mediaPickerHTML({ model: "form.media", label: "Media" })}
+      <template x-if="showErr('media')"><p class="text-[12px] text-red-600 font-medium" x-text="showErr('media')"></p></template>
+    </div>
+  </div>`;
 }
 
 // Modal: Tambah & Edit Proyek
-ALUMNI_PARTIALS["modal-add-project"] = () => {
+ALUMNI_PARTIALS["modal-add-project"] = (dataset = {}) => {
   const close = "addProjectOpen = false";
+  const title = (dataset && dataset.title) || "Tambah proyek";
   return formModalHTML({
     open: "addProjectOpen",
     close,
     formId: "modalAddProjectForm",
     labelledby: "add-project-title",
     xdata: "addProjectModal",
-    title: "Tambah proyek",
+    title,
     titleId: "add-project-title",
     headerShrink: false,
     footerShrink: false,
     body: projectFieldsHTML(false),
     footer: defaultFooter(close),
+    style: dataset && dataset.size === "post" ? POST_MODAL_STYLE : FORM_MODAL_STYLE,
   });
 };
 
@@ -1770,7 +2117,7 @@ ALUMNI_PARTIALS["modal-edit-project"] = () => {
   const close = "editProjectOpen = false";
   const body = `<p class="text-[14.5px] text-gray-500 leading-relaxed">
     Pilih proyek yang ingin diperbarui, ubah detailnya, lalu simpan. Anda juga dapat menghapus proyek dari daftar.
-  </p><template x-if="draftList.length === 0"><p class="text-[14px] text-gray-500 italic">Belum ada proyek untuk diedit.</p></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Proyek Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(p, idx) in draftList" :key="p.id"><div class="${PC.listRow}" :class="p.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectProject(p)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="p.title"></p><p class="text-[12px] text-gray-500 truncate" x-text="p.period"></p></div><template x-if="p.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeProject(p.id)" class="${PC.listTrash}" title="Hapus proyek">${PI.trash()}</button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail proyek terpilih</h3>${projectFieldsHTML(true)}</div></template></div></template>`;
+  </p><template x-if="draftList.length === 0"><p class="text-[14px] text-gray-500 italic py-4 text-center">Belum ada proyek untuk diedit.</p></template><template x-if="draftList.length > 0"><div class="contents"><div class="mt-5 border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Proyek Anda (' + draftList.length + ')'"></h3><div class="space-y-2"><template x-for="(p, idx) in draftList" :key="p.id"><div class="${PC.listRow}" :class="p.id === selectedId ? '${PC.listRowActive}' : '${PC.listRowIdle}'"><button type="button" @click="selectProject(p)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="p.title"></p><p class="text-[12px] text-gray-500 truncate" x-text="p.period"></p></div><template x-if="p.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></div><template x-if="form"><div class="mt-5 space-y-4"><h3 class="text-[14px] font-semibold text-gray-900">Detail proyek terpilih</h3>${projectFieldsHTML(true)}</div></template></div></template>`;
 
   return formModalHTML({
     open: "editProjectOpen",
@@ -1783,7 +2130,7 @@ ALUMNI_PARTIALS["modal-edit-project"] = () => {
     headerShrink: false,
     footerShrink: false,
     body,
-    footer: defaultFooter(close, "draftList.length === 0"),
+    footer: editListFooter(close, "removeSelected()", "draftList.length === 0", "draftList.length === 0"),
   });
 };
 
@@ -1826,7 +2173,7 @@ ALUMNI_PARTIALS["modal-edit-cert"] = () => {
   const close = "editCertificationOpen = false";
   const body = `<p class="text-[14px] text-gray-500 leading-relaxed">
     Pilih sertifikasi yang ingin diperbarui dari daftar di bawah, ubah informasinya, lalu simpan perubahan.
-  </p><div class="border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Daftar Sertifikasi (' + list.length + ')'"></h3><template x-if="list.length === 0"><p class="text-[14px] text-gray-400 italic py-3 text-center">Belum ada sertifikasi.</p></template><template x-if="list.length > 0"><div class="space-y-2"><template x-for="(c, idx) in list" :key="c.id"><div class="${PC.listRow}" :class="c.id === selectedId ? 'border-blue-300 bg-blue-50/70' : 'border-gray-200 bg-gray-50/70 hover:bg-gray-100/70'"><button type="button" @click="selectCert(c)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="c.name"></p><p class="text-[12px] text-gray-500 truncate" x-text="c.issuer + ' • ' + c.date"></p></div><template x-if="c.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button><button type="button" @click="removeCert(c.id)" class="${PC.listTrash}" title="Hapus sertifikasi">${PI.trash()}</button></div></template></div></template></div><template x-if="form"><div class="space-y-4 pt-1"><div><h3 class="text-[15px] font-semibold text-gray-900">Detail sertifikasi terpilih</h3></div>${certFieldsHTML(true)}</div></template>`;
+  </p><div class="border-b border-gray-200 pb-5"><h3 class="text-[14px] font-semibold text-gray-900 mb-3" x-text="'Daftar Sertifikasi (' + list.length + ')'"></h3><template x-if="list.length === 0"><p class="text-[14px] text-gray-400 italic py-3 text-center">Belum ada sertifikasi.</p></template><template x-if="list.length > 0"><div class="space-y-2"><template x-for="(c, idx) in list" :key="c.id"><div class="${PC.listRow}" :class="c.id === selectedId ? 'border-blue-300 bg-blue-50/70' : 'border-gray-200 bg-gray-50/70 hover:bg-gray-100/70'"><button type="button" @click="selectCert(c)" class="flex items-center gap-3 flex-1 min-w-0 text-left cursor-pointer"><div class="${PC.numBadge}" x-text="idx + 1"></div><div class="min-w-0 flex-1"><p class="text-[14px] font-medium text-gray-900 truncate" x-text="c.name"></p><p class="text-[12px] text-gray-500 truncate" x-text="c.issuer + ' • ' + c.date"></p></div><template x-if="c.id === selectedId"><span class="ml-2 flex-shrink-0 text-[#1E3A8A]">${PI.pencil()}</span></template></button></div></template></div></template></div><template x-if="form"><div class="space-y-4 pt-1"><div><h3 class="text-[15px] font-semibold text-gray-900">Detail sertifikasi terpilih</h3></div>${certFieldsHTML(true)}</div></template>`;
 
   return formModalHTML({
     open: "editCertificationOpen",
@@ -1836,7 +2183,6 @@ ALUMNI_PARTIALS["modal-edit-cert"] = () => {
     title: "Edit lisensi &amp; sertifikasi",
     titleId: "edit-cert-title",
     body,
-    footerCls: "border-t border-gray-200 px-6 sm:px-8 py-4 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0",
-    footer: `<button type="button" @click="${close}" class="px-5 py-2.5 rounded-full border border-gray-300 text-gray-700 font-semibold text-[14.5px] hover:bg-gray-100 transition-colors cursor-pointer">Batal</button><button type="submit" class="px-6 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white font-semibold text-[14.5px] shadow-sm transition-colors cursor-pointer">Simpan</button>`,
+    footer: editListFooter(close, "removeSelected()", "list.length === 0", "list.length === 0"),
   });
 };

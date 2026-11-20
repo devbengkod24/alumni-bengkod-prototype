@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kelola Data Profil | Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=9"></script>
+  <script src="assets/js/app.js?v=6"></script>
+  <script src="assets/js/cv.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+<main data-title="Kelola Data" data-nav="profil.html">
+  <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+    <div>
+      <a href="profil.html" class="inline-flex items-center gap-1.5 text-sm text-neutral2 hover:text-primary1 mb-2"><i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali ke Profil Saya</a>
+      <h2 id="judul" class="!text-2xl font-semibold text-neutral1"></h2>
+    </div>
+    <button id="btn-tambah" type="button" class="btn-primary"><i data-lucide="plus" class="w-4 h-4"></i> Tambah Data</button>
+  </div>
+  <section id="daftar" class="space-y-3"></section>
+</main>
+
+<div id="form-modal" data-modal-backdrop class="modal-backdrop">
+  <form id="form" class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="form-title">
+    <h3 id="form-title" class="font-semibold text-base text-neutral1 mb-4"></h3>
+    <input type="hidden" name="id">
+    <div id="form-isi" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
+    <div class="mt-6 flex justify-end gap-2">
+      <button type="button" onclick="closeModal('form-modal')" class="btn-outline">Batal</button>
+      <button type="submit" class="btn-primary">Simpan</button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const kunci = new URLSearchParams(location.search).get('k');
+  const kategori = CV_KATEGORI[kunci];
+  if (!kategori) location.replace('profil.html');
+
+  const form = document.getElementById('form');
+  const TAHUN_INI = new Date().getFullYear();
+
+  document.querySelector('main').dataset.title = kategori.judul;
+  document.getElementById('judul').textContent = kategori.judul;
+
+  function kolomForm([name, label, tipe, opsi]) {
+    const id = `f-${name}`;
+    const lebar = tipe === 'textarea' ? 'sm:col-span-2' : '';
+    const labelHtml = `<label for="${id}" class="label">${esc(label)} <span class="text-red2">*</span></label>`;
+    if (tipe === 'textarea') return `<div class="${lebar}">${labelHtml}<textarea id="${id}" name="${name}" rows="4" class="input" required></textarea></div>`;
+    if (tipe === 'select') return `<div>${labelHtml}<select id="${id}" name="${name}" class="input" required><option value="">Pilih</option>${opsi.map(o => `<option>${esc(o)}</option>`).join('')}</select></div>`;
+    if (tipe === 'tahun') return `<div>${labelHtml}<input id="${id}" name="${name}" type="number" min="1990" max="${TAHUN_INI}" step="1" class="input" required></div>`;
+    if (tipe === 'ipk') return `<div>${labelHtml}<input id="${id}" name="${name}" type="number" min="0" max="4" step="0.01" class="input" required></div>`;
+    if (tipe === 'url') return `<div><label for="${id}" class="label">${esc(label)}</label><input id="${id}" name="${name}" type="url" class="input" placeholder="https://"></div>`;
+    return `<div>${labelHtml}<input id="${id}" name="${name}" class="input" required></div>`;
+  }
+  document.getElementById('form-isi').innerHTML = kategori.fields.map(kolomForm).join('');
+
+  function render() {
+    const baris = DB.cv.milik(kategori.tabel, SAYA.id);
+    document.getElementById('btn-tambah').classList.toggle('hidden', Boolean(kategori.satuBaris && baris.length));
+    document.getElementById('daftar').innerHTML = baris.map(r => `
+      <div class="bg-white rounded-xl border border-neutral4 elevation1 p-2 flex items-start gap-2">
+        <div class="flex-1 min-w-0 [&>div]:border-0 [&>div]:!p-3">${kartuEntriCv(kategori, r, kategori.aksi ? kategori.aksi(r) : '')}</div>
+        <div class="flex shrink-0 p-1">
+          <button type="button" class="btn-icon" onclick="bukaForm(${r.id})" aria-label="Edit" title="Edit"><i data-lucide="pencil" class="w-4 h-4"></i></button>
+          <button type="button" class="btn-icon hover:!bg-red3 hover:!text-red1" onclick="hapus(${r.id})" aria-label="Hapus" title="Hapus"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+        </div>
+      </div>`).join('') || kartuKosong(kategori.ikon, 'Belum ada data', 'Tekan Tambah Data untuk mulai mengisi.');
+    refreshIcons();
+  }
+
+  function bukaForm(id) {
+    const r = DB.cv.milik(kategori.tabel, SAYA.id).find(x => x.id === id);
+    form.reset();
+    form.elements.id.value = r ? r.id : '';
+    document.getElementById('form-title').textContent = `${r ? 'Edit' : 'Tambah'} ${kategori.judul}`;
+    if (r) kategori.fields.forEach(([name]) => { form.elements[name].value = r[name]; });
+    openModal('form-modal');
+  }
+
+  function hapus(id) {
+    confirmAction({ title: 'Hapus data?', message: 'Data ini akan dihapus dari profil Anda.', okLabel: 'Hapus', danger: true }, () => {
+      DB.cv.hapus(kategori.tabel, SAYA.id, id);
+      render();
+      showToast('Data berhasil dihapus.');
+    });
+  }
+
+  document.getElementById('btn-tambah').addEventListener('click', () => bukaForm());
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    DB.cv.simpan(kategori.tabel, SAYA.id, Object.fromEntries(new FormData(form)));
+    closeModal('form-modal');
+    render();
+    showToast('Data berhasil disimpan.');
+  });
+
+  render();
+</script>
+</body>
+</html>

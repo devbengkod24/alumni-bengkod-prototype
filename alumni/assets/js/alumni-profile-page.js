@@ -118,7 +118,7 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
             </div>
           </div>
 
-          <div class="mt-4 space-y-3.5">
+          <div class="mt-4 space-y-2">
             <div class="flex items-center justify-between gap-3 sm:gap-4 flex-wrap sm:flex-nowrap">
               <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap sm:flex-nowrap min-w-0">
                 <h2 class="text-[22px] sm:text-[25px] font-bold text-gray-900 tracking-tight leading-tight shrink-0" x-text="profile.name"></h2>
@@ -126,22 +126,7 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
                   <span x-text="'Alumni ' + (profile.batch || '2024')"></span>
                 </span>
               </div>
-              ${detail ? `<button type="button" @click="toggleConnectDetail()"
-                  class="inline-flex items-center justify-center px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-all shadow-sm cursor-pointer shrink-0 leading-normal"
-                  :class="isDetailConnected ? 'bg-blue-50 text-[#1E3A8A] border border-blue-200' : 'bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white'">
-                  <template x-if="isDetailConnected">
-                    <span class="inline-flex items-center gap-2">
-                      <svg class="w-4 h-4 text-[#1E3A8A]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                      <span>Terhubung</span>
-                    </span>
-                  </template>
-                  <template x-if="!isDetailConnected">
-                    <span class="inline-flex items-center gap-2">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
-                      <span>Hubungkan</span>
-                    </span>
-                  </template>
-                </button>` : `<div class="shrink-0">
+              ${detail ? "" : `<div class="shrink-0">
                 <button id="btn-edit-profil" @click="editProfileOpen = true"
                   class="inline-flex items-center justify-center bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white px-5 py-2.5 rounded-full text-[15px] font-semibold gap-2 transition-colors shadow-sm cursor-pointer shrink-0 leading-normal" title="Edit Profil">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -153,16 +138,23 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
               </div>`}
             </div>
 
+            <!-- NIM di bawah nama (edit intro), font dan spasi persis sama dengan headline -->
+            <template x-if="profile.nim">
+              <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed" x-text="'NIM: ' + profile.nim"></p>
+            </template>
+
+            <!-- Headline Profesi -->
             <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
 
-            <div class="flex flex-col gap-1 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
-              <div class="flex items-center gap-1.5"><span x-text="profile.location"></span></div>
-              <div><span class="text-[#1E3A8A] font-semibold text-[14px] sm:text-[15px] hover:underline cursor-pointer" x-text="(profile.connections || 75) + ' koneksi'"></span></div>
+            <!-- Lokasi -->
+            <div class="flex items-center gap-1.5 text-[14px] sm:text-[15px] text-gray-600 pt-0.5">
+              <span x-text="profile.location"></span>
             </div>
 
-            <template x-if="profile.linkedin || profile.github || profile.website || profile.email">
+            <template x-if="profile.linkedin || profile.github || profile.website || profile.email || profile.whatsapp">
               <div class="${detail ? "pt-4" : "pt-3"} border-t border-gray-100 flex flex-wrap items-center gap-2.5 text-[15px]">
                 <span class="text-gray-500 font-medium text-[15px] mr-1">Tautan:</span>
+                ${linkChip("whatsapp", "'https://wa.me/' + (profile.whatsapp || '').replace(/[^0-9]/g, '')", "bg-emerald-600", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.04 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67Z"/></svg>`)}
                 ${linkChip("linkedin", "profile.linkedin", "bg-[#0A66C2]", `<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z" /></svg>`, " flex-shrink-0")}
                 ${linkChip("github", "profile.github", "bg-gray-900", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z" /></svg>`)}
                 ${linkChip("website", "profile.website", "bg-gray-700", `<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" /></svg>`)}
@@ -489,10 +481,17 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 </div>
 
                 <div class="flex-1 min-w-0 text-left">
-                  <h4 class="text-[17px] font-semibold text-gray-900 leading-snug">
-                    <template x-if="proj.linkUrl"><a :href="normalizeUrl(proj.linkUrl)" target="_blank" rel="noopener noreferrer" class="hover:text-[#1E3A8A] transition-colors" x-text="proj.title"></a></template>
-                    <template x-if="!proj.linkUrl"><span x-text="proj.title"></span></template>
-                  </h4>
+                  <div class="flex flex-wrap items-center justify-between gap-2.5">
+                    <h4 class="text-[17px] font-semibold text-gray-900 leading-snug">
+                      <template x-if="proj.linkUrl"><a :href="normalizeUrl(proj.linkUrl)" target="_blank" rel="noopener noreferrer" class="hover:text-[#1E3A8A] transition-colors" x-text="proj.title"></a></template>
+                      <template x-if="!proj.linkUrl"><span x-text="proj.title"></span></template>
+                    </h4>
+                    ${detail ? "" : `
+                      <button type="button" @click="openPublishKaryaModal(proj)" class="text-[13px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer transition-colors shrink-0" title="Publish ke Showcase">
+                        Publish
+                      </button>
+                    `}
+                  </div>
                   <div class="flex items-center gap-2 mt-1">
                     <span class="text-[14px] text-gray-500 font-medium" x-text="proj.period"></span>
                   </div>
@@ -648,7 +647,7 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="edu.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="edu.degree ? edu.degree + ' ' + edu.major : edu.major"></p>
                 <p class="text-[14px] text-gray-500 mt-1" x-text="edu.period"></p>
-                <p class="text-[14px] text-gray-500 mt-2.5 font-medium">Mata Kuliah Relevan:</p>
+                <p class="text-[14px] text-gray-500 mt-2.5 font-medium"${detail ? ' x-show="edu.tags && edu.tags.length"' : ""}>Mata Kuliah Relevan:</p>
                 <div class="flex flex-wrap gap-2.5 mt-3">
                   <template x-for="tag in edu.tags" :key="tag"><span class="${CHIP}" x-text="tag"></span></template>
                 </div>
@@ -672,11 +671,11 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="cert.name"></h4>
                 <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="cert.issuer"></p>
                 <p class="text-[14px] text-gray-500 mt-1" x-text="cert.date"></p>
-                <p class="text-[14px] font-medium text-gray-600 mt-0.5" x-text="'ID Kredensial: ' + cert.credId"></p>
+                <p class="text-[14px] font-medium text-gray-600 mt-0.5" x-show="cert.credId" x-text="'ID Kredensial: ' + cert.credId"></p>
                 <div class="flex flex-wrap gap-2.5 mt-3">
                   <template x-for="tag in cert.tags" :key="tag"><span class="${CHIP}" x-text="tag"></span></template>
                 </div>
-                <div class="mt-3.5">
+                <div class="mt-3.5"${detail ? ' x-show="cert.url"' : ""}>
                   <a :href="${detail ? "cert.url" : "cert.url ? (cert.url.startsWith('http') ? cert.url : 'https://' + cert.url) : '#'"}" target="_blank" rel="noopener noreferrer"
                     class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] text-white text-[15px] font-semibold hover:bg-[#1D4ED8] transition-colors shadow-xs cursor-pointer">
                     <span>Lihat Kredensial Resmi</span>
@@ -712,12 +711,12 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
             : SECTION_ADD_BTN("btn-add-certification", "addCertificationOpen", "Tambah sertifikasi") + SECTION_EDIT_BTN("btn-edit-certification", "editCertificationOpen", "Edit sertifikasi")
         )}
         ${certList}
-        <div class="mt-4 pt-2">
+        ${detail ? "" : `        <div class="mt-4 pt-2">
           <button class="w-full px-5 py-2.5 rounded-full border border-gray-200/90 hover:border-blue-300 hover:bg-blue-50/40 text-[15px] font-semibold text-[#1E3A8A] inline-flex items-center justify-center gap-2 transition-colors cursor-pointer">
             <span>Tampilkan semua 23 sertifikasi</span>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </button>
-        </div>
+        </div>`}
       </div>`;
 
   const toast = `<template x-if="toast">
@@ -737,16 +736,28 @@ ALUMNI_PARTIALS["profile-bottom"] = ({ variant }) => {
 function profilePageData(variant = "profil", extra = {}, initialData = null) {
   const profileSrc = (initialData && initialData.profile) ? initialData.profile : INITIAL_PROFILE;
   const postsSrc = (initialData && initialData.posts) ? initialData.posts : (variant === "detail" ? DETAIL_INITIAL_POSTS : INITIAL_POSTS);
-  const projectsSrc = (initialData && initialData.projects) ? initialData.projects : INITIAL_PROJECTS;
+  const storedProjects = (variant !== "detail" && typeof loadStoredProjects === "function") ? loadStoredProjects() : null;
+  const projectsSrc = (initialData && initialData.projects) ? initialData.projects : (storedProjects || INITIAL_PROJECTS);
   const orgsSrc = (initialData && initialData.organizations) ? initialData.organizations : INITIAL_ORGANIZATIONS;
   const edusSrc = (initialData && initialData.educations) ? initialData.educations : INITIAL_EDUCATIONS;
   const certsSrc = (initialData && initialData.certifications) ? initialData.certifications : INITIAL_CERTIFICATIONS;
   const skillsSrc = (initialData && initialData.skills) ? initialData.skills : INITIAL_SKILLS;
   const honorsSrc = (initialData && initialData.honors) ? initialData.honors : [];
+  const storedExperiences = (variant !== "detail") ? (() => {
+    try {
+      const raw = localStorage.getItem("bengkod_alumni_experiences_v1");
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return null;
+  })() : null;
+  const experiencesSrc = (initialData && initialData.experiences)
+    ? initialData.experiences
+    : (storedExperiences || (typeof INITIAL_EXPERIENCES !== "undefined" ? INITIAL_EXPERIENCES : []));
 
   const base = {
     COVER_THEMES,
     DEFAULT_AVATAR,
+    POSTS_PREVIEW,
     SKILLS_PREVIEW,
     PROJECTS_PREVIEW,
     profile: JSON.parse(JSON.stringify(profileSrc)),
@@ -757,6 +768,7 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     certifications: JSON.parse(JSON.stringify(certsSrc)),
     skills: JSON.parse(JSON.stringify(skillsSrc)),
     honors: JSON.parse(JSON.stringify(honorsSrc)),
+    experiences: JSON.parse(JSON.stringify(experiencesSrc)),
     recommendedPeople: (initialData && initialData.recommendedPeople) ? initialData.recommendedPeople : [],
 
     addOrgOpen: false,
@@ -780,7 +792,9 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     addHonorOpen: false,
     addProjectOpen: false,
     editProjectOpen: false,
+    editProjectId: null,
     showAllProjects: false,
+    showAllPosts: false,
     expandedProjIds: {},
     publicPreviewOpen: false,
     projectLightbox: null,
@@ -793,8 +807,9 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     deleteTargetId: null,
 
     init() {
-      if (variant !== "detail" && this.$el && typeof this.$el.addEventListener === "function") {
-        bindProfileModalEvents(this.$el, this);
+      // Modal di-teleport ke <body>, jadi event-nya tidak melewati elemen halaman dan didengar dari document
+      if (variant !== "detail") {
+        bindProfileModalEvents(document, this);
       }
       if (typeof this.$watch === "function") {
         this.$watch("profile.avatarUrl", () => (this.avatarBroken = false));
@@ -820,8 +835,15 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     get visibleSkills() {
       return this.showAllSkills ? this.skills : this.skills.slice(0, SKILLS_PREVIEW);
     },
+    openEditProject(proj) {
+      this.editProjectId = proj.id;
+      this.editProjectOpen = true;
+    },
     get visibleProjects() {
       return this.showAllProjects ? this.projects : this.projects.slice(0, PROJECTS_PREVIEW);
+    },
+    get visiblePosts() {
+      return this.showAllPosts ? this.posts : this.posts.slice(0, this.POSTS_PREVIEW || 1);
     },
     get logoModalTitle() {
       const t = this.logoModalTarget && this.logoModalTarget.type;
@@ -923,7 +945,55 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
     },
 
     // Hasil modal (event dari alumni-profile-modals.js)
-    handleSaveProfile(next) {
+    // Data diri ikut disimpan ke akun dan tracer, sumber halaman Alumni (direktori) dan profil publik
+    simpanKeTracer(patch, akunBaru = null) {
+      if (typeof DB === "undefined") return { ok: true };
+      const user = DB.akun.aktif();
+      const tracer = user && DB.tracer.milik(user.id);
+      if (!tracer) return { ok: true };
+      if (akunBaru && akunBaru.email && akunBaru.email.toLowerCase() !== user.email.toLowerCase()) {
+        const pemilik = DB.akun.cariEmail(akunBaru.email);
+        if (pemilik && pemilik.id !== user.id) return { ok: false, error: "Alamat email sudah dipakai akun lain." };
+      }
+      const lama = { nama: user.nama, email: user.email };
+      // Objek dari DB.akun.cari ikut tersimpan saat DB.tracer.simpan menulis ulang data
+      if (akunBaru) Object.assign(user, akunBaru);
+      const hasil = DB.tracer.simpan(user.id, {
+        ...tracer,
+        // Studi lanjut dan pekerjaan sampingan dipertahankan, bukan ikut terhapus
+        juga_studi: Boolean(tracer.nama_studi),
+        ada_sampingan: Boolean(tracer.nama_sampingan),
+        keahlian: (tracer.keahlian || []).join(", "),
+        ...patch,
+      });
+      if (!hasil.ok) Object.assign(user, lama);
+      return hasil;
+    },
+
+    // Hasil modal (event dari alumni-profile-modals.js)
+    handleSaveProfile(detail) {
+      const { skillNames = this.skills.map((sk) => sk.name), ...next } = detail;
+      let user = null;
+      try {
+        user = typeof DB !== "undefined" ? DB.akun.aktif() : null;
+      } catch (e) {}
+      const tracer = user ? DB.tracer.milik(user.id) || {} : {};
+      const hasil = this.simpanKeTracer(
+        {
+          nim: next.nim || tracer.nim,
+          no_hp: next.whatsapp || tracer.no_hp,
+          kota: next.city || tracer.kota,
+          linkedin: next.linkedin || tracer.linkedin,
+          tahun_lulus: next.gradYear || tracer.tahun_lulus,
+          keahlian: skillNames.join(", "),
+        },
+        { nama: next.name, email: next.email || (user && user.email) },
+      );
+      if (!hasil.ok) {
+        this.toast = hasil.error;
+        return;
+      }
+
       const oldName = this.profile.name;
       const shortHeadline = next.headline.length > 55 ? next.headline.slice(0, 52).trimEnd() + "..." : next.headline;
       this.posts = this.posts.map((p) => ({
@@ -933,8 +1003,16 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
         repostedBy: p.repostedBy === oldName ? next.name : p.repostedBy,
       }));
       this.profile = next;
+      // Keahlian yang sudah ada tetap membawa level dan tautannya
+      this.skills = skillNames.map(
+        (nama, i) => this.skills.find((sk) => sk.name.toLowerCase() === nama.toLowerCase()) || { id: `skill-${Date.now()}-${i}`, name: nama, level: DEFAULT_SKILL_LEVEL, links: [] },
+      );
+      try {
+        localStorage.setItem("bengkod_alumni_profile", JSON.stringify(next));
+      } catch (e) {}
+
       this.editProfileOpen = false;
-      this.toast = "Profil berhasil diperbarui";
+      this.toast = next.passwordUpdated ? "Profil & kata sandi berhasil diperbarui" : "Profil berhasil diperbarui";
     },
     handleModalEvent(name, detail) {
       switch (name) {
@@ -946,10 +1024,12 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
           this.skills = detail;
           this.addSkillsOpen = false;
           this.editSkillOpen = false;
+          this.simpanKeTracer({ keahlian: this.skills.map((s) => s.name).join(", ") });
           break;
         case "skill-delete":
           this.skills = this.skills.filter((s) => s.id !== detail);
           this.editSkillOpen = false;
+          this.simpanKeTracer({ keahlian: this.skills.map((s) => s.name).join(", ") });
           break;
         case "honors-save":
           this.honors = detail;
@@ -978,10 +1058,21 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
         case "project-add":
           this.projects = [detail, ...this.projects];
           this.addProjectOpen = false;
+          // Two-Way Sync: proyek baru otomatis terbit di Showcase Beranda
+          if (variant !== "detail" && typeof saveStoredProjects === "function") {
+            saveStoredProjects(this.projects);
+            if (typeof syncProjectToFeed === "function") {
+              syncProjectToFeed(detail, { name: this.profile.name, avatarUrl: this.profile.avatarUrl, headline: this.profile.headline });
+            }
+            this.toast = "Proyek ditambahkan & dipublikasikan ke Showcase Beranda";
+          }
           break;
         case "projects-save":
           this.projects = detail;
           this.editProjectOpen = false;
+          if (variant !== "detail" && typeof saveStoredProjects === "function") {
+            saveStoredProjects(this.projects);
+          }
           break;
         case "cert-add":
           this.certifications = [detail, ...this.certifications];
@@ -1011,9 +1102,10 @@ document.addEventListener("alpine:init", () => {
 // Event dari modal (alumni-profile-modals.js) → handler profilePage
 const PROFILE_MODAL_EVENTS = ["about-save", "skills-save", "skill-delete", "honors-save", "honor-add", "org-add", "orgs-save", "edu-add", "edus-save", "project-add", "projects-save", "cert-add", "certs-save"];
 
+// Modal di-teleport ke <body>, jadi event-nya tidak melewati elemen halaman; tangkap di window
 function bindProfileModalEvents(el, data) {
   if (!el || typeof el.addEventListener !== "function") return;
-  el.addEventListener("profile-save", (e) => data.handleSaveProfile && data.handleSaveProfile(e.detail));
-  PROFILE_MODAL_EVENTS.forEach((name) => el.addEventListener(name, (e) => data.handleModalEvent && data.handleModalEvent(name, e.detail)));
+  window.addEventListener("profile-save", (e) => data.handleSaveProfile && data.handleSaveProfile(e.detail));
+  PROFILE_MODAL_EVENTS.forEach((name) => window.addEventListener(name, (e) => data.handleModalEvent && data.handleModalEvent(name, e.detail)));
 }
 

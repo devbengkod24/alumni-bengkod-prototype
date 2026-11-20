@@ -60,7 +60,14 @@ function lsSet(k, val) {
 
 // ===================== DATA DUMMY SUPERADMIN =====================
 const SUPERADMIN_DEFAULT = {
-  user: { name: 'Super Admin', email: 'superadmin@dinus.ac.id' },
+  user: {
+    name: 'Super Admin',
+    email: 'superadmin@dinus.ac.id',
+    nip: '198204152008121001',
+    telepon: '0812-3456-7890',
+    role: 'Super Administrator',
+    foto: null
+  },
   koordinator: [
     {
       id: 1,
@@ -131,7 +138,12 @@ const SUPERADMIN_DEFAULT = {
 };
 
 const SUPERADMIN = {
-  user: SUPERADMIN_DEFAULT.user,
+  get user() {
+    return lsGet('superadmin-user', SUPERADMIN_DEFAULT.user);
+  },
+  set user(val) {
+    lsSet('superadmin-user', val);
+  },
   get koordinator() {
     return window.BengkodStore ? window.BengkodStore.getKoordinator() : lsGet('superadmin-koordinator', SUPERADMIN_DEFAULT.koordinator);
   },
@@ -253,7 +265,7 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
   openModal('confirm-modal');
 }
 
-// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Mitra, Koordinator) dan Log Aktivitas)
+// Navigasi SuperAdmin (Sesuai arahan: tanpa kelas, learning path, dll. Hanya Management Users (Alumni, Koordinator) dan Log Aktivitas)
 const SUPERADMIN_NAV = [
   { href: 'index.html', icon: 'layout-dashboard', label: 'Dashboard', match: 'index.html' },
   {
@@ -262,27 +274,20 @@ const SUPERADMIN_NAV = [
     submenu: [
       { href: 'koordinator.html', icon: 'graduation-cap', label: 'Koordinator', match: 'koordinator.html' },
       { href: 'alumni.html', icon: 'user-check', label: 'Alumni', match: 'alumni.html' },
-      { href: 'mitra.html', icon: 'building-2', label: 'Mitra', match: 'mitra.html' },
     ]
   },
   { href: 'log-aktivitas.html', icon: 'history', label: 'Log Aktivitas', match: 'log-aktivitas.html' },
 ];
 
-// Submit Pengaturan Profil SuperAdmin
-window.handleSaProfileSubmit = function(e) {
-  e.preventDefault();
-  const nama = document.getElementById('sa-p-nama').value.trim();
-  const email = document.getElementById('sa-p-email').value.trim();
-  if (!nama || !email) return;
+// Inisial & Avatar SuperAdmin (foto jika ada, selain itu inisial nama)
+function saInitials(nama) {
+  return (nama || '').replace(/^(Dr\.|Prof\.|Ir\.)\s*/i, '').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA';
+}
 
-  SUPERADMIN.user.name = nama;
-  SUPERADMIN.user.email = email;
-  lsSet('superadmin-user', SUPERADMIN.user);
-
-  closeModal('modal-pengaturan-profil-sa');
-  showToast('Profil SuperAdmin berhasil diperbarui!', 'success');
-  setTimeout(() => location.reload(), 300);
-};
+function saAvatar() {
+  const u = SUPERADMIN.user;
+  return u.foto ? `<img src="${esc(u.foto)}" alt="" class="w-full h-full object-cover">` : saInitials(u.name);
+}
 
 // ===================== LAYOUT (Sidebar + Topbar Sesuai lms-bengkod-web) =====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -328,9 +333,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.insertAdjacentHTML('afterbegin', `
     <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
     <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu SuperAdmin">
-      <a href="../index.html" class="flex items-center justify-center py-5 px-4 border-b border-neutral4 focus:outline-none focus:ring-2 focus:ring-primary1">
-        <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-9 w-auto object-contain">
-      </a>
+      <div class="flex items-center justify-between py-4 px-4 border-b border-neutral4">
+        <a href="../index.html" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
+          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
+        </a>
+        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors" aria-label="Tutup menu">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
         <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
@@ -338,26 +348,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </aside>`);
 
-  // Breadcrumbs Generator (100% Identik dengan Nav.tsx lms-bengkod-web)
-  const isDashboard = current === 'index.html' || main.dataset.title === 'Dashboard';
-  const isLogAktivitas = current === 'log-aktivitas.html' || main.dataset.title === 'Log Aktivitas';
+  // Breadcrumbs Generator: Role -> Nama Halaman (SuperAdmin › [pageTitle])
   const pageTitle = esc(main.dataset.title);
-
-  const breadcrumbHTML = isDashboard
-    ? `<a href="index.html" class="text-neutral1 hover:text-primary1 transition-colors font-medium">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">SuperAdmin</span>`
-    : isLogAktivitas
-    ? `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1">${pageTitle}</span>`
-    : `<a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors">Dashboard</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <a href="koordinator.html" class="text-neutral2 hover:text-primary1 transition-colors">Management Users</a>
-       <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-       <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
-
-  const saInitials = (SUPERADMIN.user.name || 'Super Admin').split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || 'SA';
+  const breadcrumbHTML = `
+    <a href="index.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">SuperAdmin</a>
+    <span class="mx-2 text-neutral3 select-none font-normal">›</span>
+    <span class="font-medium text-neutral1 truncate">${pageTitle}</span>`;
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
@@ -400,17 +396,17 @@ document.addEventListener('DOMContentLoaded', () => {
               <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors">${esc(SUPERADMIN.user.name)}</div>
               <div class="text-[11px] text-neutral3">Super Administrator</div>
             </div>
-            <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200 shadow-xs">
-              ${saInitials}
+            <div class="w-9 h-9 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xs border border-purple-200 shadow-xs overflow-hidden">
+              ${saAvatar()}
             </div>
           </button>
 
-          <!-- Dropdown Popover Profil (100% Identik dengan Alumni) -->
+          <!-- Dropdown Popover Profil (100% Identik dengan Alumni & Koordinator) -->
           <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
             <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
               <div class="flex items-center gap-2.5">
-                <div class="w-9 h-9 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">
-                  ${saInitials}
+                <div class="w-9 h-9 rounded-full bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0 overflow-hidden">
+                  ${saAvatar()}
                 </div>
                 <div class="min-w-0 flex-1">
                   <p class="text-sm font-semibold text-white truncate">${esc(SUPERADMIN.user.name)}</p>
@@ -420,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <ul class="py-1.5 text-sm text-neutral1">
               <li>
-                <button type="button" onclick="openModal('modal-pengaturan-profil-sa')" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
+                <a href="profil.html" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
                   <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="3" />
@@ -428,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </svg>
                   </span>
                   <span>Pengaturan Profil</span>
-                </button>
+                </a>
               </li>
             </ul>
             <div class="border-t border-neutral4/70"></div>
@@ -455,7 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
   main.before(wrapper);
   wrapper.appendChild(main);
 
-  // Modal konfirmasi bersama & Modal Pengaturan Profil SuperAdmin
+  // Modal konfirmasi bersama
   document.body.insertAdjacentHTML('beforeend', `
     <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
       <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title">
@@ -465,42 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
           <button onclick="closeModal('confirm-modal')" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5">Batal</button>
           <button id="confirm-ok"></button>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal Pengaturan Profil SuperAdmin -->
-    <div id="modal-pengaturan-profil-sa" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-md w-full p-6 elevation5 max-h-[90vh] overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="modal-sa-profile-title">
-        <div class="flex items-center justify-between pb-3 border-b border-neutral4 mb-4">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-              <i data-lucide="shield-check" class="w-5 h-5"></i>
-            </div>
-            <div>
-              <h3 id="modal-sa-profile-title" class="font-bold text-base text-neutral1">Pengaturan Akun SuperAdmin</h3>
-              <p class="text-xs text-neutral3">Kelola kredensial akun administrator utama</p>
-            </div>
-          </div>
-          <button type="button" onclick="closeModal('modal-pengaturan-profil-sa')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-        <form id="form-pengaturan-profil-sa" onsubmit="handleSaProfileSubmit(event)" class="space-y-4 text-xs">
-          <div>
-            <label for="sa-p-nama" class="label text-xs">Nama Administrator</label>
-            <input type="text" id="sa-p-nama" required class="input" value="${esc(SUPERADMIN.user.name)}">
-          </div>
-          <div>
-            <label for="sa-p-email" class="label text-xs">Email Administrator</label>
-            <input type="email" id="sa-p-email" required class="input" value="${esc(SUPERADMIN.user.email)}">
-          </div>
-          <div>
-            <label for="sa-p-password" class="label text-xs">Password Baru (Opsional)</label>
-            <input type="password" id="sa-p-password" placeholder="Biarkan kosong jika tidak diubah" class="input">
-          </div>
-          <div class="flex justify-end gap-2 pt-3 border-t border-neutral4">
-            <button type="button" onclick="closeModal('modal-pengaturan-profil-sa')" class="btn-outline text-xs px-4 py-2">Batal</button>
-            <button type="submit" class="btn-primary text-xs px-5 py-2 font-semibold">Simpan Perubahan</button>
-          </div>
-        </form>
       </div>
     </div>`);
 
@@ -566,7 +526,9 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleBtn.setAttribute('aria-expanded', sidebarOpen ? 'true' : 'false');
   }
 
+  // Terapkan state awal saat DOM siap
   applySidebarState();
+  if (window.lucide) window.lucide.createIcons();
 
   toggleBtn.addEventListener('click', (e) => {
     e.preventDefault();
@@ -578,6 +540,14 @@ document.addEventListener('DOMContentLoaded', () => {
     sidebarOpen = false;
     applySidebarState();
   });
+
+  const closeBtn = document.getElementById('sidebar-close-btn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      sidebarOpen = false;
+      applySidebarState();
+    });
+  }
 
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && !checkIsDesktop() && sidebarOpen) {

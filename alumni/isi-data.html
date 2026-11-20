@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lengkapi Data | Portal Alumni Bengkel Koding</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <script src="assets/js/data.js?v=10"></script>
+  <script src="assets/js/app.js?v=7"></script>
+  <script src="assets/js/tracer.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+  <style>
+    /* Selaraskan formTracer dengan gaya putih bersih login.html & register.html */
+    #isi .card {
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+    #isi #form {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    #isi .card + .card {
+      padding-top: 1.75rem !important;
+      border-top: 1px solid #DEDFE1 !important;
+    }
+    #isi .input[readonly] {
+      background-color: #F4F4F4 !important;
+      color: #55585E;
+    }
+    #isi select.input {
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 2.25rem;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B6E76' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 16px 16px;
+    }
+  </style>
+</head>
+<body class="bg-white text-neutral1 antialiased font-sans">
+
+  <div class="min-h-screen w-full flex">
+
+    <!-- Kolom Kiri: Form Vertikal Putih Bersih (selaras login.html & register.html) -->
+    <div class="w-full md:w-[55%] flex flex-col px-6 lg:px-12 py-8 md:py-10">
+      <div class="w-full max-w-[32rem] mx-auto flex flex-col flex-1">
+
+        <a href="../index.html" class="mb-8 inline-flex w-fit">
+          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding" class="h-10 w-auto object-contain">
+        </a>
+
+        <div class="pb-6 mb-7 border-b border-neutral4">
+          <h1 class="font-bold !text-2xl text-neutral1 mb-1.5">Lengkapi Data Anda</h1>
+          <p id="sapaan" class="text-neutral3 !text-sm leading-relaxed"></p>
+        </div>
+
+        <div id="isi"></div>
+      </div>
+    </div>
+
+    <!-- Kolom Kanan: Panel Visual Selaras login.html -->
+    <div class="hidden md:block md:w-[45%] h-screen p-4 lg:p-5 flex-shrink-0 sticky top-0">
+      <div class="h-full w-full bg-gradient-to-tr from-primary1 via-blue-900 to-indigo-950 rounded-2xl overflow-hidden relative shadow-xl flex flex-col justify-between p-7 lg:p-9 2xl:p-11 text-white">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10 pointer-events-none"></div>
+        <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-blue-500/10 blur-3xl pointer-events-none"></div>
+        <div class="absolute -left-10 top-20 w-80 h-80 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex items-center gap-2 font-semibold text-white/90 text-xs sm:text-sm">
+          <div class="w-5 h-px bg-white/80 rounded-full"></div>
+          Bengkel Koding UDINUS
+          <div class="w-5 h-px bg-white/80 rounded-full"></div>
+        </div>
+
+        <div class="relative z-10 max-w-lg">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/20 text-white mb-3 backdrop-blur-sm">
+            <span class="w-2 h-2 rounded-full bg-secondary1"></span>
+            Onboarding Alumni
+          </span>
+          <h2 class="font-bold !text-xl lg:!text-2xl 2xl:!text-3xl leading-tight mb-2.5 text-white">Satu Langkah Lagi<br>Menuju Portal Alumni</h2>
+          <p class="text-white/80 !text-xs sm:!text-sm leading-relaxed">Data ini otomatis mengisi Profil Saya, memudahkan pembuatan CV, dan melengkapi tracer study program studi.</p>
+          <div class="mt-5 flex items-center gap-4 text-xs text-white/70 pt-4 border-t border-white/20">
+            <span id="panel-nama"></span>
+            <span>&bull;</span>
+            <span id="panel-email"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    (() => {
+      if (DB.tracer.milik(SAYA.id)) {
+        location.replace('profil.html');
+        return;
+      }
+
+      document.getElementById('panel-nama').textContent = SAYA.nama;
+      document.getElementById('panel-email').textContent = SAYA.email;
+      document.getElementById('sapaan').textContent =
+        `Selamat datang, ${SAYA.nama}. Isi data ini sekali saja sebelum masuk ke portal. Setelah disimpan, Anda langsung masuk ke Profil Saya.`;
+
+      formTracer(document.getElementById('isi'), SAYA.nim ? { nim: SAYA.nim } : null, () => location.replace('profil.html'));
+
+      const placeholderMap = {
+        nim: 'Contoh: A11.2020.12345',
+        tahun_masuk: 'Contoh: 2020',
+        tahun_lulus: 'Contoh: 2024',
+        no_hp: 'Contoh: 081234567890',
+        nama_studi: 'Contoh: Universitas Diponegoro',
+      };
+      Object.entries(placeholderMap).forEach(([id, teks]) => {
+        const el = document.getElementById(`f-${id}`);
+        if (el) el.placeholder = teks;
+      });
+
+      const submitBtn = document.querySelector('#isi button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.parentElement.className = 'pt-2';
+        submitBtn.className = 'w-full px-5 py-2.5 font-medium rounded-lg text-white bg-primary1 hover:bg-primary2 focus:ring-4 focus:ring-primary5 focus:outline-none transition-all duration-200 min-h-[44px] inline-flex items-center justify-center gap-2';
+        submitBtn.innerHTML = '<span>Simpan &amp; Masuk Portal</span><i data-lucide="arrow-right" class="w-4 h-4"></i>';
+        refreshIcons();
+      }
+    })();
+  </script>
+</body>
+</html>

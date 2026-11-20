@@ -1,34 +1,42 @@
 <!DOCTYPE html>
-<html lang="en" data-color-mode="light">
+<html lang="id" data-color-mode="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pengumuman - Bengkel Koding</title>
-  <meta name="description" content="Pengumuman dari koordinator Bengkel Koding">
+  <title>Pengumuman | Bengkel Koding UDINUS</title>
+  <meta name="description" content="Pengumuman resmi dari koordinator Bengkel Koding">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
   <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
 </head>
 <body>
+<!-- Pengumuman Resmi Koordinator Bengkel Koding -->
+<!-- Desain kartu simpel, bersih, langsung judul, tanggal & isi tanpa dropdown -->
 <main data-route="pengumuman">
-  <div x-data="pengumumanPage" class="w-full flex flex-col gap-6 py-2">
+  <div x-data="pengumumanPage" class="w-full flex flex-col gap-6 py-2 pb-12 antialiased">
 
-    <!-- ── HEADER ── -->
-    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+    <!-- ── HEADER KARTU BERSIH ── -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Pengumuman</h1>
-        <p class="text-sm text-gray-500 mt-0.5">Informasi resmi dari koordinator Bengkel Koding</p>
+        <h1 class="text-[28px] sm:text-[32px] font-bold text-gray-900 tracking-tight">
+          Pengumuman
+        </h1>
+        <p class="text-[15px] text-gray-500 mt-1 font-normal">
+          Informasi dan pemberitahuan resmi dari koordinator Bengkel Koding UDINUS.
+        </p>
       </div>
     </div>
 
-    <!-- ── DAFTAR PENGUMUMAN (LANGSUNG JUDUL, TANGGAL & DESKRIPSI TANPA DROPDOWN) ── -->
+    <!-- ── DAFTAR PENGUMUMAN (KARTU SIMPEL DENGAN ICON BIRU) ── -->
     <div class="space-y-4">
       <template x-for="(item, i) in announcements" :key="item.id">
         <div
           :id="'pengumuman-' + item.id"
           class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden transition-all hover:shadow-md hover:border-blue-200"
         >
-          <div class="flex items-start gap-4 p-5">
-            <!-- Icon lonceng (Semua berwarna biru #1E3A8A) -->
+          <div class="flex items-start gap-4 p-5 sm:p-6">
+            <!-- Icon lonceng (Biru #1E3A8A) -->
             <div class="w-11 h-11 rounded-xl bg-[#1E3A8A] flex items-center justify-center flex-shrink-0 text-white shadow-xs">
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -38,7 +46,7 @@
 
             <div class="flex-1 min-w-0">
               <!-- Judul -->
-              <h2 class="text-[16px] sm:text-[17px] font-semibold text-gray-900 leading-snug" x-text="item.title"></h2>
+              <h2 class="text-[16px] sm:text-[18px] font-bold text-gray-900 leading-snug" x-text="item.title"></h2>
               <!-- Tanggal -->
               <p class="text-[13px] text-gray-500 mt-1" x-text="item.time"></p>
               <!-- Deskripsi Langsung -->
@@ -62,9 +70,14 @@
 
   </div>
 </main>
+
 <script>
 document.addEventListener('alpine:init', () => {
   Alpine.data('pengumumanPage', () => ({
+    // Tautan #pengumuman-N (notifikasi & kartu Beranda) baru bisa digulir setelah x-for merender kartu
+    init() {
+      if (location.hash) this.$nextTick(() => document.querySelector(location.hash)?.scrollIntoView({ block: 'start' }));
+    },
     announcements: [
       {
         id: 1,

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id" data-role="alumni" data-color-mode="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Status Karir | Alumni Bengkel Koding</title>
+  <meta name="description" content="Status karir (tracer study) alumni Bengkel Koding Universitas Dian Nuswantoro.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../assets/js/page-skeleton.js"></script>
+  <!-- Data tracer tetap disimpan lewat DB (data.js) supaya terbaca di analitik koordinator.
+       app.js hanya dipakai untuk penjaga login dan helper; layoutnya tidak dipasang karena <main> memakai data-route. -->
+  <script src="assets/js/data.js?v=9"></script>
+  <script src="assets/js/app.js?v=7"></script>
+  <script src="assets/js/tracer.js?v=6"></script>
+  <script src="assets/js/alumni.js"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+</head>
+<body>
+<main data-route="tracer">
+  <div class="w-full max-w-5xl flex flex-col gap-6 py-2 pb-12 antialiased">
+
+    <!-- Header kartu, mengikuti gaya halaman Pengumuman -->
+    <div class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div class="min-w-0">
+        <h1 id="tracer-judul" class="text-[28px] sm:text-[32px] font-bold text-gray-900 tracking-tight">Status Karir</h1>
+        <p id="tracer-sub" class="text-[15px] text-gray-500 mt-1 font-normal"></p>
+      </div>
+      <button id="btn-edit" type="button" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-sm font-semibold shadow-sm transition-colors shrink-0 cursor-pointer">
+        <i data-lucide="pencil" class="w-4 h-4"></i> Edit Jawaban
+      </button>
+    </div>
+
+    <div id="isi" class="space-y-6"></div>
+  </div>
+</main>
+
+<script>
+  const isi = document.getElementById('isi');
+  const judul = document.getElementById('tracer-judul');
+  const sub = document.getElementById('tracer-sub');
+  const tombolEdit = document.getElementById('btn-edit');
+
+  function tampilRingkasan() {
+    const t = DB.tracer.milik(SAYA.id);
+    judul.textContent = 'Status Karir';
+    sub.textContent = `Tracer study. Terakhir diperbarui ${fmtDate(t.updated_at)}. Data ini dibaca koordinator untuk analitik tracer.`;
+    tombolEdit.classList.remove('hidden');
+    isi.innerHTML = ringkasanTracer(t);
+    refreshIcons();
+  }
+
+  function tampilForm(t) {
+    judul.textContent = 'Edit Status Karir';
+    sub.textContent = 'Wajib mengisi form berikut ini.';
+    tombolEdit.classList.add('hidden');
+    isi.innerHTML = '';
+    formTracer(isi, t, () => {
+      showToast('Data berhasil disimpan.');
+      tampilRingkasan();
+      window.scrollTo({ top: 0 });
+    }, tampilRingkasan);
+  }
+
+  // Tanpa sesi atau data tracer, app.js sedang mengalihkan ke login / isi-data
+  if (SAYA && DB.tracer.milik(SAYA.id)) {
+    tombolEdit.addEventListener('click', () => tampilForm(DB.tracer.milik(SAYA.id)));
+    tampilRingkasan();
+  }
+</script>
+</body>
+</html>

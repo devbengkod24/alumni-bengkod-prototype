@@ -1,26 +1,827 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-role="admin">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Forum | Koordinator Bengkel Koding</title>
+  <title>Forum &amp; Linimasa | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script src="../assets/js/store.js"></script>
-  <script src="assets/js/koordinator.js"></script>
-  <script src="../assets/js/main.js"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=6">
+  <script src="../alumni/assets/js/data.js?v=9"></script>
+  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/main.js?v=5"></script>
+  <!-- Feed bersama: data yang sama dengan Beranda alumni -->
+  <script src="../assets/js/store.js?v=2"></script>
   <script src="../alumni/assets/js/alumni-data.js"></script>
-  <script src="../assets/js/forum-feed.js"></script>
+  <script src="../assets/js/feed-bersama.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Forum">
-  <div id="forum-feed"></div>
+  <!-- Layout 12-kolom seragam dengan Beranda Alumni -->
+  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
+    <!-- KOLOM UTAMA (FEED) -->
+    <div class="lg:col-span-8 flex flex-col gap-6 min-w-0">
+      <!-- Header Forum: Judul + Search bar + Tombol Buat Postingan -->
+      <div class="pb-4 border-b border-gray-200 space-y-4">
+        <div>
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Forum &amp; Linimasa Alumni</h1>
+          <p class="text-sm text-gray-500 mt-0.5">
+            Linimasa forum diskusi, karya, dan info loker bersama rekan alumni laboratorium
+          </p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div class="relative flex-1 min-w-0">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
+              <i data-lucide="search" class="w-4 h-4"></i>
+            </span>
+            <input
+              type="search"
+              id="forum-cari"
+              placeholder="Cari postingan atau topik diskusi…"
+              aria-label="Cari postingan"
+              autocomplete="off"
+              class="w-full pl-11 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-[14.5px] text-gray-900 placeholder:text-gray-400 shadow-2xs focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-all"
+            >
+          </div>
+
+          <button
+            type="button"
+            id="btn-buka-composer"
+            onclick="bukaModalComposer()"
+            class="inline-flex items-center justify-center gap-1.5 w-full sm:w-auto px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0 whitespace-nowrap"
+          >
+            <span class="text-base leading-none font-bold">+</span>
+            <span>Buat Postingan</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Kategori Feed -->
+      <nav id="saring" class="flex items-center gap-2 overflow-x-auto no-scrollbar" aria-label="Saring kategori"></nav>
+      <div id="banner-tag"></div>
+
+      <!-- Daftar Feed Postingan -->
+      <div id="daftar" class="flex flex-col gap-5"></div>
+    </div>
+
+    <!-- KOLOM SAMPING (KANAN) -->
+    <div class="lg:col-span-4 h-full">
+      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto no-scrollbar overscroll-contain scroll-smooth pr-0.5 pb-6" aria-label="Profil dan rekap forum"></aside>
+    </div>
+  </div>
 </main>
 
+<!-- Modal: Buat Postingan Koordinator (Murni Teks + Media Foto) -->
+<div id="modal-composer" data-modal-backdrop class="modal-backdrop">
+  <form id="composer" class="modal max-w-xl" role="dialog" aria-modal="true" aria-labelledby="composer-judul" novalidate autocomplete="off">
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+      <h3 id="composer-judul" class="text-lg font-bold text-gray-900 tracking-tight">Buat Postingan</h3>
+      <button type="button" onclick="closeModal('modal-composer')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+    </div>
+
+    <div class="py-4 space-y-3">
+      <div class="flex items-center gap-3">
+        <div id="avatar-composer" class="shrink-0"></div>
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900" id="nama-composer"></p>
+          <p class="text-xs text-gray-500">Koordinator Alumni · Publik untuk semua rekan alumni</p>
+        </div>
+      </div>
+
+      <textarea
+        name="isi"
+        rows="4"
+        maxlength="3000"
+        placeholder="Bagikan kabar, informasi, materi, atau pengumuman ke rekan alumni..."
+        aria-label="Isi postingan"
+        class="w-full resize-none bg-transparent py-2 text-[15px] text-gray-900 placeholder:text-gray-400 focus:outline-none leading-relaxed min-h-[90px]"
+      ></textarea>
+
+      <!-- Pratinjau media -->
+      <input type="file" name="gambar" accept="image/png,image/jpeg,image/webp" class="hidden">
+      <div data-media-ada class="hidden relative mt-2 rounded-xl overflow-hidden border border-gray-200">
+        <img alt="Pratinjau gambar" class="w-full max-h-[260px] object-cover">
+        <div class="absolute top-2 right-2 flex gap-1.5">
+          <button type="button" data-pilih class="px-3 py-1 rounded-full bg-white/95 text-xs font-semibold text-gray-800 shadow-sm hover:bg-white cursor-pointer">Ganti</button>
+          <button type="button" data-hapus class="w-8 h-8 rounded-full bg-gray-900/70 hover:bg-gray-900 text-white flex items-center justify-center cursor-pointer" aria-label="Hapus gambar"><i data-lucide="x" class="w-4 h-4"></i></button>
+        </div>
+      </div>
+
+      <input type="hidden" name="kategori" value="umum">
+      <p data-error class="hidden text-sm text-red1 mt-2" role="alert"></p>
+    </div>
+
+    <!-- Toolbar: Unggah Foto di kiri, Tombol Posting di kanan -->
+    <div class="pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+      <button
+        type="button"
+        data-pilih
+        title="Tambahkan foto"
+        class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[13px] font-medium text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer border border-gray-200 bg-white hover:border-gray-300"
+      >
+        <i data-lucide="image" class="w-4 h-4 text-blue-600"></i>
+        <span>Foto</span>
+      </button>
+
+      <div class="flex items-center gap-3">
+        <span data-hitung class="hidden text-xs text-gray-400 tabular-nums"></span>
+        <button
+          type="submit"
+          disabled
+          class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-sm font-semibold shadow-xs transition-colors cursor-pointer disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+        >
+          Posting
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
 <script>
-  // Koordinator sebagai moderator: bisa menghapus postingan, komentar, dan balasan
-  ForumFeed.mount(document.getElementById('forum-feed'), { nama: KOOR.user.name, peran: 'Koordinator', moderator: true });
+  // Filter kategori resmi: Hanya Karya & Showcase dan Referral (tipe umum dihapus dari filter)
+  const KATEGORI = {
+    karya: { label: 'Karya & Showcase', ikon: 'rocket' },
+    referral: { label: 'Referral', ikon: 'briefcase' },
+  };
+
+  const TAG = {
+    kabar: { label: 'Kabar Kerja', ikon: 'party-popper', warna: 'green' },
+    rekrutmen: { label: 'Proses Rekrutmen', ikon: 'clipboard-list', warna: 'blue' },
+    masukan: { label: 'Masukan Materi', ikon: 'lightbulb', warna: 'yellow' },
+    bantu: { label: 'Siap Bantu', ikon: 'hand-heart', warna: 'gray' },
+  };
+
+  const WARNA_PERAN = { Koordinator: 'blue', Mitra: 'yellow' };
+  const BATAS_RINGKAS = 280;
+  const NAMA = SAYA.nama;
+  const daftar = document.getElementById('daftar');
+  const composer = document.getElementById('composer');
+  const isiComposer = composer.elements.isi;
+  const terbuka = new Set();
+  const diperluas = new Set();
+  let kategori = '';
+  let saringTag = '';
+  let pencarianTeks = '';
+
+  const semua = () => FeedBersama.semua(NAMA);
+  const cari = id => FeedBersama.cari(id, NAMA);
+  const tautkan = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, url => `<a href="${url}" target="_blank" rel="noreferrer" class="text-primary1 font-semibold hover:underline break-all">${url}</a>`);
+  const ringkas = (teks, n = 90) => (teks.length > n ? `${teks.slice(0, n).trim()}…` : teks);
+  const chipTag = tag => `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[11px] font-semibold ${BADGE[TAG[tag].warna]}"><i data-lucide="${TAG[tag].ikon}" class="w-3 h-3"></i>${TAG[tag].label}</span>`;
+  const keterangan = p => p.headline || (p.peran === 'Koordinator' ? NAMA_ROLE.admin : p.peran === 'Mitra' ? 'Mitra Bengkel Koding' : 'Alumni Bengkel Koding');
+
+  const fotoOrang = (nama, foto, ukuran) => (foto
+    ? `<img src="${esc(foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="${ukuran} rounded-full object-cover border border-gray-200 shrink-0">`
+    : fotoBulat({ nama }, ukuran));
+
+  // ===================== COMPOSER MODAL =====================
+  function bukaModalComposer() {
+    composer.reset();
+    document.getElementById('avatar-composer').innerHTML = fotoBulat(SAYA, 'w-10 h-10');
+    document.getElementById('nama-composer').textContent = SAYA.nama;
+    composer.querySelector('[data-error]').classList.add('hidden');
+    const img = composer.querySelector('[data-media-ada] img');
+    img.removeAttribute('src');
+    composer.querySelector('[data-media-ada]').classList.add('hidden');
+    aturComposer();
+    openModal('modal-composer');
+    setTimeout(() => isiComposer.focus(), 100);
+  }
+
+  function aturComposer() {
+    const panjang = isiComposer.value.length;
+    const hitung = composer.querySelector('[data-hitung]');
+    hitung.textContent = `${panjang}/3000`;
+    hitung.classList.toggle('hidden', panjang < 2500);
+    composer.querySelector('[type="submit"]').disabled = !isiComposer.value.trim() && !composer.elements.gambar.files.length;
+  }
+
+  function pasangMedia(form, ubah) {
+    const input = form.elements.gambar;
+    const img = form.querySelector('[data-media-ada] img');
+    const tampil = file => {
+      if (img.src.startsWith('blob:')) URL.revokeObjectURL(img.src);
+      if (file) img.src = URL.createObjectURL(file);
+      else img.removeAttribute('src');
+      form.querySelector('[data-media-ada]').classList.toggle('hidden', !file);
+      ubah();
+    };
+    form.addEventListener('click', e => {
+      if (e.target.closest('[data-pilih]')) input.click();
+      if (e.target.closest('[data-hapus]')) {
+        input.value = '';
+        tampil(null);
+      }
+    });
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if (file && !file.type.startsWith('image/')) {
+        input.value = '';
+        showToast('File harus berupa gambar.', 'error');
+      }
+      tampil(input.files[0] || null);
+    });
+  }
+
+  pasangMedia(composer, aturComposer);
+  isiComposer.addEventListener('input', aturComposer);
+
+  composer.addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(composer);
+    let hasil;
+    try {
+      const file = fd.get('gambar');
+      const gambar = file && file.size ? await bacaGambar(file, 500) : '';
+      hasil = FeedBersama.tambah({
+        nama: NAMA,
+        peran: 'Koordinator',
+        kategori: 'umum',
+        isi: fd.get('isi'),
+        gambar,
+        pertanyaan: false,
+      });
+    } catch (err) {
+      hasil = { ok: false, error: err.message };
+    }
+    const galat = composer.querySelector('[data-error]');
+    galat.textContent = hasil.ok ? '' : hasil.error;
+    galat.classList.toggle('hidden', hasil.ok);
+    if (!hasil.ok) return;
+    closeModal('modal-composer');
+    composer.reset();
+    lompat(hasil.id);
+    showToast('Postingan dibagikan ke linimasa.');
+  });
+
+  // ===================== KARTU POSTINGAN =====================
+  function menuPost(p) {
+    const item = (aksi, ikon, label, ekstra = '', kelas = 'text-gray-700 hover:bg-gray-50') => `
+      <button type="button" data-aksi="${aksi}" data-id="${p.id}" ${ekstra} role="menuitem" class="w-full flex items-center gap-3 px-4 py-2 text-[14px] font-medium text-left ${kelas}"><i data-lucide="${ikon}" class="w-4 h-4"></i>${label}</button>`;
+    const pilihanTag = p.peran === 'Koordinator' ? '' : `
+      <div class="border-t border-gray-100 mt-1 pt-1">
+        <p class="px-4 py-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Beri tag rekap</p>
+        ${[['', 'Tanpa tag', 'x'], ...Object.entries(TAG).map(([k, t]) => [k, t.label, t.ikon])].map(([k, label, ikon]) =>
+          item('beri-tag', ikon, `<span class="flex-1">${label}</span>${p.tag === k ? '<i data-lucide="check" class="w-4 h-4 text-[#1E3A8A]"></i>' : ''}`, `data-tag="${k}"`)).join('')}
+      </div>`;
+    return `
+      <div data-menu class="relative shrink-0">
+        <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 cursor-pointer"><i data-lucide="ellipsis" class="w-5 h-5"></i></button>
+        <div data-panel-menu class="hidden absolute right-0 top-9 z-20 w-60 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5" role="menu">
+          ${item('bagikan', 'link', 'Salin tautan postingan')}
+          ${pilihanTag}
+          <div class="border-t border-gray-100 mt-1 pt-1">${item('hapus', 'trash-2', 'Hapus postingan', '', 'text-red1 hover:bg-red3')}</div>
+        </div>
+      </div>`;
+  }
+
+  function isiPost(p) {
+    if (!p.isi) return '';
+    const panjang = p.isi.length > BATAS_RINGKAS && !diperluas.has(p.id);
+    const teks = panjang ? `${p.isi.slice(0, BATAS_RINGKAS).trim()}…` : p.isi;
+    return `<p class="text-[14.5px] text-gray-900 leading-relaxed whitespace-pre-line break-words">${tautkan(teks)}${panjang ? ` <button type="button" data-aksi="perluas" data-id="${p.id}" class="text-gray-500 font-semibold hover:text-[#1E3A8A] hover:underline cursor-pointer">selengkapnya</button>` : ''}</p>`;
+  }
+
+  function kartuKarya(k, p) {
+    const detailUrl = `../alumni/detail-proyek.html?id=${p?.id || 1}`;
+    return `
+      <a href="${detailUrl}" class="mt-4 flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50/70 hover:bg-gray-100/70 hover:border-gray-300 transition-all group cursor-pointer w-full text-left">
+        <div class="w-14 h-14 rounded-xl border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden shadow-2xs group-hover:scale-105 transition-transform">
+          ${k.logo ? `<img src="${esc(k.logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">` : `<span class="text-xl font-black text-[#1E3A8A]">${esc((k.nama || 'A').charAt(0).toUpperCase())}</span>`}
+        </div>
+        <div class="flex-1 min-w-0 space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <h4 class="text-[15px] sm:text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate">${esc(k.nama)}</h4>
+            <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+              <span>Detail</span>
+              <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            </span>
+          </div>
+          <p class="text-xs text-gray-600 line-clamp-1">${esc(k.tagline || '')}</p>
+          ${(k.stack || []).length ? `
+            <div class="flex items-center gap-1.5 pt-1 flex-wrap">
+              ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] font-medium">${esc(s)}</span>`).join('')}
+              ${k.stack.length > 3 ? `<span class="text-[10px] text-gray-400">+${k.stack.length - 3}</span>` : ''}
+            </div>` : ''}
+        </div>
+      </a>`;
+  }
+
+  // Kartu Referral: Koordinator hanya melihat dan memantau (read-only)
+  function kartuReferral(p) {
+    const r = p.referral;
+    const pengajuan = p.pengajuan || [];
+    return `
+      <div class="mt-3 rounded-xl border border-gray-200 bg-white p-4 space-y-2 shadow-2xs">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <span class="text-[12px] font-bold uppercase tracking-wider text-[#1E3A8A]">#Referral</span>
+          ${r.batas ? `<span class="text-xs text-gray-500 font-medium">Batas review: ${fmtDate(r.batas)}</span>` : ''}
+        </div>
+        <div>
+          <h4 class="text-[15px] sm:text-[16px] font-bold text-gray-900 leading-snug">${esc(r.posisi || 'Peluang Karir')} · ${esc(r.perusahaan || '')}</h4>
+          ${r.level ? `<p class="text-[13px] text-gray-500 mt-0.5 font-normal">${esc(r.level)}</p>` : ''}
+        </div>
+        <div class="pt-2 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500 flex-wrap gap-2">
+          <span class="font-semibold text-gray-700 flex items-center gap-1.5">
+            <i data-lucide="users" class="w-3.5 h-3.5 text-[#1E3A8A]"></i>
+            <span>${pengajuan.length} pelamar alumni</span>
+          </span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-[#1E3A8A] font-semibold text-[11px] border border-blue-200/80">Pantau Saja</span>
+        </div>
+      </div>`;
+  }
+
+  function komentarItem(p, k) {
+    return `
+      <div class="flex items-start gap-3">
+        <img src="../alumni/assets/img/user.png" alt="${esc(k.penulis)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+        <div class="flex-1 min-w-0">
+          <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
+            <p class="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5 flex-wrap">
+              <span>${esc(k.penulis)}</span>
+              ${k.peran === 'Koordinator' ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#1E3A8A] border-blue-200">Koordinator</span>' : ''}
+              ${k.penulis === p.penulis && k.peran !== 'Koordinator' ? '<span class="text-gray-400 text-[12px] font-normal">· Penulis</span>' : ''}
+            </p>
+            <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed whitespace-pre-line break-words">${tautkan(k.isi)}</p>
+          </div>
+          <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
+            <button
+              type="button"
+              data-aksi="suka-komentar"
+              data-id="${p.id}"
+              data-komentar-id="${k.id}"
+              class="flex items-center gap-1.5 text-[13px] font-bold text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+              title="Suka komentar"
+            >
+              <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
+              <span>${(k.disukai || []).length > 0 ? (k.disukai || []).length : ''}</span>
+            </button>
+            <button
+              type="button"
+              data-aksi="tampil-balas"
+              data-komentar-id="${k.id}"
+              class="flex items-center text-gray-800 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+              title="Balas komentar ini"
+            >
+              <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+            </button>
+            <span class="text-[12px] text-gray-400 font-normal">${waktuLalu(k.waktu)}</span>
+            <button
+              type="button"
+              data-aksi="hapus-komentar"
+              data-id="${p.id}"
+              data-komentar-id="${k.id}"
+              class="text-[12px] font-semibold text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto"
+            >
+              Hapus
+            </button>
+          </div>
+
+          <!-- Balasan Komentar -->
+          ${(k.balasan || []).length ? `
+            <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
+              <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+              ${k.balasan.map(reply => `
+                <div class="flex items-start gap-2.5 relative">
+                  <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
+                  <img src="../alumni/assets/img/user.png" alt="${esc(reply.penulis)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                  <div class="flex-1 min-w-0">
+                    <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
+                      <p class="text-[13px] font-bold text-gray-900">${esc(reply.penulis)}</p>
+                      <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed">
+                        <span class="font-semibold text-[#1E3A8A] mr-1">@${esc(k.penulis)}</span><span>${tautkan(reply.isi)}</span>
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
+                      <button
+                        type="button"
+                        data-aksi="suka-balasan"
+                        data-id="${p.id}"
+                        data-komentar-id="${k.id}"
+                        data-balasan-id="${reply.id}"
+                        class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#1E3A8A] transition-colors cursor-pointer"
+                      >
+                        <i data-lucide="thumbs-up" class="w-3 h-3"></i>
+                        <span>${(reply.disukai || []).length > 0 ? (reply.disukai || []).length : ''}</span>
+                      </button>
+                      <span class="text-[12px] text-gray-400">${waktuLalu(reply.waktu)}</span>
+                      <button
+                        type="button"
+                        data-aksi="hapus-komentar"
+                        data-id="${p.id}"
+                        data-komentar-id="${reply.id}"
+                        class="text-[11px] font-semibold text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  </div>
+                </div>`).join('')}
+            </div>` : ''}
+
+          <!-- Form Balas Inline -->
+          <div id="form-balas-${k.id}" class="hidden flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative">
+            <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
+            <img src="../alumni/assets/img/user.png" alt="${esc(SAYA.nama)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
+            <div class="flex-1 min-w-0">
+              <form data-balas="${p.id}" data-induk="${k.id}" class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all shadow-2xs">
+                <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none">@${esc(k.penulis)}</span>
+                <input
+                  name="isi"
+                  required
+                  placeholder="Tulis balasan..."
+                  class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0"
+                >
+                <button
+                  type="submit"
+                  class="ml-2 text-[13px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer flex-shrink-0"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function panelKomentar(p) {
+    return `
+      <div class="border-t border-gray-100 bg-white px-5 py-4">
+        <!-- Input komentar baru -->
+        <form data-komentar="${p.id}" class="flex items-start gap-3 mb-4">
+          <img src="../alumni/assets/img/user.png" alt="${esc(SAYA.nama)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+          <div class="flex-1 relative">
+            <input
+              name="isi"
+              required
+              maxlength="1000"
+              placeholder="Tulis komentar..."
+              class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-gray-900/10"
+            >
+            <button
+              type="submit"
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer"
+            >
+              Send
+            </button>
+          </div>
+        </form>
+
+        <!-- Daftar komentar -->
+        ${p.komentar.length ? `
+          <div class="space-y-4">
+            ${p.komentar.map(k => komentarItem(p, k)).join('')}
+          </div>` : ''}
+      </div>`;
+  }
+
+  const jumlahKomentar = p => p.komentar.reduce((n, k) => n + 1 + (k.balasan || []).length, 0);
+
+  function kartuPost(p) {
+    const kat = KATEGORI[p.kategori] || { label: 'Umum', ikon: 'globe' };
+    const buka = terbuka.has(p.id);
+    const jumlah = jumlahKomentar(p);
+    const tombol = 'flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors cursor-pointer';
+
+    return `
+      <article id="post-${p.id}" class="bg-white rounded-xl border border-gray-200/90 shadow-xs scroll-mt-24 transition-shadow">
+        <div class="px-5 pt-4 flex items-start gap-3.5">
+          ${fotoOrang(p.penulis, p.foto, 'w-12 h-12')}
+          <div class="min-w-0 flex-1">
+            <p class="text-[15px] leading-tight font-semibold text-gray-900">${esc(p.penulis)}</p>
+            <p class="text-[13px] text-gray-500 leading-snug line-clamp-1 mt-0.5">${esc(keterangan(p))}</p>
+            <p class="text-[12px] text-gray-400 flex items-center gap-1.5 mt-1">${waktuLalu(p.waktu)} • <i data-lucide="${kat.ikon}" class="w-3.5 h-3.5"></i>${kat.label}</p>
+          </div>
+          ${menuPost(p)}
+        </div>
+
+        <div class="px-5 mt-3 space-y-2">
+          ${p.karya ? '' : isiPost(p)}
+          ${p.karya ? kartuKarya(p.karya, p) : ''}
+          ${p.referral ? kartuReferral(p) : ''}
+          ${p.tag ? `<div>${chipTag(p.tag)}</div>` : ''}
+        </div>
+
+        ${p.gambar && !p.karya ? `<img src="${esc(p.gambar)}" alt="Gambar dari ${esc(p.penulis)}" loading="lazy" class="mt-3.5 w-full max-h-[500px] object-cover bg-gray-50 border-y border-gray-100">` : ''}
+
+        <!-- Baris Interaksi & Statistik -->
+        <div class="px-5 mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
+          <div class="flex items-center gap-2">
+            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#1E3A8A] text-white text-[11px]">
+              <i data-lucide="thumbs-up" class="w-3 h-3"></i>
+            </span>
+            <span class="font-medium text-gray-700">${p.suka} menyukai</span>
+          </div>
+          <button type="button" data-aksi="buka" data-id="${p.id}" class="hover:text-[#1E3A8A] hover:underline cursor-pointer">
+            ${jumlah} komentar
+          </button>
+        </div>
+
+        <!-- Tombol Suka & Komentar -->
+        <div class="px-5 py-1.5 flex items-center justify-around text-[14px] font-semibold">
+          <button
+            type="button"
+            data-aksi="suka"
+            data-id="${p.id}"
+            class="${tombol} text-[#1E3A8A] hover:bg-blue-50 ${p.disukaiSaya ? 'font-bold bg-blue-50/80 shadow-2xs' : 'font-semibold'}"
+          >
+            <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+            <span>Suka</span>
+          </button>
+
+          <button
+            type="button"
+            data-aksi="buka"
+            data-id="${p.id}"
+            class="${tombol} ${buka ? 'text-[#1E3A8A] font-bold bg-blue-50/50' : 'text-gray-600 hover:text-[#1E3A8A] hover:bg-blue-50/50 font-semibold'}"
+          >
+            <i data-lucide="message-square" class="w-4 h-4"></i>
+            <span>Komentar</span>
+          </button>
+        </div>
+
+        ${buka ? panelKomentar(p) : ''}
+      </article>`;
+  }
+
+  // ===================== SARING KATEGORI =====================
+  function renderSaring(list) {
+    const pil = [
+      ['', 'Semua', list.length],
+      ...Object.entries(KATEGORI).map(([k, c]) => [k, c.label, list.filter(p => p.kategori === k).length]),
+    ];
+    document.getElementById('saring').innerHTML = pil.map(([k, label, jumlah]) => {
+      const aktif = kategori === k;
+      return `<button type="button" data-kategori="${k}" aria-pressed="${aktif}" class="shrink-0 whitespace-nowrap inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${aktif ? 'bg-[#1E3A8A] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}">${label} <span class="text-xs opacity-75">${jumlah}</span></button>`;
+    }).join('');
+
+    document.getElementById('banner-tag').innerHTML = saringTag ? `
+      <div class="flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-blue-200 bg-blue-50/60">
+        <p class="text-[13px] text-gray-700 flex items-center gap-2"><i data-lucide="${TAG[saringTag].ikon}" class="w-4 h-4 text-[#1E3A8A]"></i>Menampilkan postingan bertag <span class="font-semibold text-[#1E3A8A]">${TAG[saringTag].label}</span></p>
+        <button type="button" data-tutup-tag class="text-[13px] font-semibold text-[#1E3A8A] hover:underline shrink-0 cursor-pointer">Tampilkan semua</button>
+      </div>` : '';
+  }
+
+  // ===================== KOLOM SAMPING KANAN =====================
+  function kartuProfil(list) {
+    const milikSaya = list.filter(p => p.penulis === NAMA);
+    const jmlLaporan = (typeof BengkodStore !== 'undefined' ? BengkodStore.getLaporan('menunggu').length : 0)
+      + (typeof DB !== 'undefined' && DB.forum ? DB.forum.laporan('menunggu').length : 0);
+    const baris = (href, ikon, label, nilai = '') => `
+      <a href="${href}" class="flex items-center justify-between gap-3 px-4 py-2 hover:bg-gray-50 transition-colors">
+        <span class="flex items-center gap-2.5 text-[13px] text-gray-700"><i data-lucide="${ikon}" class="w-4 h-4 text-gray-400"></i>${label}</span>
+        <span class="text-[12px] font-semibold text-[#1E3A8A]">${esc(nilai)}</span>
+      </a>`;
+    return `
+      <section class="bg-white rounded-xl border border-gray-200/90 shadow-sm overflow-hidden">
+        <div class="h-14" style="background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);"></div>
+        <div class="px-4 -mt-8 pb-3 border-b border-gray-100">
+          <a href="profil.html" class="inline-block rounded-full">${fotoBulat(SAYA, 'w-16 h-16 ring-4 ring-white')}</a>
+          <a href="profil.html" class="block mt-1.5 text-[16px] font-bold text-gray-900 hover:underline leading-tight">${esc(SAYA.nama)}</a>
+          <p class="text-[12px] text-gray-500 mt-0.5">${NAMA_ROLE.admin}</p>
+        </div>
+        <div class="py-2 border-b border-gray-100">
+          <div class="flex items-center justify-between px-4 py-1 text-[12px]"><span class="text-gray-500">Postingan Anda</span><span class="font-semibold text-[#1E3A8A]">${milikSaya.length}</span></div>
+          <div class="flex items-center justify-between px-4 py-1 text-[12px]"><span class="text-gray-500">Total Komentar Masuk</span><span class="font-semibold text-[#1E3A8A]">${milikSaya.reduce((n, p) => n + p.komentar.length, 0)}</span></div>
+        </div>
+        <div class="py-1">
+          ${baris('laporan-forum.html', 'flag', 'Laporan Forum Menunggu', jmlLaporan ? `${jmlLaporan} laporan` : '0')}
+          ${baris('pengumuman.html', 'megaphone', 'Kelola Pengumuman')}
+          ${baris('tracer.html', 'chart-column', 'Statistik & Tracer')}
+          ${baris('data-alumni.html', 'id-card', 'Direktori Alumni', `${DB.akun.alumni().length}`)}
+        </div>
+      </section>`;
+  }
+
+  function renderKanan(list) {
+    const pengumuman = typeof DB !== 'undefined' && DB.pengumuman ? DB.pengumuman.semua().slice(0, 3) : [];
+    const gigs = typeof DB !== 'undefined' && DB.gigs ? DB.gigs.semua().slice(0, 3) : [];
+
+    document.getElementById('kanan').innerHTML = [
+      kartuProfil(list),
+
+      // Widget Pengumuman
+      `
+      <section class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
+        <div class="pb-2 border-b border-gray-100 flex items-center justify-between gap-2">
+          <h3 class="text-[15px] font-bold text-gray-900">Pengumuman Terbit</h3>
+          <a href="pengumuman.html" class="text-xs font-semibold text-[#1E3A8A] hover:underline">Semua</a>
+        </div>
+        <div class="space-y-2 mt-2">
+          ${pengumuman.map(pg => `
+            <a href="pengumuman.html" class="block p-2 rounded-lg hover:bg-gray-50 transition-colors group">
+              <p class="text-[13px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] line-clamp-1">${esc(pg.judul)}</p>
+              <p class="text-[11px] text-gray-400 mt-0.5">${fmtDate(pg.published_at)}</p>
+            </a>`).join('') || '<p class="text-xs text-gray-400">Belum ada pengumuman.</p>'}
+        </div>
+      </section>`,
+
+      // Widget Gigs Alumni
+      `
+      <section class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-5 space-y-3">
+        <div class="pb-2 border-b border-gray-100 flex items-center justify-between gap-2">
+          <h3 class="text-[15px] font-bold text-gray-900">Gigs Rekan Alumni</h3>
+          <span class="text-xs text-gray-400">Kolaborasi</span>
+        </div>
+        <div class="space-y-2 mt-2">
+          ${gigs.map(g => `
+            <div class="p-2.5 rounded-lg border border-gray-100 bg-gray-50/50 space-y-1">
+              <p class="text-[13px] font-semibold text-gray-900 line-clamp-1">${esc(g.judul)}</p>
+              <div class="flex items-center justify-between text-[11px] text-gray-500">
+                <span class="font-semibold text-[#1E3A8A]">${esc(g.budget)}</span>
+                <span>${esc((g.peran || []).join(', '))}</span>
+              </div>
+            </div>`).join('') || '<p class="text-xs text-gray-400">Belum ada tender gigs.</p>'}
+        </div>
+      </section>`,
+    ].join('');
+  }
+
+  // ===================== RENDER FEED =====================
+  function render() {
+    let list = semua();
+    if (kategori) list = list.filter(p => p.kategori === kategori);
+    if (saringTag) list = list.filter(p => p.tag === saringTag);
+    if (pencarianTeks) {
+      const q = pencarianTeks.toLowerCase();
+      list = list.filter(p => `${p.penulis} ${p.isi || ''} ${p.karya?.nama || ''} ${p.referral?.posisi || ''} ${p.referral?.perusahaan || ''}`.toLowerCase().includes(q));
+    }
+
+    renderSaring(semua());
+    daftar.innerHTML = list.map(kartuPost).join('')
+      || `<div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
+            <i data-lucide="newspaper" class="w-10 h-10 mx-auto mb-3 text-gray-300"></i>
+            <p class="font-medium">Tidak ada postingan yang sesuai kriteria.</p>
+            <p class="text-xs text-gray-400 mt-1">${pencarianTeks ? 'Coba ubah kata kunci pencarian.' : 'Klik tombol "+ Buat Postingan" untuk membagikan kabar baru.'}</p>
+          </div>`;
+    renderKanan(semua());
+    refreshIcons();
+  }
+
+  function segarkan(id) {
+    const list = semua();
+    const el = document.getElementById(`post-${id}`);
+    const p = list.find(x => x.id === id);
+    if (el && p) el.outerHTML = kartuPost(p);
+    renderSaring(list);
+    renderKanan(list);
+    refreshIcons();
+  }
+
+  function lompat(id) {
+    const p = cari(id);
+    if (!p) return;
+    kategori = '';
+    saringTag = '';
+    pencarianTeks = '';
+    terbuka.add(p.id);
+    render();
+    const el = document.getElementById(`post-${id}`);
+    if (el) {
+      el.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      el.classList.add('ring-2', 'ring-[#1E3A8A]');
+      setTimeout(() => el.classList.remove('ring-2', 'ring-[#1E3A8A]'), 1600);
+    }
+  }
+
+  async function salinTautan(id) {
+    try {
+      await navigator.clipboard.writeText(new URL(`forum.html#post-${id}`, location.href).href);
+      showToast('Tautan postingan berhasil disalin.');
+    } catch {
+      showToast('Browser menolak izin salin.', 'error');
+    }
+  }
+
+  function tutupMenu() {
+    document.querySelectorAll('[data-panel-menu]').forEach(m => m.classList.add('hidden'));
+    document.querySelectorAll('[data-aksi="menu"]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  }
+
+  function hapus(id) {
+    const p = cari(id);
+    const jumlah = p ? jumlahKomentar(p) : 0;
+    confirmAction({
+      title: 'Hapus postingan?',
+      message: `Postingan ${p?.penulis === NAMA ? 'Anda' : `dari ${p?.penulis}`}${jumlah ? ` beserta ${jumlah} komentar` : ''} akan dihapus dari linimasa.`,
+      okLabel: 'Hapus',
+      danger: true,
+    }, () => {
+      FeedBersama.hapus(id);
+      render();
+      showToast('Postingan berhasil dihapus.');
+    });
+  }
+
+  // ===================== AKSI EVENT DELEGATION =====================
+  daftar.addEventListener('click', e => {
+    const tombol = e.target.closest('[data-aksi]');
+    if (!tombol) return;
+    const id = Number(tombol.dataset.id);
+    const aksi = tombol.dataset.aksi;
+    if (aksi === 'menu') {
+      const panel = tombol.nextElementSibling;
+      const sudahBuka = !panel.classList.contains('hidden');
+      tutupMenu();
+      panel.classList.toggle('hidden', sudahBuka);
+      tombol.setAttribute('aria-expanded', String(!sudahBuka));
+      return;
+    }
+    tutupMenu();
+    if (aksi === 'hapus') return hapus(id);
+    if (aksi === 'bagikan') return salinTautan(id);
+    if (aksi === 'tampil-balas') {
+      const formBalas = document.getElementById(`form-balas-${tombol.dataset.komentarId}`);
+      if (formBalas) {
+        formBalas.classList.toggle('hidden');
+        if (!formBalas.classList.contains('hidden')) formBalas.querySelector('input')?.focus();
+      }
+      return;
+    }
+    if (aksi === 'suka-komentar') {
+      FeedBersama.sukaKomentar(id, Number(tombol.dataset.komentarId), NAMA);
+      return segarkan(id);
+    }
+    if (aksi === 'suka-balasan') {
+      FeedBersama.sukaBalasan(id, Number(tombol.dataset.komentarId), Number(tombol.dataset.balasanId), NAMA);
+      return segarkan(id);
+    }
+    if (aksi === 'hapus-komentar') {
+      FeedBersama.hapusKomentar(id, Number(tombol.dataset.komentarId));
+      return segarkan(id);
+    }
+    if (aksi === 'beri-tag') {
+      FeedBersama.beriTag(id, tombol.dataset.tag);
+      return saringTag ? render() : segarkan(id);
+    }
+    if (aksi === 'suka') FeedBersama.suka(id, NAMA);
+    if (aksi === 'perluas') diperluas.add(id);
+    if (aksi === 'buka' && !terbuka.delete(id)) terbuka.add(id);
+    segarkan(id);
+    if (aksi === 'buka' && terbuka.has(id)) document.querySelector(`[data-komentar="${id}"] input`)?.focus();
+  });
+
+  daftar.addEventListener('submit', e => {
+    e.preventDefault();
+    if (e.target.dataset.komentar) {
+      const id = Number(e.target.dataset.komentar);
+      const isi = e.target.elements.isi.value.trim();
+      if (!isi) return;
+      const hasil = FeedBersama.komentar(id, { nama: NAMA, peran: 'Koordinator', isi });
+      if (!hasil.ok) return showToast(hasil.error, 'error');
+      segarkan(id);
+    } else if (e.target.dataset.balas) {
+      const id = Number(e.target.dataset.balas);
+      const idInduk = Number(e.target.dataset.induk);
+      const isi = e.target.elements.isi.value.trim();
+      if (!isi) return;
+      const hasil = FeedBersama.balas(id, idInduk, { nama: NAMA, peran: 'Koordinator', isi });
+      if (!hasil.ok) return showToast(hasil.error, 'error');
+      segarkan(id);
+    }
+  });
+
+  document.addEventListener('click', e => { if (!e.target.closest('[data-menu]')) tutupMenu(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') tutupMenu(); });
+
+  document.getElementById('saring').addEventListener('click', e => {
+    const tombol = e.target.closest('[data-kategori]');
+    if (!tombol) return;
+    kategori = tombol.dataset.kategori;
+    render();
+  });
+
+  document.getElementById('banner-tag').addEventListener('click', e => {
+    if (!e.target.closest('[data-tutup-tag]')) return;
+    saringTag = '';
+    render();
+  });
+
+  document.getElementById('forum-cari').addEventListener('input', e => {
+    pencarianTeks = e.target.value.trim();
+    render();
+  });
+
+  document.getElementById('kanan').addEventListener('click', e => {
+    const tag = e.target.closest('[data-saring-tag]');
+    if (!tag) return;
+    saringTag = saringTag === tag.dataset.saringTag ? '' : tag.dataset.saringTag;
+    render();
+    document.getElementById('banner-tag').scrollIntoView({ block: 'center', behavior: 'smooth' });
+  });
+
+  window.addEventListener('storage', e => {
+    if (['bengkod_alumni_posts_v2', 'bengkod_shared_forum_v2'].includes(e.key)) render();
+  });
+
+  render();
+  window.addEventListener('load', () => {
+    const id = Number(location.hash.replace('#post-', ''));
+    if (id) lompat(id);
+  });
 </script>
 </body>
 </html>

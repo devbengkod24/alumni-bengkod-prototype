@@ -17,20 +17,38 @@ const INITIAL_PROFILE = {
   name: "Aisha Dwi Rahmawati",
   firstName: "Aisha Dwi",
   lastName: "Rahmawati",
-  headline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
+  nim: "A11.2020.12345",
+  gender: "Perempuan",
+  entryYear: "2020",
+  gradYear: "2024",
   batch: "2024",
+  phone: "081234567890",
+  whatsapp: "081234567890",
+  headline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
   isVerified: true,
   location: "Kota Kudus, Jawa Tengah, Indonesia",
   countryCode: "ID",
   city: "Kota Kudus, Jawa Tengah",
   industry: "Teknologi, Informasi, dan Internet",
   university: "Universitas Dian Nuswantoro",
-  connections: 75,
   followers: 77,
   linkedin: "https://www.linkedin.com/in/aisharah",
   github: "https://github.com/aishaadr",
   website: "",
   email: "aisha.rahma@alumni.dinus.ac.id",
+  // Status Karir (Tracer Study)
+  careerStatus: "Bekerja Full Time",
+  jobField: "Infokom",
+  jobCategory: "Perusahaan Swasta",
+  companyName: "PT GoTo Gojek Tokopedia",
+  jobTitle: "Junior Data Scientist & Analyst",
+  jobScope: "Nasional",
+  studyFunding: "",
+  studyUniversity: "",
+  studyMajor: "",
+  studyStartDate: "",
+  sideJobCompany: "Bengkel Koding Lab",
+  sideJobRole: "Technical Curriculum Consultant",
   about: `Motivated Informatics Engineering student at Universitas Dian Nuswantoro Semarang with a strong passion for data science and business analysis. Focused on extracting meaningful insights from data through statistical analysis, data visualization, and predictive modeling to solve real-world problems and support data-driven decision-making.
 
 Selama masa studi, aktif memegang peranan krusial sebagai Koordinator Asisten Praktikum di laboratorium Bengkel Koding, memimpin sesi bimbingan teknis serta mentoring bagi lebih dari 150 mahasiswa dalam mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web. Berpengalaman mendalami arsitektur sistem Next.js, TypeScript, Python, dan Laravel.`,
@@ -88,6 +106,7 @@ const INITIAL_PROJECTS = [
     contributorAvatar: "https://i.pravatar.cc/150?img=45",
     linkUrl: "https://github.com/aishaadr",
     imageUrl: "assets/img/kursus-1.png",
+    stage: "LIVE", // BETA | LIVE | null
   },
   {
     id: 2,
@@ -97,6 +116,7 @@ const INITIAL_PROJECTS = [
     tags: ["Deep Learning & Natural Language Processing"],
     linkUrl: "https://github.com/aishaadr",
     imageUrl: "assets/img/kursus-2.png",
+    stage: "BETA",
   },
 ];
 
@@ -188,9 +208,41 @@ const INITIAL_CERTIFICATIONS = [
 
 const INITIAL_SKILLS = [
   { id: "1", name: "Data Analysis & Visualization", level: "Tingkat Mahir", links: [{ type: "project", id: "1" }] },
-  { id: "2", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
+  { id: "2", name: "Python & Machine Learning", level: "Tingkat Mahir", links: [{ type: "project", id: "2" }] },
+  { id: "3", name: "Internet of Things (IoT)", level: "Tingkat Menengah", links: [] },
 ];
 
+const INITIAL_EXPERIENCES = [
+  {
+    key: "exp-1",
+    title: "Junior Data Scientist & Analyst",
+    place: "PT GoTo Gojek Tokopedia · Jakarta Selatan",
+    type: "Pekerjaan Purnawaktu",
+    period: "2024 – Sekarang",
+    isCurrent: true,
+    note: "Membangun predictive model, exploratory data analysis, dan pipeline analytics untuk ekosistem produk rekomendasi."
+  },
+  {
+    key: "exp-2",
+    title: "Technical Curriculum Consultant",
+    place: "Bengkel Koding Lab · Semarang",
+    type: "Paruh Waktu",
+    period: "2023 – Sekarang",
+    isCurrent: true,
+    note: "Merancang kurikulum pembelajaran pemrograman web modern, Next.js, dan Data Science untuk mahasiswa."
+  },
+  {
+    key: "exp-3",
+    title: "Koordinator Asisten Praktikum",
+    place: "Laboratorium Bengkel Koding UDINUS · Semarang",
+    type: "Magang",
+    period: "2022 – 2024",
+    isCurrent: false,
+    note: "Memimpin tim asisten praktikum dalam mengampu mata kuliah Pemrograman Berorientasi Objek dan Rekayasa Web bagi 150+ mahasiswa."
+  }
+];
+
+const POSTS_PREVIEW = 1;
 const SKILLS_PREVIEW = 3;
 const PROJECTS_PREVIEW = 3;
 
@@ -396,6 +448,9 @@ function initProfileDraft(p) {
   }
   return {
     fullName: p.name || "",
+    nim: p.nim || "",
+    gradYear: String(p.gradYear || ""),
+    whatsapp: p.whatsapp || p.phone || "",
     headline: p.headline || "",
     countryCode: matchedCountry || "ID", // default Indonesia
     city: matchedCity || "",
@@ -403,6 +458,9 @@ function initProfileDraft(p) {
     github: p.github || "",
     website: p.website || "",
     email: p.email || "",
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   };
 }
 
