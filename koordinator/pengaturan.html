@@ -100,6 +100,7 @@
       <label for="pwd-${f.key}" class="label">${f.label}</label>
       <div class="relative">
         <input id="pwd-${f.key}" name="${f.key}" type="password" placeholder="${f.placeholder}" aria-describedby="err-${f.key}"
+          ${f.key !== 'lama' ? 'minlength="8"' : ''}
           autocomplete="${f.key === 'lama' ? 'current-password' : 'new-password'}" class="input !pr-12 min-h-[44px]">
         <button type="button" data-lihat="${f.key}" aria-pressed="false" aria-label="Tampilkan ${f.label.toLowerCase()}"
           class="absolute inset-y-0 right-0 w-11 flex items-center justify-center text-neutral3 hover:text-primary1">${IKON_MATA}</button>
@@ -137,7 +138,7 @@
     const { lama, baru, konfirmasi } = Object.fromEntries(new FormData(form));
     const errors = {
       lama: lama ? '' : 'Password lama wajib diisi.',
-      baru: baru.length < 8 ? 'Password baru minimal 8 karakter.' : '',
+      baru: !baru ? 'Password baru wajib diisi.' : baru.length < 8 ? 'Password baru minimal 8 karakter.' : '',
       konfirmasi: baru !== konfirmasi ? 'Konfirmasi password tidak sama.' : '',
     };
     Object.entries(errors).forEach(([k, v]) => setError(k, v));

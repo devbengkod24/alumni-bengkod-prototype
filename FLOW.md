@@ -74,7 +74,7 @@ Halaman: `alumni/register.html`. Bisa dibuka dari tombol **Daftar di sini** di l
    | Format email (`nama@domain.tld`), dicek di halaman | Format email tidak valid. |
    | Nama kosong | Nama wajib diisi. |
    | Email sudah dipakai (tidak peka huruf besar/kecil) | Alamat email sudah terdaftar, silakan gunakan email lain. |
-   | Password kurang dari 7 karakter | Password harus terdiri dari minimal 7 karakter. |
+   | Password kurang dari 8 karakter | Password harus terdiri dari minimal 8 karakter. |
 
 3. Kalau lolos, akun dibuat dengan `role: 'alumni'`, `status: 'notverified'`, dan kode OTP 6 digit acak.
 4. Email disimpan di `sessionStorage.otp_email`, lalu pindah ke `verify-otp.html`.
@@ -172,7 +172,7 @@ Halaman: `alumni/lupa-password.html`. Berlaku untuk alumni dan koordinator. Empa
 |---|---|---|
 | 1. Email | Masukkan email, tekan **Kirim Kode**. Kode reset baru dibuat | "Email belum terdaftar." |
 | 2. Kode | Kode contoh ditampilkan di kotak biru, tekan **Lanjutkan** | "Kode yang Anda masukkan salah." |
-| 3. Password baru | Password baru dan ulangi, minimal 7 karakter | "Konfirmasi password tidak sama." atau "Password harus terdiri dari minimal 7 karakter." |
+| 3. Password baru | Password baru dan ulangi, minimal 8 karakter | "Konfirmasi password tidak sama." atau "Password harus terdiri dari minimal 8 karakter." |
 | 4. Selesai | "Password Berhasil Diubah", tombol **Masuk** ke `login.html` | - |
 
 ### 4.6 Penjaga role (pengalihan otomatis)
@@ -334,7 +334,7 @@ Urutan isi halaman:
 1. **Kartu identitas**: foto (klik ikon kamera untuk unggah, JPG/PNG/WEBP maks 500 KB, langsung mengganti avatar di topbar), label role, nama, email.
 2. **Status Karir** dan lencana tester, tombol **Ubah** ke `tracer.html`, lalu kartu Data Diri dan Status Karir lengkap (termasuk NIM dan HP).
 3. **Riwayat, Portofolio, dan Kemampuan**: 8 kategori CV, tiap kategori punya ikon pensil ke `kategori-cv.html?k=`.
-4. **Informasi Pribadi** (nama, email, password disamarkan) dan form **Ganti Password** (lama, baru minimal 7, konfirmasi). Pesan gagal: "Password lama tidak sesuai.", "Password baru minimal 7 karakter.", "Konfirmasi password tidak sama."
+4. **Informasi Pribadi** (nama, email, password disamarkan) dan form **Ganti Password** (lama, baru minimal 8, konfirmasi). Pesan gagal: "Password lama tidak sesuai.", "Password baru minimal 8 karakter.", "Konfirmasi password tidak sama."
 
 ### 6.7 Status Karir / Tracer Study (`tracer.html`)
 

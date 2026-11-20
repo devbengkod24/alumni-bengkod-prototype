@@ -87,6 +87,7 @@
                 <label :for="'pwd-' + f.key" class="label" x-text="f.label"></label>
                 <div class="relative">
                   <input :id="'pwd-' + f.key" :type="lihat[f.key] ? 'text' : 'password'" x-model="form[f.key]" :placeholder="f.placeholder || ''" @input="errors[f.key] = ''"
+                    :minlength="f.key !== 'lama' ? 8 : null"
                     :autocomplete="f.key === 'lama' ? 'current-password' : 'new-password'"
                     :aria-invalid="Boolean(errors[f.key])" :aria-describedby="'err-' + f.key"
                     class="input !pr-12 min-h-[44px]" :class="errors[f.key] && '!border-red2'">
@@ -137,7 +138,7 @@ document.addEventListener('alpine:init', () => {
       const { lama, baru, konfirmasi } = this.form;
       this.errors = {
         lama: lama ? '' : 'Password lama wajib diisi.',
-        baru: baru.length < 8 ? 'Password baru minimal 8 karakter.' : '',
+        baru: !baru ? 'Password baru wajib diisi.' : baru.length < 8 ? 'Password baru minimal 8 karakter.' : '',
         konfirmasi: baru !== konfirmasi ? 'Konfirmasi password tidak sama.' : '',
       };
       if (Object.values(this.errors).some(Boolean)) return;

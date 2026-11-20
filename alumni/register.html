@@ -50,7 +50,7 @@
           <div>
             <label for="password" class="label">Password <span class="text-red1">*</span></label>
             <div class="relative">
-              <input type="password" id="password" name="password" autocomplete="new-password" placeholder="Minimal 8 karakter" class="input pr-10">
+              <input type="password" id="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Minimal 8 karakter" class="input pr-10">
               <button type="button" onclick="tukarPassword('password', 'ikon-mata-1')" aria-label="Tampilkan atau sembunyikan password" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1">
                 <span id="ikon-mata-1"><i data-lucide="eye" class="w-4 h-4"></i></span>
               </button>
@@ -61,7 +61,7 @@
           <div>
             <label for="password_confirm" class="label">Konfirmasi Password <span class="text-red1">*</span></label>
             <div class="relative">
-              <input type="password" id="password_confirm" name="password_confirm" autocomplete="new-password" placeholder="Ulangi password" class="input pr-10">
+              <input type="password" id="password_confirm" name="password_confirm" minlength="8" required autocomplete="new-password" placeholder="Ulangi password" class="input pr-10">
               <button type="button" onclick="tukarPassword('password_confirm', 'ikon-mata-2')" aria-label="Tampilkan atau sembunyikan konfirmasi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1">
                 <span id="ikon-mata-2"><i data-lucide="eye" class="w-4 h-4"></i></span>
               </button>
@@ -161,6 +161,18 @@
       e.preventDefault();
       bersihkanError();
       const isi = Object.fromEntries(new FormData(form));
+      if (!isi.password) {
+        tampilError('password', 'Password wajib diisi.');
+        return;
+      }
+      if (isi.password.length < 8) {
+        tampilError('password', 'Password harus terdiri dari minimal 8 karakter.');
+        return;
+      }
+      if (isi.password_confirm !== undefined && isi.password !== isi.password_confirm) {
+        tampilError('password_confirm', 'Konfirmasi password tidak cocok.');
+        return;
+      }
       const hasil = DB.akun.daftar(isi);
       if (!hasil.ok) {
         tampilError(hasil.field, hasil.error);

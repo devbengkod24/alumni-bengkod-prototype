@@ -317,7 +317,7 @@
       <div>
         <label for="pw-new" class="label">Password Baru <span class="text-red2">*</span></label>
         <div class="relative">
-          <input type="password" id="pw-new" class="input pr-10" placeholder="Minimal 8 karakter" autocomplete="new-password">
+          <input type="password" id="pw-new" class="input pr-10" minlength="8" required placeholder="Minimal 8 karakter" autocomplete="new-password">
           <button type="button" onclick="togglePwVisibility('pw-new', 'eye-new')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1 transition-colors" aria-label="Toggle visibility password baru">
             <i data-lucide="eye" id="eye-new" class="w-4 h-4"></i>
           </button>
@@ -329,7 +329,7 @@
       <div>
         <label for="pw-confirm" class="label">Konfirmasi Password Baru <span class="text-red2">*</span></label>
         <div class="relative">
-          <input type="password" id="pw-confirm" class="input pr-10" placeholder="Ulangi password baru" autocomplete="new-password">
+          <input type="password" id="pw-confirm" class="input pr-10" minlength="8" required placeholder="Ulangi password baru" autocomplete="new-password">
           <button type="button" onclick="togglePwVisibility('pw-confirm', 'eye-confirm')" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1 transition-colors" aria-label="Toggle visibility konfirmasi password">
             <i data-lucide="eye" id="eye-confirm" class="w-4 h-4"></i>
           </button>
