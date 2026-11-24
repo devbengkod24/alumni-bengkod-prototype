@@ -1,247 +1,794 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light">
+<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Direktori Alumni | Bengkel Koding UDINUS</title>
-  <meta name="description" content="Pencarian dan jejaring sesama rekan alumni Bengkel Koding Universitas Dian Nuswantoro.">
+  <title>Direktori Rekan Alumni | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Cari dan perluas jejaring profesional sesama asisten dan alumni laboratorium Bengkel Koding berdasarkan tempat kerja dan jenjang studi.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="assets/js/alumni.js"></script>
-  <script src="assets/js/alumni-data.js"></script>
-  <script src="../assets/js/store.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#EFF2F7',
+            card: '#FFFFFF',
+            filter: '#F4F5F7',
+            borderline: '#E3E4E9',
+            primary: {
+              DEFAULT: '#3A5988',
+              hover: '#496DA8',
+              pressed: '#2F4B76',
+            },
+            accent: '#326ECE',
+            headline: '#0C1117',
+            bodytext: '#212224',
+            mutedtext: '#6B7280',
+            placeholder: '#91969C'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: "Inter", sans-serif; display: block !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+
+  <script>
+    function bengkodDirektoriApp() {
+      const sampleAlumni = [
+        {
+          id: 1,
+          name: "Aisha Dwi Rahmawati",
+          avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+          initials: "AD",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Teknik Informatika",
+          batch: "2024",
+          position: "Software Engineer",
+          positionBadgeClass: "bg-[#EAF5FD] text-[#1C6CA6]",
+          company: "Tokopedia",
+          address: "Semarang, Jawa Tengah",
+          skills: ["React", "TypeScript", "Tailwind CSS"],
+          email: "aisha.dwi@tokopedia.com",
+          linkedin: "linkedin.com/in/aishadwirahmawati",
+          github: "github.com/aishadwi",
+          bio: "Software Engineer di Tokopedia Core Web, fokus pada performa frontend modern dan arsitektur micro-frontend."
+        },
+        {
+          id: 2,
+          name: "Dimas Wahyu Prabowo",
+          avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
+          initials: "DW",
+          isVerified: true,
+          degreeLevel: "S2",
+          degreeTitle: "S2 Magister Teknik Informatika",
+          batch: "2023",
+          position: "Backend Architect",
+          positionBadgeClass: "bg-[#F5F0FF] text-[#6E39C2]",
+          company: "GoTo Financial",
+          address: "Jakarta Selatan, DKI Jakarta",
+          skills: ["Golang", "PostgreSQL", "Kafka", "Docker"],
+          email: "dimas.wahyu@goto.com",
+          linkedin: "linkedin.com/in/dimaswahyu",
+          github: "github.com/dimaswp",
+          bio: "Menangani infrastruktur high-throughput sistem pembayaran GoTo Financial dan riset sistem terdistribusi S2."
+        },
+        {
+          id: 3,
+          name: "Clarista Amanda Putri",
+          avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+          initials: "CA",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Sistem Informasi",
+          batch: "2024",
+          position: "Product Designer",
+          positionBadgeClass: "bg-[#FFF4ED] text-[#C25E00]",
+          company: "Blibli",
+          address: "Kudus, Jawa Tengah",
+          skills: ["UI/UX Design", "Figma", "Design System"],
+          email: "clarista.amanda@blibli.com",
+          linkedin: "linkedin.com/in/claristaamanda",
+          github: "github.com/clarista",
+          bio: "Product Designer fokus pada checkout conversion dan design tokens di ekosistem Blibli e-commerce."
+        },
+        {
+          id: 4,
+          name: "Rafi Fadhilah",
+          avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
+          initials: "RF",
+          isVerified: false,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Teknik Informatika",
+          batch: "2022",
+          position: "Frontend Specialist",
+          positionBadgeClass: "bg-[#EAF5FD] text-[#1C6CA6]",
+          company: "Traveloka",
+          address: "Bandung, Jawa Barat",
+          skills: ["React", "Next.js", "Web Performance"],
+          email: "rafi.fadhilah@traveloka.com",
+          linkedin: "linkedin.com/in/rafifadhilah",
+          github: "github.com/rafifad",
+          bio: "Mengembangkan modul reservasi hotel dan penerbangan Traveloka dengan optimasi Core Web Vitals."
+        },
+        {
+          id: 5,
+          name: "Bagas Arya Pratama",
+          avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=150&auto=format&fit=crop&q=80",
+          initials: "BA",
+          isVerified: true,
+          degreeLevel: "S2",
+          degreeTitle: "S2 Magister Ilmu Komputer",
+          batch: "2023",
+          position: "ML Engineer",
+          positionBadgeClass: "bg-[#EDFCF2] text-[#1E7E34]",
+          company: "DANA Indonesia",
+          address: "Jakarta Pusat, DKI Jakarta",
+          skills: ["Python", "PyTorch", "MLOps", "NLP"],
+          email: "bagas.arya@dana.id",
+          linkedin: "linkedin.com/in/bagasaryap",
+          github: "github.com/bagasarya",
+          bio: "Machine Learning Engineer di DANA Indonesia yang fokus pada deteksi anomali transaksi finansial dan riset AI S2."
+        },
+        {
+          id: 6,
+          name: "Fajar Nugraha",
+          avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80",
+          initials: "FN",
+          isVerified: false,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Teknik Informatika",
+          batch: "2022",
+          position: "QA Automation Lead",
+          positionBadgeClass: "bg-[#FDF2F4] text-[#B83A54]",
+          company: "Bukalapak",
+          address: "Salatiga, Jawa Tengah",
+          skills: ["Cypress", "Playwright", "CI/CD"],
+          email: "fajar.nugraha@bukalapak.com",
+          linkedin: "linkedin.com/in/fajarnugraha",
+          github: "github.com/fajarn",
+          bio: "Memimpin tim QA otomatisasi end-to-end testing untuk transaksi pembayaran seller di Bukalapak."
+        },
+        {
+          id: 7,
+          name: "Intan Permata Sari",
+          avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
+          initials: "IP",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Sistem Informasi",
+          batch: "2024",
+          position: "Mobile Developer",
+          positionBadgeClass: "bg-[#EAF5FD] text-[#1C6CA6]",
+          company: "Shopee Indonesia",
+          address: "Semarang, Jawa Tengah",
+          skills: ["Flutter", "Kotlin", "Dart"],
+          email: "intan.permata@shopee.co.id",
+          linkedin: "linkedin.com/in/intanpermata",
+          github: "github.com/intanps",
+          bio: "Mobile App Engineer di tim ShopeePay, mantan asisten lab mobile Bengkel Koding."
+        },
+        {
+          id: 8,
+          name: "Hendra Setiawan",
+          avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
+          initials: "HS",
+          isVerified: true,
+          degreeLevel: "S2",
+          degreeTitle: "S2 Magister Sistem Informasi",
+          batch: "2022",
+          position: "Cloud & DevOps Architect",
+          positionBadgeClass: "bg-[#F5F0FF] text-[#6E39C2]",
+          company: "Bank Central Asia (BCA)",
+          address: "Jakarta Barat, DKI Jakarta",
+          skills: ["AWS", "Kubernetes", "Terraform", "Fintech Security"],
+          email: "hendra.setiawan@bca.co.id",
+          linkedin: "linkedin.com/in/hendrasetiawan",
+          github: "github.com/hendrasetiawan",
+          bio: "Arsitek Cloud Infrastructure core banking BCA, pengajar tamu DevOps dan mahasiswa pascasarjana S2."
+        },
+        {
+          id: 9,
+          name: "Nadia Larasati",
+          avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80",
+          initials: "NL",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Desain Komunikasi Visual",
+          batch: "2023",
+          position: "UI/UX Researcher",
+          positionBadgeClass: "bg-[#FFF4ED] text-[#C25E00]",
+          company: "Tiket.com",
+          address: "Yogyakarta, DIY",
+          skills: ["User Research", "Usability Testing", "Wireframing"],
+          email: "nadia.larasati@tiket.com",
+          linkedin: "linkedin.com/in/nadialarasati",
+          github: "github.com/nadialarasati",
+          bio: "Mengepalai riset pengalaman pengguna perjalanan wisata dan akomodasi di Tiket.com."
+        },
+        {
+          id: 10,
+          name: "Rizky Pratama",
+          avatar: "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?w=150&auto=format&fit=crop&q=80",
+          initials: "RP",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Teknik Informatika",
+          batch: "2023",
+          position: "Fullstack Engineer",
+          positionBadgeClass: "bg-[#EAF5FD] text-[#1C6CA6]",
+          company: "PT Telkom Indonesia",
+          address: "Semarang, Jawa Tengah",
+          skills: ["Laravel", "Vue.js", "MySQL", "Tailwind CSS"],
+          email: "rizky.pratama@telkom.co.id",
+          linkedin: "linkedin.com/in/rizkypratama",
+          github: "github.com/rizkypratama",
+          bio: "Mengembangkan portal B2B enterprise Telkom Indonesia dan aktif membina proyek freelance alumni."
+        },
+        {
+          id: 11,
+          name: "Kevin Sanjaya",
+          avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80",
+          initials: "KS",
+          isVerified: true,
+          degreeLevel: "S2",
+          degreeTitle: "S2 Magister Teknik Informatika",
+          batch: "2024",
+          position: "Data Scientist",
+          positionBadgeClass: "bg-[#EDFCF2] text-[#1E7E34]",
+          company: "GovTech Edu",
+          address: "Tangerang, Banten",
+          skills: ["Python", "SQL", "BigQuery", "Machine Learning"],
+          email: "kevin.sanjaya@govtech.id",
+          linkedin: "linkedin.com/in/kevinsanjaya",
+          github: "github.com/kevins",
+          bio: "Data Scientist di platform digital pendidikan nasional Kemendikbudristek dan peneliti data mining S2."
+        },
+        {
+          id: 12,
+          name: "Siti Rahmawati",
+          avatar: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=150&auto=format&fit=crop&q=80",
+          initials: "SR",
+          isVerified: true,
+          degreeLevel: "S1",
+          degreeTitle: "S1 Sistem Informasi",
+          batch: "2025",
+          position: "Product Manager Associate",
+          positionBadgeClass: "bg-[#FFF4ED] text-[#C25E00]",
+          company: "Bank Mandiri",
+          address: "Solo, Jawa Tengah",
+          skills: ["Product Roadmap", "Scrum", "Business Analysis"],
+          email: "siti.rahmawati@bankmandiri.co.id",
+          linkedin: "linkedin.com/in/sitirahmawati",
+          github: "github.com/sitirahma",
+          bio: "Associate Product Manager di Livin by Mandiri, mengelola fitur transfer valas dan investasi mikro."
+        }
+      ];
+
+      return {
+        searchQuery: '',
+        companySearch: '',
+        selectedDegree: 'all', // 'all', 's1', 's2'
+        selectedAlumniIds: [],
+        selectAll: false,
+        detailModalOpen: false,
+        selectedAlumnus: null,
+        mobileNavOpen: false,
+
+        alumniList: sampleAlumni,
+
+        get filteredAlumni() {
+          const q = this.searchQuery.trim().toLowerCase();
+          const compQ = this.companySearch.trim().toLowerCase();
+
+          return this.alumniList.filter(a => {
+            // Filter S1 / S2
+            if (this.selectedDegree === 's1' && a.degreeLevel !== 'S1') return false;
+            if (this.selectedDegree === 's2' && a.degreeLevel !== 'S2') return false;
+
+            // Filter Tempat Kerja / Perusahaan (ada searchnya)
+            if (compQ && !a.company.toLowerCase().includes(compQ)) return false;
+
+            // Filter Search Umum (Nama, Posisi, Alamat, Degree, Skills)
+            if (q) {
+              const haystack = [a.name, a.position, a.company, a.address, a.degreeTitle, (a.skills || []).join(' ')].join(' ').toLowerCase();
+              if (!haystack.includes(q)) return false;
+            }
+
+            return true;
+          });
+        },
+
+        get hasFilter() {
+          return Boolean(this.searchQuery.trim() || this.companySearch.trim() || this.selectedDegree !== 'all');
+        },
+
+        resetFilter() {
+          this.searchQuery = '';
+          this.companySearch = '';
+          this.selectedDegree = 'all';
+          this.selectAll = false;
+          this.selectedAlumniIds = [];
+        },
+
+        toggleSelectAll() {
+          if (this.selectAll) {
+            this.selectedAlumniIds = this.filteredAlumni.map(a => a.id);
+          } else {
+            this.selectedAlumniIds = [];
+          }
+        },
+
+        openDetailModal(alumnus) {
+          this.selectedAlumnus = alumnus;
+          this.detailModalOpen = true;
+        },
+
+        closeDetailModal() {
+          this.detailModalOpen = false;
+          this.selectedAlumnus = null;
+        },
+
+        handleLogout() {
+          if (confirm('Keluar dari Portal Alumni Bengkel Koding?')) {
+            window.location.href = 'login.html';
+          }
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      if (window.Alpine) {
+        window.Alpine.data('bengkodDirektoriApp', bengkodDirektoriApp);
+      }
+    });
+  </script>
 </head>
-<body>
-<main data-route="direktori">
-  <div x-data="direktoriPage" class="w-full space-y-6 py-2 antialiased">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-gray-200">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Direktori Rekan Alumni</h1>
-        <p class="text-sm text-gray-500 mt-0.5">
-          Cari dan perluas jejaring profesional sesama asisten dan alumni laboratorium Bengkel Koding
-        </p>
-      </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-200">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-          <span x-text="alumniList.length + ' Alumni Terdaftar'"></span>
-        </span>
-      </div>
-    </div>
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="bengkodDirektoriApp()">
 
-    <!-- Filter & Pencarian -->
-    <div class="space-y-3">
-      <div class="relative">
-        <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-        </span>
-        <input
-          type="search"
-          x-model="searchQuery"
-          placeholder="Cari nama, peran, atau keahlian"
-          aria-label="Cari alumni"
-          class="w-full h-11 pl-11 pr-4 rounded-full border border-gray-200 bg-white text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all"
-        >
-      </div>
+  <div class="min-h-full flex flex-col lg:flex-row">
 
-      <!-- Ponsel: satu baris yang bisa digeser; desktop: membungkus -->
-      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 sm:flex-wrap sm:overflow-visible">
-        <div class="relative shrink-0">
-          <label for="filter-batch" class="sr-only">Angkatan</label>
-          <select
-            id="filter-batch"
-            x-model="selectedBatch"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedBatch ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua angkatan</option>
-              <option value="2022">Angkatan 2022</option>
-              <option value="2023">Angkatan 2023</option>
-              <option value="2024">Angkatan 2024</option>
-              <option value="2025">Angkatan 2025</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedBatch ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
-        </div>
-        <div class="relative shrink-0">
-          <label for="filter-skill" class="sr-only">Keahlian utama</label>
-          <select
-            id="filter-skill"
-            x-model="selectedSkill"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedSkill ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua keahlian</option>
-              <option value="react">React / Frontend</option>
-              <option value="laravel">Laravel / PHP</option>
-              <option value="flutter">Flutter / Mobile</option>
-              <option value="data">Data Science / ML</option>
-              <option value="ui/ux">UI/UX Design</option>
-              <option value="security">Cybersecurity</option>
-              <option value="golang">Golang / Cloud</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedSkill ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
-        </div>
-        <div class="relative shrink-0">
-          <label for="filter-city" class="sr-only">Kota domisili</label>
-          <select
-            id="filter-city"
-            x-model="selectedCity"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="selectedCity ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-              <option value="">Semua kota</option>
-              <option value="Semarang">Semarang</option>
-              <option value="Jakarta">Jakarta</option>
-              <option value="Kudus">Kudus</option>
-              <option value="Magelang">Magelang</option>
-              <option value="Salatiga">Salatiga</option>
-              <option value="Tangerang">Tangerang</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedCity ? 'text-[#1E3A8A]' : 'text-gray-400'"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
+    <!-- ========================================================
+         SIDEBAR (256px, Latar Putih, Border Kanan Tipis, 7 Menu)
+    ======================================================== -->
+    <aside class="w-full lg:w-64 bg-white border-r border-[#E3E4E9] flex-shrink-0 flex flex-col justify-between p-6 z-30">
+      <div class="space-y-6">
+        <!-- Logo Bengkel Koding -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[8px] bg-[#3A5988] text-white flex items-center justify-center font-semibold text-[14px]">
+              BK
+            </div>
+            <div>
+              <div class="font-semibold text-[15px] tracking-[-0.01em] text-[#0C1117]">Bengkel Koding</div>
+              <div class="text-[12px] text-[#6B7280]">Portal Alumni UDINUS</div>
+            </div>
+          </div>
+          <button type="button" class="lg:hidden text-[#6B7280] hover:text-[#0C1117]" @click="mobileNavOpen = !mobileNavOpen">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
+          </button>
         </div>
 
-        <!-- Toggle Studi Lanjut S2 -->
-        <button
-          type="button"
-          @click="filterS2Only = !filterS2Only"
-          :aria-pressed="filterS2Only.toString()"
-          class="shrink-0 inline-flex items-center gap-1.5 h-10 px-4 rounded-full border text-sm font-medium whitespace-nowrap transition-colors cursor-pointer"
-          :class="filterS2Only ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 3 9 3 12 0v-5" /></svg>
-          <span>Studi lanjut S2</span>
+                        <!-- 7 Menu Items Berurutan -->
+        <nav class="space-y-1" :class="mobileNavOpen ? 'block' : 'hidden lg:block'">
+          <!-- 1. Beranda -->
+          <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Beranda</span>
+          </a>
+          <!-- 2. Direktori Alumni (AKTIF) -->
+          <a href="direktori.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-semibold bg-[#E5E9EC] text-[#0C1117]">
+            <svg class="w-4 h-4 text-[#326ECE]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>Direktori Alumni</span>
+          </a>
+          <!-- 3. Showcase -->
+          <a href="showcase.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Showcase</span>
+          </a>
+          <!-- 4. Gigs & Proyek -->
+          <a href="gigs.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Gigs & Proyek</span>
+          </a>
+          <!-- 5. Referral -->
+          <a href="referral.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Referral</span>
+          </a>
+          <!-- 6. Data CV -->
+          <a href="data-cv.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Data CV</span>
+          </a>
+          <!-- 7. Profil Saya -->
+          <a href="profil.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span>Profil Saya</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Tombol Keluar Halus di Bagian Bawah -->
+      <div class="pt-4 border-t border-[#E3E4E9]" :class="mobileNavOpen ? 'block' : 'hidden lg:block'">
+        <button type="button" @click="handleLogout()" class="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-[#6B7280] hover:text-red-600 hover:bg-red-50/50 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Keluar</span>
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- Status Hasil -->
-    <div class="flex items-center justify-between text-xs text-gray-500 px-1">
-      <span x-text="'Menampilkan ' + filteredAlumni.length + ' dari ' + alumniList.length + ' rekan alumni'"></span>
-      <button
-        type="button"
-        @click="resetFilter()"
-        x-show="searchQuery || selectedBatch || selectedSkill || selectedCity || filterS2Only"
-        class="text-[#1E3A8A] hover:underline font-semibold cursor-pointer"
-      >
-        Reset Semua Filter
-      </button>
-    </div>
+    <!-- ========================================================
+         MAIN CONTENT AREA (DIREKTORI ALUMNI DASHBOARD)
+    ======================================================== -->
+    <div class="flex-1 flex flex-col min-w-0">
 
-    <!-- Grid Card Alumni -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <template x-if="filteredAlumni.length === 0">
-        <div class="col-span-full bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
-          Tidak ada alumni yang sesuai kriteria pencarian. Coba ubah kata kunci atau reset filter.
+      <!-- HEADER ATAS (Breadcrumb, Notifikasi, Avatar) -->
+      <header class="h-16 bg-white px-6 lg:px-8 flex items-center justify-between border-b border-[#E3E4E9]">
+        <div class="flex items-center gap-3">
+          <button type="button" class="text-[#6B7280] hover:text-[#0C1117] p-1.5 rounded-[8px] hover:bg-[#F4F5F7] transition-colors lg:hidden" @click="mobileNavOpen = !mobileNavOpen">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+          </button>
+          <div class="text-[13px] text-[#6B7280] font-normal flex items-center gap-2">
+            <span>Portal Alumni</span>
+            <span>/</span>
+            <span class="text-[#0C1117] font-medium">Direktori Rekan Alumni</span>
+          </div>
         </div>
-      </template>
 
-      <template x-for="a in filteredAlumni" :key="a.id">
-        <div class="bg-white rounded-xl border border-gray-200/90 hover:border-blue-300 p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group">
-          <div>
-            <div class="flex items-start gap-3.5 mb-3">
-              <template x-if="a.avatarUrl">
-                <img :src="a.avatarUrl" :alt="a.name" class="w-14 h-14 rounded-full object-cover border border-blue-100 ring-2 ring-blue-50 shrink-0">
+        <div class="flex items-center gap-3">
+          <!-- Notification Bell -->
+          <div class="w-10 h-10 rounded-[8px] border border-[#E3E4E9] flex items-center justify-center text-[#212224] hover:bg-[#F4F5F7] transition-colors relative">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#326ECE]"></span>
+          </div>
+
+          <!-- User Avatar -->
+          <div class="flex items-center gap-2.5 p-1 rounded-[8px] border border-[#E3E4E9] hover:bg-[#F4F5F7] transition-colors">
+            <div class="w-8 h-8 rounded-full bg-[#3A5988] text-white flex items-center justify-center font-medium text-[12px]">
+              AD
+            </div>
+            <span class="text-[13.5px] font-medium text-[#0C1117] pr-2 hidden md:inline">Aisha Dwi</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- KONTEN UTAMA: DIREKTORI ALUMNI (TABEL PERSIS LAYOUT TALENTFLY PEOPLE SEARCH) -->
+      <main class="flex-1 p-6 lg:p-8 max-w-[1400px] w-full mx-auto space-y-6">
+
+        <!-- 1. Header Judul & Subjudul -->
+        <div>
+          <h1 class="text-[26px] font-semibold text-[#0C1117] tracking-[-0.01em]">Direktori Rekan Alumni</h1>
+          <p class="text-[13.5px] text-[#6B7280] mt-1 font-normal">
+            Jelajahi dan hubungi jejaring profesional rekan alumni Bengkel Koding berdasarkan tempat kerja dan jenjang pendidikan.
+          </p>
+        </div>
+
+        <!-- ========================================================
+             2. TOOLBAR FILTER DI ATAS (Kerja di Mana + Search + Filter S1 & S2)
+        ======================================================== -->
+        <div class="bg-white border border-[#E3E4E9] rounded-[14px] p-4 sm:p-5 shadow-sm space-y-4">
+          
+          <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            
+            <!-- Baris Input Pencarian: 1. Nama/Posisi & 2. Kerja di Mana (Ada Searchnya) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1">
+              
+              <!-- Input 1: Search Nama Alumni / Keahlian -->
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/>
+                  </svg>
+                </span>
+                <input type="text"
+                       x-model="searchQuery"
+                       placeholder="Cari nama alumni atau keahlian..."
+                       class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-[#E3E4E9] bg-[#F8FAFC] focus:bg-white text-[13.5px] text-[#212224] placeholder-[#91969C] focus:outline-none focus:border-[#3A5988] transition-colors">
+              </div>
+
+              <!-- Input 2: Filter Kerja di Mana (Ada Searchnya) -->
+              <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4"/>
+                  </svg>
+                </span>
+                <input type="text"
+                       x-model="companySearch"
+                       placeholder="Kerja di mana? (Cari perusahaan...)"
+                       class="w-full h-10 pl-10 pr-8 rounded-[8px] border border-[#E3E4E9] bg-[#F8FAFC] focus:bg-white text-[13.5px] text-[#212224] placeholder-[#91969C] focus:outline-none focus:border-[#3A5988] transition-colors">
+                <template x-if="companySearch">
+                  <button type="button" @click="companySearch = ''" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#91969C] hover:text-[#0C1117] text-xs">✕</button>
+                </template>
+              </div>
+
+            </div>
+
+            <!-- Filter S1 dan S2 (Segmented Buttons) & Reset -->
+            <div class="flex items-center gap-3 shrink-0">
+              <span class="text-[13px] text-[#6B7280] font-medium hidden sm:inline">Jenjang:</span>
+              <div class="bg-[#F4F5F7] p-1 rounded-[10px] inline-flex items-center gap-1 text-[13px]">
+                <button type="button"
+                        @click="selectedDegree = 'all'"
+                        class="h-8 px-3.5 rounded-[7px] font-medium transition-colors cursor-pointer"
+                        :class="selectedDegree === 'all' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+                  Semua
+                </button>
+                <button type="button"
+                        @click="selectedDegree = 's1'"
+                        class="h-8 px-3.5 rounded-[7px] font-medium transition-colors cursor-pointer"
+                        :class="selectedDegree === 's1' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+                  S1
+                </button>
+                <button type="button"
+                        @click="selectedDegree = 's2'"
+                        class="h-8 px-3.5 rounded-[7px] font-medium transition-colors cursor-pointer"
+                        :class="selectedDegree === 's2' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+                  S2 (Studi Lanjut)
+                </button>
+              </div>
+
+              <template x-if="hasFilter">
+                <button type="button" @click="resetFilter()" class="text-[13px] text-[#326ECE] hover:underline font-medium cursor-pointer whitespace-nowrap pl-1">
+                  Reset
+                </button>
               </template>
-              <template x-if="!a.avatarUrl">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-br from-[#1E3A8A] to-[#3B82F6] text-white font-bold flex items-center justify-center text-base shrink-0"
-                     x-text="(a.name || 'Alumni').slice(0, 2).toUpperCase()"></div>
-              </template>
-              <div class="min-w-0 flex-1">
-                <div class="flex items-center gap-1.5 flex-wrap">
-                  <h3 class="text-[16px] font-bold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="a.name"></h3>
-                  <template x-if="a.isVerified">
-                    <span class="text-blue-500 shrink-0" title="Alumni Terverifikasi">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.5 14.5L6 12l1.4-1.4 3.1 3.1 7.1-7.1 1.4 1.4-8.1 8.5z"/>
-                      </svg>
-                    </span>
-                  </template>
-                </div>
-                <div class="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-[#1E3A8A] font-semibold text-[11px]" x-text="'Batch ' + a.batch"></span>
-                  <template x-if="a.s2">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-semibold text-[11px]">S2</span>
-                  </template>
-                </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ========================================================
+             3. TABEL DIREKTORI ALUMNI (PERSIS LAYOUT TALENTFLY PEOPLE SEARCH)
+        ======================================================== -->
+        <div class="bg-white border border-[#E3E4E9] rounded-[14px] shadow-sm overflow-hidden">
+          
+          <!-- Header Bar: People list title & bulk count -->
+          <div class="px-6 py-4 border-b border-[#E3E4E9] flex items-center justify-between bg-white">
+            <div class="flex items-center gap-2.5">
+              <h2 class="text-[17px] font-bold text-[#0C1117] tracking-[-0.01em]">People list</h2>
+              <span class="text-[12px] text-[#6B7280] font-normal" x-text="'(' + filteredAlumni.length + ' rekan)'"></span>
+            </div>
+            <div class="text-[13px] text-[#6B7280]" x-show="selectedAlumniIds.length > 0">
+              <span class="font-medium text-[#3A5988]" x-text="selectedAlumniIds.length"></span> alumni dipilih
+            </div>
+          </div>
+
+          <!-- Table Container with Horizontal Scroll -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-[#E3E4E9] bg-white text-[13px] font-medium text-[#6B7280]">
+                  <th class="py-3.5 pl-6 pr-3 w-12">
+                    <input type="checkbox"
+                           x-model="selectAll"
+                           @change="toggleSelectAll()"
+                           class="w-4 h-4 rounded border-[#CBD5E1] text-[#3A5988] focus:ring-[#3A5988] cursor-pointer">
+                  </th>
+                  <th class="py-3.5 px-4 font-medium min-w-[240px]">Name</th>
+                  <th class="py-3.5 px-4 font-medium min-w-[200px]">Address</th>
+                  <th class="py-3.5 px-4 font-medium min-w-[160px]">Job Position</th>
+                  <th class="py-3.5 px-4 font-medium min-w-[170px]">Tempat Kerja</th>
+                  <th class="py-3.5 pr-6 pl-4 font-medium text-right min-w-[120px]">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#E3E4E9] text-[13.5px]">
+                <template x-for="item in filteredAlumni" :key="item.id">
+                  <tr class="hover:bg-[#F9FAFB] transition-colors group cursor-pointer"
+                      @click="openDetailModal(item)">
+                    
+                    <!-- Checkbox -->
+                    <td class="py-4 pl-6 pr-3" @click.stop>
+                      <input type="checkbox"
+                             :value="item.id"
+                             x-model="selectedAlumniIds"
+                             class="w-4 h-4 rounded border-[#CBD5E1] text-[#3A5988] focus:ring-[#3A5988] cursor-pointer">
+                    </td>
+
+                    <!-- Name (Avatar + Name + Degree subtitle persis Talentfly) -->
+                    <td class="py-4 px-4">
+                      <div class="flex items-center gap-3">
+                        <img :src="item.avatar" :alt="item.name" class="w-9 h-9 rounded-full object-cover shrink-0 border border-[#E3E4E9]">
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-1.5">
+                            <span class="font-semibold text-[#0C1117] group-hover:text-[#3A5988] transition-colors" x-text="item.name"></span>
+                          </div>
+                          <div class="text-[12px] text-[#6B7280] font-normal" x-text="item.degreeTitle"></div>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Address (Alamat / Domisili persis Talentfly) -->
+                    <td class="py-4 px-4 text-[#374151] font-normal" x-text="item.address"></td>
+
+                    <!-- Job Position (Soft Colored Badge persis Talentfly) -->
+                    <td class="py-4 px-4">
+                      <span class="inline-block px-2.5 py-1 rounded-[6px] text-[12px] font-medium"
+                            :class="item.positionBadgeClass"
+                            x-text="item.position"></span>
+                    </td>
+
+                    <!-- Tempat Kerja (Perusahaan persis kolom University di Talentfly) -->
+                    <td class="py-4 px-4 font-medium text-[#212224]" x-text="item.company"></td>
+
+                    <!-- Action: View details persis Talentfly -->
+                    <td class="py-4 pr-6 pl-4 text-right">
+                      <button type="button"
+                              @click.stop="openDetailModal(item)"
+                              class="text-[13px] font-medium text-[#3A5988] hover:text-[#1F365A] hover:underline cursor-pointer">
+                        View details
+                      </button>
+                    </td>
+
+                  </tr>
+                </template>
+
+                <!-- Empty State -->
+                <template x-if="filteredAlumni.length === 0">
+                  <tr>
+                    <td colspan="6" class="py-12 text-center text-[#6B7280]">
+                      <div class="space-y-2">
+                        <p class="text-[15px] font-semibold text-[#0C1117]">Tidak ada alumni yang sesuai</p>
+                        <p class="text-[13px]">Coba ubah kata kunci pencarian tempat kerja atau reset filter.</p>
+                        <button type="button" @click="resetFilter()" class="mt-2 px-4 py-1.5 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7]">
+                          Reset Filter
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Table Footer -->
+          <div class="px-6 py-3.5 border-t border-[#E3E4E9] bg-[#FAFBFC] flex items-center justify-between text-[12.5px] text-[#6B7280]">
+            <span>Menampilkan <strong class="text-[#0C1117]" x-text="filteredAlumni.length"></strong> dari <span x-text="alumniList.length"></span> alumni</span>
+            <div class="flex items-center gap-1">
+              <button type="button" disabled class="px-2.5 py-1 rounded border border-[#E3E4E9] bg-white text-[#91969C] opacity-60 cursor-not-allowed">Sebelumnya</button>
+              <span class="px-3 py-1 font-semibold text-[#0C1117]">1</span>
+              <button type="button" disabled class="px-2.5 py-1 rounded border border-[#E3E4E9] bg-white text-[#91969C] opacity-60 cursor-not-allowed">Berikutnya</button>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================================
+       MODAL: DETAIL PROFIL ALUMNI (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
+  ======================================================== -->
+  <template x-if="detailModalOpen && selectedAlumnus">
+    <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
+         @click.self="closeDetailModal()"
+         @keydown.window.escape="closeDetailModal()">
+      <div class="w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Header 72px -->
+        <header class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <span class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Profil Rekan Alumni</span>
+              <p class="text-[12px] text-[#6B7280]">Informasi karir, kontak, dan keahlian alumni</p>
+            </div>
+          </div>
+          <button type="button"
+                  @click="closeDetailModal()"
+                  class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer shrink-0" title="Tutup">✕</button>
+        </header>
+
+        <!-- Modal Body Scrollable -->
+        <div class="p-6 lg:p-8 space-y-6 overflow-y-auto flex-1">
+          
+          <!-- Profile Header -->
+          <div class="flex items-start gap-4">
+            <img :src="selectedAlumnus.avatar" :alt="selectedAlumnus.name" class="w-16 h-16 rounded-full object-cover border-2 border-[#E2F1F9] shrink-0">
+            <div class="space-y-1 min-w-0">
+              <div class="flex items-center gap-2">
+                <h3 class="text-[18px] font-bold text-[#0C1117]" x-text="selectedAlumnus.name"></h3>
+              </div>
+              <p class="text-[14px] text-[#374151] font-medium" x-text="selectedAlumnus.position + ' @ ' + selectedAlumnus.company"></p>
+              <div class="flex items-center gap-2 text-[12.5px] text-[#6B7280]">
+                <span x-text="selectedAlumnus.address"></span>
+                <span>·</span>
+                <span class="font-medium text-[#3A5988]" x-text="'Batch ' + selectedAlumnus.batch"></span>
               </div>
             </div>
+          </div>
 
-            <p class="text-[13px] text-gray-700 line-clamp-2 leading-relaxed" x-text="a.headline"></p>
+          <!-- Bio -->
+          <div class="p-4 rounded-[12px] bg-[#F8FAFC] border border-[#E3E4E9] text-[13.5px] text-[#374151] leading-relaxed" x-text="selectedAlumnus.bio"></div>
 
-            <div class="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0 text-gray-400">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-              <span class="truncate" x-text="a.location"></span>
+          <!-- Info Grid: Jenjang & Tempat Kerja -->
+          <div class="grid grid-cols-2 gap-3 text-[13px]">
+            <div class="p-3.5 rounded-[10px] border border-[#E3E4E9] bg-white space-y-1">
+              <div class="text-[#6B7280] text-[12px]">Jenjang Pendidikan</div>
+              <div class="font-semibold text-[#0C1117] flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded text-[11px] font-bold"
+                      :class="selectedAlumnus.degreeLevel === 'S2' ? 'bg-[#FDF0DD] text-[#B26A12]' : 'bg-[#E2F1F9] text-[#3A5A86]'"
+                      x-text="selectedAlumnus.degreeLevel"></span>
+                <span x-text="selectedAlumnus.degreeTitle"></span>
+              </div>
+            </div>
+            <div class="p-3.5 rounded-[10px] border border-[#E3E4E9] bg-white space-y-1">
+              <div class="text-[#6B7280] text-[12px]">Tempat Kerja Saat Ini</div>
+              <div class="font-semibold text-[#0C1117]" x-text="selectedAlumnus.company"></div>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-            <a
-              :href="'detail.html?id=' + encodeURIComponent(a.id)"
-              class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-full text-xs font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors"
-            >
-              <span>Lihat Profil</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </a>
+          <!-- Keahlian Utama -->
+          <div class="space-y-2">
+            <h4 class="text-[13.5px] font-semibold text-[#0C1117]">Keahlian Utama</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <template x-for="sk in (selectedAlumnus.skills || [])" :key="sk">
+                <span class="px-3 py-1 rounded-full bg-[#F4F5F7] border border-[#E3E4E9] text-[12.5px] font-medium text-[#374151]" x-text="sk"></span>
+              </template>
+            </div>
           </div>
+
+          <!-- Kontak & Jejaring -->
+          <div class="space-y-2 pt-2">
+            <h4 class="text-[13.5px] font-semibold text-[#0C1117]">Kontak &amp; Tautan Profesional</h4>
+            <div class="space-y-1.5 text-[13px]">
+              <div class="flex items-center gap-2 text-[#374151]">
+                <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                <span x-text="selectedAlumnus.email"></span>
+              </div>
+              <div class="flex items-center gap-2 text-[#374151]">
+                <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+                <span x-text="selectedAlumnus.linkedin"></span>
+              </div>
+              <div class="flex items-center gap-2 text-[#374151]">
+                <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                <span x-text="selectedAlumnus.github"></span>
+              </div>
+            </div>
+          </div>
+
         </div>
-      </template>
+
+        <!-- Modal Footer -->
+        <footer class="h-16 px-6 border-t border-[#E3E4E9] flex items-center justify-between bg-white shrink-0">
+          <button type="button"
+                  @click="closeDetailModal()"
+                  class="h-10 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#374151] text-[13.5px] font-medium transition-colors">
+            Tutup
+          </button>
+          <a :href="'mailto:' + selectedAlumnus.email"
+             class="h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium inline-flex items-center gap-2 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Hubungi Alumni</span>
+          </a>
+        </footer>
+
+      </div>
     </div>
-  </div>
-</main>
+  </template>
 
-<script>
-  document.addEventListener("alpine:init", () => {
-    Alpine.data("direktoriPage", () => ({
-      searchQuery: "",
-      selectedBatch: "",
-      selectedSkill: "",
-      selectedCity: "",
-      filterS2Only: false,
-      alumniList: [],
-
-      init() {
-        // Tandai beberapa alumni sebagai S2 untuk demonstrasi filter
-        const list = (typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY : []).map((a, idx) => ({
-          ...a,
-          s2: idx % 3 === 1, // sample: beberapa alumni sedang S2
-        }));
-        this.alumniList = list;
-      },
-
-      get filteredAlumni() {
-        const q = this.searchQuery.trim().toLowerCase();
-        return this.alumniList.filter((a) => {
-          if (this.selectedBatch && String(a.batch) !== this.selectedBatch) return false;
-          if (this.selectedCity && !(a.location || "").toLowerCase().includes(this.selectedCity.toLowerCase())) return false;
-          if (this.filterS2Only && !a.s2) return false;
-          if (this.selectedSkill) {
-            const haystack = [(a.headline || ""), (a.about || "")].join(" ").toLowerCase();
-            if (!haystack.includes(this.selectedSkill)) return false;
-          }
-          if (q) {
-            const combined = [a.name, a.headline, a.location, a.batch, a.university, a.about || ""].join(" ").toLowerCase();
-            if (!combined.includes(q)) return false;
-          }
-          return true;
-        });
-      },
-
-      resetFilter() {
-        this.searchQuery = "";
-        this.selectedBatch = "";
-        this.selectedSkill = "";
-        this.selectedCity = "";
-        this.filterS2Only = false;
-      },
-    }));
-  });
-</script>
 </body>
 </html>

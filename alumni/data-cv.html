@@ -1,17 +1,51 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light">
+<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Data CV | Portal Alumni Bengkel Koding</title>
+  <title>Data CV | Portal Alumni Bengkel Koding UDINUS</title>
   <meta name="description" content="Kelola data dan buat Curriculum Vitae profesional otomatis langsung dari profil alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="assets/js/alumni.js"></script>
-  <script src="assets/js/alumni-data.js"></script>
-  <script src="assets/js/alumni-profile-data.js"></script>
-  <script src="assets/js/alumni-cv.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#EFF2F7',
+            card: '#FFFFFF',
+            filter: '#F4F5F7',
+            borderline: '#E3E4E9',
+            primary: {
+              DEFAULT: '#3A5988',
+              hover: '#496DA8',
+              pressed: '#2F4B76',
+            },
+            accent: '#326ECE',
+            headline: '#0C1117',
+            bodytext: '#212224',
+            mutedtext: '#6B7280',
+            placeholder: '#91969C'
+          }
+        }
+      }
+    }
+  </script>
   <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: "Inter", sans-serif; display: block !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
     @media print {
       @page {
         size: A4 portrait;
@@ -20,39 +54,23 @@
       html, body {
         background: #ffffff !important;
         color: #000000 !important;
-        font-family: Arial, Helvetica, sans-serif !important;
+        font-family: 'Inter', Arial, sans-serif !important;
         margin: 0 !important;
         padding: 0 !important;
         min-height: auto !important;
         height: auto !important;
-        overflow: visible !important;
       }
-      /* Sembunyikan elemen shell navigasi luar, header aksi, dan kontrol filter */
-      #logo-sidebar,
-      aside,
-      nav,
-      footer,
-      header,
-      #cv-page-header,
-      #cv-controls-panel,
-      [role="status"],
-      .no-print {
+      aside, header, #cv-controls-panel, #cv-page-header, .no-print {
         display: none !important;
       }
-      /* Hilangkan offset sidebar (pl-64) dan padding kontainer layout */
-      .pl-64,
-      [data-main-slot],
-      main,
-      .cv-sheet-container {
+      main, .cv-sheet-container {
         padding: 0 !important;
         margin: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         box-shadow: none !important;
         border: none !important;
-        display: block !important;
       }
-      /* Lembar CV tampil penuh, bersih, tanpa bayangan kartu */
       #cv-document {
         box-shadow: none !important;
         border: none !important;
@@ -61,476 +79,586 @@
         margin: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
-        background: #ffffff !important;
       }
-      #cv-document * {
+      * {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
       }
     }
   </style>
+
+  <script>
+    function bengkodCvApp() {
+      return {
+        mobileNavOpen: false,
+        toast: '',
+        toastTimer: null,
+        cvLayout: 'ats', // 'ats' | 'modern'
+        showSectionDropdown: false,
+        sections: {
+          about: true,
+          education: true,
+          experience: true,
+          projects: true,
+          skills: true,
+          certifications: true
+        },
+        profile: {
+          name: "Aisha Dwi Rahmawati",
+          title: "Mobile & Full-Stack Developer",
+          email: "aisha.rahma@alumni.dinus.ac.id",
+          phone: "+62 812-3456-7890",
+          location: "Semarang, Jawa Tengah, Indonesia",
+          linkedin: "linkedin.com/in/aishadwirahma",
+          github: "github.com/aishaadr",
+          about: "Lulusan S1 Teknik Informatika Universitas Dian Nuswantoro (IPK 3.89) dengan rekam jejak sebagai Asisten Laboratorium Bengkel Koding selama 4 semester. Memiliki pengalaman profesional membangun aplikasi mobile berskala produksi (Flutter, React Native) dan arsitektur backend berbasis Go dan Node.js.",
+          education: [
+            {
+              degree: "Sarjana Komputer (S.Kom) - Teknik Informatika",
+              school: "Universitas Dian Nuswantoro (UDINUS), Semarang",
+              period: "2020 – 2024",
+              gpa: "IPK: 3.89 / 4.00 (Cum Laude)",
+              desc: "Fokus studi: Rekayasa Perangkat Lunak & Sistem Terdistribusi. Penerima beasiswa prestasi akademik 2022-2023."
+            }
+          ],
+          experience: [
+            {
+              role: "Mobile Software Engineer",
+              company: "PT Teknologi Nusantara Raya, Jakarta (Remote)",
+              period: "Jan 2024 – Sekarang",
+              desc: "Mengembangkan fitur core payment dan loyalty rewards pada aplikasi mobile multi-platform menggunakan Flutter & Riverpod. Mengurangi rasio crash aplikasi sebesar 42% melalui implementasi automated testing."
+            },
+            {
+              role: "Lead Student Assistant & Mentor Pemrograman",
+              company: "Laboratorium Bengkel Koding UDINUS",
+              period: "Agu 2022 – Des 2023",
+              desc: "Memimpin tim asisten lab untuk 120+ mahasiswa praktikum rekayasa web dan algoritma. Menginisiasi repository template boilerplate starter-kit yang dipakai 300+ asisten dan praktikan."
+            }
+          ],
+          projects: [
+            {
+              title: "Sentimeter AI - Sentiment Analyzer",
+              role: "Lead Full-Stack Developer",
+              period: "2024",
+              stack: "Python, FastAPI, Flutter, PostgreSQL",
+              desc: "Platform otomasi analisis sentimen ulasan pengguna e-commerce dengan akurasi model Transformer 92.4% dan response time di bawah 180ms."
+            },
+            {
+              title: "Simas BK - Sistem Manajemen Aset Lab",
+              role: "Frontend Developer",
+              period: "2023",
+              stack: "Vue 3, Tailwind CSS, Laravel REST API",
+              desc: "Sistem inventarisasi perangkat komputer dan jadwal laboratorium interaktif dengan scanning QR Code fisik."
+            }
+          ],
+          skills: [
+            "Dart & Flutter",
+            "JavaScript & TypeScript",
+            "React / Next.js",
+            "Go (Golang)",
+            "Node.js & Express",
+            "PostgreSQL & MySQL",
+            "Tailwind CSS",
+            "Docker & CI/CD",
+            "RESTful API & GraphQL",
+            "Git & GitHub Workflow"
+          ],
+          certifications: [
+            "Google Certified Associate Cloud Engineer (2024)",
+            "Dicoding Certified Multi-Platform App Developer Expert (2023)",
+            "TOEFL ITP Score 580 (2023)"
+          ]
+        },
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ''; }, 3000);
+        },
+        printCv() {
+          window.print();
+        },
+        handleLogout() {
+          if (confirm('Keluar dari Portal Alumni Bengkel Koding?')) {
+            window.location.href = 'login.html';
+          }
+        }
+      };
+    }
+  </script>
 </head>
-<body>
-<main data-route="data-cv">
-  <div x-data="generateCvComponent()" class="w-full pb-16 antialiased space-y-6">
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased" x-data="bengkodCvApp()" x-cloak>
 
-    <!-- Toast Notifikasi -->
-    <template x-if="toast">
-      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
-        <span x-text="toast"></span>
-      </div>
-    </template>
+  <!-- Toast Notifikasi -->
+  <template x-if="toast">
+    <div class="fixed bottom-6 right-6 z-[150] bg-[#0C1117] text-white px-5 py-3 rounded-[10px] shadow-xl flex items-center gap-3 border border-[#E3E4E9] text-[13.5px]">
+      <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      <span x-text="toast"></span>
+    </div>
+  </template>
 
-    <!-- ============================================================
-        HEADER HALAMAN DATA CV
-    ============================================================ -->
-    <div id="cv-page-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-200">
-      <div>
-        <template x-if="isApplicantView">
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-[#1E3A8A] uppercase tracking-wider">Lampiran CV Pelamar</span>
-              <span class="text-xs text-gray-400">•</span>
-              <span class="text-xs text-gray-500 font-semibold" x-text="'Versi ' + cvLayout.toUpperCase() + ' (A4 Print-Ready)'"></span>
+  <div class="min-h-screen flex">
+
+    <!-- ========================================================
+         SIDEBAR UTAMA (STANDAR PORTAL ALUMNI: Lebar 260px)
+    ======================================================== -->
+    <aside class="w-[260px] bg-white border-r border-[#E3E4E9] shrink-0 p-4 lg:p-6 flex flex-col justify-between max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:z-50 max-lg:transition-transform max-lg:duration-300"
+           :class="mobileNavOpen ? 'max-lg:translate-x-0 shadow-2xl' : 'max-lg:-translate-x-full'">
+      
+      <div class="space-y-6">
+        <!-- Logo & Identitas Portal -->
+        <div class="flex items-center justify-between">
+          <a href="dashboard.html" class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-[8px] bg-[#3A5988] flex items-center justify-center text-white font-bold text-[15px] shadow-xs">
+              BK
             </div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight" x-text="'Pratinjau CV · ' + profile.name"></h1>
-            <p class="text-sm text-gray-500">
-              Dokumen CV resmi yang dilampirkan pelamar. Anda dapat meninjau format dokumen sebelum mencetak atau mengunduh PDF.
-            </p>
-          </div>
-        </template>
-        <template x-if="!isApplicantView">
-          <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Data CV</h1>
-            <p class="text-sm text-gray-500 mt-0.5">
-              Kelola dan buat CV profesional otomatis berbasis data profil dan portofolio proyek alumni Bengkel Koding
-            </p>
-          </div>
-        </template>
+            <div>
+              <span class="text-[15px] font-bold text-[#0C1117] block leading-tight">Portal Alumni</span>
+              <span class="text-[11.5px] text-[#6B7280]">Bengkel Koding UDINUS</span>
+            </div>
+          </a>
+          <button type="button" class="lg:hidden text-[#6B7280] p-1" @click="mobileNavOpen = false">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- 7 Menu Items Berurutan -->
+        <nav class="space-y-1">
+          <!-- 1. Beranda -->
+          <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Beranda</span>
+          </a>
+          <!-- 2. Direktori Alumni -->
+          <a href="direktori.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>Direktori Alumni</span>
+          </a>
+          <!-- 3. Showcase -->
+          <a href="showcase.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Showcase</span>
+          </a>
+          <!-- 4. Gigs & Proyek -->
+          <a href="gigs.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Gigs & Proyek</span>
+          </a>
+          <!-- 5. Referral -->
+          <a href="referral.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Referral</span>
+          </a>
+          <!-- 6. Data CV (AKTIF) -->
+          <a href="data-cv.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-semibold bg-[#E5E9EC] text-[#0C1117]">
+            <svg class="w-4 h-4 text-[#326ECE]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Data CV</span>
+          </a>
+          <!-- 7. Profil Saya -->
+          <a href="profil.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span>Profil Saya</span>
+          </a>
+        </nav>
       </div>
-      <div class="flex items-center gap-2.5 flex-wrap shrink-0">
-        <template x-if="isApplicantView">
-          <a href="dashboard.html"
-            class="px-5 py-2 rounded-full text-[14px] font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
-            <span>Kembali ke Beranda</span>
-          </a>
-        </template>
-        <template x-if="!isApplicantView">
-          <a href="profil.html"
-            class="px-5 py-2 rounded-full text-[15px] font-semibold text-[#1E3A8A] bg-white border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 transition-colors inline-flex items-center gap-2 cursor-pointer shadow-2xs">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1E3A8A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-            <span>Edit Profil</span>
-          </a>
-        </template>
-        <button type="button" @click="handlePrintPdf()"
-          class="px-5 py-2 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors inline-flex items-center gap-2 shadow-sm cursor-pointer active:scale-95">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <polyline points="6 9 6 2 18 2 18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="6" y="14" width="12" height="8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span>Cetak / Unduh PDF</span>
+
+      <!-- Tombol Keluar di Bawah -->
+      <div class="pt-4 border-t border-[#E3E4E9]">
+        <button type="button" @click="handleLogout()" class="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-[#6B7280] hover:text-red-600 hover:bg-red-50/50 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>Keluar</span>
         </button>
       </div>
-    </div>
+    </aside>
 
-    <!-- ============================================================
-        PANEL PENGATURAN & KUSTOMISASI CV (CLEAN & MINIMALIS)
-    ============================================================ -->
-    <div id="cv-controls-panel" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-4 sm:p-5">
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-[16px] sm:text-[17px] font-bold text-gray-900 tracking-tight">Kustomisasi Dokumen CV</h2>
-          <p class="text-[13px] text-gray-500 font-normal mt-0.5">Sesuaikan format tampilan dan bagian resume sesuai kebutuhan lamaran</p>
+    <!-- Overlay Mobile Nav -->
+    <div x-show="mobileNavOpen" @click="mobileNavOpen = false" class="fixed inset-0 bg-black/30 z-40 lg:hidden"></div>
+
+    <!-- ========================================================
+         MAIN CONTENT AREA (DATA CV)
+    ======================================================== -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- HEADER ATAS (Breadcrumb & Navigasi) -->
+      <header class="h-16 bg-white px-6 lg:px-8 flex items-center justify-between border-b border-[#E3E4E9] shrink-0">
+        <div class="flex items-center gap-3">
+          <button type="button" class="text-[#6B7280] hover:text-[#0C1117] p-1.5 rounded-[8px] hover:bg-[#F4F5F7] transition-colors lg:hidden" @click="mobileNavOpen = !mobileNavOpen">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div class="text-[13px] text-[#6B7280] font-normal flex items-center gap-1.5">
+            <span>Alumni</span>
+            <span>›</span>
+            <span class="text-[#0C1117] font-medium">Data CV & Resume Otomatis</span>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3 flex-wrap">
-          <!-- Pilihan Format: ATS Standar vs Modern Clean (Pill Oval Selector) -->
-          <div class="inline-flex p-1 bg-gray-100 rounded-full border border-gray-200/80 shrink-0">
-            <button type="button" @click="cvLayout = 'ats'"
-              class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer"
-              :class="cvLayout === 'ats' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-              Format ATS Standar
-            </button>
-            <button type="button" @click="cvLayout = 'modern'"
-              class="px-4 py-1.5 rounded-full text-[13px] font-semibold transition-all cursor-pointer"
-              :class="cvLayout === 'modern' ? 'bg-white text-[#1E3A8A] shadow-xs' : 'text-gray-600 hover:text-gray-900'">
-              Format Modern Clean
+        <div class="flex items-center gap-3">
+          <a href="profil.html" class="flex items-center gap-2.5 p-1 rounded-full hover:bg-[#F4F5F7] transition-colors">
+            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80"
+                 alt="Aisha Dwi Rahmawati"
+                 class="w-8 h-8 rounded-full object-cover border border-[#E3E4E9]">
+            <span class="text-[13.5px] font-medium text-[#0C1117] hidden sm:inline">Aisha Dwi R.</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- ISI KONTEN UTAMA -->
+      <main class="flex-1 p-6 lg:p-8 space-y-6 overflow-y-auto">
+
+        <!-- HEADER HALAMAN & AKSI CEPAT -->
+        <div id="cv-page-header" class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 class="text-2xl lg:text-[26px] font-bold text-[#0C1117] tracking-tight">Data CV Profesional</h1>
+            <p class="text-[14px] text-[#6B7280] mt-0.5">
+              Generate dokumen Curriculum Vitae terstandarisasi langsung dari data profil dan rekam jejak Bengkel Koding.
+            </p>
+          </div>
+          <div class="flex items-center gap-3 shrink-0">
+            <a href="profil.html" class="h-10 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[13.5px] font-medium text-[#212224] inline-flex items-center gap-2 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+              <span>Edit Data Profil</span>
+            </a>
+            <button type="button" @click="printCv()"
+                    class="h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] text-white text-[13.5px] font-semibold inline-flex items-center gap-2 transition-colors shadow-sm cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              <span>Cetak / Unduh PDF</span>
             </button>
           </div>
+        </div>
 
-          <!-- Dropdown Bagian CV -->
-          <div class="relative shrink-0" @click.outside="showSectionDropdown = false">
-            <button type="button" @click="showSectionDropdown = !showSectionDropdown"
-              class="inline-flex items-center gap-2 px-5 py-2 rounded-full border border-gray-300 hover:border-blue-300 hover:bg-blue-50/40 text-[14.5px] font-semibold text-[#1E3A8A] transition-colors cursor-pointer bg-white shadow-2xs">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="4" y1="21" x2="4" y2="14"/>
-                <line x1="4" y1="10" x2="4" y2="3"/>
-                <line x1="12" y1="21" x2="12" y2="12"/>
-                <line x1="12" y1="8" x2="12" y2="3"/>
-                <line x1="20" y1="21" x2="20" y2="16"/>
-                <line x1="20" y1="12" x2="20" y2="3"/>
-                <line x1="1" y1="14" x2="7" y2="14"/>
-                <line x1="9" y1="8" x2="15" y2="8"/>
-                <line x1="17" y1="16" x2="23" y2="16"/>
-              </svg>
-              <span>Pilih Bagian CV</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" :class="showSectionDropdown ? 'rotate-180 transition-transform' : 'transition-transform'">
-                <path d="m6 9 6 6 6-6"/>
-              </svg>
-            </button>
+        <!-- PANEL PENGATURAN KUSTOMISASI FORMAT & BAGIAN CV -->
+        <div id="cv-controls-panel" class="bg-white border border-[#E3E4E9] rounded-[12px] p-4 lg:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-[15px] font-semibold text-[#0C1117]">Pengaturan Format Dokumen</h2>
+            <p class="text-[13px] text-[#6B7280] mt-0.5">Pilih gaya tata letak dan sesuaikan bagian resume yang ingin ditampilkan.</p>
+          </div>
 
-            <!-- Menu Dropdown Popover -->
-            <div x-show="showSectionDropdown"
-              x-transition:enter="transition ease-out duration-100"
-              x-transition:enter-start="transform opacity-0 scale-95"
-              x-transition:enter-end="transform opacity-100 scale-100"
-              x-transition:leave="transition ease-in duration-75"
-              x-transition:leave-start="transform opacity-100 scale-100"
-              x-transition:leave-end="transform opacity-0 scale-95"
-              class="absolute right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-200/90 p-3 z-40 space-y-1.5"
-              style="display: none;">
-              
-              <div class="px-2.5 py-1.5 border-b border-gray-100 flex items-center justify-between text-[12px] font-medium text-gray-500">
-                <span>Tampilkan pada Dokumen</span>
-                <button type="button" @click="toggleAllSections()" class="text-[#1E3A8A] hover:underline font-semibold cursor-pointer" x-text="activeSectionsCount === 6 ? 'Sembunyikan Semua' : 'Pilih Semua'"></button>
+          <div class="flex items-center gap-3 flex-wrap">
+            <!-- Selector Format ATS vs Modern -->
+            <div class="p-1 bg-[#F4F5F7] rounded-[8px] inline-flex items-center gap-1 text-[13px]">
+              <button type="button" @click="cvLayout = 'ats'"
+                      class="px-3.5 py-1.5 rounded-[6px] font-medium transition-colors"
+                      :class="cvLayout === 'ats' ? 'bg-white text-[#0C1117] shadow-xs font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+                ATS Standard
+              </button>
+              <button type="button" @click="cvLayout = 'modern'"
+                      class="px-3.5 py-1.5 rounded-[6px] font-medium transition-colors"
+                      :class="cvLayout === 'modern' ? 'bg-white text-[#0C1117] shadow-xs font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+                Modern Clean
+              </button>
+            </div>
+
+            <!-- Toggle Bagian CV Dropdown -->
+            <div class="relative" @click.outside="showSectionDropdown = false">
+              <button type="button" @click="showSectionDropdown = !showSectionDropdown"
+                      class="h-9 px-3.5 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[13px] font-medium text-[#212224] inline-flex items-center gap-2 transition-colors cursor-pointer">
+                <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+                <span>Bagian CV</span>
+                <svg class="w-3.5 h-3.5 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+
+              <div x-show="showSectionDropdown"
+                   class="absolute right-0 mt-2 w-64 bg-white rounded-[10px] shadow-lg border border-[#E3E4E9] p-3 z-30 space-y-2 text-[13px]">
+                <div class="text-[11.5px] font-semibold text-[#6B7280] uppercase tracking-wider px-1 pb-1 border-b border-[#E3E4E9]">
+                  Tampilkan Bagian
+                </div>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.about" class="rounded text-[#3A5988]">
+                  <span>Ringkasan Tentang Saya</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.experience" class="rounded text-[#3A5988]">
+                  <span>Pengalaman Kerja</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.projects" class="rounded text-[#3A5988]">
+                  <span>Proyek Unggulan</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.skills" class="rounded text-[#3A5988]">
+                  <span>Keahlian & Tech Stack</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.education" class="rounded text-[#3A5988]">
+                  <span>Pendidikan Resmi</span>
+                </label>
+                <label class="flex items-center gap-2.5 px-1 py-1 hover:bg-[#F4F5F7] rounded cursor-pointer">
+                  <input type="checkbox" x-model="sections.certifications" class="rounded text-[#3A5988]">
+                  <span>Sertifikasi Profesional</span>
+                </label>
               </div>
+            </div>
+          </div>
+        </div>
 
-              <!-- Daftar Opsi Centang Oval -->
-              <div class="space-y-1 pt-1 max-h-72 overflow-y-auto">
-                <!-- Ringkasan Diri -->
-                <button type="button" @click="sections.about = !sections.about"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.about ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Ringkasan Diri</span>
-                  <!-- Centang Bentuk Oval -->
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.about ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.about">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </template>
+        <!-- ========================================================
+             CANVAS PRATINJAU DOKUMEN CV (A4 FORMAT)
+        ======================================================== -->
+        <div class="cv-sheet-container flex justify-center py-2">
+          
+          <div id="cv-document" class="w-full max-w-[820px] bg-white rounded-[12px] border border-[#E3E4E9] shadow-sm p-8 sm:p-12 text-[#212224] transition-all">
+
+            <!-- ===================== FORMAT ATS STANDAR ===================== -->
+            <template x-if="cvLayout === 'ats'">
+              <div class="space-y-6">
+                <!-- Header ATS -->
+                <div class="text-center pb-5 border-b border-[#E3E4E9] space-y-1.5">
+                  <h2 class="text-2xl sm:text-[28px] font-bold text-[#0C1117] tracking-tight" x-text="profile.name"></h2>
+                  <p class="text-[15px] font-medium text-[#3A5988]" x-text="profile.title"></p>
+                  <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[13px] text-[#6B7280] pt-1">
+                    <span x-text="profile.location"></span>
+                    <span>•</span>
+                    <span x-text="profile.email"></span>
+                    <span>•</span>
+                    <span x-text="profile.phone"></span>
+                    <span>•</span>
+                    <span x-text="profile.linkedin"></span>
                   </div>
-                </button>
+                </div>
+
+                <!-- Ringkasan Profil -->
+                <template x-if="sections.about">
+                  <div class="space-y-2">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Ringkasan Profesional
+                    </h3>
+                    <p class="text-[13.5px] text-[#212224] leading-relaxed" x-text="profile.about"></p>
+                  </div>
+                </template>
+
+                <!-- Pengalaman Kerja -->
+                <template x-if="sections.experience">
+                  <div class="space-y-3">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Pengalaman Kerja
+                    </h3>
+                    <div class="space-y-3">
+                      <template x-for="exp in profile.experience" :key="exp.company">
+                        <div class="space-y-1">
+                          <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[13.5px]">
+                            <span class="font-bold text-[#0C1117]" x-text="exp.role + ' · ' + exp.company"></span>
+                            <span class="text-[12.5px] text-[#6B7280]" x-text="exp.period"></span>
+                          </div>
+                          <p class="text-[13px] text-[#4B5563] leading-relaxed" x-text="exp.desc"></p>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Proyek Unggulan -->
+                <template x-if="sections.projects">
+                  <div class="space-y-3">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Proyek Rekayasa Perangkat Lunak
+                    </h3>
+                    <div class="space-y-3">
+                      <template x-for="proj in profile.projects" :key="proj.title">
+                        <div class="space-y-1">
+                          <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[13.5px]">
+                            <div>
+                              <span class="font-bold text-[#0C1117]" x-text="proj.title"></span>
+                              <span class="text-[#6B7280] font-normal" x-text="' (' + proj.stack + ')'"></span>
+                            </div>
+                            <span class="text-[12.5px] text-[#6B7280]" x-text="proj.period"></span>
+                          </div>
+                          <p class="text-[13px] text-[#4B5563] leading-relaxed" x-text="proj.desc"></p>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+                </template>
+
+                <!-- Keahlian Teknis -->
+                <template x-if="sections.skills">
+                  <div class="space-y-2">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Keahlian Teknis & Tools
+                    </h3>
+                    <p class="text-[13px] text-[#212224] leading-relaxed">
+                      <span class="font-semibold text-[#0C1117]">Teknologi: </span>
+                      <span x-text="profile.skills.join(', ')"></span>
+                    </p>
+                  </div>
+                </template>
 
                 <!-- Pendidikan -->
-                <button type="button" @click="sections.education = !sections.education"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.education ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Pendidikan</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.education ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.education">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <template x-if="sections.education">
+                  <div class="space-y-3">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Pendidikan Formal
+                    </h3>
+                    <template x-for="edu in profile.education" :key="edu.degree">
+                      <div class="space-y-1">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between text-[13.5px]">
+                          <div>
+                            <span class="font-bold text-[#0C1117]" x-text="edu.degree"></span>
+                            <div class="text-[#4B5563]" x-text="edu.school"></div>
+                          </div>
+                          <span class="text-[12.5px] text-[#6B7280]" x-text="edu.period"></span>
+                        </div>
+                        <p class="text-[12.5px] text-[#6B7280]" x-text="edu.gpa + ' • ' + edu.desc"></p>
+                      </div>
                     </template>
                   </div>
-                </button>
-
-                <!-- Organisasi -->
-                <button type="button" @click="sections.organization = !sections.organization"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.organization ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Organisasi &amp; Kepemimpinan</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.organization ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.organization">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </template>
-                  </div>
-                </button>
-
-                <!-- Proyek -->
-                <button type="button" @click="sections.projects = !sections.projects"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.projects ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Proyek &amp; Portofolio</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.projects ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.projects">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </template>
-                  </div>
-                </button>
-
-                <!-- Keahlian -->
-                <button type="button" @click="sections.skills = !sections.skills"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.skills ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Keahlian &amp; Kompetensi</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.skills ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.skills">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </template>
-                  </div>
-                </button>
+                </template>
 
                 <!-- Sertifikasi -->
-                <button type="button" @click="sections.certifications = !sections.certifications"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer"
-                  :class="sections.certifications ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Lisensi &amp; Sertifikasi</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="sections.certifications ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="sections.certifications">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                <template x-if="sections.certifications">
+                  <div class="space-y-2">
+                    <h3 class="text-[14px] font-bold text-[#0C1117] uppercase tracking-wider border-b border-[#E3E4E9] pb-1">
+                      Sertifikasi & Lisensi
+                    </h3>
+                    <ul class="list-disc list-inside text-[13px] text-[#4B5563] space-y-1">
+                      <template x-for="cert in profile.certifications" :key="cert">
+                        <li x-text="cert"></li>
+                      </template>
+                    </ul>
+                  </div>
+                </template>
+              </div>
+            </template>
+
+            <!-- ===================== FORMAT MODERN CLEAN ===================== -->
+            <template x-if="cvLayout === 'modern'">
+              <div class="space-y-8">
+                <!-- Header Modern dengan Aksen Border Kiri -->
+                <div class="flex flex-col sm:flex-row items-start justify-between gap-6 pb-6 border-b border-[#E3E4E9]">
+                  <div class="space-y-2">
+                    <div class="inline-block px-3 py-1 rounded-[6px] bg-[#E2F1F9] text-[#3A5988] text-[12px] font-semibold uppercase tracking-wider">
+                      Curriculum Vitae Resmi
+                    </div>
+                    <h2 class="text-3xl font-bold text-[#0C1117] tracking-tight" x-text="profile.name"></h2>
+                    <p class="text-[16px] font-semibold text-[#3A5988]" x-text="profile.title"></p>
+                  </div>
+                  <div class="text-left sm:text-right space-y-1 text-[13px] text-[#6B7280] shrink-0">
+                    <p class="font-medium text-[#0C1117]" x-text="profile.email"></p>
+                    <p x-text="profile.phone"></p>
+                    <p x-text="profile.location"></p>
+                    <p class="text-[#3A5988]" x-text="profile.linkedin"></p>
+                  </div>
+                </div>
+
+                <!-- Konten Grid 2 Kolom Modern -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                  
+                  <!-- Kolom Kiri: Utama (7 Kolom) -->
+                  <div class="md:col-span-8 space-y-6">
+                    <!-- Tentang Saya -->
+                    <template x-if="sections.about">
+                      <div class="space-y-2">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988] flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full bg-[#3A5988]"></span>
+                          <span>Tentang Saya</span>
+                        </h3>
+                        <p class="text-[13.5px] text-[#4B5563] leading-relaxed" x-text="profile.about"></p>
+                      </div>
+                    </template>
+
+                    <!-- Pengalaman Kerja Modern -->
+                    <template x-if="sections.experience">
+                      <div class="space-y-4">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988] flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full bg-[#3A5988]"></span>
+                          <span>Pengalaman Profesional</span>
+                        </h3>
+                        <div class="space-y-4 pl-3 border-l-2 border-[#E2F1F9]">
+                          <template x-for="exp in profile.experience" :key="exp.company">
+                            <div class="space-y-1">
+                              <div class="flex items-center justify-between text-[13.5px]">
+                                <span class="font-bold text-[#0C1117]" x-text="exp.role"></span>
+                                <span class="text-[12px] font-medium text-[#6B7280]" x-text="exp.period"></span>
+                              </div>
+                              <div class="text-[13px] font-medium text-[#3A5988]" x-text="exp.company"></div>
+                              <p class="text-[13px] text-[#4B5563] leading-relaxed pt-0.5" x-text="exp.desc"></p>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Proyek Unggulan Modern -->
+                    <template x-if="sections.projects">
+                      <div class="space-y-4">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988] flex items-center gap-2">
+                          <span class="w-2 h-2 rounded-full bg-[#3A5988]"></span>
+                          <span>Portofolio Karya & Proyek</span>
+                        </h3>
+                        <div class="space-y-3">
+                          <template x-for="proj in profile.projects" :key="proj.title">
+                            <div class="p-3.5 rounded-[10px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1">
+                              <div class="flex items-center justify-between text-[13.5px]">
+                                <span class="font-bold text-[#0C1117]" x-text="proj.title"></span>
+                                <span class="text-[12px] text-[#6B7280]" x-text="proj.period"></span>
+                              </div>
+                              <div class="text-[12px] text-[#3A5988] font-medium" x-text="proj.stack"></div>
+                              <p class="text-[13px] text-[#4B5563] leading-relaxed pt-1" x-text="proj.desc"></p>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
                     </template>
                   </div>
-                </button>
 
-                <!-- Proyek Kolaborasi Gigs -->
-                <button type="button" @click="includeGigs = !includeGigs"
-                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-left transition-colors cursor-pointer border-t border-gray-100"
-                  :class="includeGigs ? 'bg-blue-50/70 text-[#1E3A8A]' : 'hover:bg-gray-50 text-gray-700'">
-                  <span class="text-[13px] font-medium">Sertakan Proyek Kolaborasi Gigs</span>
-                  <div class="w-6 h-6 rounded-full flex items-center justify-center border transition-all"
-                    :class="includeGigs ? 'bg-[#1E3A8A] border-[#1E3A8A] text-white shadow-xs' : 'border-gray-300 bg-white'">
-                    <template x-if="includeGigs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <!-- Kolom Kanan: Meta, Skills, Education (4 Kolom) -->
+                  <div class="md:col-span-4 space-y-6">
+                    
+                    <!-- Keahlian Teknis (Chips) -->
+                    <template x-if="sections.skills">
+                      <div class="space-y-3">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988]">Keahlian Utama</h3>
+                        <div class="flex flex-wrap gap-1.5">
+                          <template x-for="skill in profile.skills" :key="skill">
+                            <span class="px-2.5 py-1 rounded-[6px] text-[12px] font-medium bg-[#E2F1F9] text-[#3A5988]" x-text="skill"></span>
+                          </template>
+                        </div>
+                      </div>
                     </template>
-                  </div>
-                </button>
-              </div>
 
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ============================================================
-        LEMBAR KERJA DOKUMEN CV (PRATINJAU DOKUMEN REAL-TIME)
-    ============================================================ -->
-    <div class="cv-sheet-container flex justify-center">
-      <div id="cv-document"
-        class="w-full max-w-[850px] bg-white rounded-xl border border-gray-200/90 shadow-md p-8 sm:p-12 transition-all">
-
-        <!-- ────────────────────────────────────────────────────────────
-            TEMPLATE 1: ATS STANDAR (REKOMENDASI HR & ATS FILTER)
-            Template dirender oleh renderAtsCvHTML (assets/js/alumni-cv.js),
-            sama dengan PDF "Lihat CV" di Beranda dan Gigs.
-        ──────────────────────────────────────────────────────────── -->
-        <div x-show="cvLayout === 'ats'" x-html="atsHtml"></div>
-
-        <!-- ────────────────────────────────────────────────────────────
-            TEMPLATE 2: MODERN CLEAN (NAVY ACCENT & 2 COLUMNS)
-        ──────────────────────────────────────────────────────────── -->
-        <div x-show="cvLayout === 'modern'" class="space-y-7 text-gray-800 font-sans">
-          <!-- Header Modern Berwarna Navy Khas Bengkod -->
-          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-gray-200">
-            <div class="space-y-1.5 flex-1 min-w-0">
-              <h2 class="text-3xl font-extrabold text-[#1E3A8A] tracking-tight" x-text="profile.name"></h2>
-              <p class="text-[16px] font-semibold text-gray-700" x-text="profile.headline"></p>
-              <p class="text-[13px] text-gray-500 mt-0.5" x-text="(profile.university || 'Universitas Dian Nuswantoro') + ' • Angkatan ' + (profile.batch || '2024')"></p>
-            </div>
-            <div class="text-[13px] text-gray-600 space-y-1.5 sm:text-right shrink-0">
-              <p x-show="profile.email" class="font-medium text-gray-900" x-text="profile.email"></p>
-              <p x-show="profile.location" x-text="profile.location"></p>
-              <p x-show="profile.linkedin" class="text-[#1E3A8A]" x-text="profile.linkedin.replace(/^https?:\/\/(www\.)?/, '')"></p>
-              <p x-show="profile.github" class="text-gray-700" x-text="profile.github.replace(/^https?:\/\/(www\.)?/, '')"></p>
-            </div>
-          </div>
-
-          <!-- Section: Ringkasan Diri -->
-          <div x-show="sections.about && profile.about" class="space-y-2">
-            <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-              Tentang Saya
-            </h3>
-            <p class="text-[13.5px] leading-relaxed text-gray-700 text-justify whitespace-pre-line" x-text="profile.about"></p>
-          </div>
-
-          <!-- 2 Kolom Layout Modern -->
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
-            <!-- Kolom Kiri: Pendidikan & Keahlian & Sertifikasi (5 Kolom) -->
-            <div class="md:col-span-5 space-y-6">
-              <!-- Pendidikan -->
-              <div x-show="sections.education && educations.length > 0" class="space-y-3">
-                <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-                  Pendidikan
-                </h3>
-                <div class="space-y-3">
-                  <template x-for="edu in educations" :key="edu.id">
-                    <div class="p-3 bg-gray-50/70 rounded-xl border border-gray-100 text-[13px]">
-                      <h4 class="font-bold text-gray-900 leading-snug" x-text="edu.name"></h4>
-                      <p class="text-gray-700 font-medium mt-0.5" x-text="edu.degree ? edu.degree + ' ' + edu.major : edu.major"></p>
-                      <p class="text-gray-500 text-[12px] mt-0.5" x-text="edu.period"></p>
-                    </div>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Keahlian -->
-              <div x-show="sections.skills && skills.length > 0" class="space-y-3">
-                <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-                  Keahlian
-                </h3>
-                <div class="flex flex-wrap gap-2">
-                  <template x-for="skill in skills" :key="skill.id">
-                    <span class="px-3 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-[12px] font-semibold border border-blue-100" x-text="skill.name"></span>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Sertifikasi -->
-              <div x-show="sections.certifications && certifications.length > 0" class="space-y-3">
-                <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-                  Sertifikasi
-                </h3>
-                <div class="space-y-2.5 text-[12.5px]">
-                  <template x-for="cert in certifications" :key="cert.id">
-                    <div class="border-l-2 border-blue-600 pl-3 py-0.5">
-                      <p class="font-semibold text-gray-900 leading-snug" x-text="cert.name"></p>
-                      <p class="text-gray-500 text-[11.5px]" x-text="cert.issuer + ' • ' + cert.date"></p>
-                    </div>
-                  </template>
-                </div>
-              </div>
-            </div>
-
-            <!-- Kolom Kanan: Organisasi & Proyek Portofolio (7 Kolom) -->
-            <div class="md:col-span-7 space-y-6">
-              <!-- Organisasi -->
-              <div x-show="sections.organization && organizations.length > 0" class="space-y-3">
-                <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-                  Pengalaman Organisasi
-                </h3>
-                <div class="space-y-4">
-                  <template x-for="org in organizations" :key="org.id">
-                    <div class="text-[13px] border-b border-gray-100 pb-3 last:border-b-0 last:pb-0">
-                      <div class="flex items-center justify-between font-bold text-gray-900">
-                        <span x-text="org.role"></span>
-                        <span class="text-[12px] text-gray-500 font-normal" x-text="org.period"></span>
-                      </div>
-                      <p class="text-[12.5px] font-semibold text-[#1E3A8A] mt-0.5" x-text="org.name"></p>
-                      <p class="text-gray-600 mt-1 text-justify text-[12.5px]" x-text="org.desc"></p>
-                    </div>
-                  </template>
-                </div>
-              </div>
-
-              <!-- Proyek Unggulan -->
-              <div x-show="sections.projects && displayProjects.length > 0" class="space-y-3">
-                <h3 class="text-[15px] font-bold text-[#1E3A8A] tracking-tight uppercase flex items-center gap-2">
-                  <span class="w-2.5 h-2.5 rounded-full bg-[#1E3A8A]"></span>
-                  Proyek Unggulan
-                </h3>
-                <div class="space-y-4">
-                  <template x-for="proj in displayProjects" :key="proj.id">
-                    <div class="p-3.5 bg-gray-50/70 rounded-xl border border-gray-100 text-[13px] space-y-1">
-                      <div class="flex items-center justify-between font-bold text-gray-900">
-                        <span x-text="proj.title"></span>
-                        <span class="text-[12px] text-gray-500 font-normal shrink-0" x-text="proj.period"></span>
-                      </div>
-                      <p class="text-gray-600 text-[12.5px] text-justify" x-text="proj.desc"></p>
-                      <div class="flex flex-wrap gap-1.5 pt-1" x-show="proj.tags && proj.tags.length">
-                        <template x-for="t in proj.tags" :key="t">
-                          <span class="px-2 py-0.5 rounded bg-gray-200/70 text-gray-700 text-[11px] font-medium" x-text="t"></span>
+                    <!-- Pendidikan Modern -->
+                    <template x-if="sections.education">
+                      <div class="space-y-3">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988]">Pendidikan</h3>
+                        <template x-for="edu in profile.education" :key="edu.degree">
+                          <div class="space-y-1 text-[13px]">
+                            <p class="font-bold text-[#0C1117]" x-text="edu.degree"></p>
+                            <p class="text-[#6B7280]" x-text="edu.school"></p>
+                            <p class="text-[12px] text-[#3A5988] font-medium" x-text="edu.period + ' • ' + edu.gpa"></p>
+                          </div>
                         </template>
                       </div>
-                    </div>
-                  </template>
+                    </template>
+
+                    <!-- Sertifikasi Modern -->
+                    <template x-if="sections.certifications">
+                      <div class="space-y-3">
+                        <h3 class="text-[13px] font-bold uppercase tracking-wider text-[#3A5988]">Sertifikasi</h3>
+                        <div class="space-y-2 text-[12.5px] text-[#4B5563]">
+                          <template x-for="cert in profile.certifications" :key="cert">
+                            <div class="flex items-start gap-2">
+                              <span class="text-[#3A5988] mt-0.5">✓</span>
+                              <span x-text="cert"></span>
+                            </div>
+                          </template>
+                        </div>
+                      </div>
+                    </template>
+
+                  </div>
+
                 </div>
+
               </div>
-            </div>
+            </template>
+
           </div>
+
         </div>
 
-      </div>
+      </main>
     </div>
 
   </div>
-</main>
 
-<script>
-function generateCvComponent() {
-  const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : new URLSearchParams();
-  const applicantParam = params.get("applicant") || params.get("name") || params.get("user");
-  const layoutParam = params.get("format");
-  const isApplicant = Boolean(applicantParam);
-
-  // Data CV (milik sendiri atau pelamar ?applicant=) dari modul bersama alumni-cv.js
-  const cv = alumniCvData(isApplicant ? decodeURIComponent(applicantParam) : "");
-
-  return {
-    toast: "",
-    isApplicantView: isApplicant,
-    cvLayout: layoutParam === "modern" ? "modern" : "ats", // "ats" | "modern"
-    showSectionDropdown: false,
-    profile: cv.profile,
-    educations: cv.educations,
-    organizations: cv.organizations,
-    projects: cv.projects,
-    skills: cv.skills,
-    certifications: cv.certifications,
-    includeGigs: true,
-    sections: {
-      about: true,
-      education: true,
-      organization: true,
-      projects: true,
-      skills: true,
-      certifications: true
-    },
-
-    get displayProjects() {
-      return cvFilterProjects(this.projects, this.includeGigs);
-    },
-
-    get atsHtml() {
-      return renderAtsCvHTML(
-        {
-          profile: this.profile,
-          educations: this.educations,
-          organizations: this.organizations,
-          projects: this.projects,
-          skills: this.skills,
-          certifications: this.certifications,
-        },
-        { sections: { ...this.sections }, includeGigs: this.includeGigs }
-      );
-    },
-
-    get activeSectionsCount() {
-      return Object.values(this.sections).filter(Boolean).length;
-    },
-
-    toggleAllSections() {
-      const allActive = this.activeSectionsCount === 6;
-      for (const key in this.sections) {
-        this.sections[key] = !allActive;
-      }
-    },
-
-    showToast(msg) {
-      this.toast = msg;
-      setTimeout(() => { this.toast = ""; }, 3000);
-    },
-
-    handlePrintPdf() {
-      this.showToast("Mempersiapkan dokumen CV untuk dicetak / simpan sebagai PDF...");
-      setTimeout(() => {
-        window.print();
-      }, 350);
-    }
-  };
-}
-
-// Make sure it is globally exposed and registered with Alpine
-window.generateCvComponent = generateCvComponent;
-document.addEventListener("alpine:init", () => {
-  if (typeof Alpine !== "undefined" && typeof Alpine.data === "function") {
-    Alpine.data("generateCvComponent", generateCvComponent);
-  }
-});
-</script>
 </body>
 </html>
+

@@ -1,261 +1,1195 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light">
+<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Showcase Alumni | Bengkel Koding UDINUS</title>
-  <meta name="description" content="Etalase software dan aplikasi karya alumni Bengkel Koding Universitas Dian Nuswantoro.">
+  <title>Showcase Alumni | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Software & aplikasi karya rekan alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="assets/js/alumni.js"></script>
-  <script src="assets/js/alumni-data.js"></script>
-  <script src="assets/js/alumni-profile-data.js"></script>
-  <script src="assets/js/alumni-profile-modals.js"></script>
-</head>
-<body>
-<main data-route="showcase">
-  <div x-data="showcasePage" @project-add.window="handleProjectAdd($event.detail)" class="w-full space-y-6 py-2 antialiased">
-    <!-- Toast Notifikasi -->
-    <template x-if="toast">
-      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
-        <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-        <span x-text="toast"></span>
-      </div>
-    </template>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-gray-200">
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
-        <p class="text-sm text-gray-500 mt-1">
-          Software &amp; aplikasi karya rekan alumni Bengkel Koding
-        </p>
-      </div>
-      <a
-        href="launch-karya.html"
-        id="btn-showcase-launch"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-        </svg>
-        <span>Launch Karya</span>
-      </a>
-    </div>
-
-    <!-- Toolbar: jumlah karya, filter stack, pencarian -->
-    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-      <p class="text-[13px] text-gray-500 order-last sm:order-none" x-text="visibleKarya.length + ' karya'"></p>
-
-      <div class="flex items-center gap-3 sm:ml-auto">
-        <div class="relative shrink-0">
-          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
-          <select
-            id="showcase-stack"
-            x-model="stackFilter"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="stackFilter ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-            <option value="">Semua stack</option>
-            <template x-for="s in allStacks" :key="s">
-              <option :value="s" x-text="s"></option>
-            </template>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="stackFilter ? 'text-[#1E3A8A]' : 'text-gray-400'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </span>
-        </div>
-
-        <div class="relative flex-1 sm:w-64 sm:flex-none">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-          </span>
-          <input
-            type="search"
-            x-model="query"
-            placeholder="Cari karya"
-            aria-label="Cari karya"
-            autocomplete="off"
-            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
-          >
-        </div>
-      </div>
-    </div>
-
-    <!-- Grid Karya -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-      <template x-for="k in visibleKarya" :key="k.postId">
-        <a
-          :href="'detail-proyek.html?id=' + k.postId"
-          class="group flex flex-col bg-white rounded-xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-gray-300 transition-all overflow-hidden"
-        >
-          <!-- Banner 16:9 -->
-          <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
-            <template x-if="k.banner">
-              <img :src="k.banner" :alt="'Banner ' + k.nama" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
-            </template>
-            <template x-if="!k.banner">
-              <div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
-            </template>
-          </div>
-
-          <div class="flex-1 flex flex-col p-4 gap-3">
-            <div class="flex items-start gap-3">
-              <div class="w-11 h-11 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden">
-                <template x-if="k.logo">
-                  <img :src="k.logo" :alt="k.nama" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!k.logo">
-                  <span class="text-sm font-bold text-[#1E3A8A]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></span>
-                </template>
-              </div>
-              <div class="min-w-0 flex-1">
-                <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="k.nama"></h2>
-                <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5" x-text="k.tagline"></p>
-              </div>
-            </div>
-
-            <template x-if="k.stack.length > 0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <template x-for="s in k.stack.slice(0, 3)" :key="s">
-                  <span class="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[12px] font-medium" x-text="s"></span>
-                </template>
-                <template x-if="k.stack.length > 3">
-                  <span class="text-[12px] text-gray-400" x-text="'+' + (k.stack.length - 3)"></span>
-                </template>
-              </div>
-            </template>
-
-            <div class="mt-auto pt-3 border-t border-gray-100 flex items-center gap-3">
-              <div class="flex items-center gap-2 min-w-0">
-                <template x-if="k.authorAvatar">
-                  <img :src="k.authorAvatar" :alt="k.authorName" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">
-                </template>
-                <span class="text-[13px] text-gray-600 truncate" x-text="k.authorName"></span>
-              </div>
-            </div>
-          </div>
-        </a>
-      </template>
-    </div>
-
-    <!-- Kosong -->
-    <template x-if="visibleKarya.length === 0">
-      <div class="bg-white rounded-xl border border-dashed border-gray-300 p-10 text-center">
-        <p class="text-[15px] font-semibold text-gray-800">Belum ada karya yang cocok</p>
-        <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau stack lain.</p>
-      </div>
-    </template>
-  </div>
-</main>
-
-<script>
-  function showcasePage() {
-    const currentAlumni = ALUMNI_DIRECTORY[0];
-    return {
-      posts: [],
-      stackFilter: "",
-      query: "",
-      toast: "",
-      toastTimer: null,
-      profile: {
-        name: currentAlumni.name,
-        headline: currentAlumni.headline,
-        avatarUrl: currentAlumni.avatarUrl || DEFAULT_AVATAR,
-      },
-
-      init() {
-        this.muat();
-        window.addEventListener("bengkod_posts_updated", () => this.muat());
-
-        // Cek toast tertunda dari halaman launch-karya.html
-        try {
-          const pendingToast = sessionStorage.getItem("bengkod_toast");
-          if (pendingToast) {
-            this.setToast(pendingToast);
-            sessionStorage.removeItem("bengkod_toast");
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#EFF2F7',
+            card: '#FFFFFF',
+            panel: '#F4F5F7',
+            borderline: '#E3E4E9',
+            primary: {
+              DEFAULT: '#3A5988',
+              hover: '#496DA8',
+              pressed: '#2F4B76',
+            },
+            accent: '#326ECE',
+            headline: '#0C1117',
+            bodytext: '#212224',
+            mutedtext: '#6B7280',
+            placeholder: '#91969C',
+            chip: {
+              bg: '#E2F1F9',
+              text: '#3A5A86',
+            },
+            neutralchip: {
+              bg: '#F4F5F7',
+              border: '#E3E4E9',
+              text: '#4B5563',
+            },
+            beta: {
+              marker: '#B26A12',
+              bg: '#FDF0DD',
+              text: '#B26A12',
+            },
+            live: {
+              marker: '#2B7A5B',
+              bg: '#E9F7F8',
+              text: '#2B7A5B',
+            }
           }
-        } catch {}
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: 'Inter', sans-serif; display: block !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
 
-        try {
-          const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
-          if (saved) {
-            this.profile = {
-              name: saved.name || currentAlumni.name,
-              headline: saved.headline || currentAlumni.headline,
-              avatarUrl: saved.avatarUrl || currentAlumni.avatarUrl || DEFAULT_AVATAR,
+  <script>
+    function showcaseApp() {
+      const initialKarya = [
+        {
+          id: 1,
+          postId: 1,
+          nama: "AntreKlinik",
+          category: "HealthTech & Layanan Publik",
+          date: "27 Okt 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Antrean klinik dari ponsel, tanpa menunggu di ruang tunggu.",
+          logo: "",
+          banner: "assets/banner-mobile-schedule.jpg",
+          stack: ["Laravel", "MySQL", "REST API", "Tailwind CSS"],
+          authorName: "Budi Santoso",
+          authorAvatar: "https://i.pravatar.cc/150?img=11",
+          waktu: Date.parse("2026-10-27T10:00:00"),
+          tahap: "live",
+          upvotes: 4,
+          shares: 18,
+          leadStory1: "AntreKlinik resmi dirilis sebagai solusi antrean digital cerdas yang memungkinkan pasien mendaftar poliklinik dan memantau estimasi giliran langsung dari ponsel pintar tanpa perlu berkerumun di ruang tunggu fasilitas kesehatan.",
+          leadStory2: "Dibangun dengan arsitektur modular berbasis backend Laravel performa tinggi, sistem ini memperhitungkan ritme pemeriksaan dokter secara real-time dan memberikan perkiraan waktu panggilan yang presisi bagi pasien.",
+          sectionHeading: "Fitur Utama & Arsitektur AntreKlinik",
+          sectionIntro: "Beberapa kapabilitas inti yang telah diuji coba di klinik mitra lab:",
+          keyFeatures: [
+            "Pengambilan nomor antrean online dengan verifikasi NIK atau nomor rekam medis klinik",
+            "Notifikasi real-time via WhatsApp saat nomor antrean pasien mendekati 3 nomor panggilan",
+            "Dashboard multi-loket untuk pemanggilan pasien dan rekapitulasi waktu tunggu harian",
+            "Pencatatan riwayat penanganan pasien dan evaluasi durasi konsultasi per dokter"
+          ],
+          feedbacks: [
+            { id: 1, author: "Dimas Aryo", avatar: "https://i.pravatar.cc/150?img=15", text: "Fitur estimasi waktu tunggunya akurat dan sangat membantu mengurangi penumpukan di poliklinik!", status: "Diterapkan", date: "28 Okt 2026" },
+            { id: 2, author: "Intan Permata", avatar: "https://i.pravatar.cc/150?img=48", text: "Bisa ditambahkan opsi reschedule antrean bila pasien mendadak berhalangan hadir?", status: "Pending", date: "29 Okt 2026" }
+          ]
+        },
+        {
+          id: 2,
+          postId: 2,
+          nama: "Sentimeter AI",
+          category: "AI Analytics & NLP",
+          date: "03 Nov 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan latensi rendah.",
+          logo: "",
+          banner: "assets/banner-dashboard.jpg",
+          stack: ["Python", "FastAPI", "Next.js", "Docker", "PyTorch"],
+          authorName: "Clarista",
+          authorAvatar: "https://i.pravatar.cc/150?img=5",
+          waktu: Date.parse("2026-11-04T14:20:00"),
+          tahap: "live",
+          upvotes: 28,
+          shares: 55,
+          leadStory1: "Sentimeter AI resmi meluncur ke publik setelah uji performa komprehensif, menjadi engine analisis sentimen multi-bahasa pertama alumni yang dioptimasi khusus untuk ragam bahasa gaul, sarkasme, dan code-switching Indonesia.",
+          leadStory2: "Dengan model transformer deep learning yang dikuantisasi menggunakan ONNX Runtime, platform ini mampu mendeteksi polaritas emosi teks secara real-time dengan latensi stabil di bawah 120ms pada skala ribuan request per detik.",
+          sectionHeading: "Fitur Utama & Arsitektur Sistem",
+          sectionIntro: "Kapabilitas teknis analisis opini dan sentimen publik:",
+          keyFeatures: [
+            "Latency inferensi ultra-rendah di bawah 120ms menggunakan arsitektur FastAPI dan ONNX Runtime",
+            "Dukungan deteksi emosi multimodal (positif, netral, negatif, serta kategori sarkasme spesifik)",
+            "Dashboard visualisasi tren sentimen real-time dan ekspor laporan analitik instan",
+            "REST API terenkripsi siap integrasi ke backend sistem monitoring media sosial"
+          ],
+          feedbacks: [
+            { id: 1, author: "Dimas Aryo", avatar: "https://i.pravatar.cc/150?img=15", text: "Latency inferensi sangat stabil di bawah 120ms pada pengujian load test, keren banget!", status: "Diterapkan", date: "03 Nov 2026" },
+            { id: 2, author: "Budi Santoso", avatar: "https://i.pravatar.cc/150?img=11", text: "Akurasi deteksi bahasa campurannya sangat impresif untuk data ulasan e-commerce.", status: "Diterapkan", date: "04 Nov 2026" }
+          ]
+        },
+        {
+          id: 3,
+          postId: 3,
+          nama: "KasRT",
+          category: "Fintech & Pengelolaan Warga",
+          date: "31 Okt 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Catat kas dan iuran warga tanpa buku besar, otomatis rekap bulanan.",
+          logo: "",
+          banner: "assets/banner-mobile-schedule.jpg",
+          stack: ["Python", "Flask", "SQL", "Bootstrap"],
+          authorName: "Fajar Nugroho",
+          authorAvatar: "https://i.pravatar.cc/150?img=12",
+          waktu: Date.parse("2026-10-31T09:30:00"),
+          tahap: "beta",
+          upvotes: 2,
+          shares: 9,
+          leadStory1: "KasRT hadir menjawab kerumitan pembukuan iuran dan kas rukun tetangga manual, menghadirkan transparansi finansial lingkungan berbasis web yang mudah dioperasikan bendahara warga tanpa perlu keahlian akuntansi rumit.",
+          leadStory2: "Platform ini dibangun dengan backend Python Flask yang ringan dan database SQL terstruktur, dilengkapi fitur pelaporan otomatis ke grup warga via pesan digital setiap awal bulan.",
+          sectionHeading: "Fitur Unggulan Pengelolaan Kas",
+          sectionIntro: "Fasilitas yang disediakan untuk kenyamanan pengurus dan warga:",
+          keyFeatures: [
+            "Pencatatan iuran sampah, keamanan, dan kas sosial dengan kuitansi digital otomatis",
+            "Rekapitulasi pemasukan dan pengeluaran kas bulanan yang dapat diunduh dalam format PDF/Excel",
+            "Portal transparansi warga untuk memantau saldo kas lingkungan secara terbuka",
+            "Pengingat iuran otomatis tanpa perlu penagihan manual dari rumah ke rumah"
+          ],
+          feedbacks: [
+            { id: 1, author: "Hendra Setiawan", avatar: "https://i.pravatar.cc/150?img=33", text: "Tampilan laporan PDF sangat rapi dan siap dicetak untuk rapat bulanan RT.", status: "Diperbaiki", date: "01 Nov 2026" },
+            { id: 2, author: "Clarista", avatar: "https://i.pravatar.cc/150?img=5", text: "Transparansi kas terbuka seperti ini sangat menginspirasi tata kelola warga modern.", status: "Diterapkan", date: "02 Nov 2026" },
+            { id: 3, author: "Budi Santoso", avatar: "https://i.pravatar.cc/150?img=11", text: "Usul fitur export ke CSV untuk backup data berkala bendahara.", status: "Pending", date: "03 Nov 2026" }
+          ]
+        },
+        {
+          id: 4,
+          postId: 4,
+          nama: "Bengkod Git Slicer",
+          category: "Developer Tools & UI Tokens",
+          date: "02 Nov 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Figma to Tailwind CSS v4 design token generator otomatis.",
+          logo: "",
+          banner: "assets/banner-scooter.jpg",
+          stack: ["TypeScript", "Node.js", "Tailwind CSS", "Figma API"],
+          authorName: "Dimas Aryo",
+          authorAvatar: "https://i.pravatar.cc/150?img=15",
+          waktu: Date.parse("2026-11-02T16:00:00"),
+          tahap: "beta",
+          upvotes: 14,
+          shares: 34,
+          leadStory1: "Bengkod Git Slicer adalah utility generator token otomatis yang menjembatani file desain Figma langsung ke kode Tailwind CSS v4 produksi, memangkas waktu slicing antarmuka hingga 60% bagi pengembang frontend.",
+          leadStory2: "Memanfaatkan Figma REST API dan arsitektur TypeScript Node.js, tool ini memetakan warna, tipografi, grid spasi, dan variabel komponen ke dalam konfigurasi token Tailwind CSS yang terstruktur rapi.",
+          sectionHeading: "Fitur Otomasi Developer",
+          sectionIntro: "Alur kerja otomasi dari kanvas desain ke kode:",
+          keyFeatures: [
+            "Ekstraksi variabel warna, radius, dan spacing Figma ke format tema Tailwind CSS v4",
+            "Pengecekan konsistensi gaya desain otomatis (linting token) sebelum komit git",
+            "Integrasi CI/CD webhook untuk sinkronisasi token saat file Figma diperbarui desainer",
+            "Output kode komponen HTML/JSX yang bersih dan ramah accessibility"
+          ],
+          feedbacks: [
+            { id: 1, author: "Clarista", avatar: "https://i.pravatar.cc/150?img=5", text: "Ekstraksi token warna langsung presisi tanpa perlu inspeksi manual di Figma lagi!", status: "Diperbaiki", date: "03 Nov 2026" },
+            { id: 2, author: "Fajar Nugroho", avatar: "https://i.pravatar.cc/150?img=12", text: "Sangat berguna untuk standarisasi proyek lab Bengkel Koding.", status: "Pending", date: "04 Nov 2026" }
+          ]
+        },
+        {
+          id: 5,
+          postId: 5,
+          nama: "CoopDesk ERP",
+          category: "POS & Retail Koperasi",
+          date: "01 Nov 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Point of Sale & inventory digital kasir koperasi UMKM kampus.",
+          logo: "",
+          banner: "assets/banner-dashboard.jpg",
+          stack: ["React", "TypeScript", "Tailwind CSS", "IndexedDB"],
+          authorName: "Intan Permata",
+          authorAvatar: "https://i.pravatar.cc/150?img=48",
+          waktu: Date.parse("2026-11-01T11:00:00"),
+          tahap: "beta",
+          upvotes: 9,
+          shares: 15,
+          leadStory1: "CoopDesk ERP diciptakan khusus untuk digitalisasi kasir dan inventaris koperasi UMKM kampus, mendukung transaksi kasir cepat serta pencatatan sisa hasil usaha (SHU) anggota secara otomatis.",
+          leadStory2: "Ditenagai teknologi React, IndexedDB untuk mode offline-first, dan Tailwind CSS, aplikasi kasir ini tetap dapat bertransaksi lancar meskipun jaringan internet kampus mengalami gangguan.",
+          sectionHeading: "Fitur Manajemen Koperasi",
+          sectionIntro: "Modul lengkap yang siap digunakan kasir dan pengurus:",
+          keyFeatures: [
+            "Kasir Point of Sale cepat dengan scanner barcode dan cetak struk bluetooth",
+            "Operasional offline-first dengan sinkronisasi database cloud otomatis saat online",
+            "Manajemen stok barang masuk, kadaluarsa, dan peringatan batas minimum persediaan",
+            "Kalkulasi pembagian SHU anggota koperasi transparan berdasarkan volume belanja"
+          ],
+          feedbacks: [
+            { id: 1, author: "Budi Santoso", avatar: "https://i.pravatar.cc/150?img=11", text: "Mode offline-first-nya berjalan mulus saat koneksi lab sedang lambat.", status: "Diterapkan", date: "02 Nov 2026" }
+          ]
+        },
+        {
+          id: 6,
+          postId: 6,
+          nama: "Aplikasi Inventaris Gudang",
+          category: "Logistik & Mobile Scanner",
+          date: "04 Nov 2026",
+          city: "Semarang, Indonesia –",
+          tagline: "Sistem pelacakan stok dan scanner barcode gudang multi-cabang berbasis mobile.",
+          logo: "",
+          banner: "assets/banner-scooter.jpg",
+          stack: ["Flutter", "Firebase", "Dart", "Provider"],
+          authorName: "Hendra Setiawan",
+          authorAvatar: "https://i.pravatar.cc/150?img=33",
+          waktu: Date.parse("2026-11-04T09:00:00"),
+          tahap: "live",
+          upvotes: 16,
+          shares: 27,
+          leadStory1: "Aplikasi Inventaris Gudang adalah solusi pelacakan barang berbasis Flutter mobile yang memudahkan staf gudang multi-cabang melakukan stock opname cepat dengan kamera ponsel pintar sebagai scanner barcode dan QR Code.",
+          leadStory2: "Terhubung langsung dengan backend Google Firebase dan Dart state management, pembaruan stok barang di rak gudang terdistribusi secara instan ke kantor pusat tanpa jeda rekonsiliasi manual.",
+          sectionHeading: "Spesifikasi & Keunggulan Mobile",
+          sectionIntro: "Kapabilitas mobile inventory untuk pergudangan modern:",
+          keyFeatures: [
+            "Pemindaian barcode dan QR code batch berkecepatan tinggi menggunakan kamera perangkat",
+            "Sinkronisasi real-time database stok antar cabang gudang dengan Firebase",
+            "Validasi penempatan rak penyimpanan (bin location tracking) untuk mencegah salah letak barang",
+            "Laporan stock opname dan audit log perpindahan logistik lengkap"
+          ],
+          feedbacks: [
+            { id: 1, author: "Dimas Aryo", avatar: "https://i.pravatar.cc/150?img=15", text: "Respon scanner kamera sangat cepat bahkan untuk barcode yang agak pudar.", date: "04 Nov 2026" },
+            { id: 2, author: "Intan Permata", avatar: "https://i.pravatar.cc/150?img=48", text: "Fitur validasi nomor rak membantu meminimalisir kesalahan peletakan barang.", date: "05 Nov 2026" },
+            { id: 3, author: "Fajar Nugroho", avatar: "https://i.pravatar.cc/150?img=12", text: "Bisa ditambahkan fitur ekspor laporan audit ke format spreadsheet?", date: "05 Nov 2026" },
+            { id: 4, author: "Clarista", avatar: "https://i.pravatar.cc/150?img=5", text: "UI mobile-nya sangat ergonomis untuk penggunaan satu tangan staf gudang.", date: "06 Nov 2026" },
+            { id: 5, author: "Rian Hidayat", avatar: "https://i.pravatar.cc/150?img=60", text: "Integrasi state management Provider-nya sangat rapi dan konsumsi baterainya efisien.", date: "06 Nov 2026" },
+            { id: 6, author: "Siti Rahma", avatar: "https://i.pravatar.cc/150?img=32", text: "Sangat membantu proses rekonsiliasi data inventaris harian staf gudang.", date: "07 Nov 2026" }
+          ]
+        }
+      ];
+
+      return {
+        karyaList: initialKarya,
+        searchQuery: '',
+        selectedStack: '',
+        filterOpen: false,
+        mobileNavOpen: false,
+        toast: '',
+        toastTimer: null,
+
+        // Modal Detail State
+        detailModalOpen: false,
+        launchModalOpen: false,
+        launchForm: {
+          title: '',
+          period: '',
+          category: 'Mobile App',
+          tagline: '',
+          demoUrl: '',
+          desc: '',
+          skills: ['Flutter', 'Firebase', 'Dart'],
+          contributors: '',
+          bannerUrl: 'assets/banner-dashboard.jpg'
+        },
+        skillInput: '',
+        addSkill() {
+          const val = this.skillInput.trim().replace(/^,|,$/g, '');
+          if (val && !this.launchForm.skills.includes(val)) {
+            this.launchForm.skills.push(val);
+            this.skillInput = '';
+          }
+        },
+        removeSkill(idx) {
+          this.launchForm.skills.splice(idx, 1);
+        },
+        openLaunchModal() {
+          this.launchModalOpen = true;
+        },
+        closeLaunchModal() {
+          this.launchModalOpen = false;
+        },
+        submitLaunchKarya() {
+          if (!this.launchForm.title || !this.launchForm.desc) {
+            alert('Harap lengkapi nama karya dan deskripsi.');
+            return;
+          }
+          const newKarya = {
+            id: Date.now(),
+            nama: this.launchForm.title,
+            tagline: this.launchForm.tagline || 'Karya Baru Alumni Bengkel Koding',
+            category: this.launchForm.category || 'Mobile App',
+            deskripsiLengkap: this.launchForm.desc,
+            banner: this.launchForm.bannerUrl || 'assets/banner-dashboard.jpg',
+            authorName: 'Aisha Dwi Rahmawati',
+            authorRole: 'Software Engineer @ Tokopedia',
+            authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+            period: this.launchForm.period || '2026',
+            stack: this.launchForm.skills.length ? [...this.launchForm.skills] : ['Fullstack'],
+            demoLink: this.launchForm.demoUrl || '#',
+            repoLink: '',
+            likesCount: 1,
+            viewsCount: 1,
+            commentsCount: 0,
+            comments: []
+          };
+          this.allKarya.unshift(newKarya);
+          this.closeLaunchModal();
+          this.setToast('Karya berhasil dipublikasikan ke Showcase Alumni!');
+        },
+        selectedKarya: null,
+        newFeedbackText: '',
+        showAllComments: false,
+
+        init() {
+          try {
+            const pendingToast = sessionStorage.getItem('bengkod_toast');
+            if (pendingToast) {
+              this.setToast(pendingToast);
+              sessionStorage.removeItem('bengkod_toast');
+            }
+          } catch (e) {}
+
+          try {
+            const stored = localStorage.getItem('bengkod_showcase_karya');
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                this.karyaList = parsed;
+              }
+            }
+          } catch (e) {}
+
+          const urlParams = new URLSearchParams(window.location.search);
+          const idParam = urlParams.get('id');
+          if (idParam) {
+            const found = this.karyaList.find(k => String(k.id) === idParam || String(k.postId) === idParam);
+            if (found) {
+              this.openDetailModal(found);
+            }
+          }
+
+          window.addEventListener('popstate', (e) => {
+            if (e.state && e.state.id) {
+              const found = this.karyaList.find(k => k.id === e.state.id || k.postId === e.state.id);
+              if (found) {
+                this.selectedKarya = found;
+                this.detailModalOpen = true;
+              }
+            } else {
+              this.detailModalOpen = false;
+            }
+          });
+        },
+
+        get allStacks() {
+          const set = new Set();
+          this.karyaList.forEach(k => {
+            (k.stack || []).forEach(s => set.add(s));
+          });
+          return Array.from(set).sort((a, b) => a.localeCompare(b));
+        },
+
+        get visibleKarya() {
+          const q = this.searchQuery.trim().toLowerCase();
+          return this.karyaList.filter(k => {
+            if (this.selectedStack && !(k.stack || []).includes(this.selectedStack)) {
+              return false;
+            }
+            if (!q) return true;
+            const hay = [k.nama, k.tagline, k.authorName, ...(k.stack || [])].join(' ').toLowerCase();
+            return hay.includes(q);
+          }).sort((a, b) => (b.waktu || 0) - (a.waktu || 0));
+        },
+
+        getProgress(k) {
+          const feedbacks = k.feedbacks || [];
+          if (feedbacks.length === 0) {
+            return {
+              percent: 0,
+              text: "Belum ada masukan",
+              percentLabel: "",
+              tooltip: "Belum ada masukan komunitas",
+              hasFeedback: false
             };
           }
-        } catch {}
-      },
+          const done = feedbacks.filter(f => {
+            const s = (f.status || "").toLowerCase();
+            return s === "diperbaiki" || s === "diterapkan";
+          }).length;
+          const pct = Math.round((done / feedbacks.length) * 100);
+          return {
+            percent: pct,
+            text: "Masukan Ditindaklanjuti",
+            percentLabel: pct + "%",
+            tooltip: `${done} dari ${feedbacks.length} masukan sudah ditindaklanjuti`,
+            hasFeedback: true
+          };
+        },
 
-      muat() {
-        this.posts = typeof loadPosts === "function" ? loadPosts() : [];
-      },
+        setStack(stack) {
+          this.selectedStack = stack;
+          this.filterOpen = false;
+        },
 
-      // Satu baris per karya, diambil dari postingan feed yang membawa data karya
-      get allKarya() {
-        // "Baru saja" = karya yang baru diluncurkan, dianggap paling baru
-        const waktu = (p) => (p.date === "Baru saja" ? p.id : Date.parse(p.date) || 0);
-        return this.posts
-          .filter((p) => p.karya)
-          .map((p) => ({
-            postId: p.id,
-            nama: p.karya.nama,
-            tagline: p.karya.tagline || "",
-            logo: p.karya.logo || "",
-            banner: p.karya.bannerUrl || (p.karya.screenshots || [])[0] || "",
-            stack: p.karya.stack || [],
-            authorName: p.authorName || "Alumni",
-            authorAvatar: p.authorAvatar || "",
-            waktu: waktu(p),
-          }));
-      },
-      get allStacks() {
-        return [...new Set(this.allKarya.flatMap((k) => k.stack))].sort((a, b) => a.localeCompare(b));
-      },
-      get visibleKarya() {
-        const q = this.query.trim().toLowerCase();
-        const list = this.allKarya.filter((k) => {
-          if (this.stackFilter && !k.stack.includes(this.stackFilter)) return false;
-          if (!q) return true;
-          return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
-        });
-        // Karya terbaru tampil paling atas
-        return list.sort((a, b) => b.waktu - a.waktu);
-      },
+        clearFilter() {
+          this.selectedStack = '';
+          this.searchQuery = '';
+        },
 
-      handleProjectAdd(detail) {
-        if (!detail || !detail.title) return;
-        if (typeof saveStoredProjects === "function") {
-          const projects = typeof loadStoredProjects === "function" ? loadStoredProjects() : [];
-          saveStoredProjects([detail, ...projects.filter((p) => p.id !== detail.id)]);
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ''; }, 3200);
+        },
+
+                openDetailModal(k) {
+          this.selectedKarya = k;
+          this.newFeedbackText = '';
+          this.showAllComments = false;
+          this.detailModalOpen = true;
+          history.pushState({ id: k.id }, '', '?id=' + encodeURIComponent(k.id));
+        },
+
+        closeDetailModal() {
+          this.detailModalOpen = false;
+          history.pushState({}, '', window.location.pathname);
+        },
+
+        toggleUpvote(k) {
+          if (!k) return;
+          if (!k.isUpvoted) {
+            k.upvotes = (k.upvotes || 0) + 1;
+            k.isUpvoted = true;
+            this.setToast('Apresiasi berhasil diberikan (+1 Like)!');
+          } else {
+            k.upvotes = Math.max(0, (k.upvotes || 0) - 1);
+            k.isUpvoted = false;
+          }
+        },
+
+        submitFeedback() {
+          if (!this.selectedKarya || !this.newFeedbackText.trim()) return;
+          const newFb = {
+            id: Date.now(),
+            author: "Aisha Dwi Rahmawati",
+            avatar: "assets/img/user.png",
+            text: this.newFeedbackText.trim(),
+            date: "Baru saja"
+          };
+          if (!this.selectedKarya.feedbacks) this.selectedKarya.feedbacks = [];
+          this.selectedKarya.feedbacks.unshift(newFb);
+          this.newFeedbackText = '';
+          this.setToast('Komentar Anda berhasil dikirimkan!');
+        },
+
+        salinTautan(k) {
+          try {
+            navigator.clipboard.writeText(window.location.href);
+            this.setToast('Tautan karya berhasil disalin!');
+          } catch(e) {
+            this.setToast('Tautan disalin ke papan klip');
+          }
+        },
+
+        handleLogout() {
+          if (confirm('Keluar dari Portal Alumni Bengkel Koding?')) {
+            window.location.href = 'login.html';
+          }
         }
-        if (typeof syncProjectToFeed === "function") {
-          syncProjectToFeed(detail, {
-            name: this.profile.name,
-            avatarUrl: this.profile.avatarUrl,
-            headline: this.profile.headline,
-          });
-        }
-        this.muat();
-        this.addProjectOpen = false;
-        this.setToast(`Karya "${detail.title}" berhasil diluncurkan!`);
-      },
+      };
+    }
 
-      setToast(msg) {
-        this.toast = msg;
-        clearTimeout(this.toastTimer);
-        this.toastTimer = setTimeout(() => (this.toast = ""), 2600);
-      },
-    };
-  }
-  document.addEventListener("alpine:init", () => {
-    Alpine.data("showcasePage", showcasePage);
-  });
-</script>
+    document.addEventListener('alpine:init', () => {
+      if (window.Alpine) {
+        window.Alpine.data('showcaseApp', showcaseApp);
+      }
+    });
+  </script>
+</head>
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="showcaseApp()">
+
+  <!-- TOAST NOTIFICATION -->
+  <template x-if="toast">
+    <div class="fixed bottom-6 right-6 z-[120] bg-[#0C1117] text-white px-5 py-3 rounded-[8px] shadow-sm flex items-center gap-3 text-[14px] border border-[#E3E4E9]/20" role="status">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+      <span class="font-normal" x-text="toast"></span>
+      <button type="button" @click="toast = ''" class="text-[#91969C] hover:text-white ml-2 text-xs">✕</button>
+    </div>
+  </template>
+
+  <div class="min-h-full flex flex-col lg:flex-row">
+
+    <!-- ========================================================
+         SIDEBAR (256px, Latar Putih, Border Kanan Tipis, 7 Menu)
+    ======================================================== -->
+    <aside class="w-full lg:w-64 bg-white border-r border-[#E3E4E9] flex-shrink-0 flex flex-col justify-between p-6 z-30">
+      <div class="space-y-6">
+        <!-- Logo Bengkel Koding -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-[8px] bg-[#3A5988] text-white flex items-center justify-center font-semibold text-[14px]">
+              BK
+            </div>
+            <div>
+              <div class="font-semibold text-[15px] tracking-[-0.01em] text-[#0C1117]">Bengkel Koding</div>
+              <div class="text-[12px] text-[#6B7280]">Portal Alumni UDINUS</div>
+            </div>
+          </div>
+          <!-- Mobile Menu Close Button -->
+          <button type="button" @click="mobileNavOpen = false" class="lg:hidden p-1.5 rounded-lg text-[#6B7280] hover:bg-[#F4F5F7]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- Navigation 7 Menu -->
+                        <!-- 7 Menu Items Berurutan -->
+        <nav class="space-y-1" :class="mobileNavOpen ? 'block' : 'hidden lg:block'">
+          <!-- 1. Beranda -->
+          <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            <span>Beranda</span>
+          </a>
+          <!-- 2. Direktori Alumni -->
+          <a href="direktori.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span>Direktori Alumni</span>
+          </a>
+          <!-- 3. Showcase (AKTIF) -->
+          <a href="showcase.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-semibold bg-[#E5E9EC] text-[#0C1117]">
+            <svg class="w-4 h-4 text-[#326ECE]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Showcase</span>
+          </a>
+          <!-- 4. Gigs & Proyek -->
+          <a href="gigs.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <span>Gigs & Proyek</span>
+          </a>
+          <!-- 5. Referral -->
+          <a href="referral.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+            <span>Referral</span>
+          </a>
+          <!-- 6. Data CV -->
+          <a href="data-cv.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span>Data CV</span>
+          </a>
+          <!-- 7. Profil Saya -->
+          <a href="profil.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
+            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span>Profil Saya</span>
+          </a>
+        </nav>
+      </div>
+
+      <!-- Tombol Keluar di Bawah Sidebar -->
+      <div class="pt-6 border-t border-[#E3E4E9]">
+        <button type="button" @click="handleLogout()" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-[10px] text-[14px] font-medium text-[#6B7280] hover:text-[#B4325F] hover:bg-[#FAD9E9]/40 transition-colors">
+          <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+          <span>Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ========================================================
+         MAIN AREA (HEADER + KONTEN GRID PENUH SATU HALAMAN)
+    ======================================================== -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- TOP HEADER (64px) -->
+      <header class="h-16 bg-white border-b border-[#E3E4E9] px-6 lg:px-8 flex items-center justify-between sticky top-0 z-20">
+        <div class="flex items-center gap-3">
+          <button type="button" @click="mobileNavOpen = !mobileNavOpen" class="lg:hidden p-2 rounded-[8px] text-[#6B7280] hover:bg-[#F4F5F7]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-[13.5px]">
+            <span class="text-[#6B7280]">Alumni</span>
+            <span class="text-[#91969C]">›</span>
+            <span class="text-[#0C1117] font-medium">Showcase</span>
+          </nav>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Notification Bell -->
+          <div class="relative" x-data="{ open: false }">
+            <button type="button" @click="open = !open" class="w-10 h-10 rounded-[8px] border border-[#E3E4E9] bg-white text-[#6B7280] hover:text-[#0C1117] hover:bg-[#F4F5F7] flex items-center justify-center relative transition-colors" title="Notifikasi">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path stroke-linecap="round" stroke-linejoin="round" d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+              <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#326ECE]"></span>
+            </button>
+            <div x-show="open" @click.outside="open = false" x-cloak class="absolute right-0 mt-2 w-80 bg-white rounded-xl border border-[#E3E4E9] shadow-md p-3 z-50">
+              <div class="font-semibold text-[13px] text-[#0C1117] px-2 py-1.5 border-b border-[#E3E4E9]">Notifikasi Baru</div>
+              <div class="py-2 text-[12.5px] text-[#6B7280] px-2">Karya baru "Sentimeter AI" telah diluncurkan ke Showcase Alumni.</div>
+            </div>
+          </div>
+
+          <!-- User Profile -->
+          <div class="relative" x-data="{ open: false }">
+            <button type="button" @click="open = !open" class="flex items-center gap-2.5 p-1 rounded-[8px] hover:bg-[#F4F5F7] transition-colors">
+              <div class="w-8 h-8 rounded-full bg-[#3A5988] text-white flex items-center justify-center text-[12px] font-semibold">
+                AD
+              </div>
+              <span class="text-[13.5px] font-medium text-[#0C1117] pr-2 hidden md:inline">Aisha Dwi</span>
+              <svg class="w-3.5 h-3.5 text-[#6B7280] hidden md:inline" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div x-show="open" @click.outside="open = false" x-cloak class="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-[#E3E4E9] shadow-md p-1.5 z-50">
+              <a href="profil.html" class="block px-3 py-2 text-[13px] text-[#212224] hover:bg-[#F4F5F7] rounded-lg">Pengaturan Akun</a>
+              <button type="button" @click="handleLogout()" class="w-full text-left px-3 py-2 text-[13px] text-[#B4325F] hover:bg-[#FAD9E9]/40 rounded-lg">Keluar</button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ========================================================
+           KONTEN UTAMA: SHOWCASE ALUMNI (GRID SATU HALAMAN PENUH)
+      ======================================================== -->
+      <main class="flex-1 p-6 lg:p-8 max-w-[1400px] w-full mx-auto space-y-6 flex flex-col min-h-0">
+
+        <!-- 1. HEADER JUDUL & SUBJUDUL -->
+        <div>
+          <h1 class="text-[26px] font-semibold text-[#0C1117] tracking-[-0.01em]">Showcase Alumni</h1>
+          <p class="text-[14px] text-[#6B7280] mt-1 font-normal">
+            Software &amp; aplikasi karya rekan alumni Bengkel Koding
+          </p>
+        </div>
+
+        <!-- 2. TOOLBAR BARIS PILL (Tinggi 40px, Gap 12px) -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          
+          <div class="flex items-center gap-3 flex-wrap">
+            
+            <!-- a. Pill Primer: Launch Karya -->
+            <button type="button"
+               @click="openLaunchModal()"
+               class="h-10 px-5 rounded-full bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] text-white text-[14px] font-medium flex items-center gap-2 transition-colors flex-shrink-0 cursor-pointer">
+              <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+              </svg>
+              <span>Launch Karya</span>
+            </button>
+
+            <!-- b. Pill Pencarian (Lebar 240px, tinggi 40px) -->
+            <div class="relative w-full sm:w-[240px] h-10 flex-shrink-0">
+              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                  <circle cx="11" cy="11" r="8"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/>
+                </svg>
+              </span>
+              <input type="search"
+                     x-model="searchQuery"
+                     placeholder="Cari karya"
+                     class="w-full h-10 pl-10 pr-4 rounded-full border border-[#E3E4E9] bg-white text-[14px] text-[#212224] placeholder-[#91969C] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/25 transition-all">
+            </div>
+
+            <!-- c. Pill Filter Stack -->
+            <div class="relative flex-shrink-0" x-data="{ open: false }">
+              <button type="button"
+                      @click="open = !open"
+                      class="h-10 px-4 rounded-full border text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer"
+                      :class="selectedStack ? 'bg-[#E2F1F9] border-[#3A5A86] text-[#3A5A86]' : 'bg-white border-[#E3E4E9] text-[#212224] hover:border-[#CBD5E1]'">
+                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                  <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                </svg>
+                <span x-text="selectedStack ? selectedStack : 'Semua stack'"></span>
+                <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+
+              <div x-show="open"
+                   @click.outside="open = false"
+                   x-cloak
+                   class="absolute left-0 mt-2 w-56 bg-white rounded-[12px] border border-[#E3E4E9] shadow-lg max-h-[280px] overflow-y-auto p-1.5 z-40">
+                <button type="button"
+                        @click="setStack(''); open = false"
+                        class="w-full text-left px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors flex items-center justify-between"
+                        :class="!selectedStack ? 'bg-[#E2F1F9] text-[#3A5A86]' : 'text-[#212224] hover:bg-[#F4F5F7]'">
+                  <span>Semua stack</span>
+                </button>
+                <div class="h-px bg-[#E3E4E9] my-1"></div>
+                <template x-for="st in allStacks" :key="st">
+                  <button type="button"
+                          @click="setStack(st); open = false"
+                          class="w-full text-left px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors flex items-center justify-between"
+                          :class="selectedStack === st ? 'bg-[#E2F1F9] text-[#3A5A86]' : 'text-[#212224] hover:bg-[#F4F5F7]'">
+                    <span x-text="st"></span>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="text-[13px] text-[#6B7280] font-normal flex-shrink-0 self-center">
+            <span x-text="visibleKarya.length + ' karya'"></span>
+          </div>
+
+        </div>
+
+        <!-- ======================================================
+             3. GRID KARTU SHOWCASE V2 (PENUH SATU HALAMAN)
+        ====================================================== -->
+
+        <!-- Empty state keseluruhan -->
+        <template x-if="visibleKarya.length === 0">
+          <div class="w-full bg-white rounded-[12px] border border-dashed border-[#E3E4E9] p-10 text-center my-8">
+            <p class="text-[15px] font-semibold text-[#0C1117]">Belum ada karya yang cocok</p>
+            <p class="text-[13px] text-[#6B7280] mt-1 font-normal">Coba kata kunci atau stack lain.</p>
+            <button type="button"
+                    @click="clearFilter()"
+                    class="mt-4 px-4 py-2 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7]">
+              Reset Filter
+            </button>
+          </div>
+        </template>
+
+        <!-- Grid Responsif Penuh Halaman (1 col mobile, 2 col tablet, 3 col desktop) -->
+        <div x-show="visibleKarya.length > 0"
+             class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full">
+
+          <!-- KARTU SHOWCASE V2 (KLIK BUKA MODAL DETAIL PERSIS GAMBAR 1) -->
+          <template x-for="k in visibleKarya" :key="k.id">
+            <div @click.stop="openDetailModal(k)"
+                 class="group cursor-pointer flex flex-col bg-white border border-[#E3E4E9] hover:border-[#3A5A86] rounded-[12px] p-3 transition-all duration-150 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3A5988]">
+              
+              <!-- 1. Banner 16:9 radius 8px selebar isi kartu (Fallback huruf awal 40px/600 #3A5A86 di atas #E2F1F9) -->
+              <div class="aspect-video w-full rounded-[8px] bg-[#E2F1F9] overflow-hidden relative">
+                <template x-if="k.banner">
+                  <img :src="k.banner" :alt="k.nama" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                </template>
+                <template x-if="!k.banner">
+                  <div class="w-full h-full flex items-center justify-center text-[40px] font-semibold text-[#3A5A86]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
+                </template>
+              </div>
+
+              <!-- 2. Baris Judul: Nama Karya 16px/600 maks 2 baris (Tanpa kotak logo) -->
+              <div class="mt-2.5">
+                <h3 class="text-[16px] font-semibold text-[#0C1117] group-hover:text-[#3A5A86] transition-colors line-clamp-2 leading-snug" x-text="k.nama"></h3>
+              </div>
+
+              <!-- 3. Baris Meta: Ikon Calendar 16px + Tanggal Posting 13px/400 (Gap 10px) -->
+              <div class="mt-2.5 flex items-center gap-1.5 text-[13px] text-[#6B7280] font-normal">
+                <svg class="w-4 h-4 text-[#6B7280] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" x2="16" y1="2" y2="6"/>
+                  <line x1="8" x2="8" y1="2" y2="6"/>
+                  <line x1="3" x2="21" y1="10" y2="10"/>
+                </svg>
+                <span x-text="k.date"></span>
+              </div>
+
+              <!-- 4. Tagline: 14px/400 muted, line-height 1.5, maks 2 baris (Gap 10px) -->
+              <p class="mt-2.5 text-[14px] text-[#6B7280] line-clamp-2 leading-[1.5] font-normal" x-text="k.tagline"></p>
+
+              <!-- 5. Chip Stack: Tinggi 24px, 12px/500, maks 3 chip +N (Gap 10px) -->
+              <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                <template x-for="st in (k.stack || []).slice(0, 3)" :key="st">
+                  <span class="h-6 px-2 rounded-[6px] bg-[#F4F5F7] border border-[#E3E4E9] text-[#4B5563] text-[12px] font-medium flex items-center" x-text="st"></span>
+                </template>
+                <template x-if="(k.stack || []).length > 3">
+                  <span class="text-[12px] text-[#6B7280] font-normal ml-0.5" x-text="'+' + ((k.stack || []).length - 3)"></span>
+                </template>
+              </div>
+
+              <!-- 6. Baris Penghitung dan Pembuat (Gap 10px, TANPA garis pemisah) -->
+              <div class="mt-auto pt-3 flex items-center justify-between">
+                <!-- Kiri: Message-square + Upvote (gap 16px) -->
+                <div class="flex items-center gap-4 text-[13px] text-[#6B7280] font-normal">
+                  <div class="flex items-center gap-1" title="Jumlah masukan">
+                    <svg class="w-4 h-4 text-[#6B7280] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span x-text="(k.feedbacks || []).length"></span>
+                  </div>
+                  <div class="flex items-center gap-1" title="Jumlah upvote">
+                    <svg class="w-4 h-4 text-[#6B7280] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m18 15-6-6-6 6"/>
+                    </svg>
+                    <span x-text="k.upvotes || 0"></span>
+                  </div>
+                </div>
+
+                <!-- Kanan: Avatar 24px + Nama Pembuat (Truncate) -->
+                <div class="flex items-center gap-2 min-w-0 max-w-[140px]">
+                  <template x-if="k.authorAvatar">
+                    <img :src="k.authorAvatar" :alt="k.authorName" class="w-6 h-6 rounded-full object-cover border border-[#E3E4E9] flex-shrink-0">
+                  </template>
+                  <template x-if="!k.authorAvatar">
+                    <div class="w-6 h-6 rounded-full bg-[#E2F1F9] text-[#3A5A86] flex items-center justify-center text-[10px] font-semibold flex-shrink-0" x-text="(k.authorName || 'A').charAt(0).toUpperCase()"></div>
+                  </template>
+                  <span class="text-[13px] text-[#6B7280] font-normal truncate" x-text="k.authorName"></span>
+                </div>
+              </div>
+
+            </div>
+          </template>
+
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ========================================================
+       MODAL: DETAIL KARYA SHOWCASE (100% PERSIS ANATOMI GAMBAR 1)
+  ======================================================== -->
+  <template x-if="detailModalOpen && selectedKarya">
+    <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
+         @click.self="closeDetailModal()"
+         @keydown.window.escape="closeDetailModal()">
+      <div class="w-full max-w-[760px] max-h-[90vh] max-sm:h-[94vh] max-sm:max-h-[94vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Top Navigation Header: Back Button, Title, Close -->
+        <header class="h-16 px-6 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
+          <button type="button"
+                  @click="closeDetailModal()"
+                  class="w-9 h-9 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer"
+                  title="Kembali ke Showcase">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+
+          <span class="text-[15px] font-semibold text-[#0C1117] truncate max-w-[400px]" x-text="selectedKarya.nama"></span>
+
+          <button type="button"
+                  @click="closeDetailModal()"
+                  class="w-9 h-9 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#5F6672] hover:text-[#0C1117] flex items-center justify-center text-sm font-medium transition-colors cursor-pointer shrink-0">✕</button>
+        </header>
+
+        <!-- Scrollable Body (Anatomi Persis Gambar 1: Judul -> Meta -> Banner -> Teks Cerita -> Section -> Bullet List -> Diskusi) -->
+        <div class="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1">
+          
+          <!-- 1. Judul Utama Besar -->
+          <h1 class="text-[24px] sm:text-[28px] font-bold text-[#0C1117] tracking-[-0.02em] leading-tight" x-text="selectedKarya.nama + ' – ' + selectedKarya.tagline"></h1>
+
+          <!-- 2. Baris Meta Pembuat (Avatar + Nama + Kategori/Stack + Tanggal) -->
+          <div class="flex items-center gap-2.5 text-[14px] text-[#6B7280]">
+            <img :src="selectedKarya.authorAvatar" class="w-7 h-7 rounded-full object-cover shrink-0" :alt="selectedKarya.authorName">
+            <span class="font-medium text-[#212224]" x-text="selectedKarya.authorName"></span>
+            <span>·</span>
+            <span class="text-[#3A5988] font-medium" x-text="selectedKarya.category"></span>
+            <span>·</span>
+            <span x-text="selectedKarya.date"></span>
+          </div>
+
+          <!-- 3. Banner Karya Besar Resolusi Tinggi (Persis Gambar 1) -->
+          <div class="aspect-[16/9] w-full rounded-[16px] overflow-hidden bg-[#E2F1F9] border border-[#E3E4E9]">
+            <img :src="selectedKarya.banner" :alt="selectedKarya.nama" class="w-full h-full object-cover">
+          </div>
+
+          <!-- 4. Narasi Cerita Produk (Format Berita Persis Gambar 1) -->
+          <div class="space-y-4 text-[15.5px] text-[#374151] leading-[1.75]">
+            <p>
+              <strong class="font-bold text-[#0C1117]" x-text="selectedKarya.city || 'Semarang, Indonesia – '"></strong>
+              <span x-text="selectedKarya.leadStory1"></span>
+            </p>
+            <p x-text="selectedKarya.leadStory2"></p>
+          </div>
+
+          <!-- 5. Section Heading & Bullet List (Persis Gambar 1) -->
+          <div class="pt-2 space-y-3">
+            <h2 class="text-[19px] font-bold text-[#0C1117] tracking-[-0.01em]" x-text="selectedKarya.sectionHeading"></h2>
+            <p class="text-[15px] text-[#5F6672]" x-text="selectedKarya.sectionIntro"></p>
+            
+            <ul class="space-y-2 text-[15px] text-[#374151] pt-1">
+              <template x-for="f in (selectedKarya.keyFeatures || [])" :key="f">
+                <li class="flex items-start gap-2.5 leading-relaxed font-normal">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#4B5563] mt-2 shrink-0"></span>
+                  <span x-text="f"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+
+          <!-- 6. Tech Stack yang Digunakan (Bullet List) -->
+          <div class="pt-2">
+            <h3 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em] mb-2.5">Tech Stack yang Digunakan</h3>
+            <ul class="space-y-2 text-[15px] text-[#374151]">
+              <template x-for="s in (selectedKarya.stack || [])" :key="s">
+                <li class="flex items-center gap-2.5 leading-relaxed font-normal">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#4B5563] shrink-0"></span>
+                  <span x-text="s"></span>
+                </li>
+              </template>
+            </ul>
+          </div>
+
+          <!-- 7. Masukan & Diskusi Rekan Alumni (Tampilan Komen Bersih, Maks 4 & Tampilkan Semua) -->
+          <div class="pt-4 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-[17px] font-bold text-[#0C1117]">Masukan & Diskusi Rekan Alumni (<span x-text="(selectedKarya.feedbacks || []).length"></span>)</h3>
+            </div>
+
+            <!-- Daftar Komentar Mengalir Bersih (Tanpa Badge Status, Tanpa Kotak List) -->
+            <div class="space-y-4 pt-1">
+              <template x-for="fb in (showAllComments ? (selectedKarya.feedbacks || []) : (selectedKarya.feedbacks || []).slice(0, 4))" :key="fb.id">
+                <div class="flex items-start gap-3">
+                  <img :src="fb.avatar || 'https://i.pravatar.cc/150?img=11'" class="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5" :alt="fb.author">
+                  <div class="flex-1 min-w-0 space-y-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[14px] font-semibold text-[#0C1117]" x-text="fb.author"></span>
+                      <span class="text-[#91969C] text-[12px]">·</span>
+                      <span class="text-[12.5px] text-[#6B7280]" x-text="fb.date"></span>
+                    </div>
+                    <p class="text-[14px] text-[#374151] leading-relaxed" x-text="fb.text"></p>
+                  </div>
+                </div>
+              </template>
+
+              <!-- State bila belum ada masukan -->
+              <template x-if="!(selectedKarya.feedbacks && selectedKarya.feedbacks.length)">
+                <p class="text-[14px] text-[#6B7280] italic">
+                  Belum ada komentar untuk karya ini. Jadilah yang pertama memberikan masukan!
+                </p>
+              </template>
+            </div>
+
+            <!-- Teks Tampilkan Semua Komentar (Ditampilkan bila lebih dari 4 komentar) -->
+            <template x-if="(selectedKarya.feedbacks || []).length > 4">
+              <div class="pt-1">
+                <button type="button"
+                        @click="showAllComments = !showAllComments"
+                        class="text-[14px] font-medium text-[#3A5988] hover:text-[#283E5F] hover:underline cursor-pointer transition-colors inline-flex items-center gap-1.5">
+                  <span x-text="showAllComments ? 'Sembunyikan komentar' : 'Tampilkan semua komentar'"></span>
+                  <svg class="w-4 h-4 transition-transform duration-200" :class="showAllComments ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+            </template>
+          </div>
+
+        </div>
+
+        <!-- Sticky Bottom Engagement Bar (Persis Gambar 1: Likes | Comments | Shares | Write a comment... >) -->
+        <footer class="sticky bottom-0 bg-white border-t border-[#E3E4E9] px-6 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-b-[20px] shrink-0 z-20">
+          <!-- Kiri: Thumbs Up / Likes, Comments, Shares -->
+          <div class="flex items-center gap-5 text-[14px] font-medium text-[#4B5563]">
+            
+            <!-- Upvote / Like Button -->
+            <button type="button"
+                    @click="toggleUpvote(selectedKarya)"
+                    class="flex items-center gap-1.5 hover:text-[#3A5988] transition-colors cursor-pointer group"
+                    :class="selectedKarya.isUpvoted ? 'text-[#3A5988] font-semibold' : ''"
+                    title="Apresiasi karya ini">
+              <svg class="w-[18px] h-[18px] group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+              </svg>
+              <span x-text="selectedKarya.upvotes + ' Likes'"></span>
+            </button>
+
+            <!-- Comments Count -->
+            <div class="flex items-center gap-1.5 text-[#4B5563]">
+              <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span x-text="(selectedKarya.feedbacks || []).length + ' Comments'"></span>
+            </div>
+
+            <!-- Share Button -->
+            <button type="button"
+                    @click="salinTautan(selectedKarya)"
+                    class="flex items-center gap-1.5 hover:text-[#3A5988] transition-colors cursor-pointer"
+                    title="Salin tautan karya">
+              <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+              </svg>
+              <span x-text="(selectedKarya.shares || 12) + ' Shares'"></span>
+            </button>
+
+          </div>
+
+          <!-- Kanan: Write a comment... input with dark circular send button -->
+          <form @submit.prevent="submitFeedback()" class="flex items-center gap-2 flex-1 max-w-[340px]">
+            <input type="text"
+                   x-model="newFeedbackText"
+                   placeholder="Write a comment..."
+                   class="w-full h-10 px-4 rounded-full border border-[#E3E4E9] bg-[#F8FAFC] focus:bg-white focus:outline-none focus:border-[#3A5988] text-[13.5px] text-[#212224] transition-all placeholder:text-[#91969C]">
+            <button type="submit"
+                    class="w-10 h-10 rounded-full bg-[#0C1117] hover:bg-[#3A5988] text-white flex items-center justify-center shrink-0 transition-colors shadow-sm cursor-pointer"
+                    title="Kirim Komentar">
+              <svg class="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+              </svg>
+            </button>
+          </form>
+        </footer>
+
+      </div>
+    </div>
+  </template>
+
+  <!-- ========================================================
+       MODAL: LAUNCH KARYA BARU (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
+  ======================================================== -->
+  <template x-if="launchModalOpen">
+    <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
+         @click.self="closeLaunchModal()"
+         @keydown.window.escape="closeLaunchModal()">
+      <div class="w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
+        
+        <!-- Header Modal 72px -->
+        <header class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            </div>
+            <div>
+              <h2 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Launch Karya Baru</h2>
+              <p class="text-[12.5px] text-[#6B7280]">Publikasikan produk atau aplikasi ke etalase alumni Bengkel Koding</p>
+            </div>
+          </div>
+          <button type="button"
+                  @click="closeLaunchModal()"
+                  class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer"
+                  title="Tutup">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </header>
+
+        <!-- Body Form Scrollable -->
+        <form @submit.prevent="submitLaunchKarya()" class="p-6 lg:p-8 space-y-6 flex-1 overflow-y-auto">
+          
+          <!-- Identitas Karya -->
+          <div class="space-y-4">
+            <h3 class="text-[15px] font-bold text-[#0C1117]">1. Identitas Karya</h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5 sm:col-span-2">
+                <label class="block text-[13.5px] font-medium text-[#212224]">
+                  Nama Karya / Judul Proyek <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       x-model="launchForm.title"
+                       required
+                       placeholder="Contoh: Sentimeter AI - Multi-source Customer Sentiment Analyzer"
+                       class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[13.5px] font-medium text-[#212224]">
+                  Periode Pengerjaan <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       x-model="launchForm.period"
+                       required
+                       placeholder="Contoh: Jan 2026 – Sekarang"
+                       class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[13.5px] font-medium text-[#212224]">
+                  Kategori Software
+                </label>
+                <select x-model="launchForm.category"
+                        class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+                  <option value="Mobile App">Mobile App</option>
+                  <option value="Web App">Web App</option>
+                  <option value="AI & Data Science">AI & Data Science</option>
+                  <option value="Developer Tools">Developer Tools</option>
+                  <option value="UI/UX Design">UI/UX Design</option>
+                </select>
+              </div>
+
+              <div class="space-y-1.5 sm:col-span-2">
+                <label class="block text-[13.5px] font-medium text-[#212224]">Tagline Ringkas</label>
+                <input type="text"
+                       x-model="launchForm.tagline"
+                       placeholder="Contoh: Engine pemrosesan sentimen teks pelanggan secara real-time"
+                       class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+              </div>
+
+              <div class="space-y-1.5 sm:col-span-2">
+                <label class="block text-[13.5px] font-medium text-[#212224]">
+                  Tautan Website / Demo Live
+                </label>
+                <input type="url"
+                       x-model="launchForm.demoUrl"
+                       placeholder="https://aplikasi-anda.com atau https://github.com/..."
+                       class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+              </div>
+            </div>
+          </div>
+
+          <!-- Detail Teknis & Deskripsi -->
+          <div class="space-y-4 pt-2">
+            <h3 class="text-[15px] font-bold text-[#0C1117]">2. Detail Teknis &amp; Deskripsi</h3>
+            
+            <div class="space-y-4">
+              <div class="space-y-1.5">
+                <label class="block text-[13.5px] font-medium text-[#212224]">
+                  Deskripsi Lengkap <span class="text-red-500">*</span>
+                </label>
+                <textarea rows="4"
+                          x-model="launchForm.desc"
+                          required
+                          placeholder="Uraikan problem yang diselesaikan, arsitektur sistem, serta fitur kunci aplikasi..."
+                          class="w-full p-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px] leading-relaxed resize-none"></textarea>
+              </div>
+
+              <!-- Tech Stack Tags -->
+              <div class="space-y-1.5">
+                <label class="block text-[13.5px] font-medium text-[#212224]">Tech Stack yang Digunakan</label>
+                <div class="flex flex-wrap items-center gap-2 p-3 rounded-[10px] border border-[#E3E4E9] bg-white min-h-[48px]">
+                  <template x-for="(st, idx) in launchForm.skills" :key="st">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-[6px] bg-[#E2F1F9] text-[#3A5988] text-[12.5px] font-medium">
+                      <span x-text="st"></span>
+                      <button type="button" @click="removeSkill(idx)" class="text-[#3A5988] hover:text-red-600 font-bold">&times;</button>
+                    </span>
+                  </template>
+                  <input type="text"
+                         x-model="skillInput"
+                         @keydown.enter.prevent="addSkill()"
+                         @keydown.comma.prevent="addSkill()"
+                         placeholder="Ketik teknologi lalu tekan Enter..."
+                         class="flex-1 min-w-[180px] text-[13.5px] text-[#212224] placeholder-[#91969C] outline-none bg-transparent">
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="block text-[13.5px] font-medium text-[#212224]">Rekan Kontributor (Opsional)</label>
+                <input type="text"
+                       x-model="launchForm.contributors"
+                       placeholder="Nama rekan alumni (pisahkan koma jika lebih dari satu)"
+                       class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+              </div>
+            </div>
+          </div>
+
+          <!-- Banner / Media Gambar -->
+          <div class="space-y-4 pt-2">
+            <h3 class="text-[15px] font-bold text-[#0C1117]">3. Media &amp; Banner Proyek</h3>
+            
+            <div class="space-y-2">
+              <label class="block text-[13.5px] font-medium text-[#212224]">Banner Karya (URL Gambar)</label>
+              <input type="text"
+                     x-model="launchForm.bannerUrl"
+                     placeholder="assets/banner-dashboard.jpg atau tautan gambar..."
+                     class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+            </div>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="pt-4 flex items-center justify-end gap-3">
+            <button type="button"
+                    @click="closeLaunchModal()"
+                    class="h-10 px-5 rounded-[8px] border border-[#E3E4E9] hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium transition-colors cursor-pointer">
+              Batal
+            </button>
+            <button type="submit"
+                    class="h-10 px-6 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium transition-colors cursor-pointer shadow-sm">
+              Publikasikan Karya ke Showcase
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </template>
+
+
 </body>
 </html>
