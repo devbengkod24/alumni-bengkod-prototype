@@ -166,7 +166,7 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Showcase",
+    title: "Karya",
     link: "/dashboard/alumni/showcase",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
@@ -176,7 +176,7 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Gigs & Proyek",
+    title: "Proyek",
     link: "/dashboard/alumni/gigs",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
@@ -184,7 +184,7 @@ const ALUMNI_NAVIGATIONS = [
         </svg>`,
   },
   {
-    title: "Referral",
+    title: "Lowongan",
     link: "/dashboard/alumni/referral",
     icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24px" width="24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="m11 17 2 2a1 1 0 1 0 3-3" />
@@ -231,7 +231,7 @@ const ALUMNI_EXTRA_TITLES = {
   "/dashboard/alumni/referral-pengajuan": "Pengajuan Referral",
   "/dashboard/alumni/launch-karya": "Launch Karya",
   "/dashboard/alumni/lempar-proyek": "Lempar Proyek",
-  "/dashboard/alumni/bagikan-referral": "Bagikan Referral",
+  "/dashboard/alumni/bagikan-referral": "Bagikan Lowongan",
   "/dashboard/alumni/pengaturan": "Pengaturan Akun",
 };
 
@@ -620,6 +620,18 @@ function alumniNavSearchDropdownHTML() {
     </div>`;
 }
 
+function alumniFooterHTML() {
+  return `
+      <footer class="w-full px-2 lg:px-4 py-4">
+        <div class="max-w-7xl mx-auto border-t pt-4 flex justify-between text-neutral3 items-center">
+          <p class="text-xs lg:text-sm">&#xA9; 2026 Bengkel Koding</p>
+          <div class="flex items-center gap-1 md:gap-2">
+            <a class="text-xs lg:text-sm" href="#">Terms</a> • <a class="text-xs lg:text-sm" href="#">Privacy</a>
+          </div>
+        </div>
+      </footer>`;
+}
+
 function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
   const normalized = alumniNormalizeRoute(route);
   let activeRoute = ALUMNI_NAV_PARENT[normalized] || normalized;
@@ -860,14 +872,7 @@ function alumniLayoutHTML(route, pageTitle = "Profil Saya") {
 
       </header>
       <div class="flex-1 px-6 lg:px-10 py-6" data-main-slot></div>
-      <footer class="w-full px-2 lg:px-4 py-4">
-        <div class="max-w-7xl mx-auto border-t pt-4 flex justify-between text-neutral3 items-center">
-          <p class="text-xs lg:text-sm">&#xA9; 2026 Bengkel Koding</p>
-          <div class="flex items-center gap-1 md:gap-2">
-            <a class="text-xs lg:text-sm" href="#">Terms</a> • <a class="text-xs lg:text-sm" href="#">Privacy</a>
-          </div>
-        </div>
-      </footer>
+      ${alumniFooterHTML()}
     </div>
 
     <!-- Modal Semua Notifikasi + konfirmasi hapus: desain sama dengan role koordinator -->
@@ -975,7 +980,14 @@ function hideAlumniTemplates(root) {
 document.addEventListener("DOMContentLoaded", () => {
   expandAlumniPartials(document.body);
   const main = document.querySelector("main[data-route], main[data-title]");
-  if (main) {
+  if (main && window.mountAlumniPortal) {
+    const slot = document.createElement("div");
+    slot.className = "flex-1 px-6 lg:px-10 py-6";
+    main.before(slot);
+    slot.append(main);
+    const content = window.mountAlumniPortal(slot, { profile: alumniCurrentProfile() });
+    content.insertAdjacentHTML("beforeend", alumniFooterHTML());
+  } else if (main) {
     const r = main.hasAttribute("data-route") ? main.dataset.route : location.pathname.split("/").pop().replace(/\.html$/, "");
     const route = r.startsWith("/dashboard/alumni") ? r : "/dashboard/alumni" + (r ? "/" + r.replace(/^\/+/, "") : "");
     const shell = document.createElement("div");

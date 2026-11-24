@@ -28,7 +28,10 @@
   function lsSet(k, val) {
     try {
       localStorage.setItem(k, JSON.stringify(val));
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // Initial Seed Data (Bahasa Indonesia & Harmonisasi per Role)
@@ -917,8 +920,9 @@
       return list.filter(l => l.status === status);
     },
     saveLaporan(list) {
-      lsSet(KEYS.LAPORAN, list);
+      if (!lsSet(KEYS.LAPORAN, list)) return false;
       window.dispatchEvent(new CustomEvent('bengkod:laporan-updated', { detail: list }));
+      return true;
     },
     addLaporan({ id_post, judul_post = '', penulis_post = '', pelapor = 'Alumni', peran_pelapor = 'Alumni', alasan = 'Spam', catatan = '' }) {
       const list = this.getLaporan();
@@ -936,8 +940,7 @@
         waktu: new Date().toISOString(),
         ditinjau: ''
       };
-      list.unshift(created);
-      this.saveLaporan(list);
+      if (!this.saveLaporan([created, ...list])) return null;
       this.logActivity('Alumni', 'Laporan Postingan', `Melaporkan postingan dari ${penulis_post}: "${alasan}"`);
       return created;
     },

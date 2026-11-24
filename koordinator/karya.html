@@ -11,6 +11,7 @@
   <script src="../alumni/assets/js/app.js?v=6"></script>
   <script src="../assets/js/store.js?v=2"></script>
   <script src="../alumni/assets/js/alumni-data.js"></script>
+  <script src="../alumni/assets/js/alumni-catalog.js"></script>
   <script src="../assets/js/feed-bersama.js"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
@@ -23,7 +24,7 @@
       <div>
         <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
         <p class="text-sm text-gray-500 mt-1">
-          Software &amp; aplikasi karya rekan alumni Bengkel Koding
+          Pilih karya yang tampil di Spotlight beranda alumni dan landing page.
         </p>
       </div>
       <div class="flex items-center gap-2">
@@ -83,35 +84,18 @@
   let stackFilter = "";
   let query = "";
 
-  function ambilSemuaKarya() {
-    const posts = typeof loadPosts === "function" ? loadPosts() : [];
-    const waktu = p => (p.date === "Baru saja" ? p.id : (Date.parse(p.waktu || p.date) || 0));
-
-    return posts
-      .filter(p => p.karya)
-      .map(p => ({
-        postId: p.id,
-        nama: p.karya.nama,
-        tagline: p.karya.tagline || "",
-        logo: p.karya.logo || "",
-        banner: p.karya.bannerUrl || (p.karya.screenshots || [])[0] || "",
-        stack: p.karya.stack || [],
-        authorName: p.authorName || "Alumni",
-        authorAvatar: p.authorAvatar || "",
-        waktu: waktu(p),
-      }));
-  }
-
-  function kartuKarya(k) {
-    const detailUrl = `../alumni/detail-proyek.html?id=${k.postId}`;
+  function kartuKarya(k, tampilDiSpotlight) {
+    const detailUrl = showcaseWorkLink(k, "../alumni/");
+    const banner = (k.banner || "").startsWith("assets/") ? "../alumni/" + k.banner : k.banner;
+    const logo = (k.logo || "").startsWith("assets/") ? "../alumni/" + k.logo : k.logo;
     const monogram = (k.nama || "A").charAt(0).toUpperCase();
 
     const bannerHtml = k.banner
-      ? `<img src="${esc(k.banner)}" alt="Banner ${esc(k.nama)}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">`
+      ? `<img src="${esc(banner)}" alt="Banner ${esc(k.nama)}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">`
       : `<div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30">${esc(monogram)}</div>`;
 
     const logoHtml = k.logo
-      ? `<img src="${esc(k.logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">`
+      ? `<img src="${esc(logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">`
       : `<span class="text-sm font-bold text-[#1E3A8A]">${esc(monogram)}</span>`;
 
     const stackHtml = (k.stack && k.stack.length > 0)
@@ -126,9 +110,10 @@
       : `<div class="w-6 h-6 rounded-full bg-[#1E3A8A] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(k.authorName.slice(0, 2).toUpperCase())}</div>`;
 
     return `
+      <article class="flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden">
       <a
         href="${detailUrl}"
-        class="group flex flex-col bg-white rounded-xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-gray-300 transition-all overflow-hidden"
+        class="group flex flex-1 flex-col hover:bg-gray-50 transition-colors"
       >
         <!-- Banner 16:9 -->
         <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
@@ -159,7 +144,14 @@
             </span>
           </div>
         </div>
-      </a>`;
+      </a>
+      <div class="px-4 pb-4">
+        <button type="button" data-spotlight-id="${esc(k.id)}" aria-pressed="${tampilDiSpotlight}" aria-label="Spotlight ${esc(k.nama)}"
+                class="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-[#1E3A8A] ${tampilDiSpotlight ? "bg-blue-100" : "hover:bg-blue-50"}">
+          ${tampilDiSpotlight ? "Lepas dari Spotlight" : "Tampilkan di Spotlight"}
+        </button>
+      </div>
+      </article>`;
   }
 
   function isiOpsiStack(semuaKarya) {
@@ -176,7 +168,7 @@
   }
 
   function render() {
-    const semuaKarya = ambilSemuaKarya();
+    const semuaKarya = loadShowcaseWorks();
     document.getElementById("badge-total-karya").textContent = `${semuaKarya.length} Karya Terbit`;
 
     // Filter list
@@ -198,7 +190,8 @@
       empty.classList.remove("hidden");
     } else {
       empty.classList.add("hidden");
-      grid.innerHTML = filtered.map(kartuKarya).join("");
+      const spotlightIds = new Set(loadSpotlightWorks().map(k => k.id));
+      grid.innerHTML = filtered.map(k => kartuKarya(k, spotlightIds.has(k.id))).join("");
     }
 
     // Update style select
@@ -221,17 +214,36 @@
     render();
   });
 
-  // Init
-  const initialKarya = ambilSemuaKarya();
-  isiOpsiStack(initialKarya);
-  render();
-
-  // Sinkronisasi bila ada karya baru diluncurkan alumni
-  window.addEventListener("bengkod_posts_updated", () => {
-    const update = ambilSemuaKarya();
-    isiOpsiStack(update);
+  const gridKarya = document.getElementById("grid-karya");
+  gridKarya.addEventListener("click", event => {
+    const button = event.target.closest("[data-spotlight-id]");
+    if (!button) return;
+    const id = button.dataset.spotlightId;
+    try {
+      toggleSpotlightWork(id);
+    } catch {
+      window.alert("Pilihan Spotlight gagal disimpan.");
+      return;
+    }
     render();
+    [...gridKarya.querySelectorAll("[data-spotlight-id]")]
+      .find(item => item.dataset.spotlightId === id)?.focus();
   });
+  window.addEventListener("storage", event => {
+    if (event.key === SPOTLIGHT_STORAGE_KEY) {
+      render();
+    } else if (event.key === STORAGE_KEY || event.key === "bengkod_showcase_karya") {
+      refreshShowcase();
+    }
+  });
+
+  function refreshShowcase() {
+    isiOpsiStack(loadShowcaseWorks());
+    render();
+  }
+
+  refreshShowcase();
+  window.addEventListener("bengkod_posts_updated", refreshShowcase);
 </script>
 </body>
 </html>

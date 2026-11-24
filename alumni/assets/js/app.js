@@ -390,9 +390,9 @@ const NAV = {
   alumni: [
     { href: 'dashboard.html', icon: 'house', label: 'Beranda' },
     { href: 'direktori.html', icon: 'users', label: 'Alumni' },
-    { href: 'showcase.html', icon: 'rocket', label: 'Showcase' },
-    { href: 'gigs.html', icon: 'briefcase-business', label: 'Gigs & Proyek' },
-    { href: 'referral.html', icon: 'handshake', label: 'Referral' },
+    { href: 'showcase.html', icon: 'rocket', label: 'Karya' },
+    { href: 'gigs.html', icon: 'briefcase-business', label: 'Proyek' },
+    { href: 'referral.html', icon: 'handshake', label: 'Lowongan' },
     { href: 'data-cv.html', icon: 'file-text', label: 'Data CV' },
     { href: 'profil.html', icon: 'user-round', label: 'Profil Saya' },
   ],
@@ -771,6 +771,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pendingConfirm) pendingConfirm();
     pendingConfirm = null;
   });
+
+  if (SAYA.role === 'alumni' && window.mountAlumniPortal) {
+    wrapper.before(main);
+    wrapper.remove();
+    document.getElementById('sidebar').remove();
+    document.getElementById('sidebar-overlay').remove();
+    window.mountAlumniPortal(main, {
+      profile: { name: SAYA.nama, batch: String(SAYA.angkatan || '') },
+      logout: keluar,
+    });
+    refreshIcons();
+    return;
+  }
 
   pasangDropdown(document.getElementById('profile-menu-btn'), document.getElementById('dropdown-profile-menu'));
 
