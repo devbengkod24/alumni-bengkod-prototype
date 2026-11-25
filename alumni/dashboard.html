@@ -70,9 +70,6 @@
         pickerOptions: [],
         spotlightWorks: [],
         latestProjects: [],
-        selectedAnnouncement: null,
-        announcementModalOpen: false,
-        allAnnouncementsModalOpen: false,
         postMenuId: null,
         reportTargetId: null,
         reportReason: '',
@@ -112,24 +109,6 @@
             author: "Divisi Partnership Bengkel Koding"
           }
         ],
-
-        openAnnouncementModal(item) {
-          this.selectedAnnouncement = item;
-          this.announcementModalOpen = true;
-        },
-
-        closeAnnouncementModal() {
-          this.announcementModalOpen = false;
-          this.selectedAnnouncement = null;
-        },
-
-        openAllAnnouncementsModal() {
-          this.allAnnouncementsModalOpen = true;
-        },
-
-        closeAllAnnouncementsModal() {
-          this.allAnnouncementsModalOpen = false;
-        },
 
         userProfile: alumniProfileForBoard({
           avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
@@ -896,25 +875,24 @@
                   <h3 class="text-[16px] font-bold text-[#0C1117] leading-tight">Pengumuman</h3>
                   <p class="text-[12.5px] text-[#6B7280] mt-0.5">Informasi utama Bengkel Koding</p>
                 </div>
-                <button type="button"
-                        @click="openAllAnnouncementsModal()"
-                        class="text-[13px] font-semibold text-[#3A5988] hover:underline transition-colors cursor-pointer shrink-0">
+                <a href="pengumuman.html"
+                   class="text-[13px] font-semibold text-[#3A5988] hover:underline transition-colors shrink-0">
                   Semua
-                </button>
+                </a>
               </div>
 
               <!-- Daftar Pengumuman (Sesuai Referensi, Bersih Tanpa Garis Pemisah) -->
               <div class="space-y-4">
                 <template x-for="item in announcements" :key="item.id">
-                  <div @click="openAnnouncementModal(item)"
-                       class="group p-2.5 -mx-2.5 rounded-[12px] hover:bg-[#F8FAFC] transition-colors cursor-pointer space-y-1">
+                  <a :href="'pengumuman.html#pengumuman-' + item.id"
+                     class="group block p-2.5 -mx-2.5 rounded-[12px] hover:bg-[#F8FAFC] transition-colors space-y-1">
                     <h4 class="text-[13.5px] font-bold text-[#0C1117] group-hover:text-[#3A5988] leading-snug transition-colors"
                         x-text="item.title"></h4>
                     <p class="text-[12.5px] text-[#6B7280] leading-relaxed line-clamp-2"
                        x-text="item.desc"></p>
                     <span class="text-[11.5px] text-[#91969C] font-medium block pt-0.5"
                           x-text="item.date"></span>
-                  </div>
+                  </a>
                 </template>
               </div>
 
@@ -984,84 +962,6 @@
         </div>
 
       </main>
-
-  <!-- ========================================================
-       MODAL DETAIL PENGUMUMAN TUNGGAL (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
-  ======================================================== -->
-  <div x-show="announcementModalOpen"
-       x-cloak
-       class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
-       role="dialog"
-       aria-modal="true">
-    <div class="fixed inset-0" @click="closeAnnouncementModal()"></div>
-    <div class="relative w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col" @click.stop>
-      <header class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </div>
-          <div>
-            <span class="inline-block px-2 py-0.5 rounded text-[11px] font-bold bg-[#E2F1F9] text-[#3A5988]" x-text="selectedAnnouncement?.category"></span>
-            <h3 class="text-[17px] font-bold text-[#0C1117] leading-snug" x-text="selectedAnnouncement?.title"></h3>
-          </div>
-        </div>
-        <button type="button" @click="closeAnnouncementModal()" class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
-      </header>
-      <div class="p-6 lg:p-8 space-y-4 overflow-y-auto flex-1">
-        <div class="text-[12.5px] text-[#6B7280]" x-text="'Dipublikasikan oleh: ' + (selectedAnnouncement?.author || 'Bengkel Koding') + ' · ' + (selectedAnnouncement?.date || '')"></div>
-        <div class="text-[14px] text-[#374151] leading-relaxed" x-text="selectedAnnouncement?.fullText"></div>
-      </div>
-      <div class="h-[72px] px-6 lg:px-8 border-t border-[#E3E4E9] flex items-center justify-end shrink-0 bg-white">
-        <button type="button" @click="closeAnnouncementModal()" class="h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium transition-colors cursor-pointer">
-          Tutup
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========================================================
-       MODAL SEMUA PENGUMUMAN BENGKEL KODING (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
-  ======================================================== -->
-  <div x-show="allAnnouncementsModalOpen"
-       x-cloak
-       class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
-       role="dialog"
-       aria-modal="true">
-    <div class="fixed inset-0" @click="closeAllAnnouncementsModal()"></div>
-    <div class="relative w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col" @click.stop>
-      <header class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          </div>
-          <div>
-            <h3 class="text-[17px] font-bold text-[#0C1117]">Semua Pengumuman</h3>
-            <p class="text-[12.5px] text-[#6B7280]">Informasi resmi dan agenda penting Bengkel Koding UDINUS</p>
-          </div>
-        </div>
-        <button type="button" @click="closeAllAnnouncementsModal()" class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
-      </header>
-      <div class="p-6 lg:p-8 space-y-3.5 overflow-y-auto flex-1">
-        <template x-for="item in announcements" :key="item.id">
-          <div @click="closeAllAnnouncementsModal(); openAnnouncementModal(item)"
-               class="p-4 rounded-[14px] bg-[#F8FAFC] hover:bg-[#EFF4FB] border border-[#E3E4E9] transition-colors cursor-pointer space-y-1.5">
-            <div class="flex items-center justify-between gap-2">
-              <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-[#E2F1F9] text-[#3A5988]" x-text="item.category"></span>
-              <span class="text-[11.5px] text-[#91969C]" x-text="item.date"></span>
-            </div>
-            <h4 class="text-[14.5px] font-bold text-[#0C1117]" x-text="item.title"></h4>
-            <p class="text-[12.5px] text-[#6B7280] leading-relaxed" x-text="item.desc"></p>
-          </div>
-        </template>
-      </div>
-      <div class="h-[72px] px-6 lg:px-8 border-t border-[#E3E4E9] flex items-center justify-end shrink-0 bg-white">
-        <button type="button" @click="closeAllAnnouncementsModal()" class="h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium transition-colors cursor-pointer">
-          Tutup
-        </button>
-      </div>
-    </div>
-  </div>
-
 
   <dialog id="post-report-dialog" x-ref="postReportDialog" aria-labelledby="post-report-title"
           @click.self="$el.close()"

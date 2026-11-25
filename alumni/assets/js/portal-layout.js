@@ -21,7 +21,8 @@
     "edit-profil.html": ["Edit Profil", "profil.html"],
     "pengaturan.html": ["Pengaturan Akun", "profil.html"],
     "tracer.html": ["Studi Pelacakan Alumni", "profil.html"],
-    "pengumuman.html": ["Pengumuman"]
+    "pengumuman.html": ["Pengumuman"],
+    "notifikasi.html": ["Notifikasi"]
   };
 
   const icons = {
@@ -44,6 +45,104 @@
     ["Lainnya", [["data-cv.html", "file"], ["profil.html", "person"]]]
   ];
   const desktopPreference = "bengkod_portal_sidebar_open";
+  const notifStorageKey = "bengkod_notifications_v1";
+  const notifImgBase = new URL("../img/notif/", document.currentScript.src).href;
+  const notifKindIcons = {
+    referral: notifImgBase + "referral.svg",
+    gigs: notifImgBase + "gigs.svg",
+    announcement: notifImgBase + "announcement.svg"
+  };
+  const DEFAULT_NOTIFICATIONS = [
+    {
+      id: "notif-1",
+      kind: "referral",
+      title: "Yoga Kurniawan meminta review dan referral untuk Backend Developer Intern di PT Solusi Digital Jateng.",
+      meta: "Pengajuan referral baru · 4 Nov 2026",
+      href: "referral.html",
+      unread: true
+    },
+    {
+      id: "notif-2",
+      kind: "gigs",
+      title: "Kirana Maheswari mengajukan minat di Sistem Presensi QR Code Mobile App untuk Event Komunitas.",
+      meta: "Pelamar gigs baru · 3 Nov 2026",
+      href: "gigs.html",
+      unread: true
+    },
+    {
+      id: "notif-3",
+      kind: "gigs",
+      title: "Dimas Aryo mengajukan minat di Sistem Presensi QR Code Mobile App untuk Event Komunitas.",
+      meta: "Pelamar gigs baru · 2 Nov 2026",
+      href: "gigs.html",
+      unread: true
+    },
+    {
+      id: "notif-4",
+      kind: "announcement",
+      title: "Jadwal Pelepasan Alumni Angkatan 2024 sudah terbit.",
+      meta: "Pengumuman koordinator · 24 Okt 2026",
+      href: "pengumuman.html#pengumuman-1",
+      unread: true
+    },
+    {
+      id: "notif-5",
+      kind: "announcement",
+      title: "Pengisian Data Alumni Terbaru: perbarui profil, keahlian, dan tracer study Anda.",
+      meta: "Pengumuman koordinator · 21 Okt 2026",
+      href: "pengumuman.html#pengumuman-2",
+      unread: true
+    }
+  ];
+
+  function escapeHtml(text) {
+    return String(text || "").replace(/[&<>"']/g, ch => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"
+    }[ch]));
+  }
+
+  function loadNotifications() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(notifStorageKey));
+      if (Array.isArray(saved) && saved.length) return saved;
+    } catch {}
+    return DEFAULT_NOTIFICATIONS.map(item => ({ ...item }));
+  }
+
+  function saveNotifications(list) {
+    try {
+      localStorage.setItem(notifStorageKey, JSON.stringify(list));
+    } catch {}
+    window.dispatchEvent(new CustomEvent("bengkod:notifications-change"));
+  }
+
+  window.BengkodNotifications = {
+    getAll: loadNotifications,
+    unreadCount() {
+      return loadNotifications().filter(item => item.unread).length;
+    },
+    markRead(id) {
+      const list = loadNotifications();
+      let changed = false;
+      const updated = list.map(item => {
+        if (item.id === id && item.unread) {
+          changed = true;
+          return { ...item, unread: false };
+        }
+        return item;
+      });
+      if (changed) saveNotifications(updated);
+    },
+    markAllRead() {
+      const list = loadNotifications();
+      if (!list.some(item => item.unread)) return;
+      saveNotifications(list.map(item => ({ ...item, unread: false })));
+    },
+    iconUrl(kind) {
+      return notifKindIcons[kind] || notifKindIcons.announcement;
+    }
+  };
+
   const stylesheet = document.createElement("link");
   stylesheet.rel = "stylesheet";
   stylesheet.href = new URL("../css/portal-layout.css", document.currentScript.src).href;
@@ -62,11 +161,10 @@
       : typeof ALUMNI_DIRECTORY !== "undefined" ? ALUMNI_DIRECTORY[0] : null;
     const name = firstText(profile?.name, saved?.name, defaults?.name, "Aisha Dwi Rahmawati");
     const batch = firstText(profile?.batch, saved?.batch, defaults?.batch, "2024");
-    const headline = firstText(profile?.headline, saved?.headline, defaults?.headline);
     return {
       name,
       initials: name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase(),
-      meta: ["Alumni " + batch, headline].filter(Boolean).join(" · ")
+      meta: "Alumni " + batch
     };
   }
 
@@ -146,7 +244,13 @@
             <nav class="portal-breadcrumb" aria-label="Jejak navigasi"></nav>
           </div>
           <div class="portal-topbar-end">
-            <a class="portal-icon" href="pengumuman.html" aria-label="Pengumuman"${file === "pengumuman.html" ? ' aria-current="page"' : ''}>${icon("bell")}</a>
+            <div class="portal-notif-wrap">
+              <button type="button" class="portal-icon portal-notif-trigger" aria-label="Notifikasi" aria-haspopup="dialog" aria-expanded="false"${file === "notifikasi.html" ? ' aria-current="page"' : ''}>
+                ${icon("bell")}
+                <span class="portal-notif-badge" hidden></span>
+              </button>
+              <section class="portal-notif-panel" role="dialog" aria-label="Panel Notifikasi" hidden></section>
+            </div>
             <details class="portal-account">
               <summary aria-label="Menu akun">
                 <span class="portal-avatar" aria-hidden="true"></span>
@@ -183,6 +287,83 @@
     const toggle = shell.querySelector(".portal-toggle");
     const close = shell.querySelector(".portal-close");
     const account = shell.querySelector(".portal-account");
+    const notifWrap = shell.querySelector(".portal-notif-wrap");
+    const notifTrigger = shell.querySelector(".portal-notif-trigger");
+    const notifBadge = shell.querySelector(".portal-notif-badge");
+    const notifPanel = shell.querySelector(".portal-notif-panel");
+    let notifOpen = false;
+
+    function syncNotifications() {
+      const items = window.BengkodNotifications.getAll();
+      const unread = items.filter(item => item.unread).length;
+      notifBadge.textContent = unread > 99 ? "99+" : String(unread);
+      notifBadge.hidden = unread === 0;
+      notifTrigger.setAttribute("aria-label", unread ? `Notifikasi (${unread} belum dibaca)` : "Notifikasi");
+
+      notifPanel.innerHTML = `
+        <div class="portal-notif-head">
+          <div class="portal-notif-head-title">
+            <h2>Notifikasi</h2>
+            ${unread ? `<span class="portal-notif-pill">${unread} baru</span>` : ""}
+          </div>
+          <div class="portal-notif-head-actions">
+            ${unread ? `<button type="button" class="portal-notif-markall" data-notif-mark-all>Tandai semua dibaca</button>` : ""}
+            <button type="button" class="portal-notif-close" data-notif-close aria-label="Tutup panel notifikasi">
+              <img src="${notifImgBase}close.svg" alt="">
+            </button>
+          </div>
+        </div>
+        <div class="portal-notif-list">
+          ${items.slice(0, 3).map(item => `
+            <a class="portal-notif-item${item.unread ? " is-unread" : ""}" href="${escapeHtml(item.href)}" data-notif-item="${escapeHtml(item.id)}">
+              <span class="portal-notif-iconbox" aria-hidden="true">
+                <img class="portal-notif-kind-img" src="${window.BengkodNotifications.iconUrl(item.kind)}" alt="">
+              </span>
+              <span class="portal-notif-copy">
+                <span class="portal-notif-title">${escapeHtml(item.title)}</span>
+                <span class="portal-notif-meta">${escapeHtml(item.meta)}</span>
+              </span>
+              ${item.unread ? '<span class="portal-notif-dot" aria-label="Belum dibaca"></span>' : '<span class="portal-notif-dot-spacer" aria-hidden="true"></span>'}
+            </a>
+          `).join("")}
+        </div>
+        <a class="portal-notif-footer" href="notifikasi.html">
+          <span>Lihat semua notifikasi</span>
+          <span aria-hidden="true">→</span>
+        </a>`;
+    }
+
+    function setNotifOpen(open) {
+      notifOpen = open;
+      notifPanel.hidden = !open;
+      notifTrigger.setAttribute("aria-expanded", String(open));
+      if (open) {
+        account.open = false;
+        syncNotifications();
+      }
+    }
+
+    notifTrigger.addEventListener("click", event => {
+      event.stopPropagation();
+      setNotifOpen(!notifOpen);
+    });
+    notifPanel.addEventListener("click", event => {
+      if (event.target.closest("[data-notif-close]")) {
+        setNotifOpen(false);
+        notifTrigger.focus();
+        return;
+      }
+      if (event.target.closest("[data-notif-mark-all]")) {
+        window.BengkodNotifications.markAllRead();
+        return;
+      }
+      const itemLink = event.target.closest("[data-notif-item]");
+      if (itemLink) {
+        window.BengkodNotifications.markRead(itemLink.dataset.notifItem);
+      }
+    });
+    window.addEventListener("bengkod:notifications-change", syncNotifications);
+    syncNotifications();
 
     function syncSidebar() {
       const open = desktop.matches ? desktopOpen : mobileOpen;
@@ -232,11 +413,15 @@
     });
     document.addEventListener("click", event => {
       if (!account.contains(event.target)) account.open = false;
+      if (notifOpen && !notifWrap.contains(event.target)) setNotifOpen(false);
     });
     document.addEventListener("keydown", event => {
       if (event.key !== "Escape") return;
       if (mobileOpen) {
         closeDrawer();
+      } else if (notifOpen) {
+        setNotifOpen(false);
+        notifTrigger.focus();
       } else if (account.open) {
         account.open = false;
         account.querySelector("summary").focus();

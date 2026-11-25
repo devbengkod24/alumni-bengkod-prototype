@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    [x-cloak]:not(body) { display: none !important; }
     body { font-family: "Inter", sans-serif; }
   </style>
 </head>
@@ -23,25 +24,46 @@
     <p class="mt-1 text-[14px] text-[#6B7280]">Informasi dan pemberitahuan resmi dari koordinator Bengkel Koding UDINUS.</p>
   </header>
 
+  <!-- Filter Pills selaras Figma 01b. Pengumuman Resmi -->
+  <div class="flex flex-wrap items-center gap-2.5">
+    <button type="button"
+            @click="selectedCategory = ''"
+            class="h-9 px-4 rounded-[12px] text-[13px] font-semibold transition-colors cursor-pointer"
+            :class="!selectedCategory ? 'bg-[#1E3A8A] text-white' : 'bg-white border border-[#E2E8F0] text-[#475569] hover:border-[#CBD5E1]'">
+      Semua Pengumuman
+    </button>
+    <template x-for="cat in categories" :key="cat">
+      <button type="button"
+              @click="selectedCategory = selectedCategory === cat ? '' : cat"
+              class="h-9 px-4 rounded-[12px] text-[13px] font-medium transition-colors cursor-pointer"
+              :class="selectedCategory === cat ? 'bg-[#1E3A8A] text-white font-semibold' : 'bg-white border border-[#E2E8F0] text-[#475569] hover:border-[#CBD5E1]'"
+              x-text="cat"></button>
+    </template>
+  </div>
+
   <div class="space-y-4">
-    <template x-for="item in announcements" :key="item.id">
+    <template x-for="item in filteredAnnouncements" :key="item.id">
       <article :id="'pengumuman-' + item.id"
-               class="flex scroll-mt-3 items-start gap-3 rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm sm:gap-4 sm:p-6">
-        <div class="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-[#E2F1F9] text-[#3A5988]" aria-hidden="true">
+               class="flex scroll-mt-20 items-start gap-3.5 rounded-[18px] border bg-white p-5 shadow-sm transition-shadow sm:gap-4 sm:p-6"
+               :class="highlightedId === ('pengumuman-' + item.id) ? 'border-[#1E3A8A] ring-2 ring-[#1E3A8A]/20' : 'border-[#E3E4E9]'">
+        <div class="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[#1E3A8A] text-white" aria-hidden="true">
           <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
             <path d="M13.73 21a2 2 0 01-3.46 0"/>
           </svg>
         </div>
         <div class="min-w-0 flex-1">
-          <h2 class="break-words text-[16px] font-bold leading-snug text-[#0C1117]" x-text="item.title"></h2>
-          <p class="mt-1 text-[13px] text-[#6B7280]" x-text="item.time"></p>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 class="break-words text-[16px] sm:text-[17px] font-bold leading-snug text-[#0F172A]" x-text="item.title"></h2>
+            <span class="inline-flex items-center rounded-full bg-[#EFF6FF] px-2.5 py-0.5 text-[11.5px] font-medium text-[#1E3A8A]" x-text="item.category"></span>
+          </div>
+          <p class="mt-1 text-[12.5px] text-[#64748B]" x-text="item.time"></p>
           <p class="mt-2.5 whitespace-pre-line break-words text-[14px] leading-relaxed text-[#374151]" x-text="item.content"></p>
         </div>
       </article>
     </template>
-    <template x-if="announcements.length === 0">
-      <p class="rounded-[16px] border border-[#E3E4E9] bg-white p-8 text-center text-[14px] text-[#6B7280] shadow-sm">Tidak ada pengumuman</p>
+    <template x-if="filteredAnnouncements.length === 0">
+      <p class="rounded-[16px] border border-[#E3E4E9] bg-white p-8 text-center text-[14px] text-[#6B7280] shadow-sm">Tidak ada pengumuman pada kategori ini.</p>
     </template>
   </div>
 </main>
@@ -51,55 +73,82 @@ mountAlumniPortal(document.querySelector('main'));
 
 document.addEventListener('alpine:init', () => {
   Alpine.data('pengumumanPage', () => ({
+    selectedCategory: '',
+    highlightedId: location.hash ? location.hash.slice(1) : '',
+    categories: ['Akademik & Wisuda', 'Tracer Study', 'Workshop & Webinar', 'Rekrutmen'],
+
     // Tautan #pengumuman-N (notifikasi & kartu Beranda) baru bisa digulir setelah x-for merender kartu
     init() {
-      if (location.hash) this.$nextTick(() => document.getElementById(location.hash.slice(1))?.scrollIntoView({ block: 'start' }));
+      const focusHash = () => {
+        this.highlightedId = location.hash ? location.hash.slice(1) : '';
+        if (this.highlightedId) {
+          this.selectedCategory = '';
+          this.$nextTick(() => document.getElementById(this.highlightedId)?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+        }
+      };
+      focusHash();
+      window.addEventListener('hashchange', focusHash);
     },
+
+    get filteredAnnouncements() {
+      return this.selectedCategory
+        ? this.announcements.filter(item => item.category === this.selectedCategory)
+        : this.announcements;
+    },
+
     announcements: [
       {
         id: 1,
+        category: 'Akademik & Wisuda',
         title: 'Jadwal Pelepasan Alumni Angkatan 2024',
         time: '24 Oktober 2025',
         content: 'Acara pelepasan alumni akan dilaksanakan pada Sabtu, 15 November 2025 pukul 09.00 WIB di Gedung Serbaguna Universitas Dian Nuswantoro Semarang. Seluruh alumni angkatan 2024 diwajibkan hadir dengan mengenakan almamater resmi. Konfirmasi kehadiran melalui tautan yang akan dikirimkan ke email masing-masing alumni paling lambat 10 November 2025.',
       },
       {
         id: 2,
+        category: 'Tracer Study',
         title: 'Pengisian Data Alumni Terbaru',
         time: '21 Oktober 2025',
         content: 'Seluruh alumni Bengkel Koding diwajibkan untuk memperbarui data diri terbaru melalui portal alumni. Data yang perlu diperbarui meliputi: nama lengkap sesuai KTP, posisi pekerjaan saat ini, nama perusahaan/instansi, dan domisili terkini. Pembaruan data ini diperlukan untuk keperluan tracer study dan database alumni.',
       },
       {
         id: 3,
+        category: 'Workshop & Webinar',
         title: 'Workshop UI/UX Bersama Tokopedia',
         time: '17 Oktober 2025',
         content: 'Pendaftaran workshop UI/UX gratis bersama tim desainer Tokopedia telah dibuka. Workshop akan berlangsung secara online via Zoom pada 20 November 2025 pukul 13.00–17.00 WIB. Kuota terbatas hanya 50 peserta. Daftarkan diri segera melalui link yang tersedia.',
       },
       {
         id: 4,
+        category: 'Rekrutmen',
         title: 'Rekrutmen Asisten Koordinator 2025',
         time: '10 Oktober 2025',
         content: 'Bengkel Koding membuka rekrutmen Asisten Koordinator untuk periode 2025–2026. Posisi ini terbuka bagi alumni aktif yang memiliki dedikasi tinggi terhadap pengembangan program Bengkel Koding. Kualifikasi: lulus dari program Bengkel Koding, IPK minimal 3.0, bersedia hadir 2x seminggu. Kirimkan CV dan portofolio ke email koordinator@bengkelkoding.com dengan subject "Lamaran Asisten Koordinator 2025".',
       },
       {
         id: 5,
+        category: 'Akademik & Wisuda',
         title: 'Pembaruan Kurikulum Program 2025',
         time: '3 Oktober 2025',
         content: 'Koordinator telah merilis kurikulum baru untuk program coding 2025 yang mencakup penambahan modul Artificial Intelligence, Cloud Computing, dan Cybersecurity Fundamentals. Dokumen kurikulum lengkap dapat diakses oleh seluruh alumni melalui portal internal Bengkel Koding di menu Akademik.',
       },
       {
         id: 6,
+        category: 'Workshop & Webinar',
         title: 'Program Mentorship Karier Tech 2025',
         time: '28 September 2025',
         content: 'Program mentorship 1-on-1 bersama alumni senior Bengkel Koding kini resmi dibuka. Sesi mencakup konsultasi persiapan karier tech, peninjauan portofolio dan resume, serta simulasi technical interview bagi lulusan fresh graduate.',
       },
       {
         id: 7,
+        category: 'Workshop & Webinar',
         title: 'Gathering Akbar & Networking Night',
         time: '19 September 2025',
         content: 'Temu alumni akbar lintas generasi Bengkel Koding akan diselenggarakan di Aula Utama Kampus Imam Bonjol UDINUS. Kegiatan ini menghadirkan sesi networking santai dan sharing alumni yang telah berkarier di berbagai tech unicorn & startup.',
       },
       {
         id: 8,
+        category: 'Rekrutmen',
         title: 'Voucher Diskon Sertifikasi AWS & GCP',
         time: '12 September 2025',
         content: 'Bengkel Koding bekerjasama dengan mitra sertifikasi internasional menyediakan voucher subsidi biaya ujian resmi sertifikasi Cloud Practitioner, Solutions Architect, dan Associate Cloud Engineer bagi seluruh alumni terdaftar.',
