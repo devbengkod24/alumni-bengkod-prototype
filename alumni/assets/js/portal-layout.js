@@ -120,7 +120,7 @@
   function loadNotifications() {
     try {
       const saved = JSON.parse(localStorage.getItem(notifStorageKey));
-      if (Array.isArray(saved) && saved.length) return saved;
+      if (Array.isArray(saved)) return saved;
     } catch {}
     return DEFAULT_NOTIFICATIONS.map(item => ({ ...item }));
   }
@@ -153,6 +153,15 @@
       const list = loadNotifications();
       if (!list.some(item => item.unread)) return;
       saveNotifications(list.map(item => ({ ...item, unread: false })));
+    },
+    remove(id) {
+      const list = loadNotifications();
+      const updated = list.filter(item => item.id !== id);
+      if (updated.length !== list.length) saveNotifications(updated);
+    },
+    clear() {
+      if (!loadNotifications().length) return;
+      saveNotifications([]);
     },
     iconUrl(kind) {
       return notifKindIcons[kind] || notifKindIcons.announcement;
@@ -307,41 +316,55 @@
     const notifBadge = shell.querySelector(".portal-notif-badge");
     const notifPanel = shell.querySelector(".portal-notif-panel");
     let notifOpen = false;
+    let confirmingClear = false;
+    const trashSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
 
     function syncNotifications() {
       const items = notif.getAll();
+      if (!items.length) confirmingClear = false;
       const unread = items.filter(item => item.unread).length;
       notifBadge.textContent = unread > 99 ? "99+" : String(unread);
       notifBadge.hidden = unread === 0;
       notifTrigger.setAttribute("aria-label", unread ? `Notifikasi (${unread} belum dibaca)` : "Notifikasi");
 
+      const headHtml = confirmingClear ? `
+        <div class="portal-notif-confirm">
+          <span>Hapus semua notifikasi?</span>
+          <div class="portal-notif-confirm-actions">
+            <button type="button" class="portal-notif-confirm-yes" data-notif-clear-yes>Ya, Hapus</button>
+            <button type="button" class="portal-notif-confirm-no" data-notif-clear-no>Batal</button>
+          </div>
+        </div>` : `
+        <div class="portal-notif-head-title">
+          <h2>Notifikasi</h2>
+          ${unread ? `<span class="portal-notif-pill">${unread} baru</span>` : ""}
+        </div>
+        <div class="portal-notif-head-actions">
+          ${unread ? `<button type="button" class="portal-notif-markall" data-notif-mark-all>Tandai semua dibaca</button>` : ""}
+          ${items.length && notif.clear ? `<button type="button" class="portal-notif-clear" data-notif-clear aria-label="Hapus semua notifikasi" title="Hapus semua notifikasi">${trashSvg}</button>` : ""}
+          <button type="button" class="portal-notif-close" data-notif-close aria-label="Tutup panel notifikasi">
+            <img src="${notifImgBase}close.svg" alt="">
+          </button>
+        </div>`;
+
+      const listHtml = items.length ? items.slice(0, 3).map(item => `
+        <div class="portal-notif-item${item.unread ? " is-unread" : ""}">
+          <a class="portal-notif-link" href="${escapeHtml(item.href)}" data-notif-item="${escapeHtml(item.id)}">
+            <span class="portal-notif-iconbox" aria-hidden="true">
+              <img class="portal-notif-kind-img" src="${window.BengkodNotifications.iconUrl(item.kind)}" alt="">
+            </span>
+            <span class="portal-notif-copy">
+              <span class="portal-notif-title">${escapeHtml(item.title)}</span>
+              <span class="portal-notif-meta">${escapeHtml(item.meta)}</span>
+            </span>
+            ${item.unread ? '<span class="portal-notif-dot" aria-label="Belum dibaca"></span>' : '<span class="portal-notif-dot-spacer" aria-hidden="true"></span>'}
+          </a>
+          ${notif.remove ? `<button type="button" class="portal-notif-remove" data-notif-remove="${escapeHtml(item.id)}" aria-label="Hapus notifikasi" title="Hapus notifikasi">${trashSvg}</button>` : ""}
+        </div>`).join("") : `<p class="portal-notif-empty">Belum ada notifikasi.</p>`;
+
       notifPanel.innerHTML = `
-        <div class="portal-notif-head">
-          <div class="portal-notif-head-title">
-            <h2>Notifikasi</h2>
-            ${unread ? `<span class="portal-notif-pill">${unread} baru</span>` : ""}
-          </div>
-          <div class="portal-notif-head-actions">
-            ${unread ? `<button type="button" class="portal-notif-markall" data-notif-mark-all>Tandai semua dibaca</button>` : ""}
-            <button type="button" class="portal-notif-close" data-notif-close aria-label="Tutup panel notifikasi">
-              <img src="${notifImgBase}close.svg" alt="">
-            </button>
-          </div>
-        </div>
-        <div class="portal-notif-list">
-          ${items.slice(0, 3).map(item => `
-            <a class="portal-notif-item${item.unread ? " is-unread" : ""}" href="${escapeHtml(item.href)}" data-notif-item="${escapeHtml(item.id)}">
-              <span class="portal-notif-iconbox" aria-hidden="true">
-                <img class="portal-notif-kind-img" src="${window.BengkodNotifications.iconUrl(item.kind)}" alt="">
-              </span>
-              <span class="portal-notif-copy">
-                <span class="portal-notif-title">${escapeHtml(item.title)}</span>
-                <span class="portal-notif-meta">${escapeHtml(item.meta)}</span>
-              </span>
-              ${item.unread ? '<span class="portal-notif-dot" aria-label="Belum dibaca"></span>' : '<span class="portal-notif-dot-spacer" aria-hidden="true"></span>'}
-            </a>
-          `).join("")}
-        </div>
+        <div class="portal-notif-head">${headHtml}</div>
+        <div class="portal-notif-list">${listHtml}</div>
         <a class="portal-notif-footer" href="${notif.allHref || "notifikasi.html"}" data-notif-all>
           <span>Lihat semua notifikasi</span>
           <span aria-hidden="true">→</span>
@@ -350,6 +373,7 @@
 
     function setNotifOpen(open) {
       notifOpen = open;
+      if (!open) confirmingClear = false;
       notifPanel.hidden = !open;
       notifTrigger.setAttribute("aria-expanded", String(open));
       if (open) {
@@ -369,7 +393,34 @@
         return;
       }
       if (event.target.closest("[data-notif-mark-all]")) {
+        event.stopPropagation();
         notif.markAllRead();
+        syncNotifications();
+        return;
+      }
+      if (event.target.closest("[data-notif-clear]")) {
+        event.stopPropagation();
+        confirmingClear = true;
+        syncNotifications();
+        return;
+      }
+      if (event.target.closest("[data-notif-clear-no]")) {
+        event.stopPropagation();
+        confirmingClear = false;
+        syncNotifications();
+        return;
+      }
+      if (event.target.closest("[data-notif-clear-yes]")) {
+        event.stopPropagation();
+        confirmingClear = false;
+        notif.clear?.();
+        syncNotifications();
+        return;
+      }
+      const removeBtn = event.target.closest("[data-notif-remove]");
+      if (removeBtn) {
+        event.stopPropagation();
+        notif.remove?.(removeBtn.dataset.notifRemove);
         syncNotifications();
         return;
       }

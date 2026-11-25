@@ -22,7 +22,7 @@ const judulBagian = (ikon, judul, warna = 'bg-primary5 text-primary1') => `
   </div>`;
 
 // Nama tempat mengikuti status yang dipilih
-const LABEL_TEMPAT = { 'Bekerja Full Time': 'Tempat Bekerja', 'Bekerja Part Time': 'Tempat Part Time', Wiraswasta: 'Nama Usaha' };
+const LABEL_TEMPAT = { Bekerja: 'Tempat Bekerja', Wiraswasta: 'Nama Usaha' };
 
 // Dua kartu: data diri dan status karir. publik menyembunyikan NIM dan nomor HP untuk sesama alumni.
 const barisTracer = rows => rows.map(([label, nilai]) => `
@@ -53,7 +53,7 @@ function ringkasanTracer(t, publik = false) {
     <section class="card">
       ${judulBagian('flag', 'Status Karir')}
       <div class="mb-1">${badgeStatus(t.status)}</div>
-      ${kerja ? `${subjudul('Pekerjaan Utama')}<dl>${baris([['Bidang Pekerjaan', t.bidang_job], ['Kategori Pekerjaan', t.jns_job], [LABEL_TEMPAT[t.status], t.nama_job], ['Jabatan Pekerjaan', t.jabatan_job], ['Tingkat Pekerjaan', t.lingkup_job]])}</dl>` : ''}
+      ${kerja ? `${subjudul('Pekerjaan Utama')}<dl>${baris([['Bidang Pekerjaan', t.bidang_job], ['Kategori Pekerjaan', t.jns_job], [LABEL_TEMPAT[t.status] || 'Tempat Bekerja', t.nama_job], ['Jabatan Pekerjaan', t.jabatan_job], ['Tingkat Pekerjaan', t.lingkup_job]])}</dl>` : ''}
       ${t.nama_studi ? `${subjudul('Studi Lanjut')}<dl>${baris([['Sumber Biaya Studi', t.biaya_studi], ['Perguruan Tinggi', t.nama_studi], ['Program Studi', t.prodi], ['Tanggal Mulai Studi', fmtDate(t.tgl_studi)]])}</dl>` : ''}
       ${t.nama_sampingan ? `${subjudul('Pekerjaan Sampingan / Freelance')}<dl>${baris([['Tempat atau Klien', t.nama_sampingan], ['Peran', t.peran_sampingan]])}</dl>` : ''}
     </section>`;
@@ -144,7 +144,7 @@ function formTracer(wadah, t, setelahSimpan, batal) {
       grup.querySelectorAll('input, select').forEach(el => { el.disabled = !aktif; });
     });
     document.getElementById('opsi-juga-studi').classList.toggle('hidden', studiUtama);
-    if (cabang['grup-kerja']) form.querySelector('label[for="f-nama_job"]').firstChild.textContent = `${LABEL_TEMPAT[status.value]} `;
+    if (cabang['grup-kerja']) form.querySelector('label[for="f-nama_job"]').firstChild.textContent = `${LABEL_TEMPAT[status.value] || 'Tempat Bekerja'} `;
   }
 
   form.addEventListener('change', e => { if (['status', 'juga_studi', 'ada_sampingan'].includes(e.target.name)) aturCabang(); });

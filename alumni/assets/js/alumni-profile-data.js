@@ -37,7 +37,7 @@ const INITIAL_PROFILE = {
   website: "",
   email: "aisha.rahma@alumni.dinus.ac.id",
   // Status Karir (Tracer Study)
-  careerStatus: "Bekerja Full Time",
+  careerStatus: "Bekerja",
   jobField: "Infokom",
   jobCategory: "Perusahaan Swasta",
   companyName: "PT GoTo Gojek Tokopedia",
