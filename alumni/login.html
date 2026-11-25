@@ -1,141 +1,105 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
+<html lang="id" data-color-mode="light" class="h-full overflow-hidden bg-white">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Masuk | Portal Alumni Bengkel Koding UDINUS</title>
   <meta name="description" content="Masuk ke Portal Alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
             sans: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
           },
-          colors: {
-            canvas: '#EFF2F7',
-            card: '#FFFFFF',
-            filter: '#F4F5F7',
-            borderline: '#E3E4E9',
-            primary: {
-              DEFAULT: '#3A5988',
-              hover: '#496DA8',
-              pressed: '#2F4B76',
-            },
-            accent: '#326ECE',
-            headline: '#0C1117',
-            bodytext: '#212224',
-            mutedtext: '#6B7280',
-            placeholder: '#91969C'
-          }
-        }
-      }
-    }
+        },
+      },
+    };
   </script>
-  <style>
-    [x-cloak]:not(body) { display: none !important; }
-    body { font-family: "Inter", sans-serif; display: block !important; }
-  </style>
+  <script src="assets/js/auth-panel.js?v=3"></script>
 </head>
-<body class="min-h-screen bg-[#EFF2F7] flex flex-col justify-center py-12 sm:px-6 lg:px-8 text-[#212224]">
+<body class="h-screen h-dvh overflow-hidden bg-white text-[#0F172A] antialiased font-sans">
 
-  <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <!-- Header Logo & Branding -->
-    <div class="flex items-center justify-center gap-3">
-      <div class="w-11 h-11 rounded-[10px] bg-[#3A5988] flex items-center justify-center text-white font-bold text-[18px] shadow-sm">
-        BK
-      </div>
-      <div class="text-left">
-        <h1 class="text-[18px] font-bold text-[#0C1117] leading-tight tracking-tight">Portal Alumni</h1>
-        <p class="text-[12px] text-[#6B7280]">Bengkel Koding UDINUS</p>
-      </div>
-    </div>
-    
-    <h2 class="mt-6 text-center text-2xl font-bold tracking-tight text-[#0C1117]">
-      Masuk ke Akun Anda
-    </h2>
-    <p class="mt-1 text-center text-[13.5px] text-[#6B7280]">
-      Akses jejaring profesional, lowongan gigs, referral, dan etalase karya.
-    </p>
-  </div>
+  <div class="h-full w-full flex flex-col lg:flex-row overflow-hidden bg-white">
 
-  <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4 sm:px-0">
-    <div class="bg-white py-8 px-6 sm:px-10 shadow-sm border border-[#E3E4E9] rounded-[16px]">
-      
-      <form action="dashboard.html" method="GET" class="space-y-5" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
-        <!-- Email Input -->
-        <div class="space-y-1.5">
-          <label for="email" class="block text-[13.5px] font-medium text-[#0C1117]">
-            Alamat Email
-          </label>
-          <div class="relative">
-            <input id="email" name="email" type="email" autocomplete="email" required
-                   value="aisha.rahma@alumni.dinus.ac.id"
-                   placeholder="nama@alumni.dinus.ac.id"
-                   class="w-full h-11 px-3.5 rounded-[8px] border border-[#E3E4E9] bg-white text-[14px] text-[#212224] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 transition-all">
+    <!-- Form Masuk (Kiri di desktop, Bawah di mobile, pas 1 layar tanpa scroll) -->
+    <main class="order-2 lg:order-1 flex-1 min-h-0 w-full lg:w-[45.14%] lg:flex-none bg-white flex flex-col justify-center lg:justify-start px-6 py-4 sm:px-12 lg:px-14 min-[1420px]:px-[94px] lg:pt-[clamp(36px,12vh,122px)] lg:pb-6 overflow-hidden">
+      <div class="w-full max-w-[462px] mx-auto">
+
+        <a href="../index.html" class="inline-flex items-center gap-[10.68px] lg:gap-[12px] w-fit rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30">
+          <div class="w-[33.82px] h-[33.82px] lg:w-[38px] lg:h-[38px] rounded-[10.68px] lg:rounded-[12px] bg-[#1E3A8A] flex items-center justify-center shrink-0">
+            <span class="font-bold text-[13.35px] lg:text-[15px] leading-none text-white">BK</span>
           </div>
-        </div>
+          <div class="flex flex-col gap-[1.78px] lg:gap-[2px] leading-none">
+            <span class="font-bold text-[16.02px] lg:text-[18px] text-[#1E3A8A]">bengkod</span>
+            <span class="font-semibold text-[8.01px] lg:text-[9px] text-[#2563EB]">ALUMNI NETWORK</span>
+          </div>
+        </a>
 
-        <!-- Password Input -->
-        <div class="space-y-1.5">
-          <div class="flex items-center justify-between">
-            <label for="password" class="block text-[13.5px] font-medium text-[#0C1117]">
-              Kata Sandi
+        <h1 class="mt-[clamp(16px,2.8vh,29px)] lg:mt-[clamp(24px,4.5vh,45px)] font-bold text-[26px] sm:text-[29px] lg:text-[36px] min-[1420px]:text-[39px] leading-[1.11] text-[#0F172A]">
+          Masuk ke Portal Alumni
+        </h1>
+        <p class="mt-2 lg:mt-3 font-normal text-[13.5px] lg:text-[15px] leading-[1.45] text-[#475569]">
+          Gunakan email dan kata sandi akun Alumni Bengkel Koding.
+        </p>
+
+        <form action="dashboard.html" method="GET" class="mt-5 lg:mt-[clamp(20px,3vh,31px)]" onsubmit="event.preventDefault(); window.location.href='dashboard.html';">
+          <div>
+            <label for="email" class="block font-semibold text-[13px] leading-[1.45] text-[#0F172A] mb-1">
+              Email
             </label>
-            <a href="javascript:void(0)" onclick="alert('Silakan hubungi admin laboratorium Bengkel Koding untuk reset sandi akun alumni.')" class="text-[12.5px] font-medium text-[#3A5988] hover:underline">
-              Lupa sandi?
+            <input id="email" name="email" type="email" autocomplete="email" required
+                   placeholder="nama@example.com"
+                   class="w-full h-[44px] lg:h-[48px] px-3 rounded-[10px] border border-[#8798B2] bg-white text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+          </div>
+
+          <div class="mt-2">
+            <label for="password" class="block font-semibold text-[13px] leading-[1.45] text-[#0F172A] mb-1">
+              Kata sandi
+            </label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   placeholder="Masukkan kata sandi"
+                   class="w-full h-[44px] lg:h-[48px] px-3 rounded-[10px] border border-[#8798B2] bg-white text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+          </div>
+
+          <div class="flex justify-end mt-1 lg:mt-[7px]">
+            <a href="#" onclick="event.preventDefault();" class="inline-flex items-center min-h-[34px] lg:min-h-[38px] font-semibold text-[13px] leading-[1.45] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+              Lupa kata sandi?
             </a>
           </div>
-          <div class="relative">
-            <input id="password" name="password" type="password" autocomplete="current-password" required
-                   value="••••••••••••"
-                   class="w-full h-11 px-3.5 rounded-[8px] border border-[#E3E4E9] bg-white text-[14px] text-[#212224] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 transition-all">
-          </div>
-        </div>
 
-        <!-- Remember Me Checkbox -->
-        <div class="flex items-center">
-          <input id="remember-me" name="remember-me" type="checkbox" checked
-                 class="h-4 w-4 rounded border-[#E3E4E9] text-[#3A5988] focus:ring-[#3A5988]/20">
-          <label for="remember-me" class="ml-2.5 block text-[13px] text-[#6B7280]">
-            Ingat saya di perangkat ini
-          </label>
-        </div>
-
-        <!-- Submit Button -->
-        <div>
           <button type="submit"
-                  class="w-full h-11 flex justify-center items-center px-4 rounded-[8px] text-[14.5px] font-semibold text-white bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] transition-colors shadow-sm cursor-pointer">
-            Masuk ke Portal Alumni
+                  class="mt-2 lg:mt-[11px] w-full h-[46px] lg:h-[50px] rounded-[11px] bg-[#1E3A8A] hover:bg-[#1D4ED8] active:bg-[#172E71] text-white font-semibold text-[15px] leading-[1.45] transition-colors cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#1E3A8A]/20">
+            Masuk
           </button>
+        </form>
+
+        <div class="mt-2.5 lg:mt-[13px] flex items-center gap-2 text-[13px] leading-[1.45]">
+          <span class="font-normal text-[#475569]">Belum punya akun?</span>
+          <a href="register.html" class="inline-flex items-center min-h-[36px] lg:min-h-[42px] font-semibold text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+            Klaim akun alumni
+          </a>
         </div>
-      </form>
 
-      <!-- Demo Info Pill -->
-      <div class="mt-6 pt-5 border-t border-[#E3E4E9] text-center">
-        <p class="text-[12px] text-[#6B7280] leading-relaxed">
-          Demo Akun Asisten & Alumni:<br>
-          <span class="font-medium text-[#0C1117]">Aisha Dwi Rahmawati</span> (Alumni 2024 · Software Engineer)
-        </p>
       </div>
+    </main>
 
-    </div>
+    <!-- Panel Fitur Alumni (Kanan di desktop, Atas di mobile) -->
+    <aside id="auth-feature-panel" class="order-1 lg:order-2 w-full lg:w-[54.86%] lg:h-full shrink-0"></aside>
+    <script>
+      if (new URLSearchParams(location.search).has('keluar')) {
+        try { localStorage.removeItem('alumni_revisi_sesi_v1'); } catch {}
+        history.replaceState(null, '', 'login.html');
+      }
+      renderAuthFeaturePanel({ mobileHeightClass: 'h-[clamp(180px,27dvh,255px)]' });
+    </script>
 
-    <!-- Back to Dashboard Quick Link -->
-    <div class="mt-6 text-center">
-      <a href="dashboard.html" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#6B7280] hover:text-[#0C1117] transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        <span>Langsung Masuk ke Dashboard Alumni</span>
-      </a>
-    </div>
   </div>
 
 </body>
 </html>
-

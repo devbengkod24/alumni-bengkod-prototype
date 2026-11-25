@@ -1,146 +1,142 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-color-mode="light" class="h-full overflow-hidden bg-white">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Akun Alumni | Portal Alumni Bengkel Koding</title>
+  <title>Klaim Akun Alumni | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Klaim akun alumni asisten lab Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css?v=5">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
   <script src="assets/js/data.js?v=10"></script>
-  <script src="assets/js/app.js?v=7"></script>
-  <script src="../assets/js/page-skeleton.js?v=5"></script>
-  <script src="../assets/js/main.js?v=5"></script>
+  <script src="assets/js/auth-panel.js?v=3"></script>
 </head>
-<body class="bg-white text-neutral1 antialiased font-sans">
+<body class="h-screen h-dvh overflow-hidden bg-white text-[#0F172A] antialiased font-sans">
 
-  <div class="min-h-screen w-full flex">
+  <div class="h-full w-full flex flex-col lg:flex-row overflow-hidden bg-white">
 
-    <div class="w-full md:w-[52%] flex flex-col px-6 lg:px-12 py-8 md:py-10 md:h-screen md:overflow-y-auto">
-      <div class="w-full max-w-[26rem] mx-auto flex flex-col flex-1 justify-center">
+    <!-- Form Klaim Akun (Kiri di desktop, Bawah di mobile, pas 1 layar tanpa scroll) -->
+    <main class="order-2 lg:order-1 flex-1 min-h-0 w-full lg:w-[45.14%] lg:flex-none bg-white flex flex-col justify-center px-6 py-3 sm:px-12 lg:px-14 min-[1420px]:px-[94px] lg:py-6 overflow-hidden">
+      <div class="w-full max-w-[462px] mx-auto">
 
-        <a href="../index.html" class="mb-7 inline-flex w-fit">
-          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding" class="h-10 w-auto object-contain">
+        <a href="../index.html" class="inline-flex items-center gap-[10px] lg:gap-[12px] w-fit rounded-xl focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30">
+          <div class="w-[30px] h-[30px] lg:w-[38px] lg:h-[38px] rounded-[9px] lg:rounded-[12px] bg-[#1E3A8A] flex items-center justify-center shrink-0">
+            <span class="font-bold text-[12px] lg:text-[15px] leading-none text-white">BK</span>
+          </div>
+          <div class="flex flex-col gap-[1.5px] lg:gap-[2px] leading-none">
+            <span class="font-bold text-[15px] lg:text-[18px] text-[#1E3A8A]">bengkod</span>
+            <span class="font-semibold text-[7.5px] lg:text-[9px] text-[#2563EB]">ALUMNI NETWORK</span>
+          </div>
         </a>
 
-        <div class="mb-6">
-          <h1 class="font-bold !text-2xl text-neutral1 mb-1.5">Daftar Akun Alumni</h1>
-          <p class="text-neutral3 !text-sm leading-relaxed">Validasi menggunakan NIM asisten lab Bengkel Koding. Data karir diisi saat pertama kali masuk.</p>
-        </div>
+        <h1 class="mt-[clamp(10px,1.8vh,20px)] lg:mt-[clamp(18px,3.8vh,40px)] font-bold text-[23px] sm:text-[26px] lg:text-[34px] min-[1420px]:text-[39px] leading-[1.11] text-[#0F172A]">
+          Klaim akun alumni
+        </h1>
+        <p class="mt-1 lg:mt-2.5 font-normal text-[12.5px] sm:text-[13px] lg:text-[15px] leading-[1.35] lg:leading-[1.45] text-[#475569]">
+          Gunakan NIM yang tercatat sebagai asisten lab Bengkel Koding.
+        </p>
 
-        <form id="form" novalidate class="flex flex-col gap-4">
+        <form id="form" novalidate class="mt-3 lg:mt-[clamp(16px,2.8vh,28px)]">
           <div>
-            <label for="nama" class="label">Nama Lengkap <span class="text-red1">*</span></label>
-            <input type="text" id="nama" name="nama" autocomplete="name" placeholder="Masukkan nama lengkap" class="input">
-            <p id="error-nama" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+            <label for="nim" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.35] text-[#0F172A] mb-0.5 lg:mb-1">
+              NIM
+            </label>
+            <input type="text" id="nim" name="nim"
+                   placeholder="Masukkan NIM terdaftar"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5.2vh,48px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] placeholder:normal-case uppercase focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-nim" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <div>
-            <label for="nim" class="label">NIM <span class="text-red1">*</span></label>
-            <input type="text" id="nim" name="nim" placeholder="Contoh: A11.2021.14500" class="input uppercase">
-            <p id="error-nim" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+          <div class="mt-1.5 lg:mt-2">
+            <label for="nama" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.35] text-[#0F172A] mb-0.5 lg:mb-1">
+              Nama lengkap
+            </label>
+            <input type="text" id="nama" name="nama" autocomplete="name"
+                   placeholder="Sesuai data asisten lab"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5.2vh,48px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-nama" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <div>
-            <label for="email" class="label">Email <span class="text-red1">*</span></label>
-            <input type="email" id="email" name="email" autocomplete="email" placeholder="nama@email.com" class="input">
-            <p id="error-email" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+          <div class="mt-1.5 lg:mt-2">
+            <label for="email" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.35] text-[#0F172A] mb-0.5 lg:mb-1">
+              Email
+            </label>
+            <input type="email" id="email" name="email" autocomplete="email"
+                   placeholder="nama@example.com"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5.2vh,48px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-email" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <div>
-            <label for="password" class="label">Password <span class="text-red1">*</span></label>
-            <div class="relative">
-              <input type="password" id="password" name="password" minlength="8" required autocomplete="new-password" placeholder="Minimal 8 karakter" class="input pr-10">
-              <button type="button" onclick="tukarPassword('password', 'ikon-mata-1')" aria-label="Tampilkan atau sembunyikan password" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1">
-                <span id="ikon-mata-1"><i data-lucide="eye" class="w-4 h-4"></i></span>
-              </button>
-            </div>
-            <p id="error-password" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+          <div class="mt-1.5 lg:mt-2">
+            <label for="password" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.35] text-[#0F172A] mb-0.5 lg:mb-1">
+              Kata sandi
+            </label>
+            <input type="password" id="password" name="password" minlength="8" required autocomplete="new-password"
+                   placeholder="Minimal 8 karakter"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5.2vh,48px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-password" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <div>
-            <label for="password_confirm" class="label">Konfirmasi Password <span class="text-red1">*</span></label>
-            <div class="relative">
-              <input type="password" id="password_confirm" name="password_confirm" minlength="8" required autocomplete="new-password" placeholder="Ulangi password" class="input pr-10">
-              <button type="button" onclick="tukarPassword('password_confirm', 'ikon-mata-2')" aria-label="Tampilkan atau sembunyikan konfirmasi password" class="absolute right-3 top-1/2 -translate-y-1/2 text-neutral3 hover:text-neutral1">
-                <span id="ikon-mata-2"><i data-lucide="eye" class="w-4 h-4"></i></span>
-              </button>
-            </div>
-            <p id="error-password_confirm" class="hidden text-xs text-red2 mt-1" role="alert"></p>
+          <div class="mt-1.5 lg:mt-2">
+            <label for="password_confirm" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.35] text-[#0F172A] mb-0.5 lg:mb-1">
+              Konfirmasi kata sandi
+            </label>
+            <input type="password" id="password_confirm" name="password_confirm" minlength="8" required autocomplete="new-password"
+                   placeholder="Ulangi kata sandi"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5.2vh,48px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-password_confirm" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <button type="submit" class="w-full mt-1 px-5 py-2.5 font-medium rounded-lg text-white bg-primary1 hover:bg-primary2 focus:ring-4 focus:ring-primary5 focus:outline-none transition-all duration-200 min-h-[44px]">Daftar</button>
+          <button type="submit"
+                  class="mt-3 lg:mt-[13px] w-full h-[44px] lg:h-[clamp(44px,5.5vh,50px)] rounded-[10px] lg:rounded-[11px] bg-[#1E3A8A] hover:bg-[#1D4ED8] active:bg-[#172E71] text-white font-semibold text-[14px] lg:text-[15px] leading-[1.45] transition-colors cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#1E3A8A]/20">
+            Klaim akun
+          </button>
         </form>
 
-        <!-- Contoh NIM valid khusus prototype -->
-        <div class="mt-5 p-3.5 bg-blue-50 border border-blue-200 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-xs font-semibold text-blue-900">
-            <i data-lucide="info" class="w-4 h-4 text-blue-600 shrink-0"></i>
-            <span>Contoh NIM valid (klik untuk isi cepat)</span>
-          </div>
-          <div id="nim-contoh" class="flex flex-wrap gap-1.5"></div>
+        <div class="mt-1.5 lg:mt-2.5">
+          <a href="login.html" class="inline-flex items-center min-h-[32px] lg:min-h-[38px] font-semibold text-[12.5px] lg:text-[13px] leading-[1.45] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+            Sudah punya akun? Masuk
+          </a>
         </div>
 
-        <p class="!text-sm text-neutral3 mt-5">
-          Sudah punya akun?
-          <a href="login.html" class="text-primary1 font-semibold hover:underline">Masuk di sini</a>
-        </p>
       </div>
-    </div>
+    </main>
 
-    <div class="hidden md:block md:w-[48%] h-screen p-4 lg:p-5 flex-shrink-0 sticky top-0">
-      <div class="h-full w-full bg-cover bg-center rounded-2xl overflow-hidden relative" style="background-image: url('../assets/images/register-panel.png');" role="img" aria-label="Suasana kegiatan belajar Bengkel Koding">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/10" aria-hidden="true"></div>
-        <div class="relative z-10 h-full flex flex-col justify-between p-7 lg:p-9 text-white">
-          <div class="flex items-center gap-2 font-semibold text-white/90 text-sm">
-            <span class="w-5 h-px bg-white/80"></span>
-            Bengkel Koding
-            <span class="w-5 h-px bg-white/80"></span>
-          </div>
-          <div class="max-w-lg">
-            <h2 class="font-bold !text-xl lg:!text-2xl leading-tight mb-2.5">Bergabung sebagai<br>Alumni</h2>
-            <p class="text-white/80 !text-sm leading-relaxed">Isi tracer study, lengkapi profil, dan buat CV dengan satu akun.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Panel Fitur Alumni (Kanan di desktop, Atas di mobile) -->
+    <aside id="auth-feature-panel" class="order-1 lg:order-2 w-full lg:w-[54.86%] lg:h-full shrink-0"></aside>
+    <script>renderAuthFeaturePanel({ mobileHeightClass: 'h-[clamp(156px,22dvh,200px)]' });</script>
+
   </div>
 
   <script>
-    if (SAYA) {
-      location.replace(SAYA.role === 'alumni' && !DB.tracer.milik(SAYA.id) ? 'isi-data.html' : DASHBOARD[SAYA.role]);
-    }
-
     const form = document.getElementById('form');
-    const FIELDS = ['nama', 'nim', 'email', 'password', 'password_confirm'];
+    const FIELDS = ['nim', 'nama', 'email', 'password', 'password_confirm'];
 
-    function tukarPassword(inputId, ikonId) {
-      const input = document.getElementById(inputId);
-      const tampak = input.type === 'password';
-      input.type = tampak ? 'text' : 'password';
-      document.getElementById(ikonId).innerHTML = `<i data-lucide="${tampak ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>`;
-      refreshIcons();
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed bottom-5 right-5 z-50 bg-[#1C6A1A] text-white px-5 py-3 rounded-xl shadow-lg text-sm font-medium';
+      toast.setAttribute('role', 'alert');
+      toast.textContent = message;
+      document.body.appendChild(toast);
     }
-
-    // Tampilkan contoh NIM asisten LMS yang belum terdaftar
-    const contohWrap = document.getElementById('nim-contoh');
-    const daftarContoh = DB.akun.nimContoh(3);
-    contohWrap.innerHTML = daftarContoh.map(c => `
-      <button type="button" data-nim="${esc(c.nim)}" data-nama="${esc(c.nama)}" class="px-2.5 py-1 rounded-lg bg-white border border-blue-200 hover:border-blue-400 text-[11px] font-medium text-blue-900 transition-colors">
-        ${esc(c.nim)}
-      </button>
-    `).join('');
-    contohWrap.addEventListener('click', e => {
-      const btn = e.target.closest('button[data-nim]');
-      if (!btn) return;
-      form.elements.nim.value = btn.dataset.nim;
-      if (!form.elements.nama.value.trim()) form.elements.nama.value = btn.dataset.nama;
-    });
 
     function bersihkanError() {
       FIELDS.forEach(f => {
         document.getElementById(`error-${f}`)?.classList.add('hidden');
-        form.elements[f]?.classList.remove('!border-red1');
+        form.elements[f]?.classList.remove('!border-red-600');
       });
     }
 
@@ -152,7 +148,7 @@
       }
       const input = form.elements[field];
       if (input) {
-        input.classList.add('!border-red1');
+        input.classList.add('!border-red-600');
         input.focus();
       }
     }
