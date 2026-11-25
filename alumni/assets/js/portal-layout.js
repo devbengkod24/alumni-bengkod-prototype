@@ -175,9 +175,6 @@
     const desktop = window.matchMedia("(min-width: 1024px)");
     let desktopOpen = true;
     let mobileOpen = false;
-    try {
-      desktopOpen = localStorage.getItem(desktopPreference) !== "false";
-    } catch {}
     const sidebar = shell.querySelector(".portal-sidebar");
     const overlay = shell.querySelector(".portal-overlay");
     const toggle = shell.querySelector(".portal-toggle");

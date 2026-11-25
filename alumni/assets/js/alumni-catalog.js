@@ -525,7 +525,8 @@ function loadSpotlightWorks() {
     ids = JSON.parse(localStorage.getItem(SPOTLIGHT_STORAGE_KEY));
   } catch {}
   const works = new Map(loadShowcaseWorks().map(work => [String(work.id), work]));
-  return (Array.isArray(ids) ? ids : ["1"]).map(id => works.get(String(id))).filter(Boolean);
+  if (!Array.isArray(ids)) return Array.from(works.values()).slice(0, 3);
+  return ids.map(id => works.get(String(id))).filter(Boolean);
 }
 
 function toggleSpotlightWork(id) {

@@ -63,12 +63,16 @@
         toast: '',
         toastTimer: null,
         newPostText: '',
+        newPostCategory: 'all',
         composerPhoto: '',
         photoReading: false,
         attachment: null,
         pickerKind: '',
+        pickerSearch: '',
         pickerOptions: [],
         spotlightWorks: [],
+        spotlightIndex: 0,
+        spotlightTimer: null,
         latestProjects: [],
         selectedAnnouncement: null,
         announcementModalOpen: false,
@@ -154,7 +158,7 @@
             authorAvatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80",
             authorHeadline: "Mobile Engineer @ Gojek",
             timeAgo: "2 jam lalu",
-            likedByNotice: "Dimas Wahyu dan 14 rekan lainnya mengapresiasi",
+            likedByNotice: "",
             category: "karya",
             tags: ["#uidesign", "#mobileapp"],
             textShort: "Eksplorasi antarmuka baru untuk Weather & Flight Tracking Mobile App. Konsep desain ini dirancang untuk memudahkan tracking cuaca 7 harian, indeks kualitas udara (AQI), serta tracking pergerakan pesawat komersil secara real-time dengan latensi rendah...",
@@ -230,6 +234,82 @@
             comments: [
               { id: 301, author: "Aisha Dwi", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80", time: "18 jam lalu", text: "Terima kasih infonya Mas Dimas, sangat bermanfaat untuk adik-adik alumni!" }
             ]
+          },
+          {
+            id: 10104,
+            authorName: "Maulidya Ayu Pratiwi",
+            authorAvatar: "https://i.pravatar.cc/150?img=26",
+            authorHeadline: "Frontend Developer @ Gojek",
+            timeAgo: "2 hari lalu",
+            likedByNotice: "",
+            category: "referral",
+            tags: ["#referral", "#reactjs"],
+            textShort: "Tim Merchant Experience Gojek lagi buka lowongan Frontend Engineer (React & TypeScript) untuk level Junior-Mid. Buat rekan alumni Bengkod yang punya portofolio web interaktif, bisa langsung kirim CV lewat halaman Lowongan ya!",
+            textFull: "Tim Merchant Experience Gojek lagi buka lowongan Frontend Engineer (React & TypeScript) untuk level Junior-Mid. Buat rekan alumni Bengkod yang punya portofolio web interaktif, bisa langsung kirim CV lewat halaman Lowongan ya! Proses interview fokus ke problem solving UI, state management, dan web performance.",
+            isExpanded: false,
+            embedReferral: {
+              posisi: "Frontend Engineer (React & TypeScript)",
+              perusahaan: "Gojek",
+              lokasi: "Jakarta Selatan (Hybrid)",
+              kuota: "3 Kuota Tersisa",
+              link: "referral.html"
+            },
+            likesCount: 95,
+            isLiked: false,
+            commentsCount: 14,
+            sharesCount: 9,
+            showComments: false,
+            newCommentText: '',
+            comments: [
+              { id: 401, author: "Intan Permata", avatar: "https://i.pravatar.cc/150?img=48", time: "1 hari lalu", text: "Izin daftar ya Mbak Maulidya, sudah saya lengkapi CV-nya." }
+            ]
+          },
+          {
+            id: 10105,
+            authorName: "Rafi Pratama",
+            authorAvatar: "https://i.pravatar.cc/150?img=12",
+            authorHeadline: "Fullstack Web Developer @ DANA Indonesia",
+            timeAgo: "3 hari lalu",
+            likedByNotice: "",
+            category: "gigs",
+            tags: ["#gigs", "#webdevelopment", "#reactjs"],
+            textShort: "Lagi cari 1 partner Backend Laravel / Node.js untuk bantu integrasi REST API & payment gateway Midtrans di proyek dashboard UMKM. Timeline santai 2 minggu, fee Rp 3.500.000.",
+            textFull: "Lagi cari 1 partner Backend Laravel / Node.js untuk bantu integrasi REST API & payment gateway Midtrans di proyek dashboard UMKM. Timeline santai 2 minggu, fee Rp 3.500.000. Frontend Next.js sudah 80% selesai, tinggal endpoint transaksi dan webhook.",
+            isExpanded: false,
+            embedGig: {
+              title: "Integrasi API & Payment Gateway Dashboard UMKM",
+              budget: "Rp 3.500.000",
+              deadline: "2 Minggu",
+              role: "Backend Developer (Laravel / Node.js)",
+              link: "gigs.html"
+            },
+            likesCount: 64,
+            isLiked: false,
+            commentsCount: 11,
+            sharesCount: 5,
+            showComments: false,
+            newCommentText: '',
+            comments: []
+          },
+          {
+            id: 10106,
+            authorName: "Nadia Safira",
+            authorAvatar: "https://i.pravatar.cc/150?img=32",
+            authorHeadline: "UI/UX Designer @ Telkom Indonesia",
+            timeAgo: "4 hari lalu",
+            likedByNotice: "",
+            category: "karya",
+            tags: ["#uidesign", "#webdevelopment"],
+            textShort: "Baru saja merilis open-source Figma UI Kit & Tailwind tokens untuk sistem antrean layanan publik. Semoga bisa jadi referensi cepat buat teman-teman yang lagi bangun MVP!",
+            textFull: "Baru saja merilis open-source Figma UI Kit & Tailwind tokens untuk sistem antrean layanan publik. Semoga bisa jadi referensi cepat buat teman-teman yang lagi bangun MVP! Sudah lengkap dengan komponen aksesibel (WCAG AA), mode gelap, dan dokumentasi spacing.",
+            isExpanded: false,
+            likesCount: 118,
+            isLiked: false,
+            commentsCount: 19,
+            sharesCount: 16,
+            showComments: false,
+            newCommentText: '',
+            comments: []
           }
         ],
 
@@ -302,6 +382,7 @@
             if (event.key === STORAGE_KEY || event.key === null) this.refreshStoredPosts();
             this.refreshSidebar();
           });
+          this.startSpotlightAutoplay();
         },
 
         seedDashboardPosts() {
@@ -396,12 +477,45 @@
         },
 
         refreshSidebar() {
-          this.spotlightWorks = loadSpotlightWorks().map(work => ({
+          this.spotlightWorks = loadSpotlightWorks().slice(0, 3).map(work => ({
             ...work, link: showcaseWorkLink(work)
           }));
+          if (this.spotlightIndex >= this.spotlightWorks.length) this.spotlightIndex = 0;
           this.latestProjects = latestBoardGigs().slice(0, 3).map(gig => ({
             ...gig, link: boardGigLink(gig)
           }));
+        },
+
+        prevSpotlight() {
+          if (this.spotlightWorks.length <= 1) return;
+          this.spotlightIndex = (this.spotlightIndex - 1 + this.spotlightWorks.length) % this.spotlightWorks.length;
+          this.startSpotlightAutoplay();
+        },
+
+        nextSpotlight() {
+          if (this.spotlightWorks.length <= 1) return;
+          this.spotlightIndex = (this.spotlightIndex + 1) % this.spotlightWorks.length;
+          this.startSpotlightAutoplay();
+        },
+
+        goToSpotlight(idx) {
+          this.spotlightIndex = idx;
+          this.startSpotlightAutoplay();
+        },
+
+        startSpotlightAutoplay() {
+          this.stopSpotlightAutoplay();
+          if (this.spotlightWorks.length <= 1) return;
+          this.spotlightTimer = setInterval(() => {
+            this.spotlightIndex = (this.spotlightIndex + 1) % this.spotlightWorks.length;
+          }, 7000);
+        },
+
+        stopSpotlightAutoplay() {
+          if (this.spotlightTimer) {
+            clearInterval(this.spotlightTimer);
+            this.spotlightTimer = null;
+          }
         },
 
         get canSubmitPost() {
@@ -410,12 +524,23 @@
 
         toggleAttachmentPicker(kind) {
           this.pickerKind = this.pickerKind === kind ? '' : kind;
+          this.pickerSearch = '';
           this.pickerOptions = this.pickerKind ? dashboardAttachmentOptions(kind, this.userProfile) : [];
+        },
+
+        get filteredPickerOptions() {
+          const q = this.pickerSearch.trim().toLowerCase();
+          if (!q) return this.pickerOptions;
+          return this.pickerOptions.filter(o =>
+            [o.title, o.detail].filter(Boolean).some(v => v.toLowerCase().includes(q))
+          );
         },
 
         selectAttachment(option) {
           this.attachment = { ...option, kind: this.pickerKind };
+          if (this.newPostCategory === 'all') this.newPostCategory = this.pickerKind;
           this.pickerKind = '';
+          this.pickerSearch = '';
         },
 
         async selectPhoto(event) {
@@ -440,7 +565,7 @@
         formatDashboardPost(post, shown) {
           return {
             timeAgo: new Date(post.id).toLocaleDateString('id-ID', { dateStyle: 'medium' }),
-            category: post.dashboardAttachment?.kind || 'all',
+            category: post.dashboardAttachment?.kind || post.dashboardCategory || 'all',
             tags: [],
             textShort: post.content,
             textFull: post.content,
@@ -471,6 +596,7 @@
           const posts = loadPosts();
           let id = Date.now();
           while (posts.some(post => post.id === id)) id++;
+          const effectiveKind = this.attachment?.kind || (this.newPostCategory !== 'all' ? this.newPostCategory : '');
           const post = {
             id,
             date: 'Baru saja',
@@ -478,7 +604,8 @@
             authorName: this.userProfile.name,
             authorAvatar: this.userProfile.avatar,
             authorHeadline: this.userProfile.headline,
-            category: this.attachmentTypes[this.attachment?.kind]?.category || 'Umum',
+            category: this.attachmentTypes[effectiveKind]?.category || 'Umum',
+            dashboardCategory: effectiveKind || 'all',
             content: this.newPostText.trim(),
             imageUrl: this.composerPhoto,
             dashboardAttachment: this.attachment ? { ...this.attachment } : null,
@@ -496,9 +623,15 @@
           displayed.timeAgo = 'Baru saja';
           this.posts.unshift(displayed);
           this.newPostText = '';
+          this.newPostCategory = 'all';
           this.composerPhoto = '';
           this.attachment = null;
           this.pickerKind = '';
+          this.pickerSearch = '';
+          if (this.$refs.composerTextarea) {
+            this.$refs.composerTextarea.style.height = '24px';
+            this.$refs.composerTextarea.style.overflowY = 'hidden';
+          }
           this.activeTab = 'all';
           this.selectedTag = '';
           this.setToast('Postingan berhasil dibagikan ke linimasa alumni!');
@@ -536,7 +669,7 @@
     <span x-text="toast"></span>
   </div>
 
-      <main class="flex-1 p-6 lg:p-8 max-w-[1180px] w-full mx-auto">
+      <main class="flex-1 p-4 sm:p-6 lg:p-6 w-full">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
           <!-- ========================================================
@@ -549,18 +682,16 @@
                   @submit.prevent="submitNewPost()" @keydown.escape.stop="pickerKind = ''">
               
               <!-- Input Baris Atas dengan Avatar -->
-              <div class="flex items-center gap-3">
-                <img :src="userProfile.avatar" :alt="userProfile.name" class="w-10 h-10 rounded-full object-cover shrink-0">
-                <div class="relative flex-1">
+              <div class="flex items-start gap-3">
+                <img :src="userProfile.avatar" :alt="userProfile.name" class="w-10 h-10 rounded-full object-cover shrink-0 mt-0.5">
+                <div class="flex-1 min-w-0 rounded-[22px] bg-[#F4F5F7] hover:bg-[#EAECEF] focus-within:bg-white border border-[#E3E4E9] focus-within:border-[#3A5988] px-4 py-2.5 transition-colors">
                   <textarea rows="1"
+                            x-ref="composerTextarea"
                             x-model="newPostText"
+                            @input="$el.style.height = '24px'; const h = Math.min($el.scrollHeight, 72); $el.style.height = h + 'px'; $el.style.overflowY = $el.scrollHeight > 72 ? 'auto' : 'hidden';"
                             aria-label="Isi postingan"
                             placeholder="Tulis update, diskusikan ide, atau lempar info..."
-                            :class="newPostText ? 'min-h-[88px] resize-y rounded-[16px]' : 'h-11 resize-none rounded-full'"
-                            class="block w-full py-3 pl-4 pr-10 bg-[#F4F5F7] hover:bg-[#EAECEF] focus:bg-white border border-[#E3E4E9] focus:border-[#3A5988] text-[13.5px] text-[#212224] placeholder-[#91969C] focus:outline-none transition-colors"></textarea>
-                  <span class="absolute right-3.5 top-3.5 text-[#91969C] pointer-events-none">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/></svg>
-                  </span>
+                            class="block w-full h-6 min-h-[24px] max-h-[72px] p-0 bg-transparent border-0 resize-none overflow-hidden text-[13.5px] leading-[24px] text-[#212224] placeholder-[#91969C] focus:outline-none"></textarea>
                 </div>
               </div>
 
@@ -582,7 +713,7 @@
                   <button type="button" @click="attachment = null" aria-label="Lepas lampiran" class="w-8 h-8 shrink-0 rounded-full hover:bg-[#EAECEF]">✕</button>
                 </div>
               </template>
-              <div class="flex items-center justify-between pt-1 flex-wrap gap-2">
+              <div class="relative flex items-center justify-between pt-1 flex-wrap gap-2" @click.outside="pickerKind = ''; pickerSearch = '';">
                 <div class="flex items-center gap-1 sm:gap-2 flex-wrap">
 
                   <button type="button"
@@ -594,21 +725,24 @@
 
                   <button type="button"
                           @click="toggleAttachmentPicker('karya')" :aria-expanded="pickerKind === 'karya'" aria-controls="composer-attachment-picker"
-                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium text-[#4B5563] flex items-center gap-2 transition-colors cursor-pointer">
+                          :class="pickerKind === 'karya' ? 'bg-[#F4F5F7] text-[#0C1117]' : 'text-[#4B5563]'"
+                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium flex items-center gap-2 transition-colors cursor-pointer">
                     <svg class="w-4 h-4 text-[#2B7A5B]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                     <span>Karya</span>
                   </button>
 
                   <button type="button"
                           @click="toggleAttachmentPicker('gigs')" :aria-expanded="pickerKind === 'gigs'" aria-controls="composer-attachment-picker"
-                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium text-[#4B5563] flex items-center gap-2 transition-colors cursor-pointer">
+                          :class="pickerKind === 'gigs' ? 'bg-[#F4F5F7] text-[#0C1117]' : 'text-[#4B5563]'"
+                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium flex items-center gap-2 transition-colors cursor-pointer">
                     <svg class="w-4 h-4 text-[#B26A12]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
                     <span>Proyek</span>
                   </button>
 
                   <button type="button"
                           @click="toggleAttachmentPicker('referral')" :aria-expanded="pickerKind === 'referral'" aria-controls="composer-attachment-picker"
-                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium text-[#4B5563] flex items-center gap-2 transition-colors cursor-pointer">
+                          :class="pickerKind === 'referral' ? 'bg-[#F4F5F7] text-[#0C1117]' : 'text-[#4B5563]'"
+                          class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium flex items-center gap-2 transition-colors cursor-pointer">
                     <svg class="w-4 h-4 text-[#B4325F]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4"/></svg>
                     <span>Lowongan</span>
                   </button>
@@ -618,32 +752,51 @@
                 <button type="submit"
                         x-show="canSubmitPost" x-cloak
                         :disabled="!canSubmitPost"
-                        class="h-9 px-4 rounded-full bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-medium transition-colors shadow-sm cursor-pointer shrink-0">
+                        class="h-9 px-4 rounded-full bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-medium transition-colors shadow-sm cursor-pointer shrink-0 ml-auto">
                   Kirim Post
                 </button>
-              </div>
 
-              <div id="composer-attachment-picker" x-show="pickerKind" x-cloak
-                   class="space-y-2 rounded-[12px] border border-[#E3E4E9] bg-[#F8FAFC] p-3">
-                <h3 class="text-[13.5px] font-semibold" x-text="pickerKind && 'Pilih ' + attachmentTypes[pickerKind].label"></h3>
-                <ul class="space-y-1 max-h-56 overflow-y-auto">
-                  <template x-for="option in pickerOptions" :key="option.id">
-                    <li>
-                      <button type="button" @click="selectAttachment(option)"
-                              class="block w-full rounded-[8px] bg-white px-3 py-2 text-left hover:bg-[#E2F1F9]">
-                        <span class="block text-[13.5px] font-semibold break-words" x-text="option.title"></span>
-                        <span x-show="option.detail" class="block text-[12.5px] text-[#6B7280] break-words" x-text="option.detail"></span>
-                      </button>
-                    </li>
+                <!-- Popover Picker Lampiran (Karya / Proyek / Lowongan) -->
+                <div id="composer-attachment-picker"
+                     x-show="pickerKind"
+                     x-cloak
+                     class="absolute left-0 top-full mt-2 z-30 w-full max-w-[380px] rounded-[14px] border border-[#E3E4E9] bg-white shadow-xl p-3 space-y-2.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <h3 class="text-[13px] font-bold text-[#0C1117]" x-text="pickerKind && 'Lampirkan ' + attachmentTypes[pickerKind].label"></h3>
+                    <button type="button" @click="pickerKind = ''; pickerSearch = '';"
+                            class="w-7 h-7 rounded-full hover:bg-[#F4F5F7] text-[#6B7280] flex items-center justify-center text-xs cursor-pointer" title="Tutup">✕</button>
+                  </div>
+
+                  <input type="search"
+                         x-show="pickerOptions.length > 3"
+                         x-model="pickerSearch"
+                         placeholder="Cari..."
+                         class="w-full h-9 px-3 rounded-[8px] border border-[#E3E4E9] bg-[#F8FAFC] text-[12.5px] text-[#212224] placeholder-[#91969C] focus:outline-none focus:border-[#3A5988]">
+
+                  <ul class="space-y-1 max-h-52 overflow-y-auto" x-show="filteredPickerOptions.length">
+                    <template x-for="option in filteredPickerOptions" :key="option.id">
+                      <li>
+                        <button type="button" @click="selectAttachment(option)"
+                                class="block w-full rounded-[8px] px-3 py-2 text-left hover:bg-[#F4F5F7] transition-colors cursor-pointer">
+                          <span class="block text-[13px] font-semibold text-[#0C1117] break-words" x-text="option.title"></span>
+                          <span x-show="option.detail" class="block text-[12px] text-[#6B7280] break-words" x-text="option.detail"></span>
+                        </button>
+                      </li>
+                    </template>
+                  </ul>
+
+                  <template x-if="pickerKind && !pickerOptions.length">
+                    <p class="text-[12.5px] text-[#6B7280] py-1">
+                      Belum ada <span x-text="attachmentTypes[pickerKind].label.toLowerCase()"></span>.
+                      <a :href="attachmentTypes[pickerKind].board" class="font-semibold text-[#3A5988] hover:underline"
+                         x-text="'Buat di ' + attachmentTypes[pickerKind].boardLabel + ' →'"></a>
+                    </p>
                   </template>
-                </ul>
-                <template x-if="pickerKind && !pickerOptions.length">
-                  <p class="text-[13px] text-[#6B7280]">
-                    Anda belum memiliki <span x-text="attachmentTypes[pickerKind].label.toLowerCase()"></span>.
-                    <a :href="attachmentTypes[pickerKind].board" class="font-semibold text-[#3A5988] hover:underline"
-                       x-text="'Buka ' + attachmentTypes[pickerKind].boardLabel"></a>
-                  </p>
-                </template>
+
+                  <template x-if="pickerOptions.length && !filteredPickerOptions.length">
+                    <p class="text-[12.5px] text-[#6B7280] py-1">Tidak ditemukan.</p>
+                  </template>
+                </div>
               </div>
             </form>
 
@@ -674,11 +827,6 @@
                         :class="activeTab === 'referral' ? 'bg-[#3A5988] text-white font-semibold' : 'bg-white border border-[#E3E4E9] text-[#4B5563] hover:bg-[#F4F5F7]'">
                   Lowongan
                 </button>
-              </div>
-
-              <div class="flex items-center gap-1.5 text-[12.5px] text-[#6B7280]">
-                <span>Sort by:</span>
-                <span class="font-semibold text-[#0C1117] cursor-pointer hover:text-[#3A5988]">Terbaru ▾</span>
               </div>
             </div>
 
@@ -778,17 +926,10 @@
                     </div>
                   </template>
 
-                  <div class="space-y-2 pt-2">
-                    <template x-if="post.likedByNotice">
-                      <div class="flex items-center gap-1.5 text-[12px] text-[#6B7280]">
-                        <svg class="w-3.5 h-3.5 text-[#3A5988]" fill="currentColor" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-                        <span x-text="post.likedByNotice"></span>
-                      </div>
-                    </template>
-
+                  <div class="pt-2">
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px] text-[#6B7280]">
 
-                      <!-- Tombol Aksi Kiri: Suka, Komentar, Bagikan, Kirim -->
+                      <!-- Tombol Aksi Kiri: Suka & Komentar -->
                       <div class="flex items-center gap-4 sm:gap-6 font-medium">
 
                         <!-- Suka / Like -->
@@ -808,14 +949,6 @@
                                 class="flex items-center gap-1.5 hover:text-[#0C1117] transition-colors cursor-pointer">
                           <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                           <span>Komentar</span>
-                        </button>
-
-                        <!-- Bagikan / Share -->
-                        <button type="button"
-                                @click="sharePost(post)"
-                                class="flex items-center gap-1.5 hover:text-[#0C1117] transition-colors cursor-pointer">
-                          <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                          <span>Bagikan</span>
                         </button>
 
                       </div>
@@ -885,8 +1018,90 @@
           <!-- ========================================================
                KOLOM KANAN: PROFIL SAYA & WIDGET PENGUMUMAN
           ======================================================== -->
-          <aside class="lg:col-span-4 space-y-5">
-            
+          <aside class="lg:col-span-4 space-y-5 lg:sticky lg:top-20">
+
+            <!-- 1. Spotlight Karya (Carousel maks. 3 card) -->
+            <section aria-label="Spotlight Karya"
+                     @mouseenter="stopSpotlightAutoplay()"
+                     @mouseleave="startSpotlightAutoplay()"
+                     @focusin="stopSpotlightAutoplay()"
+                     @focusout="startSpotlightAutoplay()"
+                     class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 sm:p-6 shadow-sm space-y-4">
+              <div class="flex items-center justify-between gap-3">
+                <h3 class="text-[16px] font-bold text-[#0C1117]">Spotlight Karya</h3>
+                <div class="flex items-center gap-2">
+                  <template x-if="spotlightWorks.length > 1">
+                    <div class="flex items-center gap-1">
+                      <button type="button" @click="prevSpotlight()" aria-label="Karya sebelumnya"
+                              class="w-7 h-7 rounded-full border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#374151] flex items-center justify-center transition-colors cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m15 18-6-6 6-6"/></svg>
+                      </button>
+                      <button type="button" @click="nextSpotlight()" aria-label="Karya berikutnya"
+                              class="w-7 h-7 rounded-full border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#374151] flex items-center justify-center transition-colors cursor-pointer">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m9 18 6-6-6-6"/></svg>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <p x-show="!spotlightWorks.length" class="text-[13px] text-[#6B7280]">Belum ada karya yang ditampilkan.</p>
+
+              <div x-show="spotlightWorks.length" class="overflow-hidden rounded-[14px]">
+                <div class="flex transition-transform duration-300 ease-out"
+                     :style="'transform: translateX(-' + (spotlightIndex * 100) + '%)'">
+                  <template x-for="work in spotlightWorks" :key="work.id">
+                    <a :href="work.link"
+                       class="group block w-full shrink-0 overflow-hidden rounded-[14px] border border-[#E3E4E9] transition hover:border-[#3A5988]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A5988]">
+                      <div class="relative aspect-video overflow-hidden bg-gradient-to-br from-[#E2F1F9] to-[#F4F5F7]">
+                        <div aria-hidden="true" class="absolute inset-0 grid place-items-center text-3xl font-bold text-[#3A5988]"
+                             x-text="work.nama.slice(0, 2).toUpperCase()"></div>
+                        <template x-if="work.banner || work.logo">
+                          <img :src="work.banner || work.logo"
+                               :alt="'Tampilan karya ' + work.nama"
+                               loading="lazy"
+                               @error="$el.classList.add('hidden')"
+                               :class="work.banner ? 'object-cover' : 'bg-[#F4F5F7] object-contain p-8'"
+                               class="absolute inset-0 h-full w-full transition-transform duration-300 motion-safe:group-hover:scale-[1.03]">
+                        </template>
+                      </div>
+                      <div class="space-y-3 p-3.5">
+                        <div class="space-y-1">
+                          <h4 class="break-words text-[15px] font-bold leading-snug text-[#0C1117] group-hover:text-[#3A5988]"
+                              x-text="work.nama"></h4>
+                          <p x-show="work.tagline" class="line-clamp-2 text-[12.5px] leading-relaxed text-[#6B7280]" x-text="work.tagline"></p>
+                        </div>
+                        <div class="flex items-center gap-2.5 border-t border-[#E3E4E9] pt-3">
+                          <div aria-hidden="true" class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] text-[12px] font-semibold text-[#3A5988]">
+                            <span x-text="(work.authorName || 'Alumni').slice(0, 1).toUpperCase()"></span>
+                            <template x-if="work.authorAvatar">
+                              <img :src="work.authorAvatar" alt="" loading="lazy"
+                                   @error="$el.classList.add('hidden')" class="absolute inset-0 h-full w-full object-cover">
+                            </template>
+                          </div>
+                          <div class="min-w-0">
+                            <p class="text-[11px] leading-tight text-[#6B7280]">Dibuat oleh</p>
+                            <p class="break-words text-[13px] font-semibold text-[#212224]" x-text="work.authorName || 'Alumni'"></p>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </template>
+                </div>
+              </div>
+
+              <template x-if="spotlightWorks.length > 1">
+                <div class="flex items-center justify-center gap-1.5 pt-1">
+                  <template x-for="(work, idx) in spotlightWorks" :key="work.id">
+                    <button type="button"
+                            @click="goToSpotlight(idx)"
+                            :aria-label="'Tampilkan karya ' + (idx + 1)"
+                            :class="spotlightIndex === idx ? 'w-5 bg-[#3A5988]' : 'w-1.5 bg-[#CBD5E1] hover:bg-[#94A3B8]'"
+                            class="h-1.5 rounded-full transition-all cursor-pointer"></button>
+                  </template>
+                </div>
+              </template>
+            </section>
+
             <!-- 2. Kartu Pengumuman Sesuai Referensi Pengguna -->
             <div class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 sm:p-6 shadow-sm space-y-5">
               
@@ -919,51 +1134,6 @@
               </div>
 
             </div>
-
-            <section aria-label="Spotlight Karya" class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 sm:p-6 shadow-sm space-y-4">
-              <div class="flex items-center justify-between gap-3">
-                <h3 class="text-[16px] font-bold text-[#0C1117]">Spotlight Karya</h3>
-                <a href="showcase.html" class="text-[13px] font-semibold text-[#3A5988] hover:underline">Karya Alumni</a>
-              </div>
-              <p x-show="!spotlightWorks.length" class="text-[13px] text-[#6B7280]">Belum ada karya yang ditampilkan.</p>
-              <template x-for="work in spotlightWorks" :key="work.id">
-                <a :href="work.link"
-                   class="group block overflow-hidden rounded-[14px] border border-[#E3E4E9] transition hover:border-[#3A5988]/40 hover:shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A5988]">
-                  <div class="relative aspect-video overflow-hidden bg-gradient-to-br from-[#E2F1F9] to-[#F4F5F7]">
-                    <div aria-hidden="true" class="absolute inset-0 grid place-items-center text-3xl font-bold text-[#3A5988]"
-                         x-text="work.nama.slice(0, 2).toUpperCase()"></div>
-                    <template x-if="work.banner || work.logo">
-                      <img :src="work.banner || work.logo"
-                           :alt="'Tampilan karya ' + work.nama"
-                           loading="lazy"
-                           @error="$el.classList.add('hidden')"
-                           :class="work.banner ? 'object-cover' : 'bg-[#F4F5F7] object-contain p-8'"
-                           class="absolute inset-0 h-full w-full transition-transform duration-300 motion-safe:group-hover:scale-[1.03]">
-                    </template>
-                  </div>
-                  <div class="space-y-3 p-3.5">
-                    <div class="space-y-1">
-                      <h4 class="break-words text-[15px] font-bold leading-snug text-[#0C1117] group-hover:text-[#3A5988]"
-                          x-text="work.nama"></h4>
-                      <p x-show="work.tagline" class="line-clamp-2 text-[12.5px] leading-relaxed text-[#6B7280]" x-text="work.tagline"></p>
-                    </div>
-                    <div class="flex items-center gap-2.5 border-t border-[#E3E4E9] pt-3">
-                      <div aria-hidden="true" class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] text-[12px] font-semibold text-[#3A5988]">
-                        <span x-text="(work.authorName || 'Alumni').slice(0, 1).toUpperCase()"></span>
-                        <template x-if="work.authorAvatar">
-                          <img :src="work.authorAvatar" alt="" loading="lazy"
-                               @error="$el.classList.add('hidden')" class="absolute inset-0 h-full w-full object-cover">
-                        </template>
-                      </div>
-                      <div class="min-w-0">
-                        <p class="text-[11px] leading-tight text-[#6B7280]">Dibuat oleh</p>
-                        <p class="break-words text-[13px] font-semibold text-[#212224]" x-text="work.authorName || 'Alumni'"></p>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              </template>
-            </section>
 
             <section class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 sm:p-6 shadow-sm space-y-3">
               <div class="flex items-start justify-between gap-3">

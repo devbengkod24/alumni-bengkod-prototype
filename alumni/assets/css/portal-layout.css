@@ -132,7 +132,7 @@
 .portal-breadcrumb li > :is(a, span) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .portal-breadcrumb li + li::before { content: ""; width: 5px; height: 5px; flex-shrink: 0; align-self: center; border-top: 1px solid #8b9ab1; border-right: 1px solid #8b9ab1; transform: rotate(45deg); }
 .portal-breadcrumb a { color: var(--portal-navy); text-decoration: none; }
-.portal-breadcrumb a:hover { text-decoration: underline; }
+.portal-breadcrumb a:hover { color: var(--portal-blue); text-decoration: none; }
 .portal-breadcrumb [aria-current="page"] { flex-shrink: 0.5; color: var(--portal-text); font-weight: 650; }
 
 .portal-account { position: relative; }
@@ -195,6 +195,7 @@
     z-index: 30;
     width: var(--portal-sidebar-width);
   }
+  .portal-toggle,
   .portal-close { display: none; }
   .portal-topbar { padding: 20px 24px 4px; }
 }
