@@ -115,18 +115,6 @@
         applyPitchMessage: "",
         applyPortfolioUrl: "",
 
-        createGigModalOpen: false,
-        newGigForm: {
-          title: "",
-          category: "Mobile App",
-          budgetRange: budgetRanges[1],
-          quota: 1,
-          deadline: "2026-12-25",
-          rolesNeeded: "",
-          techStack: "",
-          description: "",
-        },
-
         editGigModalOpen: false,
         editingGigId: null,
         editGigForm: {},
@@ -153,6 +141,13 @@
         init() {
           const params = new URLSearchParams(window.location.search);
           if (params.get('tab') === 'my_gigs') this.activeTab = 'my_gigs';
+          try {
+            const flash = sessionStorage.getItem('bengkod_toast');
+            if (flash) {
+              sessionStorage.removeItem('bengkod_toast');
+              this.setToast(flash);
+            }
+          } catch {}
           const openLinkedGig = () => {
             const gig = this.gigFromUrl();
             this.selectedGig = gig || null;
@@ -331,54 +326,6 @@
           this.setToast("Lamaran berhasil ditarik.");
         },
 
-        openCreateGigModal() {
-          this.newGigForm = {
-            title: "",
-            category: "Mobile App",
-            budgetRange: budgetRanges[1],
-            quota: 1,
-            deadline: "2026-12-25",
-            rolesNeeded: "",
-            techStack: "",
-            description: "",
-          };
-          this.createGigModalOpen = true;
-        },
-
-        submitCreateGig() {
-          if (!this.newGigForm.title || !this.newGigForm.description) {
-            alert("Harap lengkapi judul dan deskripsi proyek.");
-            return;
-          }
-          const roles = this.newGigForm.rolesNeeded.split(",").map(r => r.trim()).filter(Boolean);
-          const tech = this.newGigForm.techStack.split(",").map(t => t.trim()).filter(Boolean);
-          const newGig = {
-            id: "gig-" + Date.now(),
-            title: this.newGigForm.title,
-            category: this.newGigForm.category,
-            ownerId: this.currentUserId,
-            ownerName: this.currentUserName,
-            ownerRole: this.currentUserRole,
-            budgetRange: this.newGigForm.budgetRange,
-            deadline: this.newGigForm.deadline,
-            postedDate: new Date().toISOString().slice(0, 10),
-            quota: parseInt(this.newGigForm.quota, 10) || 1,
-            status: "Terbuka",
-            rolesNeeded: roles.length ? roles : ["Developer"],
-            techStack: tech.length ? tech : ["General"],
-            description: this.newGigForm.description,
-            applicantsCount: 0,
-          };
-          if (!saveBoardGig(newGig)) {
-            this.setToast("Proyek gagal disimpan.");
-            return;
-          }
-          this.gigs.unshift(newGig);
-          this.createGigModalOpen = false;
-          this.activeTab = "my_gigs";
-          this.setToast("Proyek berhasil dilempar ke board alumni!");
-        },
-
         openEditGigModal(gig) {
           this.editingGigId = gig.id;
           this.editGigForm = {
@@ -470,11 +417,11 @@
                 Papan kolaborasi side-project, tender freelance, dan rekrutmen tim internal antar-alumni Bengkel Koding.
               </p>
             </div>
-            <button type="button" @click="openCreateGigModal()"
+            <a href="lempar-proyek.html"
               class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-[8px] text-[14px] font-medium text-white bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] transition-colors cursor-pointer self-start sm:self-auto shadow-sm">
               <span class="text-base leading-none font-medium">+</span>
               <span>Lempar Proyek</span>
-            </button>
+            </a>
           </div>
 
           <!-- Tab Segmented -->
@@ -686,7 +633,7 @@
             <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-8 text-center space-y-3">
               <div class="text-[16px] font-semibold text-[#0C1117]">Belum Ada Proyek yang Anda Terbitkan</div>
               <p class="text-[13px] text-[#6B7280]">Mulai kolaborasi baru dengan menerbitkan tender side-project ke sesama rekan alumni.</p>
-              <button type="button" @click="openCreateGigModal()" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white text-[14px] font-medium">+ Lempar Proyek Pertama</button>
+              <a href="lempar-proyek.html" class="inline-flex items-center justify-center h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[14px] font-medium">+ Lempar Proyek Pertama</a>
             </div>
           </template>
         </div>
@@ -1102,76 +1049,6 @@
               <button type="button" @click="editGigModalOpen = false" class="h-10 px-4 rounded-[8px] border border-[#E3E4E9] text-[#212224] hover:bg-[#F4F5F7] font-medium cursor-pointer">Batal</button>
               <button type="submit" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white font-medium hover:bg-[#496DA8] cursor-pointer">Simpan Perubahan</button>
             </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </template>
-
-  <!-- ========================================================
-       MODAL: LEMPAR PROYEK BARU (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
-  ======================================================== -->
-  <template x-if="createGigModalOpen">
-    <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
-         @click.self="createGigModalOpen = false" @keydown.window.escape="createGigModalOpen = false">
-      <div class="w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
-        <header class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
-              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            </div>
-            <h3 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Lempar Proyek Baru</h3>
-          </div>
-          <button type="button" @click="createGigModalOpen = false" class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
-        </header>
-        <form @submit.prevent="submitCreateGig()" class="p-6 lg:p-8 space-y-4 overflow-y-auto flex-1 text-[13.5px]">
-          <div class="space-y-1">
-            <label class="font-medium text-[#212224]">Judul Proyek <span class="text-red-500">*</span></label>
-            <input type="text" x-model="newGigForm.title" required placeholder="Contoh: Redesign Aplikasi Mobile Bengkod" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9]">
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="font-medium text-[#212224]">Kategori</label>
-              <select x-model="newGigForm.category" class="w-full h-10 px-2 rounded-[8px] border border-[#E3E4E9] bg-white">
-                <template x-for="cat in categoryOptions.slice(1)" :key="cat.value">
-                  <option :value="cat.value" x-text="cat.label"></option>
-                </template>
-              </select>
-            </div>
-            <div class="space-y-1">
-              <label class="font-medium text-[#212224]">Rentang Budget</label>
-              <select x-model="newGigForm.budgetRange" class="w-full h-10 px-2 rounded-[8px] border border-[#E3E4E9] bg-white">
-                <template x-for="b in GIGS_BUDGET_RANGES" :key="b">
-                  <option :value="b" x-text="b"></option>
-                </template>
-              </select>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3">
-            <div class="space-y-1">
-              <label class="font-medium text-[#212224]">Target Selesai</label>
-              <input type="date" x-model="newGigForm.deadline" required class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9]">
-            </div>
-            <div class="space-y-1">
-              <label class="font-medium text-[#212224]">Kuota Tim</label>
-              <input type="number" min="1" max="10" x-model="newGigForm.quota" required class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9]">
-            </div>
-          </div>
-          <div class="space-y-1">
-            <label class="font-medium text-[#212224]">Peran yang Dicari (Pisahkan koma)</label>
-            <input type="text" x-model="newGigForm.rolesNeeded" placeholder="UI/UX Designer, Flutter Dev" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9]">
-          </div>
-          <div class="space-y-1">
-            <label class="font-medium text-[#212224]">Tech Stack & Tools (Pisahkan koma)</label>
-            <input type="text" x-model="newGigForm.techStack" placeholder="Flutter, Dart, Firebase" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9]">
-          </div>
-          <div class="space-y-1">
-            <label class="font-medium text-[#212224]">Deskripsi Lengkap & Deliverables <span class="text-red-500">*</span></label>
-            <textarea x-model="newGigForm.description" rows="3" required placeholder="Jelaskan gambaran proyek dan target luaran..." class="w-full p-3 rounded-[8px] border border-[#E3E4E9]"></textarea>
-          </div>
-          <div class="flex items-center justify-end gap-2.5 pt-3">
-            <button type="button" @click="createGigModalOpen = false" class="h-10 px-4 rounded-[8px] border border-[#E3E4E9] text-[#212224] hover:bg-[#F4F5F7] font-medium cursor-pointer">Batal</button>
-            <button type="submit" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white font-medium hover:bg-[#496DA8] cursor-pointer">Terbitkan Proyek</button>
           </div>
         </form>
       </div>

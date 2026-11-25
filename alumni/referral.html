@@ -122,6 +122,13 @@
         init() {
           const params = new URLSearchParams(window.location.search);
           if (params.get('tab') === 'saya') this.activeTab = 'saya';
+          try {
+            const flash = sessionStorage.getItem('bengkod_toast');
+            if (flash) {
+              sessionStorage.removeItem('bengkod_toast');
+              this.setToast(flash);
+            }
+          } catch {}
           const openLinkedVacancy = () => {
             const vacancy = this.vacancyFromUrl();
             this.selectedPost = vacancy || null;
@@ -310,18 +317,6 @@
           this.setToast("Pengajuan referral berhasil dibatalkan.");
         },
 
-        openReferralModal() {
-          this.editingPostId = null;
-          this.referralForm = {
-            perusahaan: "",
-            posisi: "",
-            level: "Magang / Freshgrad",
-            batas: "2026-12-15",
-            isi: "",
-          };
-          this.referralModalOpen = true;
-        },
-
         openEditReferralModal(post) {
           this.editingPostId = post.id;
           this.referralForm = {
@@ -435,11 +430,11 @@
                 Minta review CV dan referral dari rekan alumni, atau buka jalan perkenalan ke kantor Anda.
               </p>
             </div>
-            <button type="button" @click="openReferralModal()"
+            <a href="bagikan-referral.html"
               class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-[8px] text-[14px] font-medium text-white bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] transition-colors cursor-pointer self-start sm:self-auto shadow-sm">
               <span class="text-base leading-none font-medium">+</span>
               <span>Bagikan Lowongan</span>
-            </button>
+            </a>
           </div>
 
           <!-- Tab Segmented -->
@@ -652,7 +647,7 @@
             <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-8 text-center space-y-3">
               <div class="text-[16px] font-semibold text-[#0C1117]">Belum Ada Referral yang Anda Bagikan</div>
               <p class="text-[13px] text-[#6B7280]">Bantu sesama rekan alumni laboratorium Bengkel Koding dengan membagikan lowongan internal kantor Anda.</p>
-              <button type="button" @click="openReferralModal()" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white text-[14px] font-medium">+ Bagikan Lowongan Pertama</button>
+              <a href="bagikan-referral.html" class="inline-flex items-center justify-center h-10 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[14px] font-medium">+ Bagikan Lowongan Pertama</a>
             </div>
           </template>
         </div>
@@ -987,12 +982,9 @@
   </template>
 
   <!-- ========================================================
-       MODAL: BAGIKAN / EDIT REFERRAL
+       MODAL: EDIT REFERRAL (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
   ======================================================== -->
-  <!-- ========================================================
-       MODAL: BAGIKAN / EDIT REFERRAL (UKURAN SAMA PERSIS DENGAN LIHAT DETAIL: 840px)
-  ======================================================== -->
-  <template x-if="referralModalOpen">
+  <template x-if="referralModalOpen && editingPostId">
     <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
          @click.self="referralModalOpen = false" @keydown.window.escape="referralModalOpen = false">
       <div class="w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
@@ -1001,11 +993,11 @@
             <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
               <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
             </div>
-            <h3 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]" x-text="editingPostId ? 'Edit Info Referral' : '+ Bagikan Info Referral Kantor'"></h3>
+            <h3 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Edit Info Referral</h3>
           </div>
           <button type="button" @click="referralModalOpen = false" class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer" title="Tutup">✕</button>
         </header>
-        <form @submit.prevent="submitReferralPost()" class="p-6 lg:p-8 space-y-4 overflow-y-auto flex-1 text-[13.5px]">
+        <form @submit.prevent="submitReferralForm()" class="p-6 lg:p-8 space-y-4 overflow-y-auto flex-1 text-[13.5px]">
           <div class="grid grid-cols-2 gap-3">
             <div class="space-y-1">
               <label class="font-medium text-[#212224]">Nama Perusahaan <span class="text-red-500">*</span></label>
@@ -1036,7 +1028,7 @@
           </div>
           <div class="flex items-center justify-end gap-2.5 pt-3">
             <button type="button" @click="referralModalOpen = false" class="h-10 px-4 rounded-[8px] border border-[#E3E4E9] text-[#212224] hover:bg-[#F4F5F7] font-medium cursor-pointer">Batal</button>
-            <button type="submit" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white font-medium hover:bg-[#496DA8] cursor-pointer" x-text="editingPostId ? 'Simpan Perubahan' : 'Bagikan Info Referral'"></button>
+            <button type="submit" class="h-10 px-5 rounded-[8px] bg-[#3A5988] text-white font-medium hover:bg-[#496DA8] cursor-pointer">Simpan Perubahan</button>
           </div>
         </form>
       </div>

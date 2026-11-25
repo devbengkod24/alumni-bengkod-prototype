@@ -1,8 +1,55 @@
 /**
  * Shared feature panel renderer ("Panel fitur Alumni") for login.html and register.html.
- * Dynamically scales the 730x540 collage to fit inside 1 viewport height with zero page scroll.
+ * Dynamically scales the 730x540 collage to fit inside 1 viewport height with zero page scroll,
+ * and animates the 3 preview cards with staggered entrance and subtle continuous float.
  */
 (function () {
+  function injectAnimationStyles() {
+    if (document.getElementById('auth-panel-anim')) return;
+    const style = document.createElement('style');
+    style.id = 'auth-panel-anim';
+    style.textContent = `
+      @keyframes authCardEnter {
+        from { opacity: 0; transform: translate3d(0, 18px, 0) scale(0.96); }
+        to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+      }
+      @keyframes authFloatA {
+        0%, 100% { transform: rotate(-7deg) translate3d(0, 0, 0); }
+        50% { transform: rotate(-5.8deg) translate3d(0, -7px, 0); }
+      }
+      @keyframes authFloatB {
+        0%, 100% { transform: rotate(6deg) translate3d(0, 0, 0); }
+        50% { transform: rotate(4.8deg) translate3d(0, -8px, 0); }
+      }
+      @keyframes authFloatC {
+        0%, 100% { transform: rotate(-7deg) translate3d(0, 0, 0); }
+        50% { transform: rotate(-8.2deg) translate3d(0, 6px, 0); }
+      }
+      @keyframes authGlowPulse {
+        0%, 100% { opacity: 0.85; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.06); }
+      }
+      .auth-enter-1 { animation: authCardEnter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+      .auth-enter-2 { animation: authCardEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both; }
+      .auth-enter-3 { animation: authCardEnter 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both; }
+      .auth-float-a { animation: authFloatA 6.2s ease-in-out infinite; will-change: transform; }
+      .auth-float-b { animation: authFloatB 7.2s ease-in-out -2.1s infinite; will-change: transform; }
+      .auth-float-c { animation: authFloatC 6.6s ease-in-out -3.8s infinite; will-change: transform; }
+      .auth-glow-pulse { animation: authGlowPulse 8s ease-in-out infinite; will-change: transform, opacity; }
+      .auth-card-lift { transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+      .auth-card-lift:hover { transform: translateY(-4px) scale(1.02); }
+      @media (prefers-reduced-motion: reduce) {
+        .auth-enter-1, .auth-enter-2, .auth-enter-3,
+        .auth-float-a, .auth-float-b, .auth-float-c,
+        .auth-glow-pulse { animation: none !important; }
+        .auth-float-a, .auth-float-c { transform: rotate(-7deg); }
+        .auth-float-b { transform: rotate(6deg); }
+        .auth-card-lift:hover { transform: none; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
   function fitAuthCollage() {
     const slot = document.getElementById('auth-collage-slot');
     const box = document.getElementById('auth-collage-box');
@@ -39,10 +86,12 @@
   function renderAuthFeaturePanel(opts = {}) {
     const {
       containerId = 'auth-feature-panel',
-      mobileHeightClass = 'h-[clamp(180px,27dvh,255px)]',
+      mobileHeightClass = 'h-[clamp(144px,20dvh,205px)]',
     } = opts;
     const el = document.getElementById(containerId);
     if (!el) return;
+
+    injectAnimationStyles();
 
     el.innerHTML = `
       <div class="relative ${mobileHeightClass} lg:h-full w-full overflow-hidden flex flex-col justify-between"
@@ -50,12 +99,12 @@
 
         <!-- Radial ambient glow -->
         <div class="pointer-events-none select-none absolute top-[-96px] left-[120px] lg:top-[61px] lg:left-[284px] origin-top-left scale-[0.42] lg:scale-100" aria-hidden="true">
-          <img src="assets/img/auth/pusat-cahaya-panel.svg" alt="" width="570" height="570" class="block max-w-none">
+          <img src="assets/img/auth/pusat-cahaya-panel.svg" alt="" width="570" height="570" class="block max-w-none auth-glow-pulse">
         </div>
 
         <!-- Mobile heading -->
-        <div class="relative z-10 px-5 pt-3 lg:hidden shrink-0">
-          <p class="font-bold text-[18px] sm:text-[20px] leading-[1.3] text-white">
+        <div class="relative z-10 px-5 pt-2.5 lg:hidden shrink-0">
+          <p class="font-bold text-[17px] sm:text-[20px] leading-[1.25] text-white">
             Ruang berkarya untuk alumni
           </p>
         </div>
@@ -73,7 +122,7 @@
           </p>
         </div>
 
-        <!-- 3-Card Feature Collage (730x540 base, fitted inside remaining viewport height) -->
+        <!-- 3-Card Feature Collage (730x540 base, animated & fitted inside remaining viewport height) -->
         <div id="auth-collage-slot"
              class="relative z-10 flex-1 min-h-0 w-full flex items-center justify-center lg:items-center min-[1420px]:items-start lg:justify-start lg:pl-6 xl:pl-8 min-[1420px]:pl-[28px] pb-1 lg:pb-4 min-[1420px]:pt-[28px]"
              style="flex: 1 1 0%; min-height: 0;"
@@ -82,9 +131,9 @@
             <div id="auth-collage-canvas" class="absolute top-0 left-0 w-[730px] h-[540px] origin-top-left">
 
               <!-- Card 1: Gigs & Proyek -->
-              <div class="absolute left-[358px] top-[5px] w-[369.5px] h-[198.85px] flex items-center justify-center">
-                <div class="-rotate-[7deg] flex-none">
-                  <div class="relative w-[353px] h-[157px] rounded-[22px] bg-white border border-[#D9E3F4]"
+              <div class="absolute left-[358px] top-[5px] w-[369.5px] h-[198.85px] flex items-center justify-center auth-enter-1">
+                <div class="auth-float-a flex-none">
+                  <div class="relative w-[353px] h-[157px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
                       <img src="assets/img/auth/icon-gigs.svg" alt="" width="21" height="21" class="block">
@@ -103,9 +152,9 @@
               </div>
 
               <!-- Card 2: Showcase Karya (AntreKlinik preview) -->
-              <div class="absolute left-[1.27px] top-[154px] w-[479.26px] h-[339.53px] flex items-center justify-center">
-                <div class="rotate-[6deg] flex-none">
-                  <div class="relative w-[451px] h-[294px] rounded-[22px] bg-white border border-[#D9E3F4]"
+              <div class="absolute left-[1.27px] top-[154px] w-[479.26px] h-[339.53px] flex items-center justify-center auth-enter-2">
+                <div class="auth-float-b flex-none">
+                  <div class="relative w-[451px] h-[294px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
                       <img src="assets/img/auth/icon-showcase.svg" alt="" width="21" height="21" class="block">
@@ -158,9 +207,9 @@
               </div>
 
               <!-- Card 3: Lowongan & Referral -->
-              <div class="absolute left-[370px] top-[310.81px] w-[354.98px] h-[200px] flex items-center justify-center">
-                <div class="-rotate-[7deg] flex-none">
-                  <div class="relative w-[338px] h-[160px] rounded-[22px] bg-white border border-[#D9E3F4]"
+              <div class="absolute left-[370px] top-[310.81px] w-[354.98px] h-[200px] flex items-center justify-center auth-enter-3">
+                <div class="auth-float-c flex-none">
+                  <div class="relative w-[338px] h-[160px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
                       <img src="assets/img/auth/icon-referral.svg" alt="" width="21" height="21" class="block">
