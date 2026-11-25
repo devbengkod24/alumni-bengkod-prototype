@@ -81,13 +81,13 @@
             </div>
             <select id="f-status" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-64 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer" aria-label="Filter status"></select>
             <select id="f-profil" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-56 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer" aria-label="Filter studi lanjut dan pekerjaan sampingan"></select>
-            <select id="f-tahun" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-44 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer" aria-label="Filter tahun lulus"></select>
+            <select id="f-tahun" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-44 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer" aria-label="Filter angkatan"></select>
           </div>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead><tr>
-              <th class="th">Alumni</th><th class="th">Lulus</th><th class="th">Kontak</th><th class="th">Status</th><th class="th">Tempat</th><th class="th">Posisi</th><th class="th text-right no-print">Profil</th>
+              <th class="th">Alumni</th><th class="th">Angkatan</th><th class="th">Kontak</th><th class="th">Status</th><th class="th">Tempat</th><th class="th">Posisi</th><th class="th text-right no-print">Profil</th>
             </tr></thead>
             <tbody id="baris"></tbody>
           </table>
@@ -121,7 +121,7 @@
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead><tr>
-              <th class="th">Tahun Lulus</th>
+              <th class="th">Angkatan</th>
               <th class="th text-right">Total Asisten (LMS)</th>
               <th class="th text-right">Terdaftar di Portal</th>
               <th class="th">Cakupan Adopsi</th>
@@ -227,7 +227,7 @@
 
   filterStatus.innerHTML = `<option value="">Semua status</option>${DB.STATUS.map(s => `<option>${esc(s)}</option>`).join('')}`;
   filterProfil.innerHTML = `<option value="">Semua profil</option>${Object.entries(PROFIL).map(([kunci, [label]]) => `<option value="${kunci}">${label}</option>`).join('')}`;
-  filterTahun.innerHTML = `<option value="">Semua tahun lulus</option>${[...new Set(DB.tracer.semua().map(t => t.tahun_lulus))].sort((a, b) => b - a).map(t => `<option>${t}</option>`).join('')}`;
+  filterTahun.innerHTML = `<option value="">Semua angkatan</option>${[...new Set(DB.tracer.semua().map(t => t.tahun_lulus))].sort((a, b) => b - a).map(t => `<option value="${t}">Angkatan ${t}</option>`).join('')}`;
 
   function cocokStatus(t, status) {
     if (!status) return true;
@@ -367,7 +367,7 @@
   }
 
   pasangToolsTabel('alat-statistik', 'statistik-alumni.csv', () => [
-    ['Tahun Lulus', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
+    ['Angkatan', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
     ...DB.statistik.semua().map(s => [s.tahun_lulus, s.alumni_total, s.alumni_terlacak, `${cakupan(s)}%`]),
   ]);
 
