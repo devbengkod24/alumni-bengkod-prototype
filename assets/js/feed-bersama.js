@@ -185,6 +185,9 @@
       })) {
         return { ok: false, error: 'Laporan gagal disimpan. Coba lagi.' };
       }
+      if (typeof antreNotifKoordinator === 'function') {
+        antreNotifKoordinator('flag', `${pelapor} melaporkan postingan "${judul}".`, 'laporan-forum.html');
+      }
       return { ok: true };
     },
 

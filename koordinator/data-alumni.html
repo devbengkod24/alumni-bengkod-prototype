@@ -36,7 +36,7 @@
     </div>
 
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-      <div class="grid grid-cols-2 sm:flex sm:items-center gap-2 [&>:last-child]:col-span-2 sm:[&>:last-child]:col-span-1">
+      <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
         <div class="relative">
           <label for="filter-batch" class="sr-only">Angkatan</label>
           <select id="filter-batch" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
@@ -65,15 +65,18 @@
           </select>
           <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
         </div>
+        <div class="relative">
+          <label for="filter-jenjang" class="sr-only">Jenjang pendidikan</label>
+          <select id="filter-jenjang" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
+            <option value="">Semua jenjang</option>
+            <option value="s1">S1</option>
+            <option value="s2">Studi Lanjut</option>
+          </select>
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+        </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <span class="text-[13px] text-neutral3 font-medium hidden sm:inline">Jenjang:</span>
-        <div id="jenjang" class="bg-neutral5 p-1 rounded-[10px] inline-flex items-center gap-1 text-[13px]" role="group" aria-label="Filter jenjang">
-          <button type="button" data-jenjang="" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">Semua</button>
-          <button type="button" data-jenjang="s1" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">S1</button>
-          <button type="button" data-jenjang="s2" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">S2 (Studi Lanjut)</button>
-        </div>
+      <div class="flex items-center justify-end">
         <button type="button" id="btn-reset-filter" class="hidden text-[13px] text-primary3 hover:underline font-medium cursor-pointer whitespace-nowrap">Reset</button>
       </div>
     </div>
@@ -113,7 +116,6 @@
 <script>
   const PER_HALAMAN = 10;
   let halaman = 1;
-  let jenjang = '';
   const $ = id => document.getElementById(id);
 
   const isS2 = t => Boolean(t && (t.status === DB.STATUS_STUDI || t.nama_studi));
@@ -157,6 +159,7 @@
     const batch = $('filter-batch').value;
     const kota = $('filter-kota').value;
     const skill = $('filter-skill').value.toLowerCase();
+    const jenjang = $('filter-jenjang').value;
 
     return semua.filter(a => {
       const t = DB.tracer.milik(a.id);
@@ -179,18 +182,8 @@
     const jumlahHal = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN));
     halaman = Math.min(halaman, jumlahHal);
 
-    const filterAktif = Boolean($('cari').value.trim() || $('cari-tempat').value.trim() || $('filter-batch').value || $('filter-skill').value || $('filter-kota').value || jenjang);
+    const filterAktif = Boolean($('cari').value.trim() || $('cari-tempat').value.trim() || $('filter-batch').value || $('filter-skill').value || $('filter-kota').value || $('filter-jenjang').value);
     $('btn-reset-filter').classList.toggle('hidden', !filterAktif);
-    document.querySelectorAll('[data-jenjang]').forEach(b => {
-      const aktif = b.dataset.jenjang === jenjang;
-      b.setAttribute('aria-pressed', aktif);
-      b.classList.toggle('bg-white', aktif);
-      b.classList.toggle('text-headline', aktif);
-      b.classList.toggle('shadow-sm', aktif);
-      b.classList.toggle('font-semibold', aktif);
-      b.classList.toggle('font-medium', !aktif);
-      b.classList.toggle('text-neutral3', !aktif);
-    });
 
     $('jumlah-hasil').textContent = `(${hasil.length} rekan)`;
     $('daftar').innerHTML = hasil.length
@@ -211,16 +204,9 @@
 
   const ulang = () => { halaman = 1; render(); };
   ['cari', 'cari-tempat'].forEach(id => $(id).addEventListener('input', ulang));
-  ['filter-batch', 'filter-skill', 'filter-kota'].forEach(id => $(id).addEventListener('change', ulang));
-  $('jenjang').addEventListener('click', e => {
-    const b = e.target.closest('[data-jenjang]');
-    if (!b) return;
-    jenjang = b.dataset.jenjang;
-    ulang();
-  });
+  ['filter-batch', 'filter-skill', 'filter-kota', 'filter-jenjang'].forEach(id => $(id).addEventListener('change', ulang));
   $('btn-reset-filter').addEventListener('click', () => {
-    ['cari', 'cari-tempat', 'filter-batch', 'filter-skill', 'filter-kota'].forEach(id => { $(id).value = ''; });
-    jenjang = '';
+    ['cari', 'cari-tempat', 'filter-batch', 'filter-skill', 'filter-kota', 'filter-jenjang'].forEach(id => { $(id).value = ''; });
     ulang();
   });
   $('hal-sebelum').addEventListener('click', () => { halaman--; render(); });

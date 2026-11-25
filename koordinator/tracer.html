@@ -257,7 +257,7 @@
   pasangToolsTabel('alat', 'analitik-tracer.csv', () => [
     KOLOM_EKSPOR.map(([, label]) => label),
     ...daftar().map(t => KOLOM_EKSPOR.map(([k]) => [t[k] ?? ''].flat().join(', '))),
-  ]);
+  ], { salin: false });
 
   // ===================== BAGIAN 2: STATISTIK PER ANGKATAN (OTOMATIS LMS) =====================
   const cakupan = s => (s.alumni_total ? Math.round((s.alumni_terlacak / s.alumni_total) * 100) : 0);
@@ -322,7 +322,7 @@
   pasangToolsTabel('alat-statistik', 'cakupan-per-angkatan.csv', () => [
     ['Angkatan', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
     ...DB.statistik.semua().map(s => [s.tahun_lulus, s.alumni_total, s.alumni_terlacak, `${cakupan(s)}%`]),
-  ]);
+  ], { salin: false });
 
   render();
   renderStatistik();
