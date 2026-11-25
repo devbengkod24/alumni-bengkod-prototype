@@ -779,6 +779,37 @@ const ALUMNI_DIRECTORY = [
   },
 ];
 
+const ALUMNI_WORK_MAP = {
+  "aisha-dwi-rahmawati": { position: "Junior Data Scientist & Analyst", company: "PT GoTo Gojek Tokopedia" },
+  "clarista": { position: "Machine Learning Engineer", company: "Blibli" },
+  "rafi-pratama": { position: "Fullstack Web Developer", company: "DANA Indonesia" },
+  "nadia-safira": { position: "UI/UX Designer", company: "Telkom Indonesia" },
+  "bagas-wicaksono": { position: "IoT Engineer", company: "PT Solusi Digital Jateng" },
+  "salsabila-putri": { position: "Mobile Developer", company: "Ruangguru" },
+  "dimas-aryo": { position: "Backend Engineer", company: "Bank Mandiri" },
+  "kirana-maheswari": { position: "Data Analyst", company: "Bibit" },
+  "fajar-nugroho": { position: "Cybersecurity Analyst", company: "Xendit" },
+  "intan-permata": { position: "Frontend Engineer", company: "Mekari" },
+  "nadjwa-salsabila": { position: "UI/UX Designer", company: "Tokopedia" },
+  "maulidya-ayu-pratiwi": { position: "Frontend Developer", company: "Gojek" },
+  "alvyan-anantama": { position: "Data Analyst", company: "Traveloka" },
+  "budi-santoso": { position: "DevOps Engineer", company: "Tiket.com" },
+  "rizky-firmansyah": { position: "Fullstack Developer", company: "Koinworks" },
+  "dewi-rahmawati": { position: "QA Engineer", company: "Kredivo" },
+  "sindu-aditya-putra": { position: "Backend Engineer", company: "Shopee" },
+  "taliya-maharani": { position: "Product Manager", company: "GoTo" },
+  "andi-pratama": { position: "Mobile Developer", company: "Bukalapak" },
+  "siti-nuraini": { position: "Data Scientist", company: "Grab" },
+};
+
+ALUMNI_DIRECTORY.forEach((a) => {
+  const work = ALUMNI_WORK_MAP[a.id];
+  if (work) {
+    a.position = a.position || work.position;
+    a.company = a.company || work.company;
+  }
+});
+
 // ============================================================
 // DIREKTORI PERUSAHAAN MITRA BENGKEL KODING
 // Selaras dengan isian edit profile role perusahaan (mitra)
