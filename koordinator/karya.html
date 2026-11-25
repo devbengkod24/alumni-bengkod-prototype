@@ -19,54 +19,66 @@
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Karya Alumni">
-  <div class="w-full space-y-6 py-2 antialiased">
+  <div class="w-full space-y-5 antialiased">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
-        <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Showcase Alumni</h1>
-        <p class="text-sm text-gray-500 mt-1">
+        <h1 class="!text-[26px] font-semibold text-headline">Showcase Alumni</h1>
+        <p class="!text-[13.5px] text-neutral3 mt-1">
           Pilih karya yang tampil di Spotlight beranda alumni dan landing page.
         </p>
       </div>
-      <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#3A5988] text-xs font-semibold border border-blue-200">
-          <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
-          <span id="badge-total-karya">0 Karya Terbit</span>
-        </span>
+
+      <div class="inline-flex items-center gap-1 p-1 bg-white border border-neutral4 rounded-[12px] shadow-sm self-start sm:self-auto" role="tablist" aria-label="Kategori Showcase">
+        <button type="button" id="tab-semua" role="tab" aria-selected="true" onclick="setSpotlightFilter('all')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer bg-[#3A5988] text-white">
+          <i data-lucide="layout-grid" class="w-4 h-4" aria-hidden="true"></i>
+          <span>Semua Karya</span>
+          <span id="count-tab-semua" class="px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums bg-white/20 text-white">0</span>
+        </button>
+        <button type="button" id="tab-spotlight" role="tab" aria-selected="false" onclick="setSpotlightFilter('spotlight')" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer text-neutral2 hover:text-headline hover:bg-[#F8FAFC]">
+          <i data-lucide="star" class="w-4 h-4" aria-hidden="true"></i>
+          <span>Di Spotlight</span>
+          <span id="count-tab-spotlight" class="px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums bg-[#F4F5F7] text-neutral2">0</span>
+        </button>
       </div>
     </div>
 
-    <!-- Toolbar: jumlah karya, filter stack, pencarian -->
-    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-      <p id="label-jumlah" class="text-[13px] text-gray-500 order-last sm:order-none"></p>
+    <!-- Toolbar: jumlah hasil, pencarian, filter stack -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3" aria-label="Filter karya showcase">
+      <p id="label-jumlah" class="!text-[13px] text-neutral3 tabular-nums order-last sm:order-none"></p>
 
-      <div class="flex items-center gap-3 sm:ml-auto w-full sm:w-auto">
-        <div class="relative shrink-0">
-          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
-          <select
-            id="showcase-stack"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer transition-colors"
-          >
-            <option value="">Semua stack</option>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-            <i data-lucide="chevron-down" class="w-4 h-4"></i>
-          </span>
-        </div>
-
-        <div class="relative flex-1 sm:w-64 sm:flex-none">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <i data-lucide="search" class="w-4 h-4"></i>
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2.5 flex-1 sm:justify-end">
+        <div class="relative flex-1 sm:max-w-[260px]">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+            <i data-lucide="search" class="w-4 h-4" aria-hidden="true"></i>
           </span>
           <input
             id="cari"
             type="search"
-            placeholder="Cari karya atau stack..."
+            placeholder="Cari karya, pembuat, atau stack..."
             aria-label="Cari karya"
             autocomplete="off"
-            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988]"
+            class="w-full h-10 pl-10 pr-3.5 rounded-[10px] border border-neutral4 bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] shadow-sm focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 transition-colors"
           >
         </div>
+
+        <div class="relative shrink-0">
+          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
+          <select
+            id="showcase-stack"
+            class="appearance-none w-full sm:w-auto sm:min-w-[170px] h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors"
+          >
+            <option value="">Semua stack</option>
+          </select>
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]">
+            <i data-lucide="chevron-down" class="w-4 h-4" aria-hidden="true"></i>
+          </span>
+        </div>
+
+        <button type="button" id="btn-reset-filter" onclick="resetFilterKarya()" class="hidden self-end sm:self-auto inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[10px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral2 hover:text-headline shadow-sm transition-colors cursor-pointer whitespace-nowrap">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          <span>Reset</span>
+        </button>
       </div>
     </div>
 
@@ -74,26 +86,32 @@
     <div id="grid-karya" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
 
     <!-- Empty State -->
-    <div id="empty-state" class="hidden bg-white rounded-xl border border-dashed border-gray-300 p-10 text-center">
-      <p class="text-[15px] font-semibold text-gray-800">Belum ada karya yang cocok</p>
-      <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau filter stack lain.</p>
+    <div id="empty-state" class="hidden bg-white rounded-[16px] border border-neutral4 shadow-sm p-12 text-center">
+      <i data-lucide="rocket" class="w-9 h-9 mx-auto mb-3 text-[#CBD5E1]" aria-hidden="true"></i>
+      <p class="!text-[15px] font-semibold text-headline">Belum ada karya yang cocok</p>
+      <p class="!text-[13px] text-neutral3 mt-1">Coba kata kunci lain atau reset filter untuk melihat semua karya.</p>
+      <button type="button" onclick="resetFilterKarya()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+        <span>Reset semua filter</span>
+      </button>
     </div>
   </div>
 </main>
 
 <script>
   let stackFilter = "";
+  let spotlightFilter = "all";
   let query = "";
 
   function kartuKarya(k, tampilDiSpotlight) {
-    const detailUrl = showcaseWorkLink(k, "../alumni/");
+    const detailUrl = showcaseWorkLink(k, "../alumni/") + "&from=koordinator";
     const banner = (k.banner || "").startsWith("assets/") ? "../alumni/" + k.banner : k.banner;
     const logo = (k.logo || "").startsWith("assets/") ? "../alumni/" + k.logo : k.logo;
     const monogram = (k.nama || "A").charAt(0).toUpperCase();
 
     const bannerHtml = k.banner
       ? `<img src="${esc(banner)}" alt="Banner ${esc(k.nama)}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">`
-      : `<div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#3A5988]/30">${esc(monogram)}</div>`;
+      : `<div class="w-full h-full flex items-center justify-center text-4xl font-bold text-[#3A5988]/30">${esc(monogram)}</div>`;
 
     const logoHtml = k.logo
       ? `<img src="${esc(logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">`
@@ -101,58 +119,78 @@
 
     const stackHtml = (k.stack && k.stack.length > 0)
       ? `<div class="flex items-center gap-1.5 flex-wrap">
-          ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[12px] font-medium">${esc(s)}</span>`).join("")}
-          ${k.stack.length > 3 ? `<span class="text-[12px] text-gray-400">+${k.stack.length - 3}</span>` : ""}
+          ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded-[6px] bg-[#F8FAFC] border border-neutral4 text-neutral2 text-[12px] font-medium">${esc(s)}</span>`).join("")}
+          ${k.stack.length > 3 ? `<span class="text-[12px] text-neutral3 tabular-nums">+${k.stack.length - 3}</span>` : ""}
         </div>`
       : "";
 
     const authorAvatarHtml = k.authorAvatar
-      ? `<img src="${esc(k.authorAvatar)}" alt="${esc(k.authorName)}" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">`
-      : `<div class="w-6 h-6 rounded-full bg-[#3A5988] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(k.authorName.slice(0, 2).toUpperCase())}</div>`;
+      ? `<img src="${esc(k.authorAvatar)}" alt="${esc(k.authorName)}" class="w-6 h-6 rounded-full object-cover border border-neutral4 shrink-0">`
+      : `<div class="w-6 h-6 rounded-full bg-[#3A5988] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(inisial(k.authorName))}</div>`;
+
+    const spotlightBadge = tampilDiSpotlight
+      ? `<span class="absolute top-3 left-3 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/95 border border-[#B7C8E0] text-[#3A5988] text-[11.5px] font-semibold shadow-sm"><i data-lucide="star" class="w-3 h-3 fill-current" aria-hidden="true"></i>Spotlight</span>`
+      : "";
 
     return `
-      <article class="flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden">
+      <article class="flex flex-col rounded-[16px] bg-white overflow-hidden shadow-sm transition-colors ${tampilDiSpotlight ? "border border-primary4 ring-1 ring-primary4/35" : "border border-neutral4"}">
       <a
         href="${detailUrl}"
-        class="group flex flex-1 flex-col hover:bg-gray-50 transition-colors"
+        class="group flex flex-1 flex-col hover:bg-[#F8FAFC]/60 transition-colors"
       >
         <!-- Banner 16:9 -->
-        <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
+        <div class="relative aspect-video bg-[#EBF2FC] overflow-hidden border-b border-neutral4/60">
           ${bannerHtml}
+          ${spotlightBadge}
         </div>
 
-        <div class="flex-1 flex flex-col p-4 gap-3">
+        <div class="flex-1 flex flex-col p-4 sm:p-5 gap-3">
           <div class="flex items-start gap-3">
-            <div class="w-11 h-11 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden">
+            <div class="w-11 h-11 rounded-[10px] border border-neutral4 bg-white flex items-center justify-center shrink-0 overflow-hidden">
               ${logoHtml}
             </div>
             <div class="min-w-0 flex-1">
-              <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#3A5988] transition-colors truncate">${esc(k.nama)}</h2>
-              <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5">${esc(k.tagline)}</p>
+              <h2 class="text-[15.5px] font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(k.nama)}</h2>
+              <p class="!text-[13px] text-neutral3 line-clamp-2 mt-0.5 leading-snug">${esc(k.tagline)}</p>
             </div>
           </div>
 
           ${stackHtml}
 
-          <div class="mt-auto pt-3 border-t border-gray-100 flex items-center justify-between gap-3">
+          <div class="mt-auto pt-3 border-t border-neutral4/70 flex items-center justify-between gap-3">
             <div class="flex items-center gap-2 min-w-0">
               ${authorAvatarHtml}
-              <span class="text-[13px] text-gray-600 truncate">${esc(k.authorName)}</span>
+              <span class="text-[13px] text-neutral2 truncate">${esc(k.authorName)}</span>
             </div>
-            <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#3A5988] group-hover:translate-x-0.5 transition-transform shrink-0">
+            <span class="inline-flex items-center gap-1 text-[12.5px] font-semibold text-primary1 group-hover:translate-x-0.5 transition-transform shrink-0">
               <span>Detail</span>
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
             </span>
           </div>
         </div>
       </a>
-      <div class="px-4 pb-4">
+      <div class="px-4 sm:px-5 pb-4 sm:pb-5">
         <button type="button" data-spotlight-id="${esc(k.id)}" aria-pressed="${tampilDiSpotlight}" aria-label="Spotlight ${esc(k.nama)}"
-                class="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-[#3A5988] ${tampilDiSpotlight ? "bg-blue-100" : "hover:bg-blue-50"}">
-          ${tampilDiSpotlight ? "Lepas dari Spotlight" : "Tampilkan di Spotlight"}
+                class="w-full h-10 rounded-[10px] px-3 text-[13px] font-semibold inline-flex items-center justify-center gap-2 transition-colors cursor-pointer ${tampilDiSpotlight ? "border border-[#B7C8E0] bg-[#EBF2FC] hover:bg-[#DCEAF9] text-[#3A5988]" : "border border-neutral4 bg-white hover:bg-[#F8FAFC] hover:border-primary4 text-neutral1 hover:text-primary1"}">
+          <i data-lucide="star" class="w-4 h-4 ${tampilDiSpotlight ? "fill-current" : ""}" aria-hidden="true"></i>
+          <span>${tampilDiSpotlight ? "Lepas dari Spotlight" : "Tampilkan di Spotlight"}</span>
         </button>
       </div>
       </article>`;
+  }
+
+  function setSpotlightFilter(mode) {
+    spotlightFilter = mode === "spotlight" ? "spotlight" : "all";
+    render();
+  }
+
+  function resetFilterKarya() {
+    stackFilter = "";
+    spotlightFilter = "all";
+    query = "";
+    document.getElementById("cari").value = "";
+    document.getElementById("showcase-stack").value = "";
+    render();
   }
 
   function isiOpsiStack(semuaKarya) {
@@ -170,17 +208,38 @@
 
   function render() {
     const semuaKarya = loadShowcaseWorks();
-    document.getElementById("badge-total-karya").textContent = `${semuaKarya.length} Karya Terbit`;
+    const spotlightIds = new Set(loadSpotlightWorks().map(k => String(k.id)));
+    const jumlahSpotlight = semuaKarya.filter(k => spotlightIds.has(String(k.id))).length;
+
+    const countSemua = document.getElementById("count-tab-semua");
+    const countSpot = document.getElementById("count-tab-spotlight");
+    countSemua.textContent = semuaKarya.length;
+    countSpot.textContent = jumlahSpotlight;
+
+    const btnSemua = document.getElementById("tab-semua");
+    const btnSpot = document.getElementById("tab-spotlight");
+    const isAll = spotlightFilter === "all";
+    btnSemua.setAttribute("aria-selected", String(isAll));
+    btnSpot.setAttribute("aria-selected", String(!isAll));
+    btnSemua.className = `inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer ${isAll ? "bg-[#3A5988] text-white" : "text-neutral2 hover:text-headline hover:bg-[#F8FAFC]"}`;
+    btnSpot.className = `inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer ${!isAll ? "bg-[#3A5988] text-white" : "text-neutral2 hover:text-headline hover:bg-[#F8FAFC]"}`;
+    countSemua.className = `px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums ${isAll ? "bg-white/20 text-white" : "bg-[#F4F5F7] text-neutral2"}`;
+    countSpot.className = `px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums ${!isAll ? "bg-white/20 text-white" : "bg-[#F4F5F7] text-neutral2"}`;
 
     // Filter list
     const q = query.trim().toLowerCase();
     const filtered = semuaKarya.filter(k => {
+      if (spotlightFilter === "spotlight" && !spotlightIds.has(String(k.id))) return false;
       if (stackFilter && !k.stack.includes(stackFilter)) return false;
       if (!q) return true;
       return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
     }).sort((a, b) => b.waktu - a.waktu);
 
-    document.getElementById("label-jumlah").textContent = `${filtered.length} karya`;
+    const filterAktif = Boolean(stackFilter || q || spotlightFilter !== "all");
+    document.getElementById("btn-reset-filter").classList.toggle("hidden", !filterAktif);
+    document.getElementById("label-jumlah").textContent = filterAktif
+      ? `Menampilkan ${filtered.length} dari ${semuaKarya.length} karya`
+      : `${semuaKarya.length} karya tersedia untuk dikurasi`;
 
     // Grid rendering
     const grid = document.getElementById("grid-karya");
@@ -191,14 +250,13 @@
       empty.classList.remove("hidden");
     } else {
       empty.classList.add("hidden");
-      const spotlightIds = new Set(loadSpotlightWorks().map(k => k.id));
-      grid.innerHTML = filtered.map(k => kartuKarya(k, spotlightIds.has(k.id))).join("");
+      grid.innerHTML = filtered.map(k => kartuKarya(k, spotlightIds.has(String(k.id)))).join("");
     }
 
     // Update style select
     const selectStack = document.getElementById("showcase-stack");
-    selectStack.className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer transition-colors ${
-      stackFilter ? "border-blue-200 bg-blue-50 text-[#3A5988]" : "border-gray-200 text-gray-700 hover:border-gray-300"
+    selectStack.className = `appearance-none w-full sm:w-auto sm:min-w-[170px] h-10 pl-3.5 pr-9 rounded-[10px] border text-[13.5px] font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors ${
+      stackFilter ? "border-primary4 bg-[#EBF2FC] text-primary1" : "border-neutral4 bg-white text-neutral1 hover:border-neutral3"
     }`;
 
     refreshIcons();
@@ -219,13 +277,15 @@
   gridKarya.addEventListener("click", event => {
     const button = event.target.closest("[data-spotlight-id]");
     if (!button) return;
-    const id = button.dataset.spotlightId;
+    const id = String(button.dataset.spotlightId);
     try {
       toggleSpotlightWork(id);
     } catch {
-      window.alert("Pilihan Spotlight gagal disimpan.");
+      showToast("Pilihan Spotlight gagal disimpan.", "error");
       return;
     }
+    const aktif = new Set(loadSpotlightWorks().map(x => String(x.id))).has(id);
+    showToast(aktif ? "Karya ditampilkan di Spotlight." : "Karya dilepas dari Spotlight.");
     render();
     [...gridKarya.querySelectorAll("[data-spotlight-id]")]
       .find(item => item.dataset.spotlightId === id)?.focus();
