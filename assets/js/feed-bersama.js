@@ -178,16 +178,16 @@
       const p = this.cari(id);
       if (!p) return { ok: false, error: 'Postingan tidak ditemukan.' };
       const judul = p.karya?.nama || (p.isi ? (p.isi.slice(0, 80) + (p.isi.length > 80 ? '…' : '')) : 'Postingan Media');
-      if (typeof BengkodStore !== 'undefined' && BengkodStore.addLaporan) {
-        BengkodStore.addLaporan({
-          id_post: id,
-          judul_post: judul,
-          penulis_post: p.penulis,
-          pelapor,
-          peran_pelapor: peran,
-          alasan,
-          catatan,
-        });
+      if (!BengkodStore.addLaporan({
+        id_post: id,
+        judul_post: judul,
+        penulis_post: p.penulis,
+        pelapor,
+        peran_pelapor: peran,
+        alasan,
+        catatan,
+      })) {
+        return { ok: false, error: 'Laporan gagal disimpan. Coba lagi.' };
       }
       return { ok: true };
     },

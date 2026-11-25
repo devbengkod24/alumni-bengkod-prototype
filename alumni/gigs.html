@@ -6,6 +6,8 @@
   <title>Gigs & Proyek | Portal Alumni Bengkel Koding UDINUS</title>
   <meta name="description" content="Papan kolaborasi side-project, tender freelance, dan rekrutmen tim internal antar-alumni Bengkel Koding.">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="assets/js/alumni-catalog.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,140 +73,19 @@
         "Bagi Hasil / Equity"
       ];
 
-      const initialGigs = [
-        {
-          id: "gig-1",
-          title: "Aplikasi Mobile Reservasi Ruang Lab",
-          category: "Mobile App",
-          ownerId: "rizky-pratama",
-          ownerName: "Rizky Pratama",
-          ownerRole: "Mobile Tech Lead", image: "assets/project-fuji.webp",
-          budgetRange: "Rp 3.000.000 - Rp 5.000.000",
-          deadline: "2026-12-15",
-          postedDate: "2026-11-01",
-          quota: 2,
-          status: "Terbuka",
-          rolesNeeded: ["Flutter Developer", "UI/UX Designer"],
-          techStack: ["Flutter", "Dart", "Firebase", "Figma"],
-          description: "Kami membutuhkan 2 rekan alumni untuk membangun aplikasi mobile reservasi lab Bengkel Koding UDINUS. Target selesai dalam 4 minggu dengan deliverables berupa aplikasi Android siap rilis, integrasi Firebase, dan dokumentasi REST API.",
-          applicantsCount: 3,
-        },
-        {
-          id: "gig-2",
-          title: "Sistem Absensi Asisten Lab & Honor Otomatis",
-          category: "Backend API",
-          ownerId: "dimas-wahyu",
-          ownerName: "Dimas Wahyu Prabowo",
-          ownerRole: "Software Architect", image: "assets/project-city.jpg",
-          budgetRange: "> Rp 5.000.000",
-          deadline: "2026-12-28",
-          postedDate: "2026-10-28",
-          quota: 1,
-          status: "Sedang Dikerjakan",
-          rolesNeeded: ["Backend Engineer"],
-          techStack: ["Golang", "PostgreSQL", "Docker", "REST API"],
-          description: "Membangun service microservice untuk kalkulasi honor asisten berdasarkan log presensi RFID dan integrasi ke sistem keuangan.",
-          applicantsCount: 5,
-        },
-        {
-          id: "gig-3",
-          title: "Redesign Portal Showcase Karya Bengkod",
-          category: "UI/UX & Web Design",
-          ownerId: "clarista-amanda",
-          ownerName: "Clarista Amanda Putri",
-          ownerRole: "Product Designer", image: "assets/project-fuji.webp",
-          budgetRange: "Rp 1.000.000 - Rp 3.000.000",
-          deadline: "2026-11-30",
-          postedDate: "2026-11-05",
-          quota: 1,
-          status: "Terbuka",
-          rolesNeeded: ["UI/UX Designer"],
-          techStack: ["Figma", "Design System", "Prototyping"],
-          description: "Mendesain ulang laman showcase portofolio mahasiswa asisten agar terlihat modern, clean, dan siap dipertontonkan ke recruiter industri.",
-          applicantsCount: 2,
-        },
-        {
-          id: "gig-4",
-          title: "Dashboard Analitik Kelulusan & Tracer Study",
-          category: "Frontend Development",
-          ownerId: "rafi-fadhilah",
-          ownerName: "Rafi Fadhilah",
-          ownerRole: "Frontend Specialist", image: "assets/project-city.jpg",
-          budgetRange: "Rp 3.000.000 - Rp 5.000.000",
-          deadline: "2026-12-20",
-          postedDate: "2026-11-02",
-          quota: 2,
-          status: "Terbuka",
-          rolesNeeded: ["React Developer", "Data Visualization"],
-          techStack: ["Next.js", "Tailwind CSS", "Recharts", "TypeScript"],
-          description: "Frontend dashboard untuk menyajikan sebaran karir alumni bengkod secara real-time dengan chart interaktif dan export data Excel/PDF.",
-          applicantsCount: 4,
-        },
-        {
-          id: "gig-5",
-          title: "Model AI Deteksi Plagiarisme Source Code",
-          category: "Data Science & AI",
-          ownerId: "bagas-arya",
-          ownerName: "Bagas Arya",
-          ownerRole: "ML Engineer", image: "assets/project-fuji.webp",
-          budgetRange: "> Rp 5.000.000",
-          deadline: "2027-01-15",
-          postedDate: "2026-10-20",
-          quota: 1,
-          status: "Terbuka",
-          rolesNeeded: ["Machine Learning Engineer"],
-          techStack: ["Python", "PyTorch", "AST Parser", "FastAPI"],
-          description: "Riset dan implementasi model deep learning untuk mengecek kemiripan struktur kode tugas pemrograman praktikum mahasiswa.",
-          applicantsCount: 1,
-        },
-        {
-          id: "gig-6",
-          title: "Automated Testing E2E Sistem Bengkod",
-          category: "QA & Testing",
-          ownerId: "fajar-nugraha",
-          ownerName: "Fajar Nugraha",
-          ownerRole: "QA Lead", image: "assets/project-city.jpg",
-          budgetRange: "< Rp 1.000.000",
-          deadline: "2026-11-25",
-          postedDate: "2026-10-15",
-          quota: 1,
-          status: "Selesai",
-          rolesNeeded: ["QA Automation Engineer"],
-          techStack: ["Cypress", "JavaScript", "GitHub Actions"],
-          description: "Menyusun skenario pengujian otomatis end-to-end untuk alur login, registrasi, dan upload portofolio.",
-          applicantsCount: 3,
-        },
-        {
-          id: "gig-7",
-          title: "Platform Mentoring & Code Review Antar-Alumni",
-          category: "Web & Platform",
-          ownerId: "aisha-dwi-rahmawati",
-          ownerName: "Aisha Dwi Rahmawati",
-          ownerRole: "Lab Bengkel Koding", image: "assets/project-fuji.webp",
-          budgetRange: "Rp 3.000.000 - Rp 5.000.000",
-          deadline: "2027-01-30",
-          postedDate: "2026-11-10",
-          quota: 2,
-          status: "Terbuka",
-          rolesNeeded: ["Fullstack Developer", "UI Designer"],
-          techStack: ["Next.js", "Tailwind CSS", "Node.js", "PostgreSQL"],
-          description: "Membangun platform peer code review khusus asisten dan alumni Bengkel Koding dengan fitur syntax highlight dan thread review.",
-          applicantsCount: 2,
-        }
-      ];
-
+      const profile = alumniProfileForBoard();
       return {
-        currentUserId: "aisha-dwi-rahmawati",
-        currentUserName: "Aisha Dwi Rahmawati",
+        currentUserId: profile.id,
+        currentUserName: profile.name,
         currentUserRole: "Lab Bengkel Koding",
 
         GIGS_BUDGET_RANGES: budgetRanges,
-        gigs: initialGigs,
-        savedGigIds: ["gig-1"],
+        gigs: loadBoardGigs(),
+        savedGigIds: ["demo-gig-1"],
         myApplications: [
           {
             id: "app-101",
-            gigId: "gig-4",
+            gigId: "demo-gig-4",
             gigTitle: "Dashboard Analitik Kelulusan & Tracer Study",
             ownerName: "Rafi Fadhilah",
             appliedDate: "2026-11-02",
@@ -224,7 +105,6 @@
         selectedCategoryTag: "",
         filterBudget: "",
         selectedAppIds: [],
-        mobileNavOpen: false,
         toast: "",
         toastTimer: null,
 
@@ -261,36 +141,29 @@
           { value: "QA & Testing", label: "QA & Testing" },
         ],
 
+        gigFromUrl() {
+          const params = new URLSearchParams(window.location.search);
+          const id = params.get('gig');
+          if (id) return this.gigs.find(gig => gig.id === id);
+          const legacyId = params.get('id');
+          return this.gigs.find(gig => gig.id === 'demo-' + legacyId)
+            || this.gigs.find(gig => gig.id === legacyId);
+        },
+
         init() {
           const params = new URLSearchParams(window.location.search);
-          const gigId = params.get('id');
-          if (gigId) {
-            const found = this.gigs.find(g => g.id === gigId);
-            if (found) {
-              this.selectedGig = found;
-              this.detailModalOpen = true;
-            }
-          }
-
-          window.addEventListener('popstate', (e) => {
-            const p = new URLSearchParams(window.location.search);
-            const curId = p.get('id');
-            if (curId) {
-              const g = this.gigs.find(item => item.id === curId);
-              if (g) {
-                this.selectedGig = g;
-                this.detailModalOpen = true;
-              } else {
-                this.detailModalOpen = false;
-              }
-            } else {
-              this.detailModalOpen = false;
-            }
-          });
+          if (params.get('tab') === 'my_gigs') this.activeTab = 'my_gigs';
+          const openLinkedGig = () => {
+            const gig = this.gigFromUrl();
+            this.selectedGig = gig || null;
+            this.detailModalOpen = Boolean(gig);
+          };
+          openLinkedGig();
+          window.addEventListener('popstate', openLinkedGig);
         },
 
         get myGigs() {
-          return this.gigs.filter(g => g.ownerId === this.currentUserId);
+          return this.gigs.filter(g => this.isOwnGig(g));
         },
 
         get displayedGigs() {
@@ -320,7 +193,7 @@
           this.selectedGig = gig;
           this.detailModalOpen = true;
           this.descExpanded = false;
-          history.pushState({ id: gig.id }, '', '?id=' + encodeURIComponent(gig.id));
+          history.pushState({ id: gig.id }, '', boardGigLink(gig));
         },
 
         closeDetailModal() {
@@ -333,7 +206,7 @@
         },
 
         salinTautan() {
-          const url = window.location.origin + window.location.pathname + '?id=' + encodeURIComponent(this.selectedGig ? this.selectedGig.id : '');
+          const url = new URL(boardGigLink(this.selectedGig), window.location.href).href;
           navigator.clipboard.writeText(url);
           this.setToast('Tautan proyek disalin');
         },
@@ -402,7 +275,7 @@
 
         formatDate(dateStr) {
           if (!dateStr) return "";
-          const d = new Date(dateStr);
+          const d = new Date(boardDate(dateStr) || dateStr);
           return d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
         },
 
@@ -496,6 +369,10 @@
             description: this.newGigForm.description,
             applicantsCount: 0,
           };
+          if (!saveBoardGig(newGig)) {
+            this.setToast("Proyek gagal disimpan.");
+            return;
+          }
           this.gigs.unshift(newGig);
           this.createGigModalOpen = false;
           this.activeTab = "my_gigs";
@@ -521,24 +398,33 @@
         submitEditGig() {
           const target = this.gigs.find(g => g.id === this.editingGigId);
           if (!target) return;
-          target.title = this.editGigForm.title;
-          target.category = this.editGigForm.category;
-          target.budgetRange = this.editGigForm.budgetRange;
-          target.quota = parseInt(this.editGigForm.quota, 10) || 1;
-          target.status = this.editGigForm.status;
-          target.deadline = this.editGigForm.deadline;
-          target.rolesNeeded = this.editGigForm.rolesNeeded.split(",").map(r => r.trim()).filter(Boolean);
-          target.techStack = this.editGigForm.techStack.split(",").map(t => t.trim()).filter(Boolean);
-          target.description = this.editGigForm.description;
-          if (this.selectedGig && this.selectedGig.id === target.id) {
-            this.selectedGig = target;
+          const form = this.editGigForm;
+          const updated = {
+            ...target,
+            title: form.title,
+            category: form.category,
+            budgetRange: form.budgetRange,
+            quota: parseInt(form.quota, 10) || 1,
+            status: form.status,
+            deadline: form.deadline,
+            rolesNeeded: form.rolesNeeded.split(",").map(r => r.trim()).filter(Boolean),
+            techStack: form.techStack.split(",").map(t => t.trim()).filter(Boolean),
+            description: form.description
+          };
+          if (!saveBoardGig(updated)) {
+            this.setToast("Perubahan proyek gagal disimpan.");
+            return;
           }
+          Object.assign(target, updated);
           this.editGigModalOpen = false;
           this.setToast("Perubahan proyek tersimpan.");
         },
 
         handleDeleteGig(gigId) {
           if (!confirm("Yakin ingin menghapus postingan proyek ini?")) return;
+          const gig = this.gigs.find(item => item.id === gigId);
+          if (!gig) return;
+          if (!saveBoardGig(gig, { boardDeleted: true })) return;
           this.gigs = this.gigs.filter(g => g.id !== gigId);
           if (this.selectedGig && this.selectedGig.id === gigId) {
             this.closeDetailModal();
@@ -560,6 +446,7 @@
       }
     });
   </script>
+  <script src="assets/js/portal-layout.js"></script>
 </head>
 <body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="bengkodGigsApp()">
 
@@ -572,149 +459,6 @@
     </div>
   </template>
 
-  <div class="min-h-full flex flex-col lg:flex-row">
-
-    <!-- ========================================================
-         SIDEBAR (256px, Latar Putih, Border Kanan Tipis, 7 Menu)
-    ======================================================== -->
-    <aside class="w-full lg:w-64 bg-white border-r border-[#E3E4E9] flex-shrink-0 flex flex-col justify-between p-6 z-30">
-      <div class="space-y-6">
-        <!-- Logo Bengkel Koding -->
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-[8px] bg-[#3A5988] text-white flex items-center justify-center font-semibold text-[14px]">
-              BK
-            </div>
-            <div>
-              <div class="font-semibold text-[15px] tracking-[-0.01em] text-[#0C1117]">Bengkel Koding</div>
-              <div class="text-[12px] text-[#6B7280]">Portal Alumni UDINUS</div>
-            </div>
-          </div>
-          <button type="button" class="lg:hidden text-[#6B7280] hover:text-[#0C1117]" @click="mobileNavOpen = !mobileNavOpen">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-          </button>
-        </div>
-
-                        <!-- 7 Menu Items Berurutan -->
-        <nav class="space-y-1" :class="mobileNavOpen ? 'block' : 'hidden lg:block'">
-          <!-- 1. Beranda -->
-          <a href="dashboard.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-            <span>Beranda</span>
-          </a>
-          <!-- 2. Direktori Alumni -->
-          <a href="direktori.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>Direktori Alumni</span>
-          </a>
-          <!-- 3. Showcase -->
-          <a href="showcase.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>Showcase</span>
-          </a>
-          <!-- 4. Gigs & Proyek (AKTIF) -->
-          <a href="gigs.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-semibold bg-[#E5E9EC] text-[#0C1117]">
-            <svg class="w-4 h-4 text-[#326ECE]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-            <span>Gigs & Proyek</span>
-          </a>
-          <!-- 5. Referral -->
-          <a href="referral.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            <span>Referral</span>
-          </a>
-          <!-- 6. Data CV -->
-          <a href="data-cv.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <span>Data CV</span>
-          </a>
-          <!-- 7. Profil Saya -->
-          <a href="profil.html" class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] font-medium text-[#6B7280] hover:bg-[#F4F5F7] hover:text-[#0C1117] transition-colors">
-            <svg class="w-4 h-4 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-            <span>Profil Saya</span>
-          </a>
-        </nav>
-      </div>
-
-      <!-- Tombol Keluar Halus di Bagian Bawah -->
-      <div class="pt-4 border-t border-[#E3E4E9]" :class="mobileNavOpen ? 'block' : 'hidden lg:block'">
-        <button type="button" @click="handleLogout()" class="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-[#6B7280] hover:text-red-600 hover:bg-red-50/50 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-          <span>Keluar</span>
-        </button>
-      </div>
-    </aside>
-
-    <!-- ========================================================
-         MAIN CONTENT AREA
-    ======================================================== -->
-    <div class="flex-1 flex flex-col min-w-0">
-
-      <!-- HEADER ATAS (Breadcrumb, Notifikasi, Avatar - TIDAK ada search bar) -->
-      <header class="h-16 bg-white px-6 lg:px-8 flex items-center justify-between border-b border-[#E3E4E9]">
-        <div class="flex items-center gap-3">
-          <button type="button" class="text-[#6B7280] hover:text-[#0C1117] p-1.5 rounded-[8px] hover:bg-[#F4F5F7] transition-colors" @click="mobileNavOpen = !mobileNavOpen">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
-          </button>
-          <div class="text-[13px] text-[#6B7280] font-normal flex items-center gap-1.5">
-            <span>Alumni</span>
-            <span>›</span>
-            <template x-if="currentView === 'list'">
-              <span class="text-[#0C1117] font-medium">Gigs & Proyek</span>
-            </template>
-            <template x-if="currentView !== 'list'">
-              <div class="inline-flex items-center gap-1.5">
-                <a href="javascript:void(0)" @click="backToList()" class="hover:text-[#0C1117] hover:underline cursor-pointer">Gigs & Proyek</a>
-                <span>›</span>
-                <span class="text-[#0C1117] font-medium" x-text="currentView === 'detail' ? 'Detail Proyek' : 'Data Tidak Ditemukan'"></span>
-              </div>
-            </template>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-3">
-          <!-- Notification Bell with Dropdown -->
-          <div class="relative" x-data="{ open: false }">
-            <button type="button" @click="open = !open" class="w-10 h-10 rounded-[8px] border border-[#E3E4E9] flex items-center justify-center text-[#212224] hover:bg-[#F4F5F7] transition-colors relative">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-              <span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#326ECE]"></span>
-            </button>
-            <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-80 bg-white rounded-[12px] border border-[#E3E4E9] shadow-sm p-4 z-50 space-y-3">
-              <div class="flex items-center justify-between border-b border-[#E3E4E9] pb-2">
-                <span class="font-medium text-[13px] text-[#0C1117]">Notifikasi</span>
-                <button type="button" class="text-[12px] text-[#326ECE] hover:underline">Tandai semua dibaca</button>
-              </div>
-              <div class="space-y-2 text-[13px]">
-                <div class="p-2.5 rounded-[8px] bg-[#F4F5F7]">
-                  <div class="font-medium text-[#0C1117]">Lamaran Diterima</div>
-                  <div class="text-[#6B7280] text-[12px] mt-0.5">Pengajuan minat Anda pada proyek E-Commerce disetujui.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- User Avatar & Dropdown -->
-          <div class="relative" x-data="{ open: false }">
-            <button type="button" @click="open = !open" class="flex items-center gap-2.5 p-1 rounded-[8px] border border-[#E3E4E9] hover:bg-[#F4F5F7] transition-colors">
-              <div class="w-8 h-8 rounded-full bg-[#3A5988] text-white flex items-center justify-center font-medium text-[12px]">
-                AD
-              </div>
-              <span class="text-[13.5px] font-medium text-[#0C1117] pr-2 hidden md:inline">Aisha Dwi</span>
-            </button>
-            <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-[12px] border border-[#E3E4E9] shadow-sm p-1.5 z-50 text-[13px] font-medium space-y-0.5">
-              <a href="profil.html" class="flex items-center gap-2 px-3 py-2 rounded-[6px] hover:bg-[#F4F5F7] text-[#212224]">
-                <span>Pengaturan Akun</span>
-              </a>
-              <button type="button" @click="handleLogout()" class="w-full text-left flex items-center gap-2 px-3 py-2 rounded-[6px] hover:bg-red-50 text-red-600">
-                <span>Keluar</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- ========================================================
-           KONTEN UTAMA: GIGS & PROYEK
-      ======================================================== -->
       <main class="flex-1 p-6 lg:p-8 max-w-[1400px] w-full mx-auto space-y-6">
 
         <!-- HEADER HALAMAN + TAB SEGMENTED + CTA LEMPAR PROYEK -->
@@ -1212,10 +956,6 @@
 
       </main>
 
-    </div>
-
-  </div>
-
   <!-- ========================================================
        MODAL: FORMULIR MELAMAR PROYEK (FRAME LEBAR 840px SEPERTI DETAIL)
   ======================================================== -->
@@ -1440,5 +1180,6 @@
 
   <!-- JAVASCRIPT STATE LOGIC (Clean & Human Structured) -->
   
+  <script>mountAlumniPortal(document.querySelector('main'));</script>
 </body>
 </html>

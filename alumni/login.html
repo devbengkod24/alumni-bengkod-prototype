@@ -91,7 +91,13 @@
 
     <!-- Panel Fitur Alumni (Kanan di desktop, Atas di mobile) -->
     <aside id="auth-feature-panel" class="order-1 lg:order-2 w-full lg:w-[54.86%] lg:h-full shrink-0"></aside>
-    <script>renderAuthFeaturePanel({ mobileHeightClass: 'h-[clamp(180px,27dvh,255px)]' });</script>
+    <script>
+      if (new URLSearchParams(location.search).has('keluar')) {
+        try { localStorage.removeItem('alumni_revisi_sesi_v1'); } catch {}
+        history.replaceState(null, '', 'login.html');
+      }
+      renderAuthFeaturePanel({ mobileHeightClass: 'h-[clamp(180px,27dvh,255px)]' });
+    </script>
 
   </div>
 

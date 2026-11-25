@@ -122,12 +122,6 @@
   </div>
 
   <script>
-    const SAYA = DB.akun.aktif();
-    const DASHBOARD = { alumni: 'dashboard.html', admin: '../koordinator/dashboard.html' };
-    if (SAYA) {
-      location.replace(SAYA.role === 'alumni' && !DB.tracer.milik(SAYA.id) ? 'isi-data.html' : DASHBOARD[SAYA.role]);
-    }
-
     const form = document.getElementById('form');
     const FIELDS = ['nim', 'nama', 'email', 'password', 'password_confirm'];
 

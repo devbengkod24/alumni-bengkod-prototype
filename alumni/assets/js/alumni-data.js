@@ -364,8 +364,10 @@ function savePosts(posts) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
     window.dispatchEvent(new Event("bengkod_posts_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan postingan:", err);
+    return false;
   }
 }
 
@@ -394,8 +396,10 @@ function saveStoredProjects(projects) {
   try {
     localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
     window.dispatchEvent(new Event("bengkod_projects_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan proyek:", err);
+    return false;
   }
 }
 
@@ -406,7 +410,10 @@ function syncProjectToFeed(project, author) {
   const authorHeadline = (author && author.headline) || "Alumni Bengkel Koding";
 
   const posts = typeof loadPosts === "function" ? loadPosts() : [];
-  const existingIdx = posts.findIndex(p => p.karya && (p.karya.projectId === project.id || (p.karya.nama && p.karya.nama.toLowerCase() === project.title.toLowerCase())));
+  const existingIdx = posts.findIndex(p => p.karya && (
+    p.karya.projectId === project.id ||
+    (p.authorName === authorName && p.karya.nama?.toLowerCase() === project.title.toLowerCase())
+  ));
 
   const toList = (v) => (Array.isArray(v) ? v : (typeof v === "string" ? v.split(",").map(s => s.trim()).filter(Boolean) : []));
   const categoryTags = project.category ? toList(project.category) : (project.categoryTags || ["Software"]);
@@ -426,6 +433,7 @@ function syncProjectToFeed(project, author) {
     bannerUrl: bannerUrl,
     screenshots: screenshots,
     stack: project.tags || [],
+    ...(project.attachments ? { attachments: project.attachments } : {}),
     overview: project.desc || undefined,
     contributors: project.contributors || [],
     upvotes: 1,
@@ -455,7 +463,7 @@ function syncProjectToFeed(project, author) {
     posts.unshift(newPost);
   }
 
-  if (typeof savePosts === "function") savePosts(posts);
+  return savePosts(posts);
 }
 
 // ===================== alumniDirectory.ts =====================
@@ -3222,8 +3230,10 @@ function saveGigs(gigs) {
   try {
     localStorage.setItem(GIGS_STORAGE_KEY, JSON.stringify(gigs));
     window.dispatchEvent(new Event("bengkod_gigs_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan gigs:", err);
+    return false;
   }
 }
 

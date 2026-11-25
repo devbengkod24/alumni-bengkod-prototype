@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="../assets/css/style.css?v=5">
   <script src="../alumni/assets/js/data.js?v=9"></script>
   <script src="../alumni/assets/js/app.js?v=6"></script>
+  <script src="../alumni/assets/js/alumni-data.js"></script>
+  <script src="../alumni/assets/js/alumni-catalog.js"></script>
   <script src="../assets/js/page-skeleton.js?v=5"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
@@ -93,7 +95,7 @@
   document.getElementById('pintasan').innerHTML = [
     kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Statistik & Tracer', nilai: DB.tracer.semua().length, sub: 'Jawaban masuk', warna: 'biru' }),
     kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau' }),
-    kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: `${DB.feed.spotlightAktif().length} spotlight`, sub: `${DB.feed.semua().filter(p => p.karya?.tahap === 'live').length} karya Live siap kurasi`, warna: 'oranye' }),
+    kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: `${loadSpotlightWorks().length} spotlight`, sub: `${loadShowcaseWorks().length} karya di Showcase`, warna: 'oranye' }),
     kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu' }),
     kartuPintasan({ href: 'forum.html', ikon: 'messages-square', label: 'Forum', nilai: `${DB.forum.daftar(SAYA.id).length} diskusi`, sub: `${DB.forum.laporan('menunggu').length} laporan menunggu`, warna: 'merah' }),
   ].join('');
