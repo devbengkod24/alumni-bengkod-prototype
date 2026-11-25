@@ -26,7 +26,7 @@
     return {
       id: p.id, sumber: 'alumni', penulis: p.authorName, peran: 'Alumni', foto: p.authorAvatar || '', headline: p.authorHeadline || '',
       waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, referral: p.referral || null, pengajuan: p.pengajuan || [],
-      kategori: kategoriDari(p, isi), pertanyaan: false, tag: p.tagRekap || '',
+      kategori: kategoriDari(p, isi), pertanyaan: false,
       suka: p.likes || 0, disukaiSaya: (p.disukai || []).includes(nama), komentar: (p.komentarForum || []).map(keKomentar),
     };
   }
@@ -36,7 +36,7 @@
     return {
       id: -f.id, sumber: 'forum', penulis: f.penulis, peran: f.peran || 'Alumni', foto: f.foto || '', headline: f.headline || '',
       waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, referral: f.referral || null, pengajuan: f.pengajuan || [],
-      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan, tag: f.tagRekap || '',
+      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan,
       suka: (f.disukai || []).length, disukaiSaya: (f.disukai || []).includes(nama), komentar: (f.comments || []).map(keKomentar),
     };
   }
@@ -162,10 +162,6 @@
         const terhapus = sebelum - sisa.reduce((n, c) => n + 1 + (c.balasan || []).length, 0);
         if (sumber === 'alumni') p.commentsCount = Math.max(0, (p.commentsCount || 0) - terhapus);
       });
-    },
-
-    beriTag(id, tag) {
-      return ubahMentah(id, p => { p.tagRekap = tag; });
     },
 
     hapus(id) {

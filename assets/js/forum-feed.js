@@ -36,9 +36,9 @@
 
   // ===== Helper =====
   const inisial = nama => nama.replace(/^(Dr|Prof|Ir)\.\s*/i, '').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const avatar = (nama, ukuran, foto) => foto ? `<img src="${esc(foto)}" alt="${esc(nama)}" class="${ukuran} rounded-full object-cover border border-blue-200/80 flex-shrink-0 shadow-sm">` : `<div class="${ukuran} rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#1E3A8A] font-bold">${esc(inisial(nama))}</div>`;
+  const avatar = (nama, ukuran, foto) => foto ? `<img src="${esc(foto)}" alt="${esc(nama)}" class="${ukuran} rounded-full object-cover border border-blue-200/80 flex-shrink-0 shadow-sm">` : `<div class="${ukuran} rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200/80 flex items-center justify-center flex-shrink-0 shadow-sm text-[#3A5988] font-bold">${esc(inisial(nama))}</div>`;
   const peranBadge = peran => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border ${PERAN_WARNA[peran] || 'bg-gray-100 text-gray-600 border-gray-200'}">${esc(peran)}</span>`;
-  const linkify = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noreferrer" class="text-[#1E3A8A] font-semibold hover:underline">${u}</a>`);
+  const linkify = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, u => `<a href="${u}" target="_blank" rel="noreferrer" class="text-[#3A5988] font-semibold hover:underline">${u}</a>`);
   const toggle = (arr, nama) => { const i = arr.indexOf(nama); if (i >= 0) arr.splice(i, 1); else arr.push(nama); };
   const jumlahKomentar = p => (p.comments || []).reduce((n, c) => n + 1 + (c.balasan || []).length, 0);
   const ringkas = p => `"${(p.judul || p.isi || '').slice(0, 50)}"`;
@@ -58,7 +58,7 @@
   const keAlumni = p => ({ ...p.alumni, likes: p.likes, disukaiForum: p.disukai, komentarForum: p.comments, repostsCount: p.dibagikan });
 
   const tabelHTML = t => `<div class="px-5 pb-5 overflow-x-auto"><div class="rounded-xl border border-gray-200 overflow-hidden min-w-max">
-    ${t.title ? `<div class="bg-[#1E3A8A] text-white px-4 py-2.5 text-[14px] font-semibold">${esc(t.title)}</div>` : ''}
+    ${t.title ? `<div class="bg-[#3A5988] text-white px-4 py-2.5 text-[14px] font-semibold">${esc(t.title)}</div>` : ''}
     <table class="w-full text-[13px] text-gray-700">${(t.rows || []).map(r => `<tr class="border-t border-gray-100 first:border-t-0">${Object.values(r).map(v => `<td class="px-3 py-2">${esc(v)}</td>`).join('')}</tr>`).join('')}</table>
   </div></div>`;
   const catat = (aksi, detail) => BengkodStore.logActivity(user.peran, aksi, detail);
@@ -91,17 +91,17 @@
     <div class="flex flex-col gap-6">
       <div class="flex items-center justify-between gap-4 pb-3 border-b border-gray-200">
         <div>
-          <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Forum Diskusi</h1>
+          <h1 class="text-2xl sm:text-3xl font-bold text-[#3A5988] tracking-tight">Forum Diskusi</h1>
           <p class="text-sm text-gray-500 mt-0.5">Linimasa diskusi koordinator, mitra, dan alumni Bengkel Koding</p>
         </div>
-        <button type="button" data-aksi="buat" class="px-5 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#1E3A8A] hover:bg-[#1D4ED8] transition-colors flex items-center gap-2 shadow-sm cursor-pointer shrink-0">
+        <button type="button" data-aksi="buat" class="px-5 py-2.5 rounded-full text-[15px] font-semibold text-white bg-[#3A5988] hover:bg-[#496DA8] transition-colors flex items-center gap-2 shadow-sm cursor-pointer shrink-0">
           <span class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">${ICON.tambah}</span><span>Buat Post</span>
         </button>
       </div>
       <div class="relative">
         <div class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">${ICON.cari}</div>
         <input id="feed-cari" type="search" placeholder="Cari postingan atau nama penulis..." aria-label="Cari postingan forum"
-          class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] transition-all shadow-sm">
+          class="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-200 bg-white text-[15px] text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] transition-all shadow-sm">
       </div>
       <div id="feed-list" class="space-y-6"></div>
     </div>
@@ -144,7 +144,7 @@
         </div>
         ${p.judul ? `<h5 class="text-[17px] font-semibold text-gray-900 mt-3.5">${esc(p.judul)}</h5>` : ''}
         ${p.isi ? `<p class="text-[15px] text-gray-800 leading-relaxed ${p.judul ? 'mt-1' : 'mt-3.5'} whitespace-pre-line">${linkify(p.isi)}</p>` : ''}
-        ${(p.tags || []).length ? `<div class="flex flex-wrap gap-1.5 mt-3">${p.tags.map(t => `<span class="px-2.5 py-1 rounded-full bg-blue-50 text-[#1E3A8A] text-[12px] font-medium">#${esc(t)}</span>`).join('')}</div>` : ''}
+        ${(p.tags || []).length ? `<div class="flex flex-wrap gap-1.5 mt-3">${p.tags.map(t => `<span class="px-2.5 py-1 rounded-full bg-blue-50 text-[#3A5988] text-[12px] font-medium">#${esc(t)}</span>`).join('')}</div>` : ''}
       </div>
       ${p.gambar ? `<div class="px-5 pb-5"><img src="${esc(p.gambar)}" alt="Gambar postingan" class="w-full max-h-[220px] object-cover rounded-xl border border-gray-200/80"></div>` : ''}
       ${p.tabel ? tabelHTML(p.tabel) : ''}
@@ -158,8 +158,8 @@
       </div>
 
       <div class="px-5 py-1.5 flex items-center justify-around ${komentarBuka ? 'border-b border-gray-100' : ''} text-[15px] font-semibold text-gray-600">
-        <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${disukai}" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${disukai ? 'text-[#1E3A8A] font-bold bg-blue-50' : ''}">${ICON.suka(disukai)}<span>Suka</span></button>
-        <button type="button" data-aksi="komentar" data-id="${p.id}" aria-expanded="${komentarBuka}" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${komentarBuka ? 'text-[#1E3A8A]' : ''}">${ICON.komentar}<span>Komentar</span></button>
+        <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${disukai}" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${disukai ? 'text-[#3A5988] font-bold bg-blue-50' : ''}">${ICON.suka(disukai)}<span>Suka</span></button>
+        <button type="button" data-aksi="komentar" data-id="${p.id}" aria-expanded="${komentarBuka}" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer ${komentarBuka ? 'text-[#3A5988]' : ''}">${ICON.komentar}<span>Komentar</span></button>
         <div class="relative" data-dropdown>
           <button type="button" data-aksi="menu-bagikan" data-id="${p.id}" aria-expanded="${ui.bagikanId === p.id}" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">${ICON.bagikan}<span>Bagikan</span></button>
           ${ui.bagikanId === p.id ? `<div class="absolute top-full right-0 sm:right-auto sm:left-1/2 sm:-translate-x-1/2 mt-2 w-[260px] bg-white rounded-xl shadow-2xl border border-gray-200/90 overflow-hidden z-50">
@@ -180,8 +180,8 @@
         ${avatar(user.nama, 'w-9 h-9 text-[12px]')}
         <div class="flex-1 relative">
           <input type="text" data-draft="k${p.id}" data-kirim="komentar" data-id="${p.id}" value="${esc(ui.draft['k' + p.id] || '')}" placeholder="Tulis komentar..." aria-label="Tulis komentar"
-            class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10">
-          <button type="button" data-aksi="kirim-komentar" data-id="${p.id}" class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer">Kirim</button>
+            class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/10">
+          <button type="button" data-aksi="kirim-komentar" data-id="${p.id}" class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#3A5988] hover:text-[#496DA8] transition-colors cursor-pointer">Kirim</button>
         </div>
       </div>
       ${komentar.length ? `<div class="space-y-4">${komentar.map(c => komentarItemHTML(p, c)).join('')}</div>` : ''}
@@ -190,7 +190,7 @@
 
   const tombolSuka = (suka, data, ukuran, teks) => {
     const aktif = suka.includes(user.nama);
-    return `<button type="button" ${data} aria-pressed="${aktif}" title="Suka" class="flex items-center gap-1.5 ${teks} font-bold hover:text-[#1E3A8A] transition-colors cursor-pointer ${aktif ? 'text-[#1E3A8A]' : 'text-gray-800'}">${ICON.suka(aktif, ukuran)}<span>${suka.length || ''}</span></button>`;
+    return `<button type="button" ${data} aria-pressed="${aktif}" title="Suka" class="flex items-center gap-1.5 ${teks} font-bold hover:text-[#3A5988] transition-colors cursor-pointer ${aktif ? 'text-[#3A5988]' : 'text-gray-800'}">${ICON.suka(aktif, ukuran)}<span>${suka.length || ''}</span></button>`;
   };
   const tombolHapus = (data, teks) => user.moderator ? `<button type="button" ${data} class="${teks} font-semibold text-gray-400 hover:text-red-600 transition-colors cursor-pointer">Hapus</button>` : '';
 
@@ -206,7 +206,7 @@
         </div>
         <div class="flex items-center gap-4 mt-2 px-1">
           ${tombolSuka(c.disukai || [], `data-aksi="suka-komentar" ${ref}`, 16, 'text-[14px]')}
-          <button type="button" data-aksi="balas" ${ref} title="Balas komentar ini" aria-label="Balas komentar ${esc(c.penulis)}" class="flex items-center hover:text-[#1E3A8A] transition-colors cursor-pointer ${ui.balasId === c.id ? 'text-[#1E3A8A]' : 'text-gray-800'}">${ICON.balas}</button>
+          <button type="button" data-aksi="balas" ${ref} title="Balas komentar ini" aria-label="Balas komentar ${esc(c.penulis)}" class="flex items-center hover:text-[#3A5988] transition-colors cursor-pointer ${ui.balasId === c.id ? 'text-[#3A5988]' : 'text-gray-800'}">${ICON.balas}</button>
           <span class="text-[13px] text-gray-400">${waktuLalu(c.waktu)}</span>
           ${tombolHapus(`data-aksi="hapus-komentar" ${ref}`, 'text-[13px]')}
         </div>
@@ -218,10 +218,10 @@
           <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
           ${avatar(user.nama, 'w-8 h-8 text-[11px] mt-1')}
           <div class="flex-1 min-w-0">
-            <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#1E3A8A] focus-within:ring-2 focus-within:ring-[#1E3A8A]/10 px-3.5 py-1.5 transition-all">
+            <div class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#3A5988] focus-within:ring-2 focus-within:ring-[#3A5988]/10 px-3.5 py-1.5 transition-all">
               <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none">${esc(c.penulis)}</span>
               <input type="text" data-draft="b${c.id}" data-kirim="balasan" ${ref} value="${esc(ui.draft['b' + c.id] || '')}" placeholder="Tulis balasan..." aria-label="Tulis balasan" class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0">
-              <button type="button" data-aksi="kirim-balasan" ${ref} class="ml-2 text-[13px] font-semibold text-[#1E3A8A] hover:text-[#1D4ED8] transition-colors cursor-pointer flex-shrink-0">Kirim</button>
+              <button type="button" data-aksi="kirim-balasan" ${ref} class="ml-2 text-[13px] font-semibold text-[#3A5988] hover:text-[#496DA8] transition-colors cursor-pointer flex-shrink-0">Kirim</button>
             </div>
           </div>
         </div>` : ''}
@@ -237,7 +237,7 @@
       <div class="flex-1 min-w-0">
         <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
           <p class="text-[13px] font-bold text-gray-900 flex flex-wrap items-center gap-1.5">${esc(b.penulis)} ${peranBadge(b.peran)}</p>
-          <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed"><span class="font-semibold text-[#1E3A8A] mr-1">@${esc(c.penulis)}</span>${linkify(b.isi)}</p>
+          <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed"><span class="font-semibold text-[#3A5988] mr-1">@${esc(c.penulis)}</span>${linkify(b.isi)}</p>
         </div>
         <div class="flex items-center gap-3 mt-1 px-1">
           ${tombolSuka(b.disukai || [], `data-aksi="suka-balasan" ${ref}`, 13, 'text-[12px]')}
@@ -259,13 +259,13 @@
     <form data-form="buat" role="dialog" aria-modal="true" aria-labelledby="feed-buat-judul" novalidate class="bg-white rounded-xl border border-gray-200/90 shadow-sm flex flex-col overflow-hidden w-[90vw] max-w-[720px] max-h-[92vh]">
       <div class="px-6 sm:px-8 py-5 border-b border-gray-200 flex items-center justify-between flex-shrink-0">
         <h2 id="feed-buat-judul" class="text-[20px] font-bold text-gray-900 tracking-tight">Tambah postingan</h2>
-        <button type="button" data-aksi="tutup" aria-label="Tutup modal" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#1E3A8A] hover:bg-blue-50 transition-colors cursor-pointer">${ICON.tutup}</button>
+        <button type="button" data-aksi="tutup" aria-label="Tutup modal" class="w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-[#3A5988] hover:bg-blue-50 transition-colors cursor-pointer">${ICON.tutup}</button>
       </div>
       <div class="flex-1 min-h-0 overflow-y-auto px-6 sm:px-8 py-6 space-y-5">
         <div class="space-y-1.5">
           <label for="feed-isi" class="block text-[14px] font-medium text-gray-700">Keterangan <span class="text-red-500 font-bold">*</span></label>
           <textarea id="feed-isi" data-draft="isi" rows="5" style="resize: none" placeholder="Bagikan informasi, pertanyaan, atau topik diskusi untuk anggota forum..."
-            class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/10 leading-relaxed">${esc(ui.isi)}</textarea>
+            class="w-full px-3.5 py-2.5 rounded-lg border border-gray-300 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/10 leading-relaxed">${esc(ui.isi)}</textarea>
         </div>
         <div class="space-y-1.5">
           <div class="flex items-center justify-between">
@@ -288,7 +288,7 @@
       </div>
       <div class="border-t border-gray-200 px-6 sm:px-8 py-3.5 bg-gray-50/50 flex items-center justify-end gap-3 flex-shrink-0">
         <button type="button" data-aksi="tutup" class="px-5 py-2 rounded-full border border-gray-300 text-[14px] font-semibold text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer">Batal</button>
-        <button type="submit" data-simpan ${ui.isi.trim() || ui.gambar ? '' : 'disabled'} class="px-6 py-2 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
+        <button type="submit" data-simpan ${ui.isi.trim() || ui.gambar ? '' : 'disabled'} class="px-6 py-2 rounded-full bg-[#3A5988] hover:bg-[#496DA8] disabled:bg-gray-300 disabled:cursor-not-allowed text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer">Simpan</button>
       </div>
     </form>
   </div>`;
@@ -324,7 +324,7 @@
         </div>
         <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-2.5 bg-white">
           <button type="button" data-aksi="tutup" class="px-4 py-2 text-[14px] font-semibold text-gray-600 hover:bg-gray-100 rounded-full transition-colors cursor-pointer">Batal</button>
-          <button type="button" data-aksi="kirim-bagikan" class="px-6 py-2 bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors">Bagikan</button>
+          <button type="button" data-aksi="kirim-bagikan" class="px-6 py-2 bg-[#3A5988] hover:bg-[#496DA8] text-white text-[14px] font-semibold rounded-full shadow-sm cursor-pointer transition-colors">Bagikan</button>
         </div>
       </div>
     </div>`;

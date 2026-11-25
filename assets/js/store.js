@@ -535,7 +535,7 @@
 
   // Postingan contoh feed bersama alumni-koordinator. Ditandai kunci supaya ditambahkan sekali saja
   // ke data forum yang sudah tersimpan. Field bersama: category (kategori feed Beranda),
-  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), tagRekap (tag rekap koordinator).
+  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban).
   const FORUM_TAMBAHAN = [
     {
       kunci: 'sambutan-feed', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-10-20T09:00:00',

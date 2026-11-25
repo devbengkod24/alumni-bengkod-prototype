@@ -162,6 +162,10 @@ button, a {
 @media print {
   #sidebar, #sidebar-overlay, #main-wrapper > header, .no-print { display: none !important; }
   #main-wrapper { margin-left: 0 !important; }
+  /* Kerangka portal (alumni/assets/js/portal-layout.js) */
+  .portal-sidebar, .portal-topbar, .portal-overlay { display: none !important; }
+  .alumni-portal { padding: 0 !important; }
+  .alumni-portal .portal-content { padding-top: 0 !important; }
 }
 
 /* Sembunyikan ikon mata bawaan browser (Edge / IE) agar tidak muncul dobel */

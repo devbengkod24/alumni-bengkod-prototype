@@ -20,6 +20,10 @@
     #page-skeleton .sk-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
     @media (max-width: 1023px) { #page-skeleton .sk-side { display: none; } #page-skeleton .sk-body { padding: 16px; } }
     @keyframes sk-pulse { 50% { opacity: .5; } }
+    /* Koordinator memakai kanvas desain alumni v3 */
+    [data-role="admin"] #page-skeleton { background: #EFF2F7; }
+    [data-role="admin"] #page-skeleton .sk-side, [data-role="admin"] #page-skeleton .sk-top { background: #fff; border-color: #E3E4E9; }
+    [data-role="admin"] #page-skeleton .sk { background: #E3E4E9; }
   </style>`);
 
   const bar = (w, h) => `<div class="sk" style="width:${w};height:${h}px"></div>`;
