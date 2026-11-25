@@ -21,22 +21,30 @@
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Dashboard" class="space-y-4">
   <div id="banner"></div>
-  <!-- Ringkasan: satu panel, lima sel sama tinggi. Ponsel 2 kolom (sel terakhir melebar), layar lebar 5 kolom. -->
-  <section class="bg-white border border-neutral4 rounded-[16px] shadow-sm overflow-hidden" aria-label="Ringkasan portal">
-    <div id="pintasan" class="grid grid-cols-2 lg:grid-cols-5 gap-px bg-neutral4 [&>:last-child]:col-span-2 lg:[&>:last-child]:col-span-1"></div>
+  <!-- Ringkasan: 5 kartu statistik terpisah (mobile 2+2+1, tablet/laptop 3+2, desktop lebar 5 sejajar). -->
+  <section aria-label="Ringkasan portal">
+    <div id="pintasan" class="grid grid-cols-2 sm:grid-cols-6 xl:grid-cols-5 gap-3.5 sm:gap-4"></div>
   </section>
 
   <h2 class="!text-xl font-semibold text-neutral1 pt-2">Tracer Study</h2>
   <div class="grid grid-cols-1 xl:grid-cols-3 gap-4">
     <section class="card xl:col-span-2 flex flex-col" aria-labelledby="judul-status">
-      <div class="flex items-start justify-between gap-3">
+      <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/80">
         <div class="min-w-0">
-          <h3 id="judul-status" class="!text-base font-semibold text-neutral1">Jumlah Alumni per Status</h3>
-          <p id="ket-status" class="!text-xs text-neutral3 mt-0.5"></p>
+          <h3 id="judul-status" class="!text-base font-semibold text-headline">Jumlah Alumni per Status</h3>
+          <p id="ket-status" class="!text-[13px] text-neutral3 mt-0.5"></p>
         </div>
-        <a href="tracer.html" class="shrink-0 text-xs font-semibold text-primary1 hover:underline rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">Lihat semua jawaban</a>
+        <a href="tracer.html" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
+          <span>Lihat semua</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+        </a>
       </div>
-      <ul id="batang-status" class="mt-4 space-y-1 flex-1 flex flex-col justify-center"></ul>
+      <ul id="batang-status" class="mt-3 space-y-1 flex-1 flex flex-col justify-center"></ul>
+      <div class="mt-4 pt-3 border-t border-neutral4/80 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-neutral3">
+        <span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#3A5988"></span>Bekerja &amp; Wiraswasta</span>
+        <span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#93C5FD"></span>Melanjutkan Pendidikan</span>
+        <span class="inline-flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:#FFC150"></span>Tidak / Belum Bekerja</span>
+      </div>
     </section>
 
     <section class="card flex flex-col" aria-labelledby="judul-kerja">
@@ -50,10 +58,20 @@
   </div>
 
   <h2 class="!text-xl font-semibold text-neutral1 pt-2">Alumni Terdeteksi</h2>
-  <section class="card">
-    <h3 class="!text-base font-semibold text-neutral1">Tiga Tahun Terakhir</h3>
-    <p class="!text-xs text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study. Arahkan kursor ke batang untuk melihat angkanya.</p>
-    <div class="h-64 mt-4"><canvas id="grafik-terdeteksi" role="img" aria-label="Grafik batang total, terdeteksi, dan tidak terdeteksi per angkatan tiga tahun terakhir."></canvas></div>
+  <section class="card" aria-labelledby="judul-terdeteksi">
+    <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/80">
+      <div class="min-w-0">
+        <h3 id="judul-terdeteksi" class="!text-base font-semibold text-headline">Tiga Tahun Terakhir</h3>
+        <p class="!text-[13px] text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study. Klik batang untuk melihat detail angkatan.</p>
+      </div>
+      <a href="tracer.html?tab=statistik" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
+        <span>Lihat semua</span>
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+      </a>
+    </div>
+    <div class="h-64 mt-5">
+      <canvas id="grafik-terdeteksi" role="img" aria-label="Grafik batang total, terdeteksi, dan belum terdeteksi per angkatan tiga tahun terakhir."></canvas>
+    </div>
   </section>
 </main>
 
@@ -77,27 +95,33 @@
 
   const laporanMenunggu = hitungLaporanMenunggu();
   document.getElementById('pintasan').innerHTML = [
-    kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Statistik & Tracer', nilai: totalJawaban, sub: 'Jawaban masuk', warna: 'biru' }),
-    kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau' }),
-    kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: loadShowcaseWorks().length, sub: `${loadSpotlightWorks().length} tampil di Spotlight`, warna: 'oranye' }),
-    kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu' }),
-    kartuPintasan({ href: 'laporan-forum.html', ikon: 'flag', label: 'Laporan Masuk', nilai: laporanMenunggu, sub: laporanMenunggu ? 'Menunggu ditinjau' : 'Tidak ada yang menunggu', warna: 'merah' }),
+    kartuPintasan({ href: 'tracer.html', ikon: 'clipboard-list', label: 'Statistik & Tracer', nilai: totalJawaban, sub: 'Jawaban masuk', warna: 'biru', span: 'sm:col-span-2 xl:col-span-1' }),
+    kartuPintasan({ href: 'data-alumni.html', ikon: 'id-card', label: 'Data Alumni', nilai: DB.akun.alumni().length, sub: 'Akun alumni', warna: 'hijau', span: 'sm:col-span-2 xl:col-span-1' }),
+    kartuPintasan({ href: 'karya.html', ikon: 'trophy', label: 'Karya Alumni', nilai: loadShowcaseWorks().length, sub: `${loadSpotlightWorks().length} tampil di Spotlight`, warna: 'oranye', span: 'sm:col-span-2 xl:col-span-1' }),
+    kartuPintasan({ href: 'pengumuman.html', ikon: 'megaphone', label: 'Pengumuman', nilai: DB.pengumuman.semua().length, sub: 'Sudah terbit', warna: 'ungu', span: 'sm:col-span-3 xl:col-span-1' }),
+    kartuPintasan({ href: 'laporan-forum.html', ikon: 'flag', label: 'Laporan Masuk', nilai: laporanMenunggu, sub: laporanMenunggu ? 'Menunggu ditinjau' : 'Tidak ada yang menunggu', warna: 'merah', span: 'col-span-2 sm:col-span-3 xl:col-span-1' }),
   ].join('');
 
-  // Batang horizontal dari HTML: tiap baris adalah tautan, jadi bisa diklik dan dijangkau keyboard
-  const terbanyak = Math.max(1, ...DB.STATUS.map(s => perStatus[s]));
+  // Batang horizontal dari HTML: tiap baris adalah tautan, proporsional terhadap total jawaban
   document.getElementById('ket-status').textContent = `Dari ${totalJawaban} jawaban kuesioner. Pilih status untuk membuka daftar alumninya.`;
   document.getElementById('batang-status').innerHTML = DB.STATUS.map(s => {
     const n = perStatus[s];
-    const persen = totalJawaban ? Math.round((n / totalJawaban) * 100) : 0;
+    const persenExact = totalJawaban ? (n / totalJawaban) * 100 : 0;
+    const persen = Math.round(persenExact);
+    const lebarBar = n > 0 ? Math.max(persenExact, 2) : 0;
     return `
       <li>
-        <a href="${keAnalitik(s)}" class="group grid grid-cols-[minmax(0,1fr)_auto] sm:grid-cols-[15rem_minmax(0,1fr)_4.5rem] items-center gap-x-4 gap-y-1.5 -mx-2 px-2 py-2 rounded-lg hover:bg-primary5/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3 transition-colors">
-          <span class="text-sm text-neutral1 leading-snug group-hover:text-primary1">${esc(s)}</span>
-          <span class="col-span-2 sm:col-span-1 row-start-2 sm:row-start-auto h-2.5 rounded-full bg-neutral5 overflow-hidden" aria-hidden="true">
-            <span class="block h-full rounded-full" style="width:${(n / terbanyak) * 100}%;background:${warnaStatus(s)}"></span>
+        <a href="${keAnalitik(s)}" title="${persen}% dari ${totalJawaban} jawaban" class="group block rounded-[12px] px-3 py-2.5 -mx-1 border border-transparent hover:bg-[#F8FAFC] hover:border-neutral4/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3 transition-colors">
+          <span class="flex items-baseline justify-between gap-3">
+            <span class="flex items-center gap-2.5 min-w-0">
+              <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${warnaStatus(s)}"></span>
+              <span class="text-[13.5px] font-medium text-neutral1 leading-snug group-hover:text-primary1">${esc(s)}</span>
+            </span>
+            <span class="shrink-0 text-[14px] font-semibold text-headline tabular-nums">${n}</span>
           </span>
-          <span class="text-right whitespace-nowrap"><span class="text-sm font-semibold text-neutral1 tabular-nums">${n}</span> <span class="text-xs text-neutral3 tabular-nums">${persen}%</span></span>
+          <span class="block mt-2 h-2 w-full rounded-full bg-neutral5 overflow-hidden" aria-hidden="true">
+            <span class="block h-full rounded-full transition-all duration-300" style="width:${lebarBar}%;background:${warnaStatus(s)}"></span>
+          </span>
         </a>
       </li>`;
   }).join('');
@@ -118,26 +142,63 @@
       </a>
     </li>`).join('');
 
-  // Grafik alumni terdeteksi
+  // Grafik alumni terdeteksi (grouped bar penuh dengan warna kontras jelas & klik drill-down)
   new Chart(document.getElementById('grafik-terdeteksi'), {
     type: 'bar',
     data: {
-      labels: tiga.map(s => String(s.tahun_lulus)),
+      labels: tiga.map(s => `Angkatan ${s.tahun_lulus}`),
       datasets: [
-        { label: 'Total Alumni', data: tiga.map(s => s.alumni_total), backgroundColor: '#3A5988', borderRadius: 4, maxBarThickness: 40 },
-        { label: 'Alumni Terdeteksi', data: tiga.map(s => s.alumni_terlacak), backgroundColor: '#326ECE', borderRadius: 4, maxBarThickness: 40 },
-        { label: 'Alumni Tidak Terdeteksi', data: tiga.map(s => Math.max(s.alumni_total - s.alumni_terlacak, 0)), backgroundColor: '#FFC150', borderRadius: 4, maxBarThickness: 40 },
+        { label: 'Total Alumni', data: tiga.map(s => s.alumni_total), backgroundColor: '#CBD5E1', borderRadius: 6, maxBarThickness: 32, barPercentage: 0.75, categoryPercentage: 0.5 },
+        { label: 'Terdeteksi', data: tiga.map(s => s.alumni_terlacak), backgroundColor: '#3A5988', borderRadius: 6, maxBarThickness: 32, barPercentage: 0.75, categoryPercentage: 0.5 },
+        { label: 'Belum Terdeteksi', data: tiga.map(s => Math.max(s.alumni_total - s.alumni_terlacak, 0)), backgroundColor: '#FFC150', borderRadius: 6, maxBarThickness: 32, barPercentage: 0.75, categoryPercentage: 0.5 },
       ],
     },
     options: {
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
+      onClick: (_, el) => {
+        if (el.length) location.href = `detail-kelulusan.html?tahun=${encodeURIComponent(tiga[el[0].index].tahun_lulus)}`;
+      },
+      onHover: (e, el) => { e.native.target.style.cursor = el.length ? 'pointer' : 'default'; },
       scales: {
         x: { grid: { display: false }, border: { display: false } },
-        y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#EDEEF0' }, border: { display: false } },
+        y: { beginAtZero: true, grace: '14%', ticks: { precision: 0 }, grid: { color: '#EDEEF0' }, border: { display: false } },
       },
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } } },
+      plugins: {
+        legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, padding: 16 } },
+        tooltip: {
+          backgroundColor: '#FFFFFF',
+          titleColor: '#0C1117',
+          bodyColor: '#4B5563',
+          borderColor: '#E3E4E9',
+          borderWidth: 1,
+          padding: 10,
+          boxPadding: 4,
+          usePointStyle: true,
+        },
+      },
     },
+    plugins: [{
+      id: 'labelNilaiBatang',
+      afterDatasetsDraw(chart) {
+        const { ctx } = chart;
+        ctx.save();
+        ctx.font = '600 11.5px Inter, sans-serif';
+        ctx.fillStyle = '#374151';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        chart.data.datasets.forEach((ds, di) => {
+          const meta = chart.getDatasetMeta(di);
+          if (meta.hidden) return;
+          meta.data.forEach((bar, i) => {
+            const nilai = ds.data[i];
+            if (nilai == null) return;
+            ctx.fillText(String(nilai), bar.x, bar.y - 6);
+          });
+        });
+        ctx.restore();
+      },
+    }],
   });
 </script>
 </body>

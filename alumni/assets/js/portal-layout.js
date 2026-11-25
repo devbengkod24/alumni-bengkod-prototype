@@ -170,7 +170,7 @@
 
   const stylesheet = document.createElement("link");
   stylesheet.rel = "stylesheet";
-  stylesheet.href = new URL("../css/portal-layout.css?v=2", document.currentScript.src).href;
+  stylesheet.href = new URL("../css/portal-layout.css?v=3", document.currentScript.src).href;
   document.head.append(stylesheet);
 
   function firstText(...values) {

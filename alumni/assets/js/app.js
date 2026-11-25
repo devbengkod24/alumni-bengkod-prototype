@@ -3,7 +3,7 @@
  * Dimuat di <head> setelah Tailwind CDN, data.js, dan sebelum main.js.
  */
 
-// Palet mengikuti desain alumni v3 (alumni/dashboard.html): Inter, biru #3A5988, kanvas #EFF2F7
+// Palet mengikuti desain portal modern: Inter, biru #3A5988, kanvas #F8FAFC
 tailwind.config = {
   theme: {
     extend: {
@@ -12,7 +12,7 @@ tailwind.config = {
         primary1: '#3A5988', primary2: '#496DA8', primary3: '#326ECE', primary4: '#B7C8E0', primary5: '#E2F1F9',
         secondary1: '#FFC150', secondary2: '#FFCD73', secondary3: '#FFE0A8', secondary4: '#E3E4E9',
         neutral1: '#212224', neutral2: '#4B5563', neutral3: '#6B7280', neutral4: '#E3E4E9', neutral5: '#F4F5F7', neutral6: '#FFFFFF',
-        canvas: '#EFF2F7', headline: '#0C1117', aktif: '#E5E9EC',
+        canvas: '#F8FAFC', headline: '#0C1117', aktif: '#E5E9EC',
         green1: '#1C6A1A', green2: '#068913', green3: '#CDFECF',
         red1: '#B00B0B', red2: '#D73D3D', red3: '#FCC6CD',
         yellow1: '#8F6F00', yellow2: '#FFCE22', yellow3: '#FFECAA',
@@ -27,7 +27,7 @@ document.head.insertAdjacentHTML('beforeend', `
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  html body { font-family: 'Inter', sans-serif !important; background-color: #EFF2F7 !important; color: #212224; }
+  html, html body { font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #212224; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
@@ -349,19 +349,19 @@ const WARNA_KARTU = {
   biru: ['#E2F1F9', '#3A5988'],
 };
 
-// Sel statistik di panel ringkasan dashboard. Panelnya (grid gap-px berlatar garis) yang memberi pembatas antarsel.
-function kartuPintasan({ href, ikon, label, nilai, sub, warna }) {
+// Kartu statistik di panel ringkasan dashboard.
+function kartuPintasan({ href, ikon, label, nilai, sub, warna, span = '' }) {
   const [latar, teks] = WARNA_KARTU[warna];
   return `
-    <a href="${href}" class="group bg-white p-4 sm:p-5 flex flex-col gap-3 min-w-0 hover:bg-[#F8FAFC] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary1/30">
-      <span class="flex items-center justify-between gap-2">
-        <span class="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style="background:${latar};color:${teks};"><i data-lucide="${ikon}" class="w-[18px] h-[18px]"></i></span>
-        <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#91969C] opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true"></i>
+    <a href="${href}" class="group bg-white border border-neutral4 rounded-[16px] p-4 sm:p-5 shadow-sm flex flex-col justify-between gap-4 min-w-0 hover:border-primary4 hover:shadow-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/30 ${span}">
+      <span class="flex items-center justify-between gap-3">
+        <span class="w-10 h-10 rounded-[11px] flex items-center justify-center shrink-0" style="background:${latar};color:${teks};"><i data-lucide="${ikon}" class="w-5 h-5"></i></span>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-neutral3/60 group-hover:text-primary1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" aria-hidden="true"></i>
       </span>
-      <span class="min-w-0">
-        <span class="block text-[12.5px] font-medium text-neutral3 truncate">${esc(label)}</span>
-        <span class="block text-[26px] font-semibold text-headline leading-tight tabular-nums mt-0.5">${esc(nilai)}</span>
-        <span class="block text-[12px] text-neutral3 truncate mt-0.5">${esc(sub)}</span>
+      <span class="block min-w-0">
+        <span class="block text-[13px] font-medium text-neutral2 leading-snug truncate">${esc(label)}</span>
+        <span class="block text-[28px] font-semibold text-headline leading-none tabular-nums mt-2">${esc(nilai)}</span>
+        <span class="block text-[12px] text-neutral3 leading-snug truncate mt-1.5">${esc(sub)}</span>
       </span>
     </a>`;
 }
