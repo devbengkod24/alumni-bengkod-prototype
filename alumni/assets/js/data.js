@@ -686,13 +686,18 @@
       return { tempat, posisi, ringkas: tempat ? `${posisi} di ${tempat}` : t?.status || 'Alumni Bengkel Koding' };
     },
 
+    // Status utama pilihan alumni. Nama lama "Sedang studi lanjut (S2)" disamakan dengan Melanjutkan Pendidikan.
+    // Dipakai dashboard dan filter Analitik Tracer supaya angka grafik sama dengan jumlah baris hasil filter.
+    kategori(t) {
+      const s = (t?.status || '').trim().toLowerCase();
+      return s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut' ? STATUS_STUDI : t?.status;
+    },
+
     jumlahPerStatus() {
       const hasil = Object.fromEntries(STATUS.map(s => [s, 0]));
       muat().tracer.forEach(t => {
-        let st = t.status;
-        const s = (st || '').trim().toLowerCase();
-        if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') st = 'Melanjutkan Pendidikan';
-        if (st in hasil) hasil[st]++;
+        const k = tracer.kategori(t);
+        if (k in hasil) hasil[k]++;
       });
       return hasil;
     },

@@ -37,13 +37,29 @@
     person: '<circle cx="12" cy="8" r="3.5"/><path d="M5 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"/>',
     exit: '<path d="M10 5H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5m-2-7h13m-4-4 4 4-4 4"/>',
     bell: '<path d="M18 8a6 6 0 0 0-12 0c0 6-3 7-3 9h18c0-2-3-3-3-9m-8 12a2 2 0 0 0 4 0"/>',
-    chevron: '<path d="m6 9 6 6 6-6"/>'
+    chevron: '<path d="m6 9 6 6 6-6"/>',
+    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+    flag: '<path d="M4 22V4m0 0h12l-2 4 2 4H4"/>',
+    chart: '<path d="M3 3v18h18M8 17v-5m5 5V8m5 9v-3"/>',
+    idcard: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.2 1.7-2 3-2s2.4.8 3 2m3-6h3m-3 3h3"/>',
+    building: '<path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16m0-10h2a2 2 0 0 1 2 2v8M2 21h20M8 7h4m-4 4h4m-4 4h4"/>',
+    trophy: '<path d="M8 21h8m-4-4v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4m10-4h3a3 3 0 0 1-3 4"/>',
+    megaphone: '<path d="M3 11v2a1 1 0 0 0 1 1h3l7 4V6L7 10H4a1 1 0 0 0-1 1Zm15-2a4 4 0 0 1 0 6M7 14l1.5 5"/>'
   };
   const icon = name => `<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${icons[name]}</svg>`;
   const groups = [
     ["Menu Utama", [["dashboard.html", "home"], ["direktori.html", "people"], ["showcase.html", "folder"], ["gigs.html", "case"], ["referral.html", "work"]]],
     ["Lainnya", [["data-cv.html", "file"], ["profil.html", "person"]]]
   ];
+  const ALUMNI_NAV = {
+    routes,
+    groups,
+    home: "dashboard.html",
+    root: "Alumni",
+    brand: "Jejaring Alumni",
+    label: "alumni",
+    accountLinks: [["profil.html", "Profil Saya"], ["pengaturan.html", "Pengaturan Akun"]]
+  };
   const desktopPreference = "bengkod_portal_sidebar_open";
   const notifStorageKey = "bengkod_notifications_v1";
   const notifImgBase = new URL("../img/notif/", document.currentScript.src).href;
@@ -145,7 +161,7 @@
 
   const stylesheet = document.createElement("link");
   stylesheet.rel = "stylesheet";
-  stylesheet.href = new URL("../css/portal-layout.css", document.currentScript.src).href;
+  stylesheet.href = new URL("../css/portal-layout.css?v=2", document.currentScript.src).href;
   document.head.append(stylesheet);
 
   function firstText(...values) {
@@ -164,11 +180,11 @@
     return {
       name,
       initials: name.trim().split(/\s+/).slice(0, 2).map(word => word[0]).join("").toUpperCase(),
-      meta: "Alumni " + batch
+      meta: profile?.meta || "Alumni " + batch
     };
   }
 
-  function routeContext(file, search) {
+  function routeContext(file, search, routes = ALUMNI_NAV.routes) {
     let [title, parent] = routes[file] || ["Halaman Alumni"];
     let profileHref = "";
     const alumniId = new URLSearchParams(search).get("alumni");
@@ -186,8 +202,8 @@
     };
   }
 
-  function renderBreadcrumb(nav, context) {
-    const links = [["Alumni", "dashboard.html"], ...context.parents];
+  function renderBreadcrumb(nav, context, root = [ALUMNI_NAV.root, ALUMNI_NAV.home]) {
+    const links = [root, ...context.parents];
     const list = document.createElement("ol");
     for (const [label, href] of links) {
       const item = document.createElement("li");
@@ -208,30 +224,33 @@
     nav.append(list);
   }
 
-  function mountAlumniPortal(main, { profile, logout } = {}) {
+  function mountAlumniPortal(main, { profile, logout, nav: navConfig, title, notifications } = {}) {
     if (!main || main.closest(".alumni-portal")) return null;
-    const file = location.pathname.split("/").pop();
-    const context = routeContext(file, location.search);
+    const cfg = { ...ALUMNI_NAV, ...navConfig };
+    const notif = notifications || window.BengkodNotifications;
+    const file = location.pathname.split("/").pop() || cfg.home;
+    const context = routeContext(file, location.search, cfg.routes);
+    if (title) context.title = title;
     const user = profileForPortal(profile);
     const shell = document.createElement("div");
     shell.className = "alumni-portal";
     shell.innerHTML = `
       <div class="portal-overlay" hidden></div>
-      <aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu alumni">
+      <aside class="portal-sidebar" id="portal-sidebar" aria-label="Menu ${cfg.label}">
         <div class="portal-brand-row">
-          <a class="portal-brand" href="dashboard.html">
+          <a class="portal-brand" href="${cfg.home}">
             <span class="portal-brand-mark" aria-hidden="true">BK</span>
-            <span><strong>bengkod</strong><small>Jejaring Alumni</small></span>
+            <span><strong>bengkod</strong><small>${escapeHtml(cfg.brand)}</small></span>
           </a>
           <button type="button" class="portal-icon portal-close" aria-label="Tutup menu">${icon("close")}</button>
         </div>
-        <nav class="portal-nav" aria-label="Navigasi alumni">
-          ${groups.map(([label, links]) => `
+        <nav class="portal-nav" aria-label="Navigasi ${cfg.label}">
+          ${cfg.groups.map(([label, links]) => `
             <div class="portal-nav-group">
               <p>${label}</p>
-              ${links.map(([href, glyph]) => `
+              ${links.map(([href, glyph, badge]) => `
                 <a href="${href}"${context.active === href ? ' class="portal-active"' : ''}${file === href || (file === "beranda.html" && href === "dashboard.html") ? ' aria-current="page"' : ''}>
-                  ${icon(glyph)}<span>${routes[href][0]}</span>
+                  ${icon(glyph)}<span>${cfg.routes[href][0]}</span>${badge === undefined ? "" : `<span class="portal-nav-badge" data-nav-badge="${href}"${badge ? "" : " hidden"}>${badge}</span>`}
                 </a>`).join("")}
             </div>`).join("")}
           <button class="portal-logout" type="button" data-portal-logout>${icon("exit")}<span>Keluar</span></button>
@@ -258,8 +277,7 @@
                 ${icon("chevron")}
               </summary>
               <div class="portal-account-menu">
-                <a href="profil.html">Profil Saya</a>
-                <a href="pengaturan.html">Pengaturan Akun</a>
+                ${cfg.accountLinks.map(([href, label]) => `<a href="${href}">${escapeHtml(label)}</a>`).join("")}
                 <button type="button" data-portal-logout>Keluar</button>
               </div>
             </details>
@@ -267,7 +285,7 @@
         </header>
       </div>`;
 
-    renderBreadcrumb(shell.querySelector(".portal-breadcrumb"), context);
+    renderBreadcrumb(shell.querySelector(".portal-breadcrumb"), context, [cfg.root, cfg.home]);
     shell.querySelector(".portal-avatar").textContent = user.initials;
     shell.querySelector(".portal-account-text strong").textContent = user.name;
     shell.querySelector(".portal-account-text small").textContent = user.meta;
@@ -291,7 +309,7 @@
     let notifOpen = false;
 
     function syncNotifications() {
-      const items = window.BengkodNotifications.getAll();
+      const items = notif.getAll();
       const unread = items.filter(item => item.unread).length;
       notifBadge.textContent = unread > 99 ? "99+" : String(unread);
       notifBadge.hidden = unread === 0;
@@ -324,7 +342,7 @@
             </a>
           `).join("")}
         </div>
-        <a class="portal-notif-footer" href="notifikasi.html">
+        <a class="portal-notif-footer" href="${notif.allHref || "notifikasi.html"}" data-notif-all>
           <span>Lihat semua notifikasi</span>
           <span aria-hidden="true">→</span>
         </a>`;
@@ -351,12 +369,19 @@
         return;
       }
       if (event.target.closest("[data-notif-mark-all]")) {
-        window.BengkodNotifications.markAllRead();
+        notif.markAllRead();
+        syncNotifications();
+        return;
+      }
+      if (notif.showAll && event.target.closest("[data-notif-all]")) {
+        event.preventDefault();
+        setNotifOpen(false);
+        notif.showAll();
         return;
       }
       const itemLink = event.target.closest("[data-notif-item]");
       if (itemLink) {
-        window.BengkodNotifications.markRead(itemLink.dataset.notifItem);
+        notif.markRead(itemLink.dataset.notifItem);
       }
     });
     window.addEventListener("bengkod:notifications-change", syncNotifications);

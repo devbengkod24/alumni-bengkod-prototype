@@ -6,29 +6,30 @@
   <title>Showcase Alumni | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="../alumni/assets/js/data.js?v=9"></script>
-  <script src="../alumni/assets/js/app.js?v=6"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=6">
+  <script src="../alumni/assets/js/data.js?v=10"></script>
+  <script src="../alumni/assets/js/app.js?v=11"></script>
+  <script src="../alumni/assets/js/portal-layout.js"></script>
   <script src="../assets/js/store.js?v=2"></script>
   <script src="../alumni/assets/js/alumni-data.js"></script>
   <script src="../alumni/assets/js/alumni-catalog.js"></script>
   <script src="../assets/js/feed-bersama.js"></script>
-  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <script src="../assets/js/page-skeleton.js?v=6"></script>
   <script src="../assets/js/main.js?v=5"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Karya Alumni">
   <div class="w-full space-y-6 py-2 antialiased">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-gray-200">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
+        <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Showcase Alumni</h1>
         <p class="text-sm text-gray-500 mt-1">
           Pilih karya yang tampil di Spotlight beranda alumni dan landing page.
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#1E3A8A] text-xs font-semibold border border-blue-200">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50 text-[#3A5988] text-xs font-semibold border border-blue-200">
           <i data-lucide="rocket" class="w-3.5 h-3.5"></i>
           <span id="badge-total-karya">0 Karya Terbit</span>
         </span>
@@ -44,7 +45,7 @@
           <label for="showcase-stack" class="sr-only">Filter tech stack</label>
           <select
             id="showcase-stack"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
+            class="appearance-none h-10 pl-4 pr-10 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer transition-colors"
           >
             <option value="">Semua stack</option>
           </select>
@@ -63,7 +64,7 @@
             placeholder="Cari karya atau stack..."
             aria-label="Cari karya"
             autocomplete="off"
-            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
+            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988]"
           >
         </div>
       </div>
@@ -92,11 +93,11 @@
 
     const bannerHtml = k.banner
       ? `<img src="${esc(banner)}" alt="Banner ${esc(k.nama)}" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">`
-      : `<div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30">${esc(monogram)}</div>`;
+      : `<div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#3A5988]/30">${esc(monogram)}</div>`;
 
     const logoHtml = k.logo
       ? `<img src="${esc(logo)}" alt="${esc(k.nama)}" class="w-full h-full object-cover">`
-      : `<span class="text-sm font-bold text-[#1E3A8A]">${esc(monogram)}</span>`;
+      : `<span class="text-sm font-bold text-[#3A5988]">${esc(monogram)}</span>`;
 
     const stackHtml = (k.stack && k.stack.length > 0)
       ? `<div class="flex items-center gap-1.5 flex-wrap">
@@ -107,7 +108,7 @@
 
     const authorAvatarHtml = k.authorAvatar
       ? `<img src="${esc(k.authorAvatar)}" alt="${esc(k.authorName)}" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">`
-      : `<div class="w-6 h-6 rounded-full bg-[#1E3A8A] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(k.authorName.slice(0, 2).toUpperCase())}</div>`;
+      : `<div class="w-6 h-6 rounded-full bg-[#3A5988] text-white text-[10px] font-bold flex items-center justify-center shrink-0">${esc(k.authorName.slice(0, 2).toUpperCase())}</div>`;
 
     return `
       <article class="flex flex-col rounded-xl border border-gray-200 bg-white overflow-hidden">
@@ -126,7 +127,7 @@
               ${logoHtml}
             </div>
             <div class="min-w-0 flex-1">
-              <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate">${esc(k.nama)}</h2>
+              <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#3A5988] transition-colors truncate">${esc(k.nama)}</h2>
               <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5">${esc(k.tagline)}</p>
             </div>
           </div>
@@ -138,7 +139,7 @@
               ${authorAvatarHtml}
               <span class="text-[13px] text-gray-600 truncate">${esc(k.authorName)}</span>
             </div>
-            <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#1E3A8A] group-hover:translate-x-0.5 transition-transform shrink-0">
+            <span class="inline-flex items-center gap-1 text-xs font-semibold text-[#3A5988] group-hover:translate-x-0.5 transition-transform shrink-0">
               <span>Detail</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </span>
@@ -147,7 +148,7 @@
       </a>
       <div class="px-4 pb-4">
         <button type="button" data-spotlight-id="${esc(k.id)}" aria-pressed="${tampilDiSpotlight}" aria-label="Spotlight ${esc(k.nama)}"
-                class="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-[#1E3A8A] ${tampilDiSpotlight ? "bg-blue-100" : "hover:bg-blue-50"}">
+                class="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm font-semibold text-[#3A5988] ${tampilDiSpotlight ? "bg-blue-100" : "hover:bg-blue-50"}">
           ${tampilDiSpotlight ? "Lepas dari Spotlight" : "Tampilkan di Spotlight"}
         </button>
       </div>
@@ -196,8 +197,8 @@
 
     // Update style select
     const selectStack = document.getElementById("showcase-stack");
-    selectStack.className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors ${
-      stackFilter ? "border-blue-200 bg-blue-50 text-[#1E3A8A]" : "border-gray-200 text-gray-700 hover:border-gray-300"
+    selectStack.className = `appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer transition-colors ${
+      stackFilter ? "border-blue-200 bg-blue-50 text-[#3A5988]" : "border-gray-200 text-gray-700 hover:border-gray-300"
     }`;
 
     refreshIcons();

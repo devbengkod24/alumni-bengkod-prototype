@@ -87,6 +87,12 @@
     const {
       containerId = 'auth-feature-panel',
       mobileHeightClass = 'h-[clamp(144px,20dvh,205px)]',
+      // Halaman di luar folder alumni/ (mis. login koordinator) memakai base '../alumni/'
+      base = '',
+      eyebrow = 'PORTAL ALUMNI',
+      title = 'Ruang berkarya<br>untuk alumni.',
+      subtitle = 'Karya, proyek, dan peluang dari sesama alumni.',
+      mobileTitle = 'Ruang berkarya untuk alumni',
     } = opts;
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -99,26 +105,26 @@
 
         <!-- Radial ambient glow -->
         <div class="pointer-events-none select-none absolute top-[-96px] left-[120px] lg:top-[61px] lg:left-[284px] origin-top-left scale-[0.42] lg:scale-100" aria-hidden="true">
-          <img src="assets/img/auth/pusat-cahaya-panel.svg" alt="" width="570" height="570" class="block max-w-none auth-glow-pulse">
+          <img src="${base}assets/img/auth/pusat-cahaya-panel.svg" alt="" width="570" height="570" class="block max-w-none auth-glow-pulse">
         </div>
 
         <!-- Mobile heading -->
         <div class="relative z-10 px-5 pt-2.5 lg:hidden shrink-0">
           <p class="font-bold text-[17px] sm:text-[20px] leading-[1.25] text-white">
-            Ruang berkarya untuk alumni
+            ${mobileTitle}
           </p>
         </div>
 
         <!-- Desktop heading -->
         <div class="hidden lg:block relative z-10 shrink-0 px-10 xl:px-14 min-[1420px]:px-[67px] pt-[clamp(24px,5.5vh,72px)]">
           <p class="font-semibold text-[13px] leading-[1.45] text-[#D7E5FF]">
-            PORTAL ALUMNI
+            ${eyebrow}
           </p>
           <h2 class="mt-2.5 font-bold text-[36px] xl:text-[44px] min-[1420px]:text-[51px] leading-[1.11] text-white">
-            Ruang berkarya<br>untuk alumni.
+            ${title}
           </h2>
           <p class="mt-3 min-[1420px]:mt-[17px] font-medium text-[15px] xl:text-[16px] min-[1420px]:text-[17px] leading-[1.45] text-[#DDE9FF]">
-            Karya, proyek, dan peluang dari sesama alumni.
+            ${subtitle}
           </p>
         </div>
 
@@ -136,7 +142,7 @@
                   <div class="relative w-[353px] h-[157px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
-                      <img src="assets/img/auth/icon-gigs.svg" alt="" width="21" height="21" class="block">
+                      <img src="${base}assets/img/auth/icon-gigs.svg" alt="" width="21" height="21" class="block">
                     </div>
                     <p class="absolute left-[72px] top-[28px] w-[269px] font-bold text-[14px] leading-[1.45] text-[#1E3A8A]">
                       Gigs &amp; Proyek
@@ -157,17 +163,17 @@
                   <div class="relative w-[451px] h-[294px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
-                      <img src="assets/img/auth/icon-showcase.svg" alt="" width="21" height="21" class="block">
+                      <img src="${base}assets/img/auth/icon-showcase.svg" alt="" width="21" height="21" class="block">
                     </div>
                     <p class="absolute left-[72px] top-[28px] w-[367px] font-bold text-[14px] leading-[1.45] text-[#1E3A8A]">
                       Showcase Karya
                     </p>
                     <div class="absolute left-[17px] top-[69px] w-[415px] h-[211px] rounded-[12px] bg-[#DCE8FF] overflow-hidden font-poppins">
                       <div class="absolute left-[287.43px] top-[-76.85px]">
-                        <img src="assets/img/auth/antreklinik-shape-1.svg" alt="" width="198.278" height="198.278" class="block max-w-none">
+                        <img src="${base}assets/img/auth/antreklinik-shape-1.svg" alt="" width="198.278" height="198.278" class="block max-w-none">
                       </div>
                       <div class="absolute left-[345.83px] top-[134.49px]">
-                        <img src="assets/img/auth/antreklinik-shape-2.svg" alt="" width="98.3704" height="98.3704" class="block max-w-none">
+                        <img src="${base}assets/img/auth/antreklinik-shape-2.svg" alt="" width="98.3704" height="98.3704" class="block max-w-none">
                       </div>
                       <p class="absolute left-[19.98px] top-[19.98px] w-[173.69px] font-semibold text-[9.222px] leading-[1.45] text-[#172E71]">
                         Layanan kesehatan
@@ -212,7 +218,7 @@
                   <div class="relative w-[338px] h-[160px] rounded-[22px] bg-white border border-[#D9E3F4] auth-card-lift"
                        style="filter: drop-shadow(0 16px 19.5px rgba(7, 21, 54, 0.27));">
                     <div class="absolute left-[18px] top-[16px] w-[42px] h-[42px] rounded-[12px] bg-[#EDF3FF] flex items-center justify-center">
-                      <img src="assets/img/auth/icon-referral.svg" alt="" width="21" height="21" class="block">
+                      <img src="${base}assets/img/auth/icon-referral.svg" alt="" width="21" height="21" class="block">
                     </div>
                     <p class="absolute left-[72px] top-[28px] w-[254px] font-bold text-[14px] leading-[1.45] text-[#1E3A8A]">
                       Lowongan &amp; Referral

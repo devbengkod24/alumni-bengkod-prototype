@@ -64,7 +64,8 @@
 .portal-brand-mark { width: 37px; height: 37px; border-radius: 11px; background: var(--portal-navy); font-size: 13px; }
 .portal-brand strong { display: block; font-size: 17px; line-height: 1.15; }
 .portal-brand small { display: block; margin-top: 3px; color: var(--portal-blue); font-size: 9px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-.portal-nav { display: grid; gap: 18px; }
+/* Menu mengisi sisa tinggi sidebar supaya tombol Keluar menempel di dasar */
+.portal-nav { display: flex; flex: 1; flex-direction: column; gap: 18px; }
 .portal-nav-group { display: grid; gap: 3px; }
 .portal-nav-group p { margin: 0 0 4px 9px; color: var(--portal-muted); font-size: 10px; font-weight: 650; letter-spacing: 0.045em; text-transform: uppercase; }
 .portal-nav :is(a, button) {
@@ -82,7 +83,9 @@
 }
 .portal-nav a:hover, .portal-nav .portal-active { background: var(--portal-tint); color: var(--portal-blue); }
 .portal-nav .portal-active { font-weight: 650; }
-.portal-nav .portal-logout { margin-top: -12px; background: #fff0f1; color: #be3443; font-weight: 600; cursor: pointer; }
+.portal-nav-badge { margin-left: auto; min-width: 20px; padding: 1px 6px; border-radius: 999px; background: #fde8ea; color: #be3443; font-size: 11px; font-weight: 700; line-height: 16px; text-align: center; }
+.portal-nav-badge[hidden] { display: none; }
+.portal-nav .portal-logout { margin-top: auto; background: #fff0f1; color: #be3443; font-weight: 600; cursor: pointer; }
 .portal-nav .portal-logout:hover { background: #ffe4e7; }
 
 .portal-topbar {

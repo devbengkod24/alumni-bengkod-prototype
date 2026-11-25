@@ -6,10 +6,11 @@
   <title>Profil Alumni | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <link rel="stylesheet" href="../assets/css/style.css?v=5">
-  <script src="../alumni/assets/js/data.js?v=9"></script>
-  <script src="../alumni/assets/js/app.js?v=6"></script>
-  <script src="../assets/js/page-skeleton.js?v=5"></script>
+  <link rel="stylesheet" href="../assets/css/style.css?v=6">
+  <script src="../alumni/assets/js/data.js?v=10"></script>
+  <script src="../alumni/assets/js/app.js?v=11"></script>
+  <script src="../alumni/assets/js/portal-layout.js"></script>
+  <script src="../assets/js/page-skeleton.js?v=6"></script>
   <script src="../assets/js/main.js?v=5"></script>
   <!-- Komponen yang sama dengan halaman Profil Saya milik alumni (varian detail = hanya baca) -->
   <script src="../alumni/assets/js/alumni-data.js"></script>
@@ -124,7 +125,7 @@
             <div class="py-5" :class="[idx === 0 ? 'pt-2' : '', idx === experiences.length - 1 ? 'pb-0' : '']">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="exp.title"></h4>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#1E3A8A]" x-text="exp.type"></span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#3A5988]" x-text="exp.type"></span>
               </div>
               <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="exp.place"></p>
               <p class="text-[14px] text-gray-500 mt-1" x-text="exp.period"></p>
@@ -207,7 +208,7 @@
       tags: [], logoUrl: '',
     })),
     certifications: baris('courses').map(r => ({
-      id: r.id, logoBg: 'bg-[#1E3A8A]', logoText: 'text-white', logoLabel: singkatan(r.institusi_course), name: r.nama_course, issuer: r.institusi_course,
+      id: r.id, logoBg: 'bg-[#3A5988]', logoText: 'text-white', logoLabel: singkatan(r.institusi_course), name: r.nama_course, issuer: r.institusi_course,
       date: `Diterbitkan ${r.tahun_course}`, credId: '', tags: r.tingkat_course ? [`Tingkat ${r.tingkat_course}`] : [], url: '', logoUrl: '',
     })),
     honors: baris('awards').map(r => ({
