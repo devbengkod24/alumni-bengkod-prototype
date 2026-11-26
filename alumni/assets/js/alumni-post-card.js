@@ -34,7 +34,6 @@ function formatAlumniPost(post, shown) {
     likesCount: post.likes || 0,
     isLiked: post.isLiked || false,
     commentsCount: post.commentsCount || 0,
-    sharesCount: post.repostsCount || 0,
     showComments: false,
     newCommentText: "",
     ...presentation,
@@ -74,21 +73,6 @@ function alumniPostActions() {
 
     scrollToLinkedPost(card) {
       if (location.hash === "#" + card.id) card.scrollIntoView({ block: "start" });
-    },
-
-    async sharePost(post) {
-      const url = new URL(location.href);
-      url.hash = "post-" + post.id;
-
-      try {
-        await navigator.clipboard.writeText(url.href);
-      } catch {
-        window.prompt("Salin tautan postingan ini:", url.href);
-        return;
-      }
-
-      post.sharesCount++;
-      this.setToast("Tautan postingan berhasil disalin.");
     },
 
     toggleLike(post) {
@@ -275,15 +259,6 @@ function mountAlumniPostCards() {
                 class="flex items-center gap-1.5 hover:text-[#0C1117] transition-colors cursor-pointer">
           <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           <span>Komentar</span>
-        </button>
-
-        <button type="button" @click="sharePost(post)"
-                class="flex items-center gap-1.5 hover:text-[#0C1117] transition-colors cursor-pointer">
-          <svg aria-hidden="true" class="h-[18px] w-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
-            <path stroke-linecap="round" d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/>
-          </svg>
-          <span>Bagikan</span>
         </button>
       </div>
 
