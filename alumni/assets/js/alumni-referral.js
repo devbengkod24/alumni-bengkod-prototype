@@ -51,16 +51,16 @@ function referralMyPengajuan(post, name) {
 }
 
 function referralStatusLabel(status) {
-  if (status === "dihubungi") return "Dihubungi";
-  if (status === "masukan") return "Diberi Masukan";
+  if (status === "diterima" || status === "dihubungi") return "Diterima";
+  if (status === "ditolak") return "Ditolak";
   return "Menunggu";
 }
 
 /** Kelas badge status pengajuan (Tailwind) */
 function referralStatusClass(status) {
-  if (status === "dihubungi") return "bg-emerald-50 text-emerald-700 border-emerald-200";
-  if (status === "masukan") return "bg-blue-50 text-[#1E3A8A] border-blue-200";
-  return "bg-amber-50 text-amber-800 border-amber-200";
+  if (status === "diterima" || status === "dihubungi") return "bg-[#E9F7F8] text-[#2B7A5B] border border-[#BDEEE5]";
+  if (status === "ditolak") return "bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]";
+  return "bg-amber-50 text-amber-800 border border-amber-200";
 }
 
 /** "2026-11-20" atau ISO -> "20 Nov 2026" */
