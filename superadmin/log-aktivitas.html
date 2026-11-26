@@ -79,9 +79,9 @@
         <i data-lucide="users" class="w-5 h-5"></i>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">KOOR &amp; MITRA</p>
-        <p id="stat-user-logs" class="text-xl font-bold text-neutral1 leading-none">4</p>
-        <p class="text-[10px] text-neutral3 mt-1">Verifikasi &amp; lowongan</p>
+        <p class="text-[10px] font-semibold uppercase tracking-wider text-neutral3 mb-0.5">KOORDINATOR</p>
+        <p id="stat-user-logs" class="text-xl font-bold text-neutral1 leading-none">2</p>
+        <p class="text-[10px] text-neutral3 mt-1">Tracer &amp; moderasi</p>
       </div>
     </div>
 
@@ -117,7 +117,6 @@
         <option value="all">Semua Role Aktor</option>
         <option value="SuperAdmin">Role: SuperAdmin</option>
         <option value="Koordinator">Role: Koordinator</option>
-        <option value="Mitra">Role: Mitra</option>
         <option value="Alumni">Role: Alumni</option>
       </select>
 
@@ -296,7 +295,7 @@
 
     if (totalEl) totalEl.textContent = list.length;
     if (saEl) saEl.textContent = list.filter(l => l.role === 'SuperAdmin').length;
-    if (userEl) userEl.textContent = list.filter(l => l.role === 'Koordinator' || l.role === 'Mitra').length;
+    if (userEl) userEl.textContent = list.filter(l => l.role === 'Koordinator').length;
   }
 
   window.handleSearch = function(val) {

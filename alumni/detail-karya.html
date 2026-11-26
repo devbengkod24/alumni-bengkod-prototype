@@ -282,7 +282,7 @@
         profile: { name: koordinatorProfileName(), meta: "Koordinator Alumni" },
         logout: () => {
           try { localStorage.removeItem("alumni_revisi_sesi_v1"); } catch {}
-          location.href = "../koordinator/login.html";
+          location.href = "../login.html?keluar=1";
         },
         nav: {
           routes: {

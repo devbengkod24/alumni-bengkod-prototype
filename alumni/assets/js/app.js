@@ -60,7 +60,7 @@ const DASHBOARD = { alumni: 'dashboard.html', admin: '../koordinator/dashboard.h
 const NAMA_FILE = location.pathname.split('/').pop() || 'dashboard.html';
 
 if (ROLE_HALAMAN && SAYA?.role !== ROLE_HALAMAN) {
-  location.replace(ROLE_HALAMAN === 'admin' ? '../koordinator/login.html' : 'login.html');
+  location.replace('../login.html');
 } else if (ROLE_HALAMAN === 'alumni' && NAMA_FILE !== 'isi-data.html' && !DB.tracer.milik(SAYA.id)) {
   // First login: alumni mengisi data dulu sebelum masuk portal
   location.replace('isi-data.html');
@@ -487,8 +487,7 @@ window.NOTIF_KOORDINATOR = NOTIF_PORTAL;
 function keluar() {
   confirmAction({ title: 'Keluar dari portal?', message: 'Sesi Anda di perangkat ini akan diakhiri. Masuk lagi lewat halaman login.', okLabel: 'Keluar', danger: true }, () => {
     DB.akun.keluar();
-    // alumni/ dan koordinator/ masing-masing punya login.html
-    location.href = 'login.html';
+    location.href = '../login.html?keluar=1';
   });
 }
 
@@ -660,7 +659,7 @@ document.addEventListener('DOMContentLoaded', () => {
     breadcrumbHTML = `
       <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
       <span class="select-none" aria-hidden="true">/</span>
-      <a href="tracer.html?tab=statistik" class="hover:text-headline transition-colors">Statistik & Tracer</a>
+      <a href="tracer.html" class="hover:text-headline transition-colors">Statistik &amp; Tracer</a>
       <span class="select-none" aria-hidden="true">/</span>
       <span class="font-medium text-headline truncate">Angkatan ${thn}</span>`;
   } else {

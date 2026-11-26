@@ -508,7 +508,7 @@
         } else if (window.confirm("Keluar dari Portal Alumni Bengkel Koding?")) {
           window.DB?.akun?.keluar();
           try { localStorage.removeItem("alumni_revisi_sesi_v1"); } catch {}
-          location.href = "login.html?keluar=1";
+          location.href = "../login.html?keluar=1";
         }
       });
     }
