@@ -6,7 +6,7 @@
   <title>Detail Karya | Karya Alumni Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="assets/js/alumni-data.js"></script>
-  <script src="assets/js/alumni-catalog.js"></script>
+  <script src="assets/js/alumni-catalog.js?v=2"></script>
   <script src="assets/js/portal-layout.js"></script>
   <script src="assets/js/karya-attachments.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
@@ -19,7 +19,7 @@
   </style>
 </head>
 <body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="detailKaryaPage()">
-  <main data-karya-page="Detail Karya" class="mx-auto w-full max-w-[960px] flex-1 space-y-5 p-6 lg:p-8">
+  <main data-karya-page="Detail Karya" class="mx-auto w-full max-w-[1260px] flex-1 space-y-5 p-4 sm:p-6 lg:p-8">
     <a href="showcase.html" class="inline-flex items-center gap-2 rounded text-[13.5px] font-semibold text-[#3A5988] hover:underline">
       <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7-7-7 7 7 7"/>
@@ -38,106 +38,157 @@
     </template>
 
     <template x-if="work">
-      <article class="space-y-6 rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm sm:p-8">
-        <header class="space-y-3">
-          <div>
-            <h1 class="break-words text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#0C1117] sm:text-[30px]" x-text="work.nama"></h1>
-            <p x-show="work.tagline" class="mt-1.5 break-words text-[15px] text-[#6B7280]" x-text="work.tagline"></p>
-          </div>
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-[#6B7280]">
-            <div class="flex items-center gap-2">
-              <div class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] font-semibold text-[#3A5988]" aria-hidden="true">
-                <span x-text="(work.authorName || 'Alumni').charAt(0).toUpperCase()"></span>
-                <template x-if="work.authorAvatar">
-                  <img :src="work.authorAvatar" alt="" @error="$el.classList.add('hidden')" class="absolute inset-0 h-full w-full object-cover">
-                </template>
-              </div>
+      <div class="flex flex-col lg:flex-row gap-6 w-full items-start">
+        <article class="flex-1 min-w-0 w-full space-y-6 rounded-[16px] border border-[#E3E4E9] bg-white p-6 sm:p-8 shadow-xs">
+          <!-- 1. Header Artikel: Judul Utama Besar -->
+          <div class="space-y-3">
+            <h1 class="text-[26px] sm:text-[32px] font-bold text-[#0C1117] tracking-tight leading-tight" x-text="work.nama"></h1>
+
+            <!-- 2. Baris Meta Byline (Avatar + Nama + Kategori + Tanggal) -->
+            <div class="flex flex-wrap items-center gap-2.5 text-[14px] text-[#6B7280]">
+              <template x-if="work.authorAvatar">
+                <img :src="work.authorAvatar" class="w-8 h-8 rounded-full object-cover shrink-0" :alt="work.authorName">
+              </template>
+              <template x-if="!work.authorAvatar">
+                <div class="w-8 h-8 rounded-full bg-[#E2F1F9] text-[#3A5A86] flex items-center justify-center text-[12px] font-semibold flex-shrink-0" x-text="(work.authorName || 'A').charAt(0).toUpperCase()"></div>
+              </template>
               <span class="font-medium text-[#212224]" x-text="work.authorName || 'Alumni'"></span>
+              <span class="text-[#9CA3AF]" x-show="work.category">·</span>
+              <span class="text-[#3A5988] font-medium" x-show="work.category" x-text="work.category"></span>
+              <span class="text-[#9CA3AF]" x-show="work.date">·</span>
+              <span x-show="work.date" x-text="work.date"></span>
             </div>
-            <span x-show="work.category" class="rounded-md bg-[#F4F5F7] px-2 py-1 text-[#3A5988]" x-text="work.category"></span>
-            <span x-show="work.date" x-text="work.date"></span>
           </div>
-          <template x-if="demoLink">
-            <a :href="demoLink" target="_blank" rel="noopener noreferrer"
-               class="inline-flex items-center gap-2 rounded-[8px] border border-[#E3E4E9] px-3 py-2 text-[13px] font-semibold text-[#3A5988] hover:bg-[#F4F5F7]">
-              Buka Website / Demo
-              <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 5h6v6m0-6-9 9m7-1v6H5V7h6"/>
-              </svg>
-            </a>
-          </template>
-        </header>
 
-        <template x-if="work.banner">
-          <img :src="work.banner" :alt="'Tampilan karya ' + work.nama"
-               class="aspect-video w-full rounded-[12px] border border-[#E3E4E9] bg-[#E2F1F9] object-cover">
-        </template>
-
-        <section x-show="work.leadStory1 || work.leadStory2" class="space-y-3">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Tentang Karya</h2>
-          <p x-show="work.leadStory1" class="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-[#374151]">
-            <strong x-show="work.city" class="font-semibold" x-text="work.city"></strong>
-            <span x-text="work.leadStory1"></span>
-          </p>
-          <p x-show="work.leadStory2" class="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-[#374151]" x-text="work.leadStory2"></p>
-        </section>
-
-        <section x-show="work.sectionHeading || work.sectionIntro || work.keyFeatures?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]" x-text="work.sectionHeading || 'Fitur Utama'"></h2>
-          <p x-show="work.sectionIntro" class="text-[15px] leading-relaxed text-[#374151]" x-text="work.sectionIntro"></p>
-          <ul class="list-disc space-y-1 pl-5 text-[15px] leading-relaxed text-[#374151]">
-            <template x-for="feature in (work.keyFeatures || [])" :key="feature">
-              <li x-text="feature"></li>
+          <!-- 3. Banner Karya Resolusi Tinggi -->
+          <div class="w-full aspect-[16/9] sm:h-[340px] lg:h-[380px] rounded-[14px] overflow-hidden bg-[#E2F1F9] border border-[#E3E4E9] relative">
+            <template x-if="work.banner">
+              <img :src="work.banner" :alt="work.nama" @error="work.banner = ''" class="w-full h-full object-cover">
             </template>
-          </ul>
-        </section>
-
-        <section x-show="work.stack?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Tech Stack yang Digunakan</h2>
-          <ul class="flex flex-wrap gap-2">
-            <template x-for="stack in (work.stack || [])" :key="stack">
-              <li class="rounded-md border border-[#E3E4E9] bg-[#F4F5F7] px-2.5 py-1 text-[13px] text-[#4B5563]" x-text="stack"></li>
+            <template x-if="!work.banner">
+              <div class="w-full h-full flex items-center justify-center text-[54px] font-semibold text-[#3A5A86]" x-text="(work.nama || 'A').charAt(0).toUpperCase()"></div>
             </template>
-          </ul>
-        </section>
+          </div>
 
-        <template x-if="contributorNames.length">
-          <section class="space-y-2">
-            <h2 class="text-[17px] font-semibold text-[#0C1117]">Kontributor</h2>
-            <ul class="flex flex-wrap gap-2">
-              <template x-for="name in contributorNames" :key="name">
-                <li class="max-w-full break-words rounded-md bg-[#E2F1F9] px-2.5 py-1 text-[13px] font-medium text-[#3A5988]" x-text="name"></li>
+          <!-- 4. Deskripsi / Narasi Produk -->
+          <div class="space-y-4 text-[15.5px] text-[#2D3748] leading-[1.85]">
+            <p x-show="work.leadStory1 || work.tagline" x-text="work.leadStory1 || work.tagline"></p>
+            <template x-if="work.leadStory2">
+              <p x-text="work.leadStory2"></p>
+            </template>
+          </div>
+
+          <!-- 5. Tautan Link & File di Bawah Deskripsi -->
+          <div class="space-y-2.5 pt-1" x-show="demoLink || (work.attachments && work.attachments.length)">
+            <template x-if="demoLink">
+              <div class="flex items-center gap-2.5 text-[15px]">
+                <span class="text-base select-none">🔗</span>
+                <a :href="demoLink"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="text-[#3A5988] hover:text-[#283E5F] font-medium break-all no-underline"
+                   x-text="demoLink"></a>
+              </div>
+            </template>
+
+            <template x-for="(attachment, index) in (work.attachments || [])" :key="index">
+              <div class="flex items-center gap-2.5 text-[15px]">
+                <span class="text-base select-none">📁</span>
+                <button type="button"
+                        @click="downloadAttachment(attachment, index)"
+                        class="text-[#3A5988] hover:text-[#283E5F] font-medium break-all text-left cursor-pointer"
+                        x-text="attachment.name"></button>
+              </div>
+            </template>
+          </div>
+
+          <!-- 6. Tech Stack yang Digunakan (Format List Bulet-Bulet) -->
+          <section x-show="work.stack?.length" class="pt-2 space-y-2.5">
+            <h2 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Tech Stack yang Digunakan</h2>
+            <ul class="space-y-2 text-[15px] text-[#374151]">
+              <template x-for="stack in (work.stack || [])" :key="stack">
+                <li class="flex items-center gap-2.5 leading-relaxed font-normal">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#4B5563] shrink-0"></span>
+                  <span x-text="stack"></span>
+                </li>
               </template>
             </ul>
           </section>
-        </template>
+        </article>
 
-        <section x-show="work.attachments?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Lampiran Karya</h2>
-          <ul class="space-y-2">
-            <template x-for="(attachment, index) in (work.attachments || [])" :key="index">
-              <li>
-                <button type="button" @click="downloadAttachment(attachment, index)"
-                        class="flex w-full items-center justify-between gap-3 rounded-lg border border-[#E3E4E9] px-3 py-2 text-left text-[13px] hover:bg-[#F4F5F7]">
-                  <span class="min-w-0 break-words" x-text="attachment.name"></span>
-                  <span class="shrink-0 font-semibold text-[#3A5988]">Unduh</span>
-                </button>
-              </li>
+        <!-- KOLOM KANAN: KARYA LAINNYA -->
+        <aside class="w-full lg:w-[350px] xl:w-[380px] shrink-0 space-y-4">
+          <div class="flex items-center justify-between px-1">
+            <h2 class="text-[16px] font-bold text-[#0C1117]">Karya Lainnya</h2>
+            <a href="showcase.html" class="text-[13px] font-medium text-[#3A5988] hover:underline">Lihat Semua →</a>
+          </div>
+
+          <div class="space-y-4">
+            <template x-for="k in otherWorks" :key="k.id">
+              <a :href="showcaseWorkLink(k)"
+                 class="group cursor-pointer flex flex-col no-underline text-inherit bg-white border border-[#E3E4E9] hover:border-[#3A5A86] rounded-[12px] p-3 transition-all duration-150 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3A5988]">
+                <div class="aspect-video w-full rounded-[8px] bg-[#E2F1F9] overflow-hidden relative">
+                  <template x-if="k.banner">
+                    <img :src="k.banner" :alt="k.nama" @error="k.banner = ''" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+                  </template>
+                  <template x-if="!k.banner">
+                    <div class="w-full h-full flex items-center justify-center text-[36px] font-semibold text-[#3A5A86]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
+                  </template>
+                </div>
+
+                <div class="mt-2.5">
+                  <h3 class="text-[15px] font-semibold text-[#0C1117] group-hover:text-[#3A5A86] transition-colors line-clamp-1 leading-snug" x-text="k.nama"></h3>
+                </div>
+
+                <div class="mt-2 flex items-center gap-1.5 text-[12.5px] text-[#6B7280] font-normal">
+                  <svg class="w-3.5 h-3.5 text-[#6B7280] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                    <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                    <line x1="16" x2="16" y1="2" y2="6"/>
+                    <line x1="8" x2="8" y1="2" y2="6"/>
+                    <line x1="3" x2="21" y1="10" y2="10"/>
+                  </svg>
+                  <span x-text="k.date"></span>
+                </div>
+
+                <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                  <template x-for="st in (k.stack || []).slice(0, 3)" :key="st">
+                    <span class="h-6 px-2 rounded-[6px] bg-[#F4F5F7] border border-[#E3E4E9] text-[#4B5563] text-[11.5px] font-medium flex items-center" x-text="st"></span>
+                  </template>
+                  <template x-if="(k.stack || []).length > 3">
+                    <span class="text-[11.5px] text-[#6B7280] font-normal ml-0.5" x-text="'+' + ((k.stack || []).length - 3)"></span>
+                  </template>
+                </div>
+
+                <div class="mt-auto pt-3 flex items-center gap-2 min-w-0">
+                  <template x-if="k.authorAvatar">
+                    <img :src="k.authorAvatar" :alt="k.authorName" class="w-6 h-6 rounded-full object-cover border border-[#E3E4E9] flex-shrink-0">
+                  </template>
+                  <template x-if="!k.authorAvatar">
+                    <div class="w-6 h-6 rounded-full bg-[#E2F1F9] text-[#3A5A86] flex items-center justify-center text-[10px] font-semibold flex-shrink-0" x-text="(k.authorName || 'A').charAt(0).toUpperCase()"></div>
+                  </template>
+                  <span class="text-[12.5px] text-[#6B7280] font-normal truncate" x-text="k.authorName"></span>
+                </div>
+              </a>
             </template>
-          </ul>
-        </section>
-
-      </article>
+          </div>
+        </aside>
+      </div>
     </template>
   </main>
 
   <script>
     function detailKaryaPage() {
       const id = new URLSearchParams(window.location.search).get("id");
+      const allWorks = loadShowcaseWorks();
       return {
-        work: findShowcaseWork(loadShowcaseWorks(), id),
+        allWorks,
+        work: findShowcaseWork(allWorks, id),
         message: "",
         messageTimer: null,
+
+        get otherWorks() {
+          return this.allWorks.filter(w => !this.work || w.id !== this.work.id).slice(0, 3);
+        },
 
         get demoLink() {
           try {

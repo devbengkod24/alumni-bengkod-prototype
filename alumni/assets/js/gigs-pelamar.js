@@ -10,6 +10,7 @@ function bengkodGigPelamar() {
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   return {
+    DEFAULT_AVATAR: typeof DEFAULT_AVATAR !== "undefined" ? DEFAULT_AVATAR : "",
     gig: readProject(),
     filters: [
       { id: "all", label: "Semua Pelamar" },
