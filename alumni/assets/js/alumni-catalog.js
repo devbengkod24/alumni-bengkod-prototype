@@ -265,6 +265,16 @@ const GIG_EXAMPLES = [
     techStack: ["Next.js", "Tailwind CSS", "Recharts", "TypeScript"],
     description: "Frontend dashboard untuk menyajikan sebaran karir alumni bengkod secara real-time dengan chart interaktif dan export data Excel/PDF.",
     applicantsCount: 4,
+    applicants: [{
+      id: "app-101",
+      applicantId: "aisha-dwi-rahmawati",
+      applicantName: "Aisha Dwi Rahmawati",
+      applicantPhone: "081234567890",
+      appliedDate: "2026-11-02",
+      status: "PENDING",
+      pitchMessage: "Tertarik mengambil peran React Developer & Tailwind CSS.",
+      portfolioUrl: "https://github.com/aishadwir"
+    }]
   },
   {
     id: "demo-gig-5",
@@ -443,7 +453,10 @@ function alumniProfileForBoard(defaults = {}) {
     id: alumni.id,
     name: saved?.name || alumni.name,
     avatar: saved?.avatarUrl || defaults.avatar || alumni.avatarUrl || DEFAULT_AVATAR,
-    headline: saved?.headline || defaults.headline || alumni.headline
+    headline: saved?.headline || defaults.headline || alumni.headline,
+    email: saved?.email || alumni.email,
+    phone: saved?.whatsapp || saved?.phone,
+    batch: saved?.batch || alumni.batch
   };
 }
 
@@ -545,6 +558,17 @@ function loadBoardGigs() {
 function saveBoardGig(gig, updates = {}) {
   const gigs = loadGigs();
   return saveGigs([{ ...gig, ...updates }, ...gigs.filter(item => item.id !== gig.id)]);
+}
+
+function ownsBoardGig(gig, profile) {
+  if (!gig) return false;
+  return gig.ownerId ? gig.ownerId === profile.id : gig.ownerName === profile.name;
+}
+
+function gigApplicantStatus(app) {
+  if (["REJECTED", "Ditolak"].includes(app.status)) return "rejected";
+  if (["ACCEPTED", "COMPLETED", "Diterima"].includes(app.status)) return "accepted";
+  return "pending";
 }
 
 function loadBoardVacancies() {
