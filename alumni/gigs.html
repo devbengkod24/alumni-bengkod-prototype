@@ -82,19 +82,17 @@
         GIGS_BUDGET_RANGES: budgetRanges,
         gigs: loadBoardGigs(),
         savedGigIds: ["demo-gig-1"],
-        myApplications: [
-          {
-            id: "app-101",
-            gigId: "demo-gig-4",
-            gigTitle: "Dashboard Analitik Kelulusan & Tracer Study",
-            ownerName: "Rafi Fadhilah",
-            appliedDate: "2026-11-02",
-            status: "PENDING",
-            phone: "081234567890",
-            pitch: "Tertarik mengambil peran React Developer & Tailwind CSS.",
-            portfolio: "https://github.com/aishadwir"
-          }
-        ],
+        get myApplications() {
+          return this.gigs.flatMap(gig => (gig.applicants || [])
+            .filter(app => app.applicantId === profile.id)
+            .map(app => ({
+              ...app,
+              gigId: gig.id,
+              gigTitle: gig.title,
+              ownerName: gig.ownerName
+            })))
+            .sort((a, b) => boardDate(b.appliedDate) - boardDate(a.appliedDate));
+        },
 
         // Views & Modal states
         detailModalOpen: false,
@@ -111,7 +109,9 @@
         // Modal states
         quickApplyModalOpen: false,
         targetApplyGig: null,
-        applyContactPhone: "081234567890",
+        applyContactPhone: profile.phone || "",
+        applyContactEmail: profile.email || "",
+        applyError: "",
         applyPitchMessage: "",
         applyPortfolioUrl: "",
 
@@ -155,6 +155,12 @@
           };
           openLinkedGig();
           window.addEventListener('popstate', openLinkedGig);
+          window.addEventListener('pageshow', event => {
+            if (event.persisted) this.gigs = loadBoardGigs();
+          });
+          window.addEventListener('storage', event => {
+            if (event.key === GIGS_STORAGE_KEY || event.key === null) this.gigs = loadBoardGigs();
+          });
         },
 
         get myGigs() {
@@ -207,9 +213,10 @@
         },
 
         isOwnGig(gig) {
-          if (!gig) return false;
-          return gig.ownerId === this.currentUserId || gig.ownerName === this.currentUserName;
+          return ownsBoardGig(gig, profile);
         },
+
+        applicantStatus: gigApplicantStatus,
 
         isSaved(gigId) {
           return this.savedGigIds.includes(gigId);
@@ -217,14 +224,6 @@
 
         hasAppliedTo(id) {
           return this.myApplications.some(a => a.gigId === id);
-        },
-
-        getAppStatus(gigId) {
-          const app = this.myApplications.find(a => a.gigId === gigId);
-          if (!app) return "";
-          if (app.status === 'ACCEPTED' || app.status === 'Diterima') return "Diterima";
-          if (app.status === 'REJECTED' || app.status === 'Ditolak') return "Ditolak";
-          return "Menunggu";
         },
 
         resetFilter() {
@@ -278,51 +277,72 @@
           this.targetApplyGig = gig;
           this.applyPitchMessage = "";
           this.applyPortfolioUrl = "";
+          this.applyError = "";
           this.quickApplyModalOpen = true;
         },
 
-                submitDirectApply(gig) {
-          if (!this.applyPitchMessage || !this.applyContactPhone) {
-            alert("Harap lengkapi nomor WhatsApp dan pesan pitching keahlian.");
+        submitQuickApply() {
+          const target = loadBoardGigs().find(gig => gig.id === this.targetApplyGig?.id);
+          if (!target || this.isOwnGig(target) || ["Selesai", "Batal"].includes(target.status)) {
+            this.applyError = "Proyek ini tidak tersedia untuk Anda lamar.";
             return;
           }
-          const target = gig || this.selectedGig;
-          if (!target) return;
-          const newApp = {
-            id: "app-" + Date.now(),
-            gigId: target.id,
-            gigTitle: target.title,
-            ownerName: target.ownerName,
-            appliedDate: new Date().toISOString().slice(0, 10),
-            status: "PENDING",
-            phone: this.applyContactPhone,
-            pitch: this.applyPitchMessage,
-            portfolio: this.applyPortfolioUrl
+
+          const applicants = target.applicants || [];
+          if (applicants.some(app => app.applicantId === profile.id)) {
+            this.applyError = "Anda sudah mengajukan lamaran untuk proyek ini.";
+            return;
+          }
+
+          const email = this.applyContactEmail.trim();
+          const phone = this.applyContactPhone.trim();
+          const pitch = this.applyPitchMessage.trim();
+          const portfolio = this.applyPortfolioUrl.trim();
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !phone || !pitch) {
+            this.applyError = "Isi email, nomor kontak, dan pesan pengajuan.";
+            return;
+          }
+          if (portfolio && !/^https?:\/\//i.test(portfolio)) {
+            this.applyError = "Gunakan tautan portofolio yang diawali http:// atau https://.";
+            return;
+          }
+
+          const appliedAt = new Date();
+          const applicant = {
+            id: "app-" + appliedAt.getTime() + "-" + profile.id,
+            applicantId: profile.id,
+            applicantName: profile.name,
+            applicantAvatar: profile.avatar,
+            applicantBatch: profile.batch,
+            applicantEmail: email,
+            applicantPhone: phone,
+            pitchMessage: pitch,
+            portfolioUrl: portfolio,
+            appliedDate: appliedAt.toISOString(),
+            status: "PENDING"
           };
-          this.myApplications.unshift(newApp);
-          this.setToast("Lamaran proyek berhasil dikirim!");
-        },
-        submitQuickApply() {
-          if (!this.targetApplyGig) return;
-          const newApp = {
-            id: "app-" + Date.now(),
-            gigId: this.targetApplyGig.id,
-            gigTitle: this.targetApplyGig.title,
-            ownerName: this.targetApplyGig.ownerName,
-            appliedDate: new Date().toISOString().slice(0, 10),
-            status: "PENDING",
-            phone: this.applyContactPhone,
-            pitch: this.applyPitchMessage,
-            portfolio: this.applyPortfolioUrl
-          };
-          this.myApplications.unshift(newApp);
+          if (!saveBoardGig(target, { applicants: [...applicants, applicant] })) {
+            this.applyError = "Lamaran gagal disimpan. Coba lagi.";
+            return;
+          }
+
+          this.gigs = loadBoardGigs();
           this.quickApplyModalOpen = false;
           this.setToast("Lamaran proyek berhasil dikirim!");
         },
 
         handleWithdrawApp(gigId) {
+          const target = loadBoardGigs().find(gig => gig.id === gigId);
+          const applicants = target?.applicants || [];
+          const application = applicants.find(app => app.applicantId === profile.id);
+          if (!application || gigApplicantStatus(application) !== "pending") return;
           if (!confirm("Tarik kembali lamaran untuk proyek ini?")) return;
-          this.myApplications = this.myApplications.filter(a => a.gigId !== gigId);
+          if (!saveBoardGig(target, { applicants: applicants.filter(app => app.id !== application.id) })) {
+            this.setToast("Lamaran gagal ditarik. Coba lagi.");
+            return;
+          }
+
+          this.gigs = loadBoardGigs();
           this.setToast("Lamaran berhasil ditarik.");
         },
 
@@ -343,8 +363,8 @@
         },
 
         submitEditGig() {
-          const target = this.gigs.find(g => g.id === this.editingGigId);
-          if (!target) return;
+          const target = loadBoardGigs().find(g => g.id === this.editingGigId);
+          if (!this.isOwnGig(target)) return;
           const form = this.editGigForm;
           const updated = {
             ...target,
@@ -362,7 +382,7 @@
             this.setToast("Perubahan proyek gagal disimpan.");
             return;
           }
-          Object.assign(target, updated);
+          this.gigs = loadBoardGigs();
           this.editGigModalOpen = false;
           this.setToast("Perubahan proyek tersimpan.");
         },
@@ -614,12 +634,12 @@
                 <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium" :class="statusPillClass(gig.status)" x-text="gig.status"></span>
               </div>
               <div class="flex items-center justify-between pt-3">
-                <span class="text-[13px] text-[#6B7280]" x-text="(gig.applicantsCount || 0) + ' Pelamar terdaftar'"></span>
+                <span class="text-[13px] text-[#6B7280]" x-text="(gig.applicants?.length || 0) + ' Pelamar terdaftar'"></span>
                 <div class="flex items-center gap-2">
                   <button type="button" @click="openEditGigModal(gig)" class="h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium">
                     Edit
                   </button>
-                  <a :href="'pelamar-proyek.html?id=' + gig.id" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium inline-flex items-center">
+                  <a :href="'gigs-pelamar.html?id=' + encodeURIComponent(gig.id)" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium inline-flex items-center">
                     Lihat Pelamar
                   </a>
                   <button type="button" @click="viewDetail(gig)" class="h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium">
@@ -642,7 +662,7 @@
              C. TAB LAMARAN TERKIRIM (APPLICATIONS)
         ====================================================== -->
         <div x-show="activeTab === 'applications'" class="space-y-4">
-          <template x-for="app in myApplications" :key="app.id">
+          <template x-for="app in myApplications" :key="app.gigId + ':' + app.id">
             <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] space-y-3">
               <div class="flex items-start justify-between gap-4">
                 <div>
@@ -654,20 +674,25 @@
                 </div>
                 <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium"
                       :class="{
-                        'bg-[#FDF0DD] text-[#B26A12] border border-[#F6D8A8]': app.status === 'PENDING' || app.status === 'Menunggu',
-                        'bg-[#E9F7F8] text-[#2B7A5B] border border-[#BDEEE5]': app.status === 'ACCEPTED' || app.status === 'Diterima',
-                        'bg-[#FAD9E9] text-[#B4325F] border border-[#F5B8D3]': app.status === 'REJECTED' || app.status === 'Ditolak'
+                        'bg-[#FDF0DD] text-[#B26A12] border border-[#F6D8A8]': applicantStatus(app) === 'pending',
+                        'bg-[#E9F7F8] text-[#2B7A5B] border border-[#BDEEE5]': applicantStatus(app) === 'accepted',
+                        'bg-[#FAD9E9] text-[#B4325F] border border-[#F5B8D3]': applicantStatus(app) === 'rejected'
                       }">
-                  <span x-text="app.status === 'PENDING' ? 'Menunggu Review' : (app.status === 'ACCEPTED' ? 'Diterima' : 'Ditolak')"></span>
+                  <span x-text="applicantStatus(app) === 'pending' ? 'Menunggu Tinjauan' : (applicantStatus(app) === 'accepted' ? 'Diterima' : 'Ditolak')"></span>
                 </span>
               </div>
 
-              <template x-if="app.pitch">
-                <p class="text-[13.5px] text-[#5F6672] bg-[#F4F5F7] p-3 rounded-[8px] border border-[#E3E4E9] line-clamp-2" x-text="'Catatan pitch: ' + app.pitch"></p>
+              <template x-if="app.pitchMessage">
+                <p class="text-[13.5px] text-[#5F6672] bg-[#F4F5F7] p-3 rounded-[8px] border border-[#E3E4E9] line-clamp-2" x-text="'Pesan pengajuan: ' + app.pitchMessage"></p>
               </template>
 
-              <div class="flex items-center justify-between pt-3">
-                <button type="button" @click="handleWithdrawApp(app.gigId)" class="text-[13px] text-[#B4325F] hover:underline font-medium cursor-pointer">
+              <p x-show="app.rejectionReason" class="rounded-[8px] bg-red-50 p-3 text-[13.5px] text-red-800">
+                <strong>Alasan penolakan</strong>
+                <span class="mt-1 block whitespace-pre-wrap break-words" x-text="app.rejectionReason"></span>
+              </p>
+
+              <div class="flex items-center justify-between gap-3 pt-3">
+                <button type="button" x-show="applicantStatus(app) === 'pending'" @click="handleWithdrawApp(app.gigId)" class="text-[13px] text-[#B4325F] hover:underline font-medium cursor-pointer">
                   Tarik Lamaran
                 </button>
                 <button type="button" @click="viewDetail(gigs.find(g => g.id === app.gigId) || { id: app.gigId, title: app.gigTitle, ownerName: app.ownerName })" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-medium transition-colors">
@@ -873,7 +898,7 @@
                     </template>
 
                     <!-- Kondisi B: Sudah Pernah Melamar -->
-                    <template x-if="!isOwnGig(selectedGig) && hasAppliedTo(selectedGig.id)">
+                    <template x-if="!isOwnGig(selectedGig) && myApplications.some(app => app.gigId === selectedGig.id && applicantStatus(app) === 'pending')">
                       <div class="flex items-center gap-2">
                         <button type="button"
                                 @click="handleWithdrawApp(selectedGig.id)"
@@ -952,6 +977,12 @@
               </div>
             </div>
 
+            <div class="space-y-1.5">
+              <label for="apply-contact-email" class="block text-[13.5px] font-medium text-[#212224]">Email kontak <span class="text-[#B4325F]">*</span></label>
+              <input id="apply-contact-email" type="email" x-model="applyContactEmail" autocomplete="email" required
+                     class="h-11 w-full rounded-[10px] border border-[#E3E4E9] px-4 text-[14px] focus:border-[#3A5988] focus:outline-none">
+            </div>
+
             <!-- Baris 2: Tautan Portofolio / GitHub -->
             <div class="space-y-1.5">
               <label class="font-medium text-[#212224] text-[13.5px] block">Tautan Portofolio / GitHub</label>
@@ -972,6 +1003,8 @@
             </div>
 
           </div>
+
+          <p x-show="applyError" x-text="applyError" role="alert" class="px-6 pb-3 text-[13px] text-red-700 lg:px-8"></p>
 
           <!-- Footer Bar: 72px -->
           <div class="h-[72px] px-6 lg:px-8 border-t border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
