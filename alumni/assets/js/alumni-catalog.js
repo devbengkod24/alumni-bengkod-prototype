@@ -291,6 +291,7 @@ const GIG_EXAMPLES = [
     ownerId: "bagas-arya",
     ownerName: "Bagas Arya",
     ownerRole: "ML Engineer", image: "assets/project-fuji.webp",
+    ownerEmail: "bagas.arya@bukalapak.com",
     budgetRange: "> Rp 5.000.000",
     deadline: "2027-01-15",
     postedDate: "2026-10-20",
@@ -299,7 +300,17 @@ const GIG_EXAMPLES = [
     rolesNeeded: ["Machine Learning Engineer"],
     techStack: ["Python", "PyTorch", "AST Parser", "FastAPI"],
     description: "Riset dan implementasi model deep learning untuk mengecek kemiripan struktur kode tugas pemrograman praktikum mahasiswa.",
-    applicantsCount: 1,
+    applicantsCount: 2,
+    applicants: [{
+      id: "app-102",
+      applicantId: "aisha-dwi-rahmawati",
+      applicantName: "Aisha Dwi Rahmawati",
+      appliedDate: "2026-11-18",
+      status: "ACCEPTED",
+      acceptanceMessage: "Selamat Aisha! Profilmu sangat sesuai untuk riset model AST Parser dan layanan FastAPI. Silakan hubungi saya melalui email kantor bagas.arya@bukalapak.com sebelum akhir minggu ini untuk jadwal onboarding proyek.",
+      pitchMessage: "Tertarik membantu riset model PyTorch dan integrasi endpoint FastAPI.",
+      portfolioUrl: "https://github.com/aishadwir"
+    }]
   },
   {
     id: "demo-gig-6",
@@ -334,7 +345,45 @@ const GIG_EXAMPLES = [
     techStack: ["Next.js", "Tailwind CSS", "Node.js", "PostgreSQL"],
     description: "Membangun platform peer code review khusus asisten dan alumni Bengkel Koding dengan fitur syntax highlight dan thread review.",
     applicantsCount: 2,
-  }
+    applicants: [
+      {
+        id: "app-701",
+        applicantId: "yoga-kurniawan",
+        applicantName: "Yoga Kurniawan",
+        appliedDate: "2026-11-12",
+        status: "PENDING",
+        pitchMessage: "Berpengalaman membangun aplikasi Next.js dan PostgreSQL untuk platform edukasi.",
+        portfolioUrl: "https://github.com/yogakurniawan"
+      }
+    ]
+  },
+  {
+    id: "demo-gig-8",
+    title: "Integrasi Pembayaran & Invoice Portal Event Alumni",
+    category: "Backend Development",
+    ownerId: "dimas-wahyu-prabowo",
+    ownerName: "Dimas Wahyu Prabowo",
+    ownerRole: "Software Architect", image: "assets/project-city.jpg",
+    budgetRange: "Rp 2.000.000 - Rp 3.500.000",
+    deadline: "2026-12-28",
+    postedDate: "2026-11-14",
+    quota: 1,
+    status: "Terbuka",
+    rolesNeeded: ["Backend Developer"],
+    techStack: ["Go", "PostgreSQL", "Midtrans API"],
+    description: "Mengembangkan modul checkout tiket reuni dan generate invoice otomatis untuk portal event alumni Bengkel Koding.",
+    applicantsCount: 2,
+    applicants: [{
+      id: "app-103",
+      applicantId: "aisha-dwi-rahmawati",
+      applicantName: "Aisha Dwi Rahmawati",
+      appliedDate: "2026-11-15",
+      status: "REJECTED",
+      rejectionReason: "Saat ini kami memprioritaskan kandidat yang sudah pernah mengintegrasikan payment gateway Midtrans di environment produksi.",
+      pitchMessage: "Saya tertarik mengerjakan API backend dan pengelolaan database PostgreSQL.",
+      portfolioUrl: "https://github.com/aishadwir"
+    }]
+  },
 ];
 
 const VACANCY_EXAMPLES = [
@@ -446,6 +495,54 @@ const VACANCY_EXAMPLES = [
         status: "menunggu",
         masukan: "",
         waktu: "2026-11-21"
+      }
+    ]
+  },
+  {
+    id: 511,
+    authorName: "Nadia Safira",
+    authorHeadline: "Senior Data Engineer @ GoTo Financial", image: "assets/project-fuji.webp",
+    content: "Tim Data Platform GoTo Financial sedang membuka referral untuk Analytics Engineer. Dicari rekan yang mahir SQL, pemodelan data warehouse, dan kolaborasi lintas tim produk.",
+    referral: {
+      perusahaan: "GoTo Financial",
+      posisi: "Analytics Engineer",
+      level: "Junior (1-2 tahun)",
+      batas: "2026-12-25",
+      emailKantor: "nadia.safira@gotofinancial.com",
+      ditutup: false,
+    },
+    pengajuan: [
+      {
+        id: 602,
+        authorName: "Aisha Dwi Rahmawati",
+        pesan: "Halo Kak Nadia, saya tertarik dengan posisi Analytics Engineer. Saya terbiasa dengan SQL, Python, dan pembuatan pipeline analitik.",
+        status: "diterima",
+        masukan: "Selamat Aisha! Pengalamanmu di SQL dan pipeline analitik sesuai dengan kebutuhan tim kami. Silakan kirimkan email konfirmasi ke nadia.safira@gotofinancial.com sebelum hari Jumat untuk koordinasi penerusan CV ke tim rekrutmen.",
+        waktu: "2026-11-19"
+      }
+    ]
+  },
+  {
+    id: 512,
+    authorName: "Rendra Wijaya",
+    authorHeadline: "Lead Backend Engineer @ Blibli", image: "assets/project-city.jpg",
+    content: "Tim Order Management Blibli membuka referral untuk Backend Engineer (Java). Dicari rekan yang berpengalaman dengan Spring Boot, Kafka, dan sistem transaksi terdistribusi.",
+    referral: {
+      perusahaan: "Blibli",
+      posisi: "Backend Engineer (Java)",
+      level: "Junior (1-2 tahun)",
+      batas: "2026-11-10",
+      emailKantor: "rendra.wijaya@blibli.com",
+      ditutup: false,
+    },
+    pengajuan: [
+      {
+        id: 603,
+        authorName: "Aisha Dwi Rahmawati",
+        pesan: "Halo Mas Rendra, saya tertarik melamar posisi Backend Engineer di Blibli.",
+        status: "ditolak",
+        masukan: "Terima kasih sudah melamar. Saat ini tim membutuhkan kandidat yang sudah memiliki pengalaman produksi dengan Java Spring Boot dan Apache Kafka.",
+        waktu: "2026-11-05"
       }
     ]
   }
