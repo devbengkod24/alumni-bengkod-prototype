@@ -478,8 +478,6 @@
             <i data-lucide="${karya ? 'flask-conical' : 'message-circle'}" class="w-[18px] h-[18px]"></i>${jumlah}<span class="hidden sm:inline">${karya ? 'feedback' : 'komentar'}</span></button>
           <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${ditekan}" aria-label="${karya ? 'Dukung' : 'Suka'} (${p.suka.length})" class="${AKSI} ${ditekan ? 'text-primary1 bg-primary5' : 'text-neutral3 hover:text-primary1 hover:bg-primary5/70'}">
             <i data-lucide="${karya ? 'arrow-big-up' : 'thumbs-up'}" class="w-[18px] h-[18px] ${ditekan ? 'fill-current' : ''}"></i>${p.suka.length}<span class="hidden sm:inline">${karya ? 'dukungan' : 'suka'}</span></button>
-          <button type="button" data-aksi="bagikan" data-id="${p.id}" aria-label="Salin tautan postingan" class="${AKSI} text-neutral3 hover:text-primary1 hover:bg-primary5/70">
-            <i data-lucide="share-2" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Bagikan</span></button>
         </div>
         ${karya && p.id_alumni === SAYA.id && p.karya.tahap === 'beta' ? `<button type="button" data-aksi="rilis" data-id="${p.id}" class="${PIL} bg-green3/70 text-green1 hover:bg-green3 inline-flex items-center gap-1.5 shrink-0"><i data-lucide="badge-check" class="w-4 h-4"></i> Ubah ke Live</button>` : ''}
       </div>
@@ -516,15 +514,6 @@
           </div>
         </div>
       </article>`;
-  }
-
-  async function salinTautan(id) {
-    try {
-      await navigator.clipboard.writeText(new URL(`beranda.html#post-${id}`, location.href).href);
-      showToast('Tautan postingan disalin.');
-    } catch {
-      showToast('Browser menolak akses salin.', 'error');
-    }
   }
 
   // ===================== SARINGAN DAN SAMPING =====================
@@ -685,7 +674,6 @@
     if (aksi === 'feedback') return bukaModalForm('feedback-modal', { id });
     if (aksi === 'ajukan') return bukaAjukan(id);
     if (aksi === 'pengajuan') return bukaPengajuan(id);
-    if (aksi === 'bagikan') return salinTautan(id);
     if (aksi === 'rilis') {
       const p = DB.feed.cari(id);
       return confirmAction({

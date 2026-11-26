@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/profile-layout.css">
   <style>
     [x-cloak] { display: none !important; }
     body { font-family: "Inter", sans-serif; }
@@ -25,6 +26,38 @@
 
     <form @submit.prevent="saveProfile()" class="rounded-[16px] border border-[#E3E4E9] bg-white shadow-sm">
       <div class="space-y-4 p-5 text-[14px] sm:p-6">
+        <div class="space-y-2">
+          <label for="profil-banner" class="block font-semibold text-[#0C1117]">Banner Profil</label>
+          <div class="profile-cover relative overflow-hidden rounded-[10px] bg-[#3A5988]">
+            <template x-if="draft.coverImageUrl">
+              <img :src="draft.coverImageUrl" alt="Pratinjau banner profil" class="absolute inset-0 h-full w-full object-cover">
+            </template>
+          </div>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <input id="profil-banner" type="file" accept="image/jpeg,image/png,image/webp" :disabled="!!imageReading"
+                   @change="selectImage($event, 'coverImageUrl', 2)" aria-describedby="profil-banner-help" class="max-w-full text-[13px]">
+            <button type="button" x-show="draft.coverImageUrl" x-cloak :disabled="!!imageReading"
+                    @click="draft.coverImageUrl = ''; imageErrors.coverImageUrl = ''" class="profile-action disabled:opacity-50">Hapus Banner</button>
+          </div>
+          <p id="profil-banner-help" class="text-[12px] text-[#6B7280]">Gambar horizontal JPG, PNG, atau WebP hingga 2 MB.</p>
+          <p x-show="imageReading === 'coverImageUrl'" x-cloak role="status" class="text-[12px] text-[#6B7280]">Memuat pratinjau…</p>
+          <p x-show="imageErrors.coverImageUrl" x-cloak x-text="imageErrors.coverImageUrl" role="alert" class="text-[13px] text-red-700"></p>
+        </div>
+
+        <div class="space-y-2">
+          <label for="profil-foto" class="block font-semibold text-[#0C1117]">Foto Profil</label>
+          <div class="flex flex-wrap items-center gap-3">
+            <img :src="draft.avatarUrl" alt="Pratinjau foto profil" class="h-20 w-20 shrink-0 rounded-[12px] border border-[#E3E4E9] bg-[#F4F5F7] object-cover">
+            <div class="min-w-0 space-y-1.5">
+              <input id="profil-foto" type="file" accept="image/jpeg,image/png,image/webp" :disabled="!!imageReading"
+                     @change="selectImage($event, 'avatarUrl', 1)" aria-describedby="profil-foto-help" class="max-w-full text-[13px]">
+              <p id="profil-foto-help" class="text-[12px] text-[#6B7280]">JPG, PNG, atau WebP hingga 1 MB.</p>
+              <p x-show="imageReading === 'avatarUrl'" x-cloak role="status" class="text-[12px] text-[#6B7280]">Memuat pratinjau…</p>
+              <p x-show="imageErrors.avatarUrl" x-cloak x-text="imageErrors.avatarUrl" role="alert" class="text-[13px] text-red-700"></p>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label for="profil-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Lengkap</label>
@@ -83,7 +116,7 @@
       </div>
       <div class="flex flex-wrap justify-end gap-2.5 border-t border-[#E3E4E9] px-5 py-4 sm:px-6">
         <a href="profil.html" class="inline-flex h-10 items-center rounded-[8px] border border-[#E3E4E9] px-4 text-[13px] font-semibold hover:bg-[#F4F5F7]">Batal</a>
-        <button type="submit" class="h-10 rounded-[8px] bg-[#3A5988] px-5 text-[13px] font-semibold text-white shadow-sm hover:bg-[#496DA8]">Simpan Perubahan</button>
+        <button type="submit" :disabled="!!imageReading" class="h-10 rounded-[8px] bg-[#3A5988] px-5 text-[13px] font-semibold text-white shadow-sm hover:bg-[#496DA8] disabled:opacity-50">Simpan Perubahan</button>
       </div>
     </form>
   </main>
@@ -91,14 +124,33 @@
   <script>
     function editProfilPage() {
       const profile = loadProfilSaya();
-      const fields = ["name", "nim", "headline", "batch", "location", "email", "linkedin", "github", "website", "about"];
+      const fields = ["name", "nim", "headline", "batch", "location", "email", "linkedin", "github", "website", "about", "coverImageUrl", "avatarUrl"];
       const original = Object.fromEntries(fields.map(field => [field, String(profile[field] ?? "")]));
       return {
         profile,
         draft: { ...original },
         error: "",
+        imageErrors: { coverImageUrl: "", avatarUrl: "" },
+        imageReading: "",
+
+        async selectImage(event, field, limitMb) {
+          const input = event.target;
+          const file = input.files[0];
+          if (!file || this.imageReading) return;
+          this.imageReading = field;
+          this.imageErrors[field] = "";
+          try {
+            this.draft[field] = await readProfileImage(file, limitMb);
+          } catch (error) {
+            this.imageErrors[field] = error.message;
+          } finally {
+            this.imageReading = "";
+            input.value = "";
+          }
+        },
 
         saveProfile() {
+          if (this.imageReading) return;
           const values = Object.fromEntries(fields.map(field => [field, this.draft[field].trim()]));
           if (!values.name) {
             this.error = "Nama lengkap tidak boleh kosong.";

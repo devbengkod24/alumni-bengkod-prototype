@@ -1,3 +1,6 @@
+.profile-cover {
+  block-size: clamp(5.75rem, 13vw, 9rem);
+}
 .profile-panel {
   display: grid;
   gap: 0.875rem;
