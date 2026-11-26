@@ -116,23 +116,14 @@ const SUPERADMIN_DEFAULT = {
     { id: 7, nama: 'Dimas Arya', nim: 'A11.2018.10601', email: 'dimas.arya@gmail.com', tahun_lulus: 2022, divisi: 'Divisi Developer', status_karir: 'Bekerja Full Time', perusahaan: 'Bank BCA', jabatan: 'Mobile Developer', status_akun: 'Aktif', terdaftar: '2026-01-18' },
     { id: 8, nama: 'Ananda Wulan', nim: 'A11.2021.13301', email: 'ananda.wulan@gmail.com', tahun_lulus: 2025, divisi: 'Divisi Data Science', status_karir: 'Bekerja Full Time', perusahaan: 'Tokopedia', jabatan: 'Frontend Engineer', status_akun: 'Aktif', terdaftar: '2026-03-10' },
   ],
-  mitra: [
-    { id: 1, nama_perusahaan: 'PT Telkom Indonesia', bidang_usaha: 'Telekomunikasi & IT', kota: 'Bandung', email: 'hr@telkom.co.id', pic: 'Hendra W.', telp: '0812-3456-7890', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 2, terdaftar: '2026-01-12' },
-    { id: 2, nama_perusahaan: 'Gojek', bidang_usaha: 'Teknologi & Ride Hailing', kota: 'Jakarta', email: 'recruitment@gojek.com', pic: 'Maya Safitri', telp: '0812-9876-5432', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-01-20' },
-    { id: 3, nama_perusahaan: 'CV Solusi Digital Jateng', bidang_usaha: 'Software House', kota: 'Semarang', email: 'hr@solusidigital.id', pic: 'Andi Kurniawan', telp: '0813-4567-8901', status_verifikasi: 'Terverifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-02-05' },
-    { id: 4, nama_perusahaan: 'PT Data Nusantara', bidang_usaha: 'Big Data & AI Services', kota: 'Yogyakarta', email: 'contact@datanusantara.id', pic: 'Rina Pramestia', telp: '0815-6789-0123', status_verifikasi: 'Belum Verifikasi', status_akun: 'Aktif', loker_count: 1, terdaftar: '2026-03-01' },
-    { id: 5, nama_perusahaan: 'PT Abal Sejahtera', bidang_usaha: 'Konsultan IT', kota: 'Kudus', email: 'info@abalsejahtera.com', pic: 'Budi Santoso', telp: '0817-8901-2345', status_verifikasi: 'Ditolak', status_akun: 'Nonaktif', loker_count: 0, terdaftar: '2026-03-15' },
-  ],
+  mitra: [],
   activityLogs: [
     { id: 1, waktu: '2026-10-22 09:15', user: 'Super Admin', role: 'SuperAdmin', action: 'Penugasan Koordinator', detail: 'Menugaskan Dr. Ayu Lestari, M.Kom sebagai Koordinator Divisi Dev & DS', ip: '10.14.0.1', status: 'Sukses' },
     { id: 2, waktu: '2026-10-22 08:30', user: 'Dr. Ayu Lestari, M.Kom', role: 'Koordinator', action: 'Verifikasi Tracer Study', detail: 'Memverifikasi data tracer study Rizky Pratama (NIM: A11.2019.11823)', ip: '10.14.2.45', status: 'Sukses' },
     { id: 3, waktu: '2026-10-21 16:45', user: 'Super Admin', role: 'SuperAdmin', action: 'Reset Password Akun', detail: 'Mereset kredensial password untuk akun Koordinator Bambang Nugroho, M.T', ip: '10.14.0.1', status: 'Sukses' },
-    { id: 4, waktu: '2026-10-21 14:20', user: 'Maya Safitri (Gojek)', role: 'Mitra', action: 'Pengajuan Lowongan Baru', detail: 'Mengajukan loker Mobile Engineer (Flutter) Full Time', ip: '180.252.16.8', status: 'Sukses' },
-    { id: 5, waktu: '2026-10-21 11:10', user: 'Dr. Ayu Lestari, M.Kom', role: 'Koordinator', action: 'Moderasi Lowongan', detail: 'Menyetujui publikasi lowongan QA Engineer dari PT Telkom Indonesia', ip: '10.14.2.45', status: 'Sukses' },
-    { id: 6, waktu: '2026-10-20 15:30', user: 'Super Admin', role: 'SuperAdmin', action: 'Aktivasi Akun Mitra', detail: 'Memverifikasi dan mengaktifkan akun CV Solusi Digital Jateng', ip: '10.14.0.1', status: 'Sukses' },
+    { id: 5, waktu: '2026-10-21 11:10', user: 'Dr. Ayu Lestari, M.Kom', role: 'Koordinator', action: 'Moderasi Konten', detail: 'Meninjau laporan diskusi pada forum alumni', ip: '10.14.2.45', status: 'Sukses' },
     { id: 7, waktu: '2026-10-20 13:05', user: 'Bagas Saputra', role: 'Alumni', action: 'Pembaruan Status Karir', detail: 'Memperbarui status karir ke Mencari Pekerjaan', ip: '114.122.34.12', status: 'Sukses' },
     { id: 8, waktu: '2026-10-20 10:00', user: 'Super Admin', role: 'SuperAdmin', action: 'Nonaktifkan Akun', detail: 'Menonaktifkan sementara akun alumni Bagas Saputra', ip: '10.14.0.1', status: 'Sukses' },
-    { id: 9, waktu: '2026-10-19 14:15', user: 'Budi Santoso (PT Abal)', role: 'Mitra', action: 'Pendaftaran Akun Mitra', detail: 'Mengisi form registrasi mitra industri baru dari Kudus', ip: '125.160.77.2', status: 'Menunggu' },
     { id: 10, waktu: '2026-10-19 09:00', user: 'Super Admin', role: 'SuperAdmin', action: 'Autentikasi Sesi', detail: 'Login SuperAdmin berhasil melalui SSO Lab Bengkel Koding', ip: '10.14.0.1', status: 'Sukses' },
   ]
 };
@@ -343,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
-        <a href="../index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <a href="../login.html?keluar=1" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
       </div>
     </aside>`);
@@ -430,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="border-t border-neutral4/70"></div>
             <ul class="py-1.5">
               <li>
-                <button type="button" onclick="window.location.href='../index.html'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                <button type="button" onclick="window.location.href='../login.html?keluar=1'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
                   <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

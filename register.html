@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light" class="h-full overflow-hidden bg-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klaim Akun Alumni | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Klaim akun alumni asisten lab Bengkel Koding Universitas Dian Nuswantoro.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="alumni/assets/js/data.js?v=10"></script>
+  <script src="alumni/assets/js/auth-panel.js?v=5"></script>
+  <script src="assets/js/auth-layout.js?v=1"></script>
+</head>
+<body class="h-screen h-dvh overflow-hidden bg-white text-[#0F172A] antialiased font-sans">
+  <div id="auth-root" class="h-full w-full"></div>
+
+  <script>
+    renderAuthPage({
+      brandSubtitle: 'ALUMNI NETWORK',
+      title: 'Klaim akun alumni',
+      subtitle: 'Gunakan NIM yang tercatat sebagai asisten lab Bengkel Koding.',
+      mainPaddingClass: 'px-5 py-2.5 sm:px-12 lg:px-14 min-[1420px]:px-[94px] lg:py-4',
+      panelOptions: {
+        mobileHeightClass: 'h-[clamp(124px,16.5dvh,160px)]',
+      },
+      formHtml: `
+        <form id="form" novalidate class="mt-2.5 lg:mt-[clamp(12px,2vh,22px)]">
+          <div>
+            <label for="nim" class="block font-semibold text-[11.5px] lg:text-[13px] leading-[1.3] text-[#0F172A] mb-0.5 lg:mb-1">
+              NIM
+            </label>
+            <input type="text" id="nim" name="nim"
+                   placeholder="Masukkan NIM terdaftar"
+                   class="w-full h-[35px] lg:h-[clamp(38px,4.9vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] placeholder:normal-case uppercase focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-nim" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="mt-1 lg:mt-1.5">
+            <label for="nama" class="block font-semibold text-[11.5px] lg:text-[13px] leading-[1.3] text-[#0F172A] mb-0.5 lg:mb-1">
+              Nama lengkap
+            </label>
+            <input type="text" id="nama" name="nama" autocomplete="name"
+                   placeholder="Sesuai data asisten lab"
+                   class="w-full h-[35px] lg:h-[clamp(38px,4.9vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-nama" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="mt-1 lg:mt-1.5">
+            <label for="email" class="block font-semibold text-[11.5px] lg:text-[13px] leading-[1.3] text-[#0F172A] mb-0.5 lg:mb-1">
+              Email
+            </label>
+            <input type="email" id="email" name="email" autocomplete="email"
+                   placeholder="nama@example.com"
+                   class="w-full h-[35px] lg:h-[clamp(38px,4.9vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-email" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="mt-1 lg:mt-1.5">
+            <label for="password" class="block font-semibold text-[11.5px] lg:text-[13px] leading-[1.3] text-[#0F172A] mb-0.5 lg:mb-1">
+              Kata sandi
+            </label>
+            <input type="password" id="password" name="password" minlength="8" required autocomplete="new-password"
+                   placeholder="Minimal 8 karakter"
+                   class="w-full h-[35px] lg:h-[clamp(38px,4.9vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-password" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="mt-1 lg:mt-1.5">
+            <label for="password_confirm" class="block font-semibold text-[11.5px] lg:text-[13px] leading-[1.3] text-[#0F172A] mb-0.5 lg:mb-1">
+              Konfirmasi kata sandi
+            </label>
+            <input type="password" id="password_confirm" name="password_confirm" minlength="8" required autocomplete="new-password"
+                   placeholder="Ulangi kata sandi"
+                   class="w-full h-[35px] lg:h-[clamp(38px,4.9vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-password_confirm" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <button type="submit"
+                  class="mt-2.5 lg:mt-3 w-full h-[40px] lg:h-[clamp(42px,5.2vh,48px)] rounded-[10px] lg:rounded-[11px] bg-[#1E3A8A] hover:bg-[#1D4ED8] active:bg-[#172E71] text-white font-semibold text-[13.5px] lg:text-[15px] leading-[1.45] transition-colors cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#1E3A8A]/20">
+            Klaim akun
+          </button>
+        </form>
+      `,
+      afterFormHtml: `
+        <div class="mt-2 lg:mt-2.5 p-2 lg:p-2.5 rounded-[10px] bg-[#EDF3FF]/75 border border-[#D9E3F4]">
+          <p class="text-[11px] font-semibold text-[#1E3A8A]">Contoh NIM valid (klik untuk isi cepat · alumni first login)</p>
+          <div id="nim-contoh" class="mt-1.5 flex flex-wrap gap-1.5"></div>
+        </div>
+
+        <div class="mt-1 lg:mt-1.5">
+          <a href="login.html" class="inline-flex items-center min-h-[28px] lg:min-h-[34px] font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+            Sudah punya akun? Masuk
+          </a>
+        </div>
+      `,
+    });
+
+    const form = document.getElementById('form');
+    const FIELDS = ['nim', 'nama', 'email', 'password', 'password_confirm'];
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+    const contohWrap = document.getElementById('nim-contoh');
+    const daftarContoh = DB.akun.nimContoh(3);
+    contohWrap.innerHTML = daftarContoh.map(c => `
+      <button type="button" data-nim="${esc(c.nim)}" data-nama="${esc(c.nama)}"
+              class="px-2.5 py-0.5 rounded-[7px] bg-white border border-[#D9E3F4] hover:border-[#2563EB] text-[11px] font-medium text-[#1E3A8A] transition-colors cursor-pointer">
+        ${esc(c.nim)}
+      </button>
+    `).join('');
+    contohWrap.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-nim]');
+      if (!btn) return;
+      form.elements.nim.value = btn.dataset.nim;
+      if (!form.elements.nama.value.trim()) form.elements.nama.value = btn.dataset.nama;
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      clearAuthErrors(form, FIELDS);
+      const isi = Object.fromEntries(new FormData(form));
+      if (!isi.password) return showAuthError(form, FIELDS, 'password', 'Password wajib diisi.');
+      if (isi.password.length < 8) return showAuthError(form, FIELDS, 'password', 'Password harus terdiri dari minimal 8 karakter.');
+      if (isi.password_confirm !== undefined && isi.password !== isi.password_confirm) {
+        return showAuthError(form, FIELDS, 'password_confirm', 'Konfirmasi password tidak cocok.');
+      }
+      const hasil = DB.akun.daftar(isi);
+      if (!hasil.ok) return showAuthError(form, FIELDS, hasil.field, hasil.error);
+      showAuthToast('Pendaftaran berhasil! Silakan masuk.');
+      setTimeout(() => { location.href = 'login.html'; }, 600);
+    });
+  </script>
+</body>
+</html>

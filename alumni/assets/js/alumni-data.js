@@ -364,8 +364,10 @@ function savePosts(posts) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
     window.dispatchEvent(new Event("bengkod_posts_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan postingan:", err);
+    return false;
   }
 }
 
@@ -394,9 +396,23 @@ function saveStoredProjects(projects) {
   try {
     localStorage.setItem(PROJECTS_STORAGE_KEY, JSON.stringify(projects));
     window.dispatchEvent(new Event("bengkod_projects_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan proyek:", err);
+    return false;
   }
+}
+
+const KOOR_NOTIF_QUEUE_KEY = "bengkod_koor_notif_queue_v1";
+
+function antreNotifKoordinator(ikon, pesan, tautan) {
+  if (typeof window === "undefined") return;
+  try {
+    const queue = JSON.parse(localStorage.getItem(KOOR_NOTIF_QUEUE_KEY) || "[]");
+    const list = Array.isArray(queue) ? queue : [];
+    list.push({ ikon, pesan, tautan, waktu: new Date().toISOString() });
+    localStorage.setItem(KOOR_NOTIF_QUEUE_KEY, JSON.stringify(list));
+  } catch {}
 }
 
 function syncProjectToFeed(project, author) {
@@ -406,7 +422,10 @@ function syncProjectToFeed(project, author) {
   const authorHeadline = (author && author.headline) || "Alumni Bengkel Koding";
 
   const posts = typeof loadPosts === "function" ? loadPosts() : [];
-  const existingIdx = posts.findIndex(p => p.karya && (p.karya.projectId === project.id || (p.karya.nama && p.karya.nama.toLowerCase() === project.title.toLowerCase())));
+  const existingIdx = posts.findIndex(p => p.karya && (
+    p.karya.projectId === project.id ||
+    (p.authorName === authorName && p.karya.nama?.toLowerCase() === project.title.toLowerCase())
+  ));
 
   const toList = (v) => (Array.isArray(v) ? v : (typeof v === "string" ? v.split(",").map(s => s.trim()).filter(Boolean) : []));
   const categoryTags = project.category ? toList(project.category) : (project.categoryTags || ["Software"]);
@@ -418,6 +437,7 @@ function syncProjectToFeed(project, author) {
   const karyaObj = {
     projectId: project.id,
     nama: project.title,
+    period: project.period || undefined,
     tagline: project.tagline || (project.desc ? project.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
     pitch: project.pitch || project.tagline || project.desc || undefined,
     categoryTags: categoryTags.length > 0 ? categoryTags : ["Software"],
@@ -426,6 +446,7 @@ function syncProjectToFeed(project, author) {
     bannerUrl: bannerUrl,
     screenshots: screenshots,
     stack: project.tags || [],
+    ...(project.attachments ? { attachments: project.attachments } : {}),
     overview: project.desc || undefined,
     contributors: project.contributors || [],
     upvotes: 1,
@@ -455,7 +476,11 @@ function syncProjectToFeed(project, author) {
     posts.unshift(newPost);
   }
 
-  if (typeof savePosts === "function") savePosts(posts);
+  const saved = savePosts(posts);
+  if (saved && existingIdx < 0) {
+    antreNotifKoordinator("rocket", `${authorName} meluncurkan karya baru "${karyaObj.nama}".`, "karya.html");
+  }
+  return saved;
 }
 
 // ===================== alumniDirectory.ts =====================
@@ -770,6 +795,37 @@ const ALUMNI_DIRECTORY = [
       "Menganalisis elastisitas harga demand-supply dan mengembangkan model prediktif machine learning untuk estimasi waktu kedatangan mitra pengemudi.",
   },
 ];
+
+const ALUMNI_WORK_MAP = {
+  "aisha-dwi-rahmawati": { position: "Junior Data Scientist & Analyst", company: "PT GoTo Gojek Tokopedia" },
+  "clarista": { position: "Machine Learning Engineer", company: "Blibli" },
+  "rafi-pratama": { position: "Fullstack Web Developer", company: "DANA Indonesia" },
+  "nadia-safira": { position: "UI/UX Designer", company: "Telkom Indonesia" },
+  "bagas-wicaksono": { position: "IoT Engineer", company: "PT Solusi Digital Jateng" },
+  "salsabila-putri": { position: "Mobile Developer", company: "Ruangguru" },
+  "dimas-aryo": { position: "Backend Engineer", company: "Bank Mandiri" },
+  "kirana-maheswari": { position: "Data Analyst", company: "Bibit" },
+  "fajar-nugroho": { position: "Cybersecurity Analyst", company: "Xendit" },
+  "intan-permata": { position: "Frontend Engineer", company: "Mekari" },
+  "nadjwa-salsabila": { position: "UI/UX Designer", company: "Tokopedia" },
+  "maulidya-ayu-pratiwi": { position: "Frontend Developer", company: "Gojek" },
+  "alvyan-anantama": { position: "Data Analyst", company: "Traveloka" },
+  "budi-santoso": { position: "DevOps Engineer", company: "Tiket.com" },
+  "rizky-firmansyah": { position: "Fullstack Developer", company: "Koinworks" },
+  "dewi-rahmawati": { position: "QA Engineer", company: "Kredivo" },
+  "sindu-aditya-putra": { position: "Backend Engineer", company: "Shopee" },
+  "taliya-maharani": { position: "Product Manager", company: "GoTo" },
+  "andi-pratama": { position: "Mobile Developer", company: "Bukalapak" },
+  "siti-nuraini": { position: "Data Scientist", company: "Grab" },
+};
+
+ALUMNI_DIRECTORY.forEach((a) => {
+  const work = ALUMNI_WORK_MAP[a.id];
+  if (work) {
+    a.position = a.position || work.position;
+    a.company = a.company || work.company;
+  }
+});
 
 // ============================================================
 // DIREKTORI PERUSAHAAN MITRA BENGKEL KODING
@@ -3222,8 +3278,10 @@ function saveGigs(gigs) {
   try {
     localStorage.setItem(GIGS_STORAGE_KEY, JSON.stringify(gigs));
     window.dispatchEvent(new Event("bengkod_gigs_updated"));
+    return true;
   } catch (err) {
     console.error("Gagal menyimpan gigs:", err);
+    return false;
   }
 }
 

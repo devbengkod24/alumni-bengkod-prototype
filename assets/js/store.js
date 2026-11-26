@@ -28,7 +28,10 @@
   function lsSet(k, val) {
     try {
       localStorage.setItem(k, JSON.stringify(val));
-    } catch {}
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // Initial Seed Data (Bahasa Indonesia & Harmonisasi per Role)
@@ -351,10 +354,8 @@
   const SEED_LOGS = [
     { id: 1, waktu: '2026-10-22 09:15', user: 'Super Admin', role: 'SuperAdmin', action: 'Penugasan Koordinator', detail: 'Menugaskan Dr. Ayu Lestari, M.Kom sebagai Koordinator Divisi Dev & DS', ip: '10.14.0.1', status: 'Sukses' },
     { id: 2, waktu: '2026-10-21 15:40', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Verifikasi Lowongan', detail: 'Menyetujui lowongan Backend Developer (Laravel) dari PT Solusi Digital Jateng', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 3, waktu: '2026-10-21 14:10', user: 'Andi Kurniawan', role: 'Mitra', action: 'Pengajuan Lowongan', detail: 'Mengajukan lowongan Frontend Developer (React)', ip: '192.168.1.45', status: 'Sukses' },
     { id: 4, waktu: '2026-10-20 11:20', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Tolak Lowongan', detail: 'Menolak lowongan Mobile Developer Flutter (alasan: deskripsi kurang lengkap)', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 5, waktu: '2026-10-18 10:30', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Publikasi Pengumuman', detail: 'Menerbitkan pengumuman "Pengisian Tracer Study Angkatan 2025"', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 6, waktu: '2026-10-15 08:30', user: 'Super Admin', role: 'SuperAdmin', action: 'Verifikasi Mitra', detail: 'Memverifikasi profil kemitraan PT Solusi Digital Jateng', ip: '10.14.0.1', status: 'Sukses' }
+    { id: 5, waktu: '2026-10-18 10:30', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Publikasi Pengumuman', detail: 'Menerbitkan pengumuman "Pengisian Tracer Study Angkatan 2025"', ip: '10.14.0.12', status: 'Sukses' }
   ];
 
   const SEED_LAPORAN = [
@@ -532,7 +533,7 @@
 
   // Postingan contoh feed bersama alumni-koordinator. Ditandai kunci supaya ditambahkan sekali saja
   // ke data forum yang sudah tersimpan. Field bersama: category (kategori feed Beranda),
-  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban), tagRekap (tag rekap koordinator).
+  // pertanyaan (pertanyaan koordinator, komentarnya = jawaban).
   const FORUM_TAMBAHAN = [
     {
       kunci: 'sambutan-feed', judul: '', penulis: 'Dr. Ayu Lestari, M.Kom', peran: 'Koordinator', waktu: '2026-10-20T09:00:00',
@@ -917,8 +918,9 @@
       return list.filter(l => l.status === status);
     },
     saveLaporan(list) {
-      lsSet(KEYS.LAPORAN, list);
+      if (!lsSet(KEYS.LAPORAN, list)) return false;
       window.dispatchEvent(new CustomEvent('bengkod:laporan-updated', { detail: list }));
+      return true;
     },
     addLaporan({ id_post, judul_post = '', penulis_post = '', pelapor = 'Alumni', peran_pelapor = 'Alumni', alasan = 'Spam', catatan = '' }) {
       const list = this.getLaporan();
@@ -936,8 +938,7 @@
         waktu: new Date().toISOString(),
         ditinjau: ''
       };
-      list.unshift(created);
-      this.saveLaporan(list);
+      if (!this.saveLaporan([created, ...list])) return null;
       this.logActivity('Alumni', 'Laporan Postingan', `Melaporkan postingan dari ${penulis_post}: "${alasan}"`);
       return created;
     },
@@ -955,7 +956,7 @@
 
     // --- ACTIVITY LOGS ---
     getLogs() {
-      return lsGet(KEYS.LOGS, SEED_LOGS);
+      return lsGet(KEYS.LOGS, SEED_LOGS).filter(l => l.role !== 'Mitra' && !/verifikasi mitra/i.test(l.action || ''));
     },
     logActivity(role, action, detail, status = 'Sukses') {
       const logs = this.getLogs();

@@ -1,3 +1,11 @@
+// Nonaktifkan seluruh akses halaman role Mitra tanpa menghapus berkasnya
+(function () {
+  const parts = location.pathname.split('/').filter(Boolean);
+  const idx = parts.findIndex(p => p === 'mitra');
+  const depth = idx >= 0 ? parts.length - idx - 1 : 1;
+  location.replace((depth >= 2 ? '../../' : '../') + 'error/403.html');
+})();
+
 /**
  * Shared JS role Mitra: config Tailwind, layout sidebar/topbar, data dummy, helper.
  * Dimuat di <head> setelah Tailwind CDN dan sebelum ../../assets/js/main.js
@@ -568,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </a>
       <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
       <div class="p-3 border-t border-neutral4">
-        <a href="${_rootBase}index.html" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
+        <a href="${_rootBase}login.html?keluar=1" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors">
           <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></a>
       </div>
     </aside>`);
@@ -671,7 +679,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="border-t border-neutral4/70"></div>
             <ul class="py-1.5">
               <li>
-                <button type="button" onclick="window.location.href='${_rootBase}index.html'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
+                <button type="button" onclick="window.location.href='${_rootBase}login.html?keluar=1'" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group">
                   <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

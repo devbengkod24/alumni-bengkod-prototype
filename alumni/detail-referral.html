@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Lowongan | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Detail lowongan referral internal antar-alumni Bengkel Koding UDINUS.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="assets/js/alumni-data.js"></script>
+  <script src="assets/js/alumni-catalog.js"></script>
+  <script src="assets/js/portal-layout.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#EFF2F7',
+            card: '#FFFFFF',
+            filter: '#F4F5F7',
+            borderline: '#E3E4E9',
+            primary: {
+              DEFAULT: '#3A5988',
+              hover: '#496DA8',
+              pressed: '#2F4B76',
+            },
+            accent: '#326ECE',
+            headline: '#0C1117',
+            bodytext: '#212224',
+            mutedtext: '#6B7280',
+            placeholder: '#91969C',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+  <script>
+    function bengkodReferralDetailApp() {
+      const profile = alumniProfileForBoard();
+      const todayStr = "2026-11-20";
+
+      return {
+        currentUserName: profile.name,
+        currentUserHeadline: profile.headline || "Alumni Bengkel Koding",
+
+        posts: loadBoardVacancies(),
+        savedPostIds: (() => {
+          try {
+            const raw = localStorage.getItem('bengkod_saved_referrals_v1');
+            return raw ? JSON.parse(raw) : [];
+          } catch { return []; }
+        })(),
+        selectedPost: null,
+        toast: "",
+        toastTimer: null,
+
+        ajukanModalOpen: false,
+        ajukanPost: null,
+        ajukanPesan: "",
+
+        init() {
+          this.posts.forEach((p, i) => {
+            p._targetColor = i % 2 === 0 ? 'pink' : 'yellow';
+          });
+          const params = new URLSearchParams(window.location.search);
+          if (params.has('id')) {
+            const id = Number(params.get('id'));
+            this.selectedPost = this.posts.find(p => p.id === id + 500) || this.posts.find(p => p.id === id) || this.posts[0] || null;
+          } else {
+            this.selectedPost = this.posts[0] || null;
+          }
+        },
+
+        get myCvFileName() {
+          return "CV_" + this.currentUserName.replace(/\s+/g, "_") + "_Bengkod.pdf";
+        },
+
+        get otherPosts() {
+          return this.posts.filter(p => !this.selectedPost || p.id !== this.selectedPost.id).slice(0, 3);
+        },
+
+        isMine(post) {
+          if (!post) return false;
+          return post.authorName === this.currentUserName;
+        },
+
+        myPengajuan(post) {
+          if (!post || !post.pengajuan) return null;
+          return post.pengajuan.find(a => a.authorName === this.currentUserName) || null;
+        },
+
+        isClosed(post) {
+          if (!post || !post.referral) return false;
+          if (post.referral.ditutup) return true;
+          return post.referral.batas < todayStr;
+        },
+
+        isSaved(postId) {
+          return this.savedPostIds.includes(postId);
+        },
+
+        handleToggleBookmark(id) {
+          if (this.savedPostIds.includes(id)) {
+            this.savedPostIds = this.savedPostIds.filter(x => x !== id);
+            this.setToast('Lowongan dihapus dari simpanan');
+          } else {
+            this.savedPostIds.push(id);
+            this.setToast('Lowongan berhasil disimpan');
+          }
+          try {
+            localStorage.setItem('bengkod_saved_referrals_v1', JSON.stringify(this.savedPostIds));
+          } catch {}
+        },
+
+        getInitials(name) {
+          if (!name) return "BK";
+          return name.split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
+        },
+
+        formatDate(dateStr) {
+          if (!dateStr) return "";
+          const d = new Date(dateStr);
+          return isNaN(d) ? dateStr : d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+        },
+
+        openAjukanModal(post) {
+          this.ajukanPost = post;
+          this.ajukanPesan = "";
+          this.ajukanModalOpen = true;
+        },
+
+        submitAjukanReferral() {
+          if (!this.ajukanPost) return;
+          const target = this.posts.find(p => p.id === this.ajukanPost.id);
+          if (target) {
+            const newApp = {
+              id: Date.now(),
+              authorName: this.currentUserName,
+              pesan: this.ajukanPesan.trim(),
+              status: "menunggu",
+              masukan: "",
+              waktu: new Date().toISOString().slice(0, 10)
+            };
+            if (!target.pengajuan) target.pengajuan = [];
+            target.pengajuan.push(newApp);
+            if (this.selectedPost && this.selectedPost.id === target.id) {
+              this.selectedPost = target;
+            }
+          }
+          this.ajukanModalOpen = false;
+          this.setToast("Pengajuan referral berhasil dikirim!");
+        },
+
+        batalkanPengajuan(post, app) {
+          const targetApp = app || this.myPengajuan(post);
+          if (!targetApp) return;
+          if (!confirm(`Batalkan pengajuan untuk "${post.referral.posisi}"?`)) return;
+          post.pengajuan = (post.pengajuan || []).filter(a => a.id !== targetApp.id);
+          if (this.selectedPost && this.selectedPost.id === post.id) {
+            this.selectedPost = post;
+          }
+          this.setToast("Pengajuan referral berhasil dibatalkan.");
+        },
+
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ""; }, 3200);
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      if (window.Alpine) {
+        window.Alpine.data('bengkodReferralDetailApp', bengkodReferralDetailApp);
+      }
+    });
+  </script>
+</head>
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="bengkodReferralDetailApp()">
+
+  <!-- TOAST NOTIFICATION -->
+  <template x-if="toast">
+    <div class="fixed bottom-6 right-6 z-[120] bg-[#0C1117] text-white px-5 py-3 rounded-[8px] shadow-sm flex items-center gap-3 text-[14px] border border-[#E3E4E9]/20" role="status">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+      <span class="font-normal" x-text="toast"></span>
+      <button type="button" @click="toast = ''" class="text-[#91969C] hover:text-white ml-2 text-xs">✕</button>
+    </div>
+  </template>
+
+  <!-- HALAMAN DETAIL LOWONGAN (2-Kolom: Detail Lowongan di Kiri, Lowongan Lainnya di Kanan) -->
+  <main data-route="detail-referral" class="flex-1 p-4 sm:p-6 lg:p-8 w-full max-w-[1260px] mx-auto">
+    <div x-show="selectedPost"
+         x-cloak
+         class="flex flex-col lg:flex-row gap-6 w-full items-start">
+
+      <!-- KOLOM KIRI: DETAIL LOWONGAN -->
+      <div class="flex-1 min-w-0 w-full max-w-[840px] bg-white rounded-[20px] max-sm:rounded-none border border-[#E3E4E9] overflow-hidden shadow-2xl flex flex-col">
+
+        <!-- 1. Header: 68px -->
+        <header class="h-[68px] px-6 border-b border-[#E3E4E9] flex items-center gap-3.5 shrink-0 bg-white">
+          <a href="referral.html"
+             class="w-10 h-10 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#0C1117] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+             title="Kembali ke Daftar">
+            <svg class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </a>
+
+          <h2 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">
+            Detail Lowongan
+          </h2>
+        </header>
+
+        <!-- 2. Body -->
+        <div class="px-6 lg:px-8 pt-5 pb-6 lg:pb-7 space-y-5 flex-1">
+          <template x-if="selectedPost && selectedPost.referral">
+            <div class="space-y-5">
+
+              <!-- Header Info Referral -->
+              <div class="flex items-start gap-4 min-w-0 pb-1">
+                <img :src="selectedPost.image || (selectedPost.id % 2 === 0 ? 'assets/project-city.jpg' : 'assets/project-fuji.webp')"
+                     :alt="selectedPost.referral.posisi"
+                     class="w-14 h-14 rounded-[10px] object-cover border border-[#E3E4E9] shadow-xs shrink-0 mt-0.5">
+                <div class="min-w-0">
+                  <h3 class="text-[22px] font-semibold text-[#0C1117] leading-tight" x-text="selectedPost.referral.posisi"></h3>
+                  <p class="text-[14px] font-normal text-[#5F6672] mt-1">
+                    <strong class="text-[#326ECE] font-medium" x-text="selectedPost.referral.perusahaan"></strong>
+                    <span> · Pereview: </span>
+                    <span class="text-[#212224] font-medium" x-text="selectedPost.authorName"></span>
+                  </p>
+                </div>
+              </div>
+
+              <!-- Baris Chip Meta -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#EBF3FB] text-[#2B5282] text-[13px] font-medium border border-[#D0E2F5]/80">
+                  <svg class="w-[15px] h-[15px] text-[#2B5282] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  <span x-text="selectedPost.referral.level"></span>
+                </span>
+
+                <span class="px-3 py-1.5 rounded-[8px] text-[13px] font-medium inline-block"
+                      :class="isClosed(selectedPost) ? 'bg-[#E4EBF3] text-[#4B5563]' : 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60'"
+                      x-text="isClosed(selectedPost) ? 'Ditutup' : 'Terbuka'"></span>
+
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-[8px] bg-[#F4F5F7] text-[#212224] text-[13px] font-medium border border-[#E3E4E9]">
+                  <svg class="w-[15px] h-[15px] text-[#6B7280] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                  <span x-text="'Batas review ' + formatDate(selectedPost.referral.batas)"></span>
+                </span>
+              </div>
+
+              <!-- Pesan & Kriteria Lowongan -->
+              <div class="pt-2">
+                <h4 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Pesan & Kriteria Lowongan</h4>
+                <p class="mt-2.5 text-[15.5px] text-[#374151] leading-[1.75] font-normal" x-text="selectedPost.content"></p>
+              </div>
+
+              <!-- Yang Dilampirkan Saat Mengajukan -->
+              <div>
+                <h4 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Yang Dilampirkan Saat Mengajukan</h4>
+                <ul class="mt-2.5 space-y-2.5 pl-5 text-[14.5px] text-[#5F6672]">
+                  <li class="relative leading-relaxed">
+                    <span class="absolute -left-4 top-[8px] w-1.5 h-1.5 rounded-full bg-[#3A5988]"></span>
+                    <span>CV otomatis dari Data CV Anda: <strong class="text-[#212224]" x-text="myCvFileName"></strong></span>
+                  </li>
+                  <li class="relative leading-relaxed">
+                    <span class="absolute -left-4 top-[8px] w-1.5 h-1.5 rounded-full bg-[#3A5988]"></span>
+                    <span>Pesan perkenalan singkat & pitching keahlian Anda (maksimal 250 karakter)</span>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Pereview Referral -->
+              <div class="pt-2">
+                <h4 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Pereview Referral</h4>
+                <div class="mt-2.5 flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5A86] font-semibold text-[14px] flex items-center justify-center shrink-0" x-text="getInitials(selectedPost.authorName)"></div>
+                  <div>
+                    <div class="text-[15px] font-medium text-[#0C1117]" x-text="selectedPost.authorName"></div>
+                    <div class="text-[13px] text-[#6B7280]" x-text="selectedPost.authorHeadline"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </template>
+        </div>
+
+        <!-- 3. Footer Bar Aksi -->
+        <footer class="sticky bottom-0 bg-white px-6 py-4 flex items-center justify-end rounded-b-[20px] max-sm:rounded-none z-10 shrink-0">
+          <template x-if="selectedPost && selectedPost.referral">
+            <div class="flex flex-wrap items-center justify-end w-full gap-3">
+              <!-- Tersimpan / Simpan -->
+              <button type="button"
+                      @click="handleToggleBookmark(selectedPost.id)"
+                      class="h-11 px-4 rounded-[8px] border border-[#E3E4E9] flex items-center gap-2 hover:bg-[#F4F5F7] transition-colors cursor-pointer text-[13.5px] font-medium"
+                      :class="isSaved(selectedPost.id) ? 'text-[#3A5988] bg-[#F4F7FB] border-[#3A5988]' : 'text-[#212224] bg-white'">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" :fill="isSaved(selectedPost.id) ? '#3A5988' : 'none'" stroke="currentColor" stroke-width="1.75"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+                <span x-text="isSaved(selectedPost.id) ? 'Tersimpan' : 'Simpan'"></span>
+              </button>
+
+              <!-- Kondisi A: Referral Milik Sendiri -->
+              <template x-if="isMine(selectedPost)">
+                <a href="referral.html?tab=saya"
+                   class="h-11 px-5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[14px] font-medium transition-colors inline-flex items-center justify-center">
+                  Kelola Pengajuan (<span x-text="(selectedPost.pengajuan || []).length"></span>)
+                </a>
+              </template>
+
+              <!-- Kondisi B: Sudah Mengajukan -->
+              <template x-if="!isMine(selectedPost) && myPengajuan(selectedPost)">
+                <button type="button"
+                        @click="batalkanPengajuan(selectedPost)"
+                        class="h-11 px-4 rounded-[8px] border border-[#B4325F]/30 bg-white hover:bg-[#FAD9E9]/40 text-[#B4325F] text-[13.5px] font-medium transition-colors cursor-pointer">
+                  Batalkan Pengajuan
+                </button>
+              </template>
+
+              <!-- Kondisi C: Belum Mengajukan -->
+              <template x-if="!isMine(selectedPost) && !myPengajuan(selectedPost)">
+                <button type="button"
+                        @click="openAjukanModal(selectedPost)"
+                        class="h-11 px-6 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] text-white text-[14.5px] font-semibold transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+                  <span>Minta Review & Referral</span>
+                </button>
+              </template>
+            </div>
+          </template>
+        </footer>
+
+      </div>
+
+      <!-- KOLOM KANAN: LOWONGAN LAINNYA -->
+      <aside class="w-full lg:w-[350px] xl:w-[380px] shrink-0 space-y-4 max-sm:px-4 max-sm:pb-6">
+        <div class="flex items-center justify-between px-1">
+          <h2 class="text-[16px] font-bold text-[#0C1117]">Lowongan Lainnya</h2>
+          <a href="referral.html" class="text-[13px] font-medium text-[#3A5988] hover:underline">Lihat Semua →</a>
+        </div>
+
+        <div class="space-y-4">
+          <template x-for="post in otherPosts" :key="post.id">
+            <a :href="'detail-referral.html?id=' + encodeURIComponent(post.id)"
+               class="block bg-white border border-[#E3E4E9] hover:border-[#3A5A86] rounded-[12px] p-4 space-y-3 transition-all hover:shadow-md">
+              <div class="flex items-start gap-3">
+                <img :src="post.image || (post.id % 2 === 0 ? 'assets/project-city.jpg' : 'assets/project-fuji.webp')"
+                     :alt="post.referral.posisi"
+                     class="w-11 h-11 rounded-[10px] object-cover border border-[#E3E4E9] shrink-0">
+                <div class="min-w-0 flex-1">
+                  <h3 class="text-[15px] font-semibold text-[#0C1117] leading-snug line-clamp-2 hover:text-[#326ECE]" x-text="post.referral.posisi"></h3>
+                  <p class="text-[12.5px] text-[#6B7280] mt-0.5 truncate">
+                    <span class="text-[#326ECE] font-medium" x-text="post.referral.perusahaan"></span>
+                    <span> · </span>
+                    <span x-text="post.authorName"></span>
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium bg-[#EBF3FB] text-[#2B5282]" x-text="post.referral.level"></span>
+                <span class="px-2.5 py-1 rounded-[8px] text-[11.5px] font-medium"
+                      :class="isClosed(post) ? 'bg-[#E4EBF3] text-[#4B5563]' : 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60'"
+                      x-text="isClosed(post) ? 'Ditutup' : 'Terbuka'"></span>
+              </div>
+
+              <p class="text-[13px] text-[#212224] line-clamp-2 leading-[1.6]" x-text="post.content"></p>
+
+              <div class="flex items-center justify-between pt-1 text-[12.5px] text-[#6B7280]">
+                <span x-text="'Batas: ' + formatDate(post.referral.batas)"></span>
+                <span class="font-medium text-[#3A5988]">Lihat Detail →</span>
+              </div>
+            </a>
+          </template>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- MODAL: FORMULIR MINTA REFERRAL -->
+  <template x-if="ajukanModalOpen && ajukanPost">
+    <div class="fixed inset-0 z-[120] flex items-center justify-center p-4 max-sm:p-0 max-sm:items-end bg-[#0C1117]/50 backdrop-blur-[2px]"
+         @click.self="ajukanModalOpen = false"
+         @keydown.window.escape="ajukanModalOpen = false">
+      <div class="w-full max-w-[840px] max-h-[88vh] max-sm:max-h-[92vh] max-sm:h-[92vh] bg-white rounded-[20px] max-sm:rounded-t-[20px] max-sm:rounded-b-none border border-[#E3E4E9] shadow-2xl overflow-hidden flex flex-col">
+
+        <div class="h-[72px] px-6 lg:px-8 border-b border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full bg-[#E2F1F9] text-[#3A5988] flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            </div>
+            <div class="min-w-0">
+              <h3 class="text-[17px] font-semibold text-[#0C1117] tracking-[-0.01em]">Formulir Minta Referral</h3>
+              <p class="text-[12.5px] text-[#6B7280] truncate">
+                Ajukan permohonan referral ke <strong class="text-[#212224] font-medium" x-text="ajukanPost.authorName"></strong> (<span x-text="ajukanPost.referral.perusahaan"></span>)
+              </p>
+            </div>
+          </div>
+          <button type="button" @click="ajukanModalOpen = false" class="w-9 h-9 rounded-full bg-[#F4F5F7] hover:bg-[#E5E9EC] text-[#5F6672] hover:text-[#0C1117] flex items-center justify-center text-sm font-medium transition-colors shrink-0">✕</button>
+        </div>
+
+        <form @submit.prevent="submitAjukanReferral()" class="flex-1 flex flex-col overflow-hidden">
+          <div class="p-6 lg:p-8 space-y-5 overflow-y-auto flex-1">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="space-y-1.5">
+                <label class="font-medium text-[#212224] text-[13.5px] block">Pengaju Referral</label>
+                <div class="h-11 px-4 rounded-[10px] bg-[#F8FAFC] border border-[#E3E4E9] flex items-center justify-between text-[14px]">
+                  <span class="font-medium text-[#0C1117]" x-text="currentUserName">Aisha Dwi Rahmawati</span>
+                </div>
+              </div>
+
+              <div class="space-y-1.5">
+                <label class="font-medium text-[#212224] text-[13.5px] block">Lowongan yang Dituju</label>
+                <div class="h-11 px-4 rounded-[10px] bg-[#F8FAFC] border border-[#E3E4E9] flex items-center justify-between text-[14px]">
+                  <div class="truncate mr-2">
+                    <span class="font-medium text-[#0C1117]" x-text="ajukanPost.referral.posisi"></span>
+                    <span class="text-[#6B7280]"> · </span>
+                    <span class="text-[#326ECE] font-medium" x-text="ajukanPost.referral.perusahaan"></span>
+                  </div>
+                  <span class="text-[12px] font-medium text-[#2B7A5B] bg-[#E9F7F8] px-2.5 py-0.5 rounded-full shrink-0" x-text="ajukanPost.referral.level"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="font-medium text-[#212224] text-[13.5px]">CV Profil Terlampir</label>
+                <button type="button" @click="setToast('Membuka pratinjau CV...')" class="text-[12px] text-[#326ECE] hover:underline cursor-pointer">Pratinjau CV</button>
+              </div>
+              <div class="h-11 px-4 rounded-[10px] bg-[#F8FAFC] border border-[#E3E4E9] flex items-center justify-between text-[14px]">
+                <div class="flex items-center gap-2 truncate mr-2">
+                  <svg class="w-4 h-4 text-[#B4325F] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <span class="font-medium text-[#0C1117] text-[13.5px] truncate" x-text="myCvFileName"></span>
+                </div>
+                <span class="text-[12px] text-[#6B7280] shrink-0">Otomatis dari Data Profil Alumni</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <label class="font-medium text-[#212224] text-[13.5px] block">Pesan & Pitching Keahlian <span class="text-[#B4325F]">*</span></label>
+                <span class="text-[12px] text-[#6B7280]"><span x-text="ajukanPesan.length"></span>/250 karakter</span>
+              </div>
+              <textarea x-model="ajukanPesan"
+                        rows="5"
+                        maxlength="250"
+                        required
+                        placeholder="Ceritakan peran yang ingin Anda ambil dan portofolio relevan..."
+                        class="w-full p-4 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 text-[14px] text-[#212224] transition-all resize-none leading-relaxed placeholder:text-[#91969C]"></textarea>
+            </div>
+          </div>
+
+          <div class="h-[72px] px-6 lg:px-8 border-t border-[#E3E4E9] flex items-center justify-between shrink-0 bg-white">
+            <button type="button" @click="ajukanModalOpen = false" class="h-11 px-5 rounded-[8px] border border-[#E3E4E9] text-[#212224] hover:bg-[#F4F5F7] text-[14px] font-medium transition-colors cursor-pointer">Batal</button>
+            <button type="submit" class="h-11 px-7 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] text-white text-[14.5px] font-semibold transition-colors flex items-center gap-2 cursor-pointer shadow-sm">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              <span>Kirim Pengajuan Referral</span>
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </template>
+
+  <script>mountAlumniPortal(document.querySelector("main"));</script>
+</body>
+</html>
+

@@ -26,7 +26,7 @@
     return {
       id: p.id, sumber: 'alumni', penulis: p.authorName, peran: 'Alumni', foto: p.authorAvatar || '', headline: p.authorHeadline || '',
       waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, referral: p.referral || null, pengajuan: p.pengajuan || [],
-      kategori: kategoriDari(p, isi), pertanyaan: false, tag: p.tagRekap || '',
+      kategori: kategoriDari(p, isi), pertanyaan: false,
       suka: p.likes || 0, disukaiSaya: (p.disukai || []).includes(nama), komentar: (p.komentarForum || []).map(keKomentar),
     };
   }
@@ -36,7 +36,7 @@
     return {
       id: -f.id, sumber: 'forum', penulis: f.penulis, peran: f.peran || 'Alumni', foto: f.foto || '', headline: f.headline || '',
       waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, referral: f.referral || null, pengajuan: f.pengajuan || [],
-      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan, tag: f.tagRekap || '',
+      kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan,
       suka: (f.disukai || []).length, disukaiSaya: (f.disukai || []).includes(nama), komentar: (f.comments || []).map(keKomentar),
     };
   }
@@ -164,10 +164,6 @@
       });
     },
 
-    beriTag(id, tag) {
-      return ubahMentah(id, p => { p.tagRekap = tag; });
-    },
-
     hapus(id) {
       if (id > 0) savePosts(loadPosts().filter(p => p.id !== id));
       else BengkodStore.saveForum(BengkodStore.getForum().filter(f => f.id !== -id));
@@ -178,16 +174,19 @@
       const p = this.cari(id);
       if (!p) return { ok: false, error: 'Postingan tidak ditemukan.' };
       const judul = p.karya?.nama || (p.isi ? (p.isi.slice(0, 80) + (p.isi.length > 80 ? '…' : '')) : 'Postingan Media');
-      if (typeof BengkodStore !== 'undefined' && BengkodStore.addLaporan) {
-        BengkodStore.addLaporan({
-          id_post: id,
-          judul_post: judul,
-          penulis_post: p.penulis,
-          pelapor,
-          peran_pelapor: peran,
-          alasan,
-          catatan,
-        });
+      if (!BengkodStore.addLaporan({
+        id_post: id,
+        judul_post: judul,
+        penulis_post: p.penulis,
+        pelapor,
+        peran_pelapor: peran,
+        alasan,
+        catatan,
+      })) {
+        return { ok: false, error: 'Laporan gagal disimpan. Coba lagi.' };
+      }
+      if (typeof antreNotifKoordinator === 'function') {
+        antreNotifKoordinator('flag', `${pelapor} melaporkan postingan "${judul}".`, 'laporan-forum.html');
       }
       return { ok: true };
     },

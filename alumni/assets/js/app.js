@@ -3,14 +3,16 @@
  * Dimuat di <head> setelah Tailwind CDN, data.js, dan sebelum main.js.
  */
 
+// Palet mengikuti desain portal modern: Inter, biru #3A5988, kanvas #F8FAFC
 tailwind.config = {
   theme: {
     extend: {
-      fontFamily: { sans: ['Poppins', 'sans-serif'] },
+      fontFamily: { sans: ['Inter', 'sans-serif'] },
       colors: {
-        primary1: '#1E3A8A', primary2: '#1D4ED8', primary3: '#3B82F6', primary4: '#93C5FD', primary5: '#DBEAFE',
-        secondary1: '#FFC150', secondary2: '#FFCD73', secondary3: '#FFE0A8', secondary4: '#DEDFE1',
-        neutral1: '#46494E', neutral2: '#55585E', neutral3: '#6B6E76', neutral4: '#DEDFE1', neutral5: '#F4F4F4', neutral6: '#FFFFFF',
+        primary1: '#3A5988', primary2: '#496DA8', primary3: '#326ECE', primary4: '#B7C8E0', primary5: '#E2F1F9',
+        secondary1: '#FFC150', secondary2: '#FFCD73', secondary3: '#FFE0A8', secondary4: '#E3E4E9',
+        neutral1: '#212224', neutral2: '#4B5563', neutral3: '#6B7280', neutral4: '#E3E4E9', neutral5: '#F4F5F7', neutral6: '#FFFFFF',
+        canvas: '#F8FAFC', headline: '#0C1117', aktif: '#E5E9EC',
         green1: '#1C6A1A', green2: '#068913', green3: '#CDFECF',
         red1: '#B00B0B', red2: '#D73D3D', red3: '#FCC6CD',
         yellow1: '#8F6F00', yellow2: '#FFCE22', yellow3: '#FFECAA',
@@ -20,22 +22,33 @@ tailwind.config = {
   },
 };
 
-document.head.insertAdjacentHTML('beforeend', `<style type="text/tailwindcss">
+document.head.insertAdjacentHTML('beforeend', `
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  html, html body { font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #212224; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+</style>
+<style type="text/tailwindcss">
 @layer components {
-  .card { @apply bg-white rounded-xl border border-neutral4 p-6; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-  .th { @apply bg-neutral5 text-neutral2 text-xs font-semibold uppercase tracking-wider py-3.5 px-4 text-left border-b border-neutral4 whitespace-nowrap; }
-  .tr { @apply border-b border-neutral4 hover:bg-blue-50/40 text-sm text-neutral1 transition-colors; }
-  .td { @apply py-3.5 px-4 align-top; }
-  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-4 disabled:opacity-40 disabled:cursor-not-allowed; }
-  .btn-primary { @apply btn text-white bg-primary1 hover:bg-primary2 focus:ring-primary5; }
-  .btn-outline { @apply btn text-neutral1 bg-white hover:bg-neutral5 border border-neutral4 focus:ring-neutral5; }
+  .card { @apply bg-white rounded-[16px] border border-neutral4 p-6 shadow-sm; }
+  .th { @apply bg-white text-neutral3 text-[13px] font-medium py-3.5 px-4 text-left border-b border-neutral4 whitespace-nowrap; }
+  .tr { @apply border-b border-neutral4 hover:bg-[#F9FAFB] text-[13.5px] text-neutral1 transition-colors; }
+  .td { @apply py-4 px-4 align-top; }
+  .btn { @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 text-[13.5px] font-medium rounded-[8px] transition-colors duration-150 focus:outline-none focus:ring-2 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer; }
+  .btn-primary { @apply btn text-white bg-primary1 hover:bg-primary2 active:bg-[#2F4B76] shadow-sm focus:ring-primary1/25; }
+  .btn-outline { @apply btn text-neutral1 bg-white hover:bg-neutral5 border border-neutral4 focus:ring-primary1/15; }
   .btn-danger { @apply btn text-white bg-red2 hover:bg-red1 focus:ring-red3; }
   .btn-success { @apply btn text-white bg-green2 hover:bg-green1 focus:ring-green3; }
-  .btn-icon { @apply p-2 rounded-lg text-neutral2 hover:bg-primary5 hover:text-primary1 focus:outline-none focus:ring-2 focus:ring-primary3 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent; }
-  .label { @apply block text-sm font-medium text-neutral2 mb-1.5; }
-  .input { @apply block w-full px-3.5 py-2.5 border border-neutral4 rounded-md text-neutral1 bg-white placeholder-neutral3 focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 text-sm transition-all duration-150; }
-  .modal-backdrop { @apply fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4; }
-  .modal { @apply bg-white rounded-2xl w-full p-6 max-h-[90vh] overflow-y-auto; box-shadow: 0 12px 16px rgba(0, 0, 0, 0.1); }
+  .btn-icon { @apply p-2 rounded-[8px] text-neutral3 hover:bg-neutral5 hover:text-headline focus:outline-none focus:ring-2 focus:ring-primary1/20 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent; }
+  .label { @apply block text-[13.5px] font-medium text-headline mb-1.5; }
+  .input { @apply block w-full px-3.5 py-2.5 border border-neutral4 rounded-[8px] text-neutral1 bg-white placeholder-[#91969C] focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 text-[13.5px] transition-colors duration-150; }
+  .modal-backdrop { @apply fixed inset-0 z-50 bg-headline/40 backdrop-blur-sm hidden items-center justify-center p-4; }
+  .modal { @apply bg-white rounded-[20px] border border-neutral4 w-full p-6 max-h-[90vh] overflow-y-auto shadow-xl; }
 }
 </style>`);
 
@@ -47,7 +60,7 @@ const DASHBOARD = { alumni: 'dashboard.html', admin: '../koordinator/dashboard.h
 const NAMA_FILE = location.pathname.split('/').pop() || 'dashboard.html';
 
 if (ROLE_HALAMAN && SAYA?.role !== ROLE_HALAMAN) {
-  location.replace(ROLE_HALAMAN === 'admin' ? '../koordinator/login.html' : 'login.html');
+  location.replace('../login.html');
 } else if (ROLE_HALAMAN === 'alumni' && NAMA_FILE !== 'isi-data.html' && !DB.tracer.milik(SAYA.id)) {
   // First login: alumni mengisi data dulu sebelum masuk portal
   location.replace('isi-data.html');
@@ -218,7 +231,7 @@ function confirmAction({ title, message, okLabel = 'Ya, Lanjutkan', danger = fal
   document.getElementById('confirm-message').textContent = message;
   const ok = document.getElementById('confirm-ok');
   ok.textContent = okLabel;
-  ok.className = `px-4 py-2 text-white text-sm font-medium rounded-lg focus:outline-none focus:ring-4 ${danger ? 'bg-red2 hover:bg-red1 focus:ring-red3' : 'bg-primary1 hover:bg-primary2 focus:ring-primary5'}`;
+  ok.className = `px-4 py-2.5 text-white text-[13.5px] font-medium rounded-[8px] shadow-sm cursor-pointer focus:outline-none focus:ring-2 ${danger ? 'bg-red-600 hover:bg-red-700 focus:ring-red-200' : 'bg-primary1 hover:bg-primary2 focus:ring-primary1/25'}`;
   pendingConfirm = onOk;
   openModal('confirm-modal');
 }
@@ -233,10 +246,10 @@ function downloadCSV(filename, rows) {
   URL.revokeObjectURL(a.href);
 }
 
-// Tombol Salin, Ekspor ke Excel, dan Cetak seperti tabel DataTables di monolight
-function pasangToolsTabel(idWadah, namaFile, ambilBaris) {
+// Tombol Salin (opsional), Ekspor ke Excel, dan Cetak
+function pasangToolsTabel(idWadah, namaFile, ambilBaris, { salin = true } = {}) {
   document.getElementById(idWadah).innerHTML = `
-    <button type="button" data-aksi="salin" class="btn-outline"><i data-lucide="copy" class="w-4 h-4"></i> Salin</button>
+    ${salin ? '<button type="button" data-aksi="salin" class="btn-outline"><i data-lucide="copy" class="w-4 h-4"></i> Salin</button>' : ''}
     <button type="button" data-aksi="excel" class="btn-outline"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Ekspor ke Excel</button>
     <button type="button" data-aksi="cetak" class="btn-outline"><i data-lucide="printer" class="w-4 h-4"></i> Cetak</button>`;
   document.getElementById(idWadah).addEventListener('click', async e => {
@@ -277,7 +290,7 @@ function renderPager(idWadah, total, perHalaman, halaman, keHalaman) {
           <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
           <span>Sebelumnya</span>
         </button>
-        <span class="px-2.5 py-1 text-xs font-semibold text-[#1E3A8A] bg-blue-50 border border-blue-100 rounded-lg">
+        <span class="px-2.5 py-1 text-xs font-semibold text-[#3A5988] bg-blue-50 border border-blue-100 rounded-lg">
           ${halaman} / ${jumlah}
         </span>
         <button type="button" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer" data-ke="${halaman + 1}" ${halaman >= jumlah ? 'disabled' : ''}>
@@ -309,52 +322,47 @@ function bacaGambar(file, maksKB) {
 }
 
 function kartuKosong(ikon, judul, sub = '') {
-  return `<div class="bg-white rounded-xl border border-neutral4 p-12 text-center text-neutral3">
-    <i data-lucide="${ikon}" class="w-10 h-10 mx-auto mb-3 text-neutral4"></i>
-    <p class="text-[15px] font-medium">${esc(judul)}</p>
-    ${sub ? `<p class="text-sm mt-1">${esc(sub)}</p>` : ''}
+  return `<div class="bg-white rounded-[16px] border border-neutral4 shadow-sm p-12 text-center text-neutral3">
+    <i data-lucide="${ikon}" class="w-10 h-10 mx-auto mb-3 text-[#CBD5E1]"></i>
+    <p class="text-[15px] font-medium text-headline">${esc(judul)}</p>
+    ${sub ? `<p class="text-[13.5px] mt-1">${esc(sub)}</p>` : ''}
   </div>`;
 }
 
-// Banner sapaan dashboard
+// Sapaan di atas dashboard, gaya judul halaman alumni v3
 function bannerSapaan(nama, keterangan) {
-  const tanggal = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+  const tanggal = new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   return `
-  <div class="relative rounded-2xl overflow-hidden shadow-md" style="background: linear-gradient(135deg, #1E3A8A 0%, #1D4ED8 50%, #2563EB 100%); min-height: 95px;">
-    <div class="absolute inset-0 bg-gradient-to-r from-blue-950/80 via-blue-900/50 to-transparent pointer-events-none"></div>
-    <div class="absolute -right-10 -bottom-10 w-64 h-64 rounded-full bg-white/5 blur-2xl pointer-events-none"></div>
-    <div class="absolute right-32 -top-10 w-48 h-48 rounded-full bg-blue-400/10 blur-xl pointer-events-none"></div>
-    <div class="relative z-10 px-6 sm:px-8 py-5 flex flex-col justify-center">
-      <p class="text-[10px] font-semibold uppercase tracking-widest text-white/70 mb-1">${tanggal}</p>
-      <h1 class="text-xl sm:text-2xl font-bold text-white mb-1 leading-tight">Halo, ${esc(nama)}!</h1>
-      <p class="text-xs sm:text-[12px] text-white/80 max-w-xl leading-relaxed">${esc(keterangan)}</p>
-    </div>
+  <div class="bg-white border border-neutral4 rounded-[16px] shadow-sm px-5 sm:px-6 py-5">
+    <p class="text-[12px] font-medium text-neutral3">${tanggal}</p>
+    <h1 class="!text-[22px] sm:!text-[26px] font-semibold text-headline tracking-[-0.01em] leading-tight mt-1">Halo, ${esc(nama)}!</h1>
+    <p class="!text-[13.5px] text-neutral3 mt-1 max-w-2xl leading-relaxed">${esc(keterangan)}</p>
   </div>`;
 }
 
+// [latar ikon, warna ikon]: warna lembut yang dipakai badge di halaman alumni v3
 const WARNA_KARTU = {
-  ungu: ['#5b21b6', '#7c3aed', '#C4B5FD'],
-  hijau: ['#0f766e', '#0d9488', '#99F6E4'],
-  oranye: ['#9a3412', '#ea580c', '#FED7AA'],
-  merah: ['#9f1239', '#e11d48', '#FECDD3'],
-  biru: ['#1E3A8A', '#2563EB', '#BFDBFE'],
+  ungu: ['#F5F0FF', '#6E39C2'],
+  hijau: ['#E9F7F8', '#2B7A5B'],
+  oranye: ['#FDF0DD', '#B26A12'],
+  merah: ['#FAD9E9', '#B4325F'],
+  biru: ['#E2F1F9', '#3A5988'],
 };
 
-// Kartu pintasan bergradien (StatCard di prototype)
-function kartuPintasan({ href, ikon, label, nilai, sub, warna }) {
-  const [dari, ke, teks] = WARNA_KARTU[warna];
+// Kartu statistik di panel ringkasan dashboard.
+function kartuPintasan({ href, ikon, label, nilai, sub, warna, span = '' }) {
+  const [latar, teks] = WARNA_KARTU[warna];
   return `
-    <a href="${href}" class="relative rounded-2xl overflow-hidden p-3.5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl flex items-center gap-3.5 group cursor-pointer" style="background: linear-gradient(135deg,${dari} 0%,${ke} 100%);">
-      <span class="absolute -top-6 -right-6 w-20 h-20 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.08);"></span>
-      <span class="absolute top-6 -right-1 w-12 h-12 rounded-full pointer-events-none" style="background: rgba(255,255,255,0.05);"></span>
-      <div class="relative z-10 w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white" style="background: rgba(255,255,255,0.18);">
-        <i data-lucide="${ikon}" class="w-5 h-5"></i>
-      </div>
-      <div class="relative z-10 flex-1 min-w-0">
-        <p class="text-[10px] font-semibold uppercase tracking-wider mb-0.5" style="color: ${teks};">${esc(label)}</p>
-        <p class="text-[22px] font-bold text-white leading-none">${esc(nilai)}</p>
-        <p class="text-[10px] mt-1" style="color: ${teks};">${esc(sub)}</p>
-      </div>
+    <a href="${href}" class="group bg-white border border-neutral4 rounded-[16px] p-4 sm:p-5 shadow-sm flex flex-col justify-between gap-4 min-w-0 hover:border-primary4 hover:shadow-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/30 ${span}">
+      <span class="flex items-center justify-between gap-3">
+        <span class="w-10 h-10 rounded-[11px] flex items-center justify-center shrink-0" style="background:${latar};color:${teks};"><i data-lucide="${ikon}" class="w-5 h-5"></i></span>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-neutral3/60 group-hover:text-primary1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" aria-hidden="true"></i>
+      </span>
+      <span class="block min-w-0">
+        <span class="block text-[13px] font-medium text-neutral2 leading-snug truncate">${esc(label)}</span>
+        <span class="block text-[28px] font-semibold text-headline leading-none tabular-nums mt-2">${esc(nilai)}</span>
+        <span class="block text-[12px] text-neutral3 leading-snug truncate mt-1.5">${esc(sub)}</span>
+      </span>
     </a>`;
 }
 
@@ -370,7 +378,7 @@ function grafikDonat(idCanvas, label, nilai, warna) {
       cutout: '60%',
       plugins: {
         legend: { display: false },
-        tooltip: { backgroundColor: '#FFFFFF', titleColor: '#46494E', bodyColor: '#55585E', borderColor: '#DEDFE1', borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true },
+        tooltip: { backgroundColor: '#FFFFFF', titleColor: '#0C1117', bodyColor: '#4B5563', borderColor: '#E3E4E9', borderWidth: 1, padding: 10, boxPadding: 4, usePointStyle: true },
       },
     },
   });
@@ -390,9 +398,9 @@ const NAV = {
   alumni: [
     { href: 'dashboard.html', icon: 'house', label: 'Beranda' },
     { href: 'direktori.html', icon: 'users', label: 'Alumni' },
-    { href: 'showcase.html', icon: 'rocket', label: 'Showcase' },
-    { href: 'gigs.html', icon: 'briefcase-business', label: 'Gigs & Proyek' },
-    { href: 'referral.html', icon: 'handshake', label: 'Referral' },
+    { href: 'showcase.html', icon: 'rocket', label: 'Karya' },
+    { href: 'gigs.html', icon: 'briefcase-business', label: 'Proyek' },
+    { href: 'referral.html', icon: 'handshake', label: 'Lowongan' },
     { href: 'data-cv.html', icon: 'file-text', label: 'Data CV' },
     { href: 'profil.html', icon: 'user-round', label: 'Profil Saya' },
   ],
@@ -402,6 +410,7 @@ const NAV = {
     { href: 'laporan-forum.html', icon: 'flag', label: 'Laporan Forum' },
     { href: 'tracer.html', icon: 'chart-column', label: 'Statistik & Tracer' },
     { href: 'data-alumni.html', icon: 'id-card', label: 'Data Alumni' },
+    { href: 'mitra.html', icon: 'building-2', label: 'Mitra' },
     { href: 'karya.html', icon: 'trophy', label: 'Karya Alumni' },
     { href: 'pengumuman.html', icon: 'megaphone', label: 'Pengumuman' },
   ],
@@ -417,16 +426,69 @@ function hitungLaporanMenunggu() {
 }
 
 window.segarkanBadgeSidebar = function () {
-  const el = document.getElementById('badge-laporan-sidebar');
-  if (!el) return;
   const count = hitungLaporanMenunggu();
-  el.textContent = count;
-  el.classList.toggle('hidden', count === 0);
+  document.querySelectorAll('#badge-laporan-sidebar, [data-nav-badge="laporan-forum.html"]').forEach(el => {
+    el.textContent = count;
+    el.classList.toggle('hidden', count === 0);
+    el.hidden = count === 0;
+  });
 };
 
+// Kerangka portal koordinator memakai portal-layout.js milik alumni (desain alumni v3), dengan menu sendiri
+const PORTAL_KOORDINATOR = {
+  routes: {
+    'dashboard.html': ['Dashboard'],
+    'forum.html': ['Forum'],
+    'forum-detail.html': ['Detail Diskusi', 'forum.html'],
+    'laporan-forum.html': ['Laporan Forum'],
+    'tracer.html': ['Statistik & Tracer'],
+    'detail-kelulusan.html': ['Detail Angkatan', 'tracer.html'],
+    'data-alumni.html': ['Data Alumni'],
+    'profil-alumni.html': ['Profil Alumni', 'data-alumni.html'],
+    'mitra.html': ['Mitra'],
+    'karya.html': ['Karya Alumni'],
+    'pengumuman.html': ['Pengumuman'],
+    'notifikasi.html': ['Notifikasi'],
+    'profil.html': ['Profil Saya'],
+  },
+  groups: [
+    ['Menu Utama', [['dashboard.html', 'home'], ['data-alumni.html', 'idcard'], ['tracer.html', 'chart'], ['mitra.html', 'building']]],
+    ['Komunitas', [['forum.html', 'chat'], ['laporan-forum.html', 'flag', 0], ['karya.html', 'trophy'], ['pengumuman.html', 'megaphone']]],
+  ],
+  home: 'dashboard.html',
+  root: 'Koordinator',
+  brand: 'Portal Koordinator',
+  label: 'koordinator',
+  accountLinks: [['profil.html', 'Profil Saya']],
+};
+
+const adalahNotifKoordinator = n => (
+  n.ikon === 'flag' ||
+  n.ikon === 'rocket' ||
+  String(n.tautan || '').startsWith('laporan-forum') ||
+  String(n.tautan || '').startsWith('karya')
+);
+const jenisNotifPortal = ikon => (ikon === 'rocket' ? 'gigs' : 'announcement');
+const picuPerubahanNotifPortal = () => window.dispatchEvent(new CustomEvent('bengkod:notifications-change'));
+
+// Notifikasi koordinator (DB.notifikasi) — khusus laporan forum masuk & alumni meluncurkan karya
+const NOTIF_PORTAL = {
+  getAll: () => DB.notifikasi.milik(SAYA.id).filter(adalahNotifKoordinator).map(n => ({
+    id: String(n.id), kind: jenisNotifPortal(n.ikon), title: n.pesan, meta: waktuLalu(n.waktu), href: n.tautan, unread: !n.dibaca,
+  })),
+  markRead: id => { DB.notifikasi.baca(id); picuPerubahanNotifPortal(); },
+  markAllRead: () => { DB.notifikasi.bacaSemua(SAYA.id); picuPerubahanNotifPortal(); },
+  remove: id => { DB.notifikasi.hapus(id); picuPerubahanNotifPortal(); },
+  clear: () => { DB.notifikasi.hapusSemua(SAYA.id); picuPerubahanNotifPortal(); },
+  allHref: 'notifikasi.html',
+};
+window.NOTIF_KOORDINATOR = NOTIF_PORTAL;
+
 function keluar() {
-  DB.akun.keluar();
-  location.href = '../index.html';
+  confirmAction({ title: 'Keluar dari portal?', message: 'Sesi Anda di perangkat ini akan diakhiri. Masuk lagi lewat halaman login.', okLabel: 'Keluar', danger: true }, () => {
+    DB.akun.keluar();
+    location.href = '../login.html?keluar=1';
+  });
 }
 
 // Menu lipat di topbar: tutup saat klik di luar menu atau menekan Escape
@@ -450,63 +512,6 @@ function pasangDropdown(tombol, panel) {
 
 let notifHalaman = 1;
 const NOTIF_PER_HALAMAN = 5;
-let filterModalNotif = 'semua';
-let halModalNotif = 1;
-const NOTIF_MODAL_PER_HAL = 6;
-
-function bukaModalSemuaNotif() {
-  document.getElementById('notif-panel')?.classList.add('hidden');
-  renderModalSemuaNotif();
-  openModal('modal-semua-notif');
-}
-
-function renderModalSemuaNotif() {
-  const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
-  const terfilter = filterModalNotif === 'belum' ? list.filter(n => !n.dibaca) : list;
-  const belum = list.filter(n => !n.dibaca).length;
-  const total = terfilter.length;
-  const awal = (halModalNotif - 1) * NOTIF_MODAL_PER_HAL;
-  const itemDitampilkan = terfilter.slice(awal, awal + NOTIF_MODAL_PER_HAL);
-
-  const btnSemua = document.getElementById('btn-tab-notif-semua');
-  const btnBelum = document.getElementById('btn-tab-notif-belum');
-  if (btnSemua && btnBelum) {
-    const isSemua = filterModalNotif === 'semua';
-    btnSemua.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${isSemua ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
-    btnBelum.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${!isSemua ? 'bg-[#1E3A8A] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
-  }
-
-  const wadah = document.getElementById('modal-notif-daftar');
-  if (!wadah) return;
-
-  wadah.innerHTML = itemDitampilkan.map(n => `
-    <div class="flex items-start gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/70 transition-colors ${n.dibaca ? 'bg-white' : 'bg-blue-50/30 border-blue-100'}">
-      <span class="w-9 h-9 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'} flex items-center justify-center shrink-0 mt-0.5">
-        <i data-lucide="${esc(n.ikon)}" class="w-4 h-4"></i>
-      </span>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-start justify-between gap-2">
-          <a href="${esc(n.tautan)}" onclick="DB.notifikasi.baca(${n.id})" class="text-[14px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-bold'} hover:text-[#1E3A8A] leading-snug">
-            ${esc(n.pesan)}
-          </a>
-          ${!n.dibaca ? '<span class="px-2 py-0.5 rounded-full bg-blue-100 text-[#1E3A8A] text-[10.5px] font-bold shrink-0">Baru</span>' : ''}
-        </div>
-        <p class="text-xs text-gray-400 mt-1">${waktuLalu(n.waktu)}</p>
-        <div class="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-100/80">
-          ${!n.dibaca ? `<button type="button" onclick="DB.notifikasi.baca(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai telah dibaca</button>` : ''}
-          <button type="button" onclick="DB.notifikasi.hapus(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto flex items-center gap-1">
-            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Hapus</span>
-          </button>
-        </div>
-      </div>
-    </div>`).join('') || `<div class="p-12 text-center text-gray-400"><i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-sm">Tidak ada notifikasi ${filterModalNotif === 'belum' ? 'yang belum dibaca' : ''}.</p></div>`;
-
-  renderPager('modal-notif-pager', total, NOTIF_MODAL_PER_HAL, halModalNotif, ke => {
-    halModalNotif = ke;
-    renderModalSemuaNotif();
-  });
-  refreshIcons();
-}
 
 function renderNotifikasi() {
   const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
@@ -535,34 +540,34 @@ function renderNotifikasi() {
         ${belum ? `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-700 text-[11px] font-bold">${belum} baru</span>` : ''}
       </div>
       <div class="flex items-center gap-2">
-        ${belum ? '<button type="button" data-baca-semua class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>' : ''}
+        ${belum ? '<button type="button" data-baca-semua class="text-xs font-semibold text-[#3A5988] hover:underline cursor-pointer">Tandai semua dibaca</button>' : ''}
         ${total ? '<button type="button" data-hapus-semua class="text-xs text-gray-400 hover:text-red-600 transition-colors cursor-pointer" title="Hapus semua notifikasi"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button>' : ''}
       </div>
     </div>
     <div class="max-h-80 overflow-y-auto divide-y divide-gray-100">
       ${itemDitampilkan.map(n => `
         <div class="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${n.dibaca ? 'bg-white' : 'bg-blue-50/40'}">
-          <span class="w-8 h-8 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#1E3A8A]'} flex items-center justify-center shrink-0 mt-0.5">
+          <span class="w-8 h-8 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#3A5988]'} flex items-center justify-center shrink-0 mt-0.5">
             <i data-lucide="${esc(n.ikon)}" class="w-4 h-4"></i>
           </span>
           <div class="min-w-0 flex-1">
             <a href="${esc(n.tautan)}" data-notif="${n.id}" class="block group/link">
-              <span class="block text-[13px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-semibold'} leading-snug group-hover/link:text-[#1E3A8A] transition-colors">${esc(n.pesan)}</span>
+              <span class="block text-[13px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-semibold'} leading-snug group-hover/link:text-[#3A5988] transition-colors">${esc(n.pesan)}</span>
               <span class="block text-[11px] text-gray-400 mt-1">${waktuLalu(n.waktu)}</span>
             </a>
             <div class="flex items-center gap-3 mt-1.5 pt-0.5">
-              ${!n.dibaca ? `<button type="button" data-baca-item="${n.id}" class="text-[11px] font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai dibaca</button>` : ''}
+              ${!n.dibaca ? `<button type="button" data-baca-item="${n.id}" class="text-[11px] font-semibold text-[#3A5988] hover:underline cursor-pointer">Tandai dibaca</button>` : ''}
               <button type="button" data-hapus-item="${n.id}" class="text-[11px] font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto">Hapus</button>
             </div>
           </div>
-          ${!n.dibaca ? '<span class="w-2 h-2 rounded-full bg-[#1E3A8A] shrink-0 mt-1.5" aria-label="Belum dibaca"></span>' : ''}
+          ${!n.dibaca ? '<span class="w-2 h-2 rounded-full bg-[#3A5988] shrink-0 mt-1.5" aria-label="Belum dibaca"></span>' : ''}
         </div>`).join('') || '<div class="p-8 text-center text-gray-400"><i data-lucide="bell-off" class="w-8 h-8 mx-auto mb-2 text-gray-300"></i><p class="text-sm">Belum ada notifikasi.</p></div>'}
     </div>
     ${total > 0 ? `
       <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs text-gray-600">
-        <button type="button" data-lihat-semua class="font-semibold text-[#1E3A8A] hover:underline cursor-pointer">
+        <a href="notifikasi.html" class="font-semibold text-[#3A5988] hover:underline">
           Lihat semua notif (${total})
-        </button>
+        </a>
         ${totalHalaman > 1 ? `
           <div class="flex items-center gap-1.5">
             <button type="button" data-notif-ke="${notifHalaman - 1}" ${notifHalaman <= 1 ? 'disabled' : ''} class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
@@ -587,28 +592,35 @@ document.addEventListener('DOMContentLoaded', () => {
     let badgeHTML = '';
     if (n.href === 'laporan-forum.html') {
       const count = hitungLaporanMenunggu();
-      badgeHTML = `<span id="badge-laporan-sidebar" class="ml-auto px-2 py-0.5 rounded-full text-[11px] font-bold ${active ? 'bg-white text-primary1' : 'bg-red2 text-white'} ${count === 0 ? 'hidden' : ''}">${count}</span>`;
+      badgeHTML = `<span id="badge-laporan-sidebar" class="ml-auto min-w-[20px] px-1.5 py-0.5 rounded-full text-[11px] font-semibold text-center bg-red-50 text-red-600 ${count === 0 ? 'hidden' : ''}">${count}</span>`;
     }
     return `<a href="${n.href}" ${active ? 'aria-current="page"' : ''}
-      class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-primary3 ${active ? 'text-white bg-primary1 shadow-sm' : 'text-neutral1 hover:bg-primary5 hover:text-primary1'}">
-      <i data-lucide="${n.icon}" class="w-5 h-5 shrink-0"></i><span class="truncate">${n.label}</span>${badgeHTML}</a>`;
+      class="flex items-center gap-3 px-3.5 py-2.5 rounded-[8px] text-[14px] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/25 ${active ? 'font-semibold bg-aktif text-headline' : 'font-medium text-neutral3 hover:bg-neutral5 hover:text-headline'}">
+      <i data-lucide="${n.icon}" class="w-4 h-4 shrink-0 ${active ? 'text-primary3' : 'text-neutral3'}"></i><span class="truncate">${n.label}</span>${badgeHTML}</a>`;
   }).join('');
 
+  const subPortal = SAYA.role === 'admin' ? 'Portal Koordinator UDINUS' : 'Portal Alumni UDINUS';
   document.body.insertAdjacentHTML('afterbegin', `
-    <div id="sidebar-overlay" class="fixed inset-0 bg-neutral1/40 backdrop-blur-sm z-40 hidden"></div>
-    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu ${NAMA_ROLE[SAYA.role]}">
-      <div class="flex items-center justify-between py-4 px-4 border-b border-neutral4">
-        <a href="${nav[0].href}" class="flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-primary1">
-          <img src="../assets/images/bengkelkoding-text.webp" alt="Bengkel Koding Logo" class="h-8 w-auto object-contain">
-        </a>
-        <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-lg text-neutral2 hover:bg-neutral5 hover:text-neutral1 transition-colors cursor-pointer" aria-label="Tutup menu">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
+    <div id="sidebar-overlay" class="fixed inset-0 bg-headline/40 backdrop-blur-sm z-40 hidden"></div>
+    <aside id="sidebar" class="fixed top-0 left-0 bottom-0 w-64 bg-white border-r border-neutral4 z-50 flex flex-col justify-between p-6 -translate-x-full transition-transform duration-300 ease-in-out" aria-label="Menu ${NAMA_ROLE[SAYA.role]}">
+      <div class="space-y-6 min-h-0 flex-1 flex flex-col">
+        <div class="flex items-center justify-between">
+          <a href="${nav[0].href}" class="flex items-center gap-3 rounded-[8px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/25">
+            <span class="w-9 h-9 rounded-[8px] bg-primary1 text-white flex items-center justify-center font-semibold text-[14px] shrink-0">BK</span>
+            <span>
+              <span class="block font-semibold text-[15px] tracking-[-0.01em] text-headline">Bengkel Koding</span>
+              <span class="block text-[12px] text-neutral3">${subPortal}</span>
+            </span>
+          </a>
+          <button id="sidebar-close-btn" type="button" class="lg:hidden p-1.5 rounded-[8px] text-neutral3 hover:bg-neutral5 hover:text-headline transition-colors cursor-pointer" aria-label="Tutup menu">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+        <nav class="flex-1 overflow-y-auto no-scrollbar space-y-1">${navItems}</nav>
       </div>
-      <nav class="flex-1 overflow-y-auto no-scrollbar p-3 space-y-1.5">${navItems}</nav>
-      <div class="p-3 border-t border-neutral4">
-        <button type="button" onclick="keluar()" class="flex items-center gap-3 w-full p-2.5 rounded-lg text-sm font-medium text-neutral2 hover:bg-red3/40 hover:text-red1 transition-colors cursor-pointer">
-          <i data-lucide="log-out" class="w-5 h-5"></i><span>Keluar</span></button>
+      <div class="pt-4 border-t border-neutral4">
+        <button type="button" onclick="keluar()" class="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-[8px] text-[13px] font-medium text-neutral3 hover:text-red-600 hover:bg-red-50/50 transition-colors cursor-pointer">
+          <i data-lucide="log-out" class="w-4 h-4"></i><span>Keluar</span></button>
       </div>
     </aside>`);
 
@@ -619,150 +631,105 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Breadcrumb dinamis: halaman berbasis ID mengambil nama entitas asli
   let breadcrumbHTML = '';
+  let judulDinamis = ''; // judul remah portal untuk halaman berbasis ID
   if (NAMA_FILE === 'profil-alumni.html' && idParam) {
     const a = DB.akun.cari(idParam);
+    judulDinamis = a?.nama || '';
     const namaAlumni = a ? esc(a.nama) : `Alumni #${esc(idParam)}`;
     breadcrumbHTML = `
-      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <a href="data-alumni.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Data Alumni</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <span class="font-medium text-neutral1 truncate">${namaAlumni}</span>`;
+      <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <a href="data-alumni.html" class="hover:text-headline transition-colors">Data Alumni</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <span class="font-medium text-headline truncate">${namaAlumni}</span>`;
   } else if (NAMA_FILE === 'forum-detail.html' && idParam) {
     const p = (typeof FeedBersama !== 'undefined' ? FeedBersama.cari(idParam) : null) || (DB.forum ? DB.forum.cari(idParam) : null);
-    const judul = p ? esc(p.judul || (p.isi ? (p.isi.slice(0, 32) + (p.isi.length > 32 ? '…' : '')) : 'Detail Diskusi')) : 'Detail Diskusi';
+    const judulMentah = p ? p.judul || (p.isi ? (p.isi.slice(0, 32) + (p.isi.length > 32 ? '…' : '')) : 'Detail Diskusi') : 'Detail Diskusi';
+    judulDinamis = judulMentah;
+    const judul = esc(judulMentah);
     breadcrumbHTML = `
-      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <a href="forum.html" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Forum</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <span class="font-medium text-neutral1 truncate">${judul}</span>`;
+      <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <a href="forum.html" class="hover:text-headline transition-colors">Forum</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <span class="font-medium text-headline truncate">${judul}</span>`;
   } else if (NAMA_FILE === 'detail-kelulusan.html') {
     const thn = esc(urlParams.get('tahun') || '2026');
+    judulDinamis = `Angkatan ${urlParams.get('tahun') || '2026'}`;
     breadcrumbHTML = `
-      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <a href="tracer.html?tab=statistik" class="text-neutral2 hover:text-primary1 transition-colors font-medium">Statistik & Tracer</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <span class="font-medium text-neutral1 truncate">Tahun Lulus ${thn}</span>`;
+      <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <a href="tracer.html" class="hover:text-headline transition-colors">Statistik &amp; Tracer</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <span class="font-medium text-headline truncate">Angkatan ${thn}</span>`;
   } else {
     breadcrumbHTML = `
-      <a href="${beranda}" class="text-neutral2 hover:text-primary1 transition-colors font-medium">${SAYA.role === 'admin' ? 'Koordinator' : 'Alumni'}</a>
-      <span class="mx-2 text-neutral3 select-none font-normal">›</span>
-      <span class="font-medium text-neutral1 truncate">${judulHalaman}</span>`;
+      <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
+      <span class="select-none" aria-hidden="true">/</span>
+      <span class="font-medium text-headline truncate">${judulHalaman}</span>`;
   }
 
   const wrapper = document.createElement('div');
   wrapper.id = 'main-wrapper';
   wrapper.className = 'lg:ml-64 min-h-screen flex flex-col transition-all duration-300';
   wrapper.innerHTML = `
-    <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-3 lg:px-6 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-2 min-w-0 flex-1">
-        <button
-          id="sidebar-toggle"
-          type="button"
-          class="inline-flex items-center justify-center p-2 text-neutral2 hover:bg-neutral5 hover:text-neutral1 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary5 transition-colors shrink-0 cursor-pointer"
-          aria-label="Toggle sidebar"
-          aria-expanded="true"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" height="22px" viewBox="0 0 24 24" width="22px" fill="currentColor">
-            <path d="M0 0h24v24H0V0z" fill="none"/>
-            <path d="M20 11H4c-.55 0-1 .45-1 1s.45 1 1 1h16c.55 0 1-.45 1-1s-.45-1-1-1zM4 18h10c.55 0-1 .45-1 1s.45 1 1 1H4c-.55 0-1-.45-1-1s.45-1-1-1zM20 6H4c-.55 0-1 .45-1 1v.01c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V7c0-.55-.45-1-1-1z"/>
-          </svg>
+    <header class="sticky top-0 z-30 bg-white border-b border-neutral4 h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0 flex-1">
+        <button id="sidebar-toggle" type="button" class="p-1.5 rounded-[8px] text-neutral3 hover:text-headline hover:bg-neutral5 transition-colors shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/25" aria-label="Buka atau tutup menu" aria-expanded="true">
+          <i data-lucide="menu" class="w-5 h-5"></i>
         </button>
-        <nav class="flex items-center text-sm text-neutral1 min-w-0 flex-1 ml-1" aria-label="Breadcrumb">${breadcrumbHTML}</nav>
+        <nav class="text-[13px] text-neutral3 flex items-center gap-2 min-w-0 flex-1" aria-label="Breadcrumb">${breadcrumbHTML}</nav>
       </div>
 
-      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <div class="flex items-center gap-3 shrink-0">
         <div class="relative flex items-center">
-          <button type="button" id="notif-btn" class="relative w-10 h-10 inline-flex items-center justify-center rounded-full text-neutral2 hover:bg-neutral5 hover:text-neutral1 focus:outline-none focus:ring-4 focus:ring-primary5 transition-colors cursor-pointer" aria-expanded="false" aria-label="Notifikasi">
-            <i data-lucide="bell" class="w-5 h-5"></i>
-            <span id="notif-jumlah" class="hidden absolute top-1 right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-red2 text-white text-[10.5px] font-bold leading-[18px] text-center ring-2 ring-white"></span>
+          <button type="button" id="notif-btn" class="relative w-10 h-10 rounded-[8px] border border-neutral4 flex items-center justify-center text-neutral1 hover:bg-neutral5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/25" aria-expanded="false" aria-label="Notifikasi">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span id="notif-jumlah" class="hidden absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-primary3 text-white text-[10.5px] font-semibold leading-[18px] text-center ring-2 ring-white"></span>
           </button>
-          <div id="notif-panel" class="hidden fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden"></div>
+          <div id="notif-panel" class="hidden fixed sm:absolute top-16 sm:top-12 inset-x-3 sm:inset-x-auto sm:right-0 sm:w-96 z-[70] rounded-[12px] bg-white border border-neutral4 shadow-xl overflow-hidden"></div>
         </div>
         <div class="relative flex items-center" id="profile-dropdown-wrapper">
-          <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 rounded-full p-0.5 sm:pl-3 text-sm hover:bg-neutral5 focus:outline-none focus:ring-4 focus:ring-primary5 transition-all cursor-pointer group" aria-expanded="false" aria-label="Menu Pengguna">
-            <div class="text-right hidden sm:block">
-              <div class="text-sm font-semibold text-neutral1 leading-tight group-hover:text-primary1 transition-colors" data-nama-saya>${esc(SAYA.nama)}</div>
-              <div class="text-[11px] text-neutral3">${SAYA.role === 'admin' ? NAMA_ROLE.admin : 'Alumni Asisten Lab'}</div>
-            </div>
-            <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-bold text-xs border border-primary4/50 shadow-xs">${avatar(SAYA)}</div>
+          <button type="button" id="profile-menu-btn" class="flex items-center gap-2.5 p-1 rounded-[8px] border border-neutral4 hover:bg-neutral5 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/25" aria-expanded="false" aria-label="Menu pengguna">
+            <span data-avatar-saya class="w-8 h-8 rounded-full overflow-hidden bg-primary5 text-primary1 flex items-center justify-center font-semibold text-xs shrink-0">${avatar(SAYA)}</span>
+            <span class="text-[13.5px] font-medium text-headline pr-2 hidden md:inline max-w-[160px] truncate" data-nama-saya>${esc(SAYA.nama)}</span>
           </button>
 
-          <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 origin-top-right rounded-xl bg-white border border-neutral4/70 shadow-xl shadow-neutral1/10 overflow-hidden">
-            <div class="px-4 pt-3.5 pb-3 bg-gradient-to-br from-primary1 via-primary2 to-primary3">
-              <div class="flex items-center gap-2.5">
-                <div data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-white/20 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow-sm shrink-0">${avatar(SAYA)}</div>
-                <div class="min-w-0 flex-1">
-                  <p class="!text-sm font-semibold text-white truncate">${esc(SAYA.nama)}</p>
-                  <p class="!text-[11px] text-white/80 truncate">${esc(SAYA.email)}</p>
-                </div>
-              </div>
+          <div id="dropdown-profile-menu" class="hidden absolute top-12 right-0 z-[70] w-64 rounded-[12px] bg-white border border-neutral4 shadow-xl overflow-hidden">
+            <div class="px-4 py-3.5 border-b border-neutral4 flex items-center gap-3">
+              <span data-avatar-saya class="w-9 h-9 rounded-full overflow-hidden bg-primary5 text-primary1 font-semibold text-xs flex items-center justify-center shrink-0">${avatar(SAYA)}</span>
+              <span class="min-w-0 flex-1">
+                <span class="block text-[13.5px] font-semibold text-headline truncate">${esc(SAYA.nama)}</span>
+                <span class="block text-[12px] text-neutral3 truncate">${SAYA.role === 'admin' ? NAMA_ROLE.admin : esc(SAYA.email)}</span>
+              </span>
             </div>
-            <ul class="py-1.5 text-sm text-neutral1">
-              <li>
-                <a href="pengaturan.html" class="flex items-center gap-2.5 w-full text-left px-4 py-2 text-xs md:text-sm hover:bg-primary5 transition-colors group">
-                  <span class="w-7 h-7 rounded-lg bg-primary5 text-primary2 flex items-center justify-center group-hover:bg-primary2 group-hover:text-white transition-colors"><i data-lucide="settings" class="w-3.5 h-3.5"></i></span>
-                  <span>Pengaturan Akun</span>
-                </a>
-              </li>
-            </ul>
-            <div class="border-t border-neutral4/70"></div>
-            <ul class="py-1.5">
-              <li>
-                <button type="button" onclick="keluar()" class="flex items-center gap-2.5 w-full px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 transition-colors group cursor-pointer">
-                  <span class="w-7 h-7 rounded-lg bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors"><i data-lucide="log-out" class="w-3.5 h-3.5"></i></span>
-                  <span>Keluar</span>
-                </button>
-              </li>
-            </ul>
+            <div class="p-1.5">
+              <a href="profil.html" class="flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] text-neutral1 hover:bg-neutral5 transition-colors">
+                <i data-lucide="user-round" class="w-4 h-4 text-neutral3"></i><span>Profil Saya</span>
+              </a>
+              <button type="button" onclick="keluar()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
+                <i data-lucide="log-out" class="w-4 h-4"></i><span>Keluar</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </header>`;
 
-  main.classList.add('flex-1', 'p-4', 'sm:p-6', 'space-y-6');
+  // Padding sama dengan halaman alumni v3 (main di direktori/dashboard alumni)
+  main.classList.add('flex-1', 'p-4', 'sm:p-6', 'lg:p-6', 'space-y-6', 'w-full');
   main.before(wrapper);
   wrapper.appendChild(main);
 
   document.body.insertAdjacentHTML('beforeend', `
-    <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-50 bg-neutral1/60 backdrop-blur-sm hidden items-center justify-center p-4">
-      <div class="bg-white rounded-2xl max-w-sm w-full p-6 elevation5" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
-        <h3 id="confirm-title" class="font-semibold text-base text-neutral1"></h3>
-        <p id="confirm-message" class="!text-sm text-neutral2 mt-2"></p>
+    <div id="confirm-modal" data-modal-backdrop class="fixed inset-0 z-[90] bg-headline/40 backdrop-blur-sm hidden items-center justify-center p-4">
+      <div class="bg-white rounded-[20px] border border-neutral4 max-w-sm w-full p-6 shadow-xl" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+        <h3 id="confirm-title" class="font-semibold !text-[17px] text-headline"></h3>
+        <p id="confirm-message" class="!text-[13.5px] text-neutral3 mt-2 leading-relaxed"></p>
         <div class="mt-6 flex justify-end gap-2">
-          <button onclick="closeModal('confirm-modal')" class="px-4 py-2 border border-neutral4 text-neutral1 text-sm font-medium rounded-lg hover:bg-neutral5 cursor-pointer">Batal</button>
+          <button type="button" onclick="closeModal('confirm-modal')" class="px-4 py-2.5 border border-neutral4 text-neutral1 text-[13.5px] font-medium rounded-[8px] hover:bg-neutral5 cursor-pointer">Batal</button>
           <button id="confirm-ok" class="cursor-pointer"></button>
         </div>
-      </div>
-    </div>
-
-    <!-- Modal Lihat Semua Notifikasi -->
-    <div id="modal-semua-notif" data-modal-backdrop class="modal-backdrop">
-      <div class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="modal-notif-title">
-        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
-          <div>
-            <h3 id="modal-notif-title" class="text-lg font-bold text-gray-900 tracking-tight">Semua Notifikasi</h3>
-            <p class="text-xs text-gray-500 mt-0.5">Kelola seluruh riwayat notifikasi dan pemberitahuan Anda</p>
-          </div>
-          <button type="button" onclick="closeModal('modal-semua-notif')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
-        </div>
-
-        <div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap">
-          <div class="flex items-center gap-1.5">
-            <button type="button" id="btn-tab-notif-semua" onclick="filterModalNotif = 'semua'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#1E3A8A] text-white transition-colors cursor-pointer">Semua</button>
-            <button type="button" id="btn-tab-notif-belum" onclick="filterModalNotif = 'belum'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer">Belum Dibaca</button>
-          </div>
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="DB.notifikasi.bacaSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#1E3A8A] hover:underline cursor-pointer">Tandai semua dibaca</button>
-            <span class="text-gray-300">•</span>
-            <button type="button" onclick="confirmAction({ title: 'Hapus semua notifikasi?', message: 'Seluruh riwayat notifikasi Anda akan dibersihkan.', okLabel: 'Hapus Semua', danger: true }, () => { DB.notifikasi.hapusSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif(); });" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Hapus semua</button>
-          </div>
-        </div>
-
-        <div id="modal-notif-daftar" class="space-y-2.5 py-3 min-h-[240px]"></div>
-        <div id="modal-notif-pager" class="pt-3 border-t border-gray-100"></div>
       </div>
     </div>`);
 
@@ -771,6 +738,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (pendingConfirm) pendingConfirm();
     pendingConfirm = null;
   });
+
+  if (window.mountAlumniPortal) {
+    wrapper.before(main);
+    wrapper.remove();
+    document.getElementById('sidebar').remove();
+    document.getElementById('sidebar-overlay').remove();
+    if (SAYA.role === 'admin') {
+      window.mountAlumniPortal(main, {
+        profile: { name: SAYA.nama, meta: NAMA_ROLE.admin },
+        logout: keluar,
+        nav: PORTAL_KOORDINATOR,
+        title: judulDinamis,
+        notifications: NOTIF_PORTAL,
+      });
+      window.segarkanBadgeSidebar();
+    } else {
+      window.mountAlumniPortal(main, {
+        profile: { name: SAYA.nama, batch: String(SAYA.angkatan || '') },
+        logout: keluar,
+      });
+    }
+    refreshIcons();
+    return;
+  }
 
   pasangDropdown(document.getElementById('profile-menu-btn'), document.getElementById('dropdown-profile-menu'));
 
@@ -827,10 +818,6 @@ document.addEventListener('DOMContentLoaded', () => {
       notifHalaman = Number(tombolHal.dataset.notifKe);
       renderNotifikasi();
       return;
-    }
-
-    if (e.target.closest('[data-lihat-semua]')) {
-      bukaModalSemuaNotif();
     }
   });
   renderNotifikasi();

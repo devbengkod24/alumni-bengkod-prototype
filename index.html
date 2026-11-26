@@ -69,7 +69,7 @@
 
       <div class="flex items-center gap-2">
         <a
-          href="alumni/login.html"
+          href="login.html"
           class="hidden sm:inline-flex items-center bg-primary1 hover:bg-primary2 text-white font-semibold text-sm px-5 py-2.5 rounded-full transition-all duration-200 focus-ring"
         >
           Masuk
@@ -96,7 +96,7 @@
         <a href="#kontak" class="py-3 text-neutral1 focus-ring">Kontak</a>
       </nav>
       <a
-        href="alumni/login.html"
+        href="login.html"
         class="mt-4 w-full block text-center py-3 text-sm font-semibold text-white bg-primary1 hover:bg-primary2 rounded-xl transition-colors focus-ring"
       >
         Masuk
@@ -223,7 +223,7 @@
               <p class="text-slate-500 text-xs sm:text-sm">Status Karir</p>
             </div>
             <div class="text-center sm:text-left sm:pl-12">
-              <span class="font-bold text-xl sm:text-3xl text-slate-900">4</span>
+              <span class="font-bold text-xl sm:text-3xl text-slate-900">3</span>
               <p class="text-slate-500 text-xs sm:text-sm">Peran Portal</p>
             </div>
           </div>
@@ -391,6 +391,13 @@
       </div>
     </section>
 
+    <section id="spotlight-karya" hidden class="px-4 py-16 md:px-16 md:py-24 bg-white scroll-mt-20">
+      <div class="max-w-7xl mx-auto">
+        <h2 class="font-bold text-2xl md:text-4xl text-slate-900 leading-tight tracking-tight">Spotlight Karya Alumni</h2>
+        <div id="spotlight-karya-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-8"></div>
+      </div>
+    </section>
+
     <!-- KONTAK -->
     <section id="kontak" class="px-4 py-16 md:px-16 md:py-24 bg-white scroll-mt-20">
       <div class="max-w-7xl mx-auto">
@@ -458,7 +465,7 @@
         <div class="flex flex-col gap-4">
           <p class="text-xs font-semibold uppercase tracking-widest text-neutral3">Bantuan</p>
           <div class="flex flex-col gap-3">
-            <a href="alumni/register.html" class="text-neutral3 hover:text-neutral1 text-xs lg:text-sm focus-ring">Registrasi Alumni</a>
+            <a href="register.html" class="text-neutral3 hover:text-neutral1 text-xs lg:text-sm focus-ring">Registrasi Alumni</a>
             <a href="alumni/profil.html" class="text-neutral3 hover:text-neutral1 text-xs lg:text-sm focus-ring">Profil Alumni</a>
             <a href="koordinator/statistik.html" class="text-neutral3 hover:text-neutral1 text-xs lg:text-sm focus-ring">Rekap Tahunan</a>
             <a href="error/index.html" class="text-neutral3 hover:text-neutral1 text-xs lg:text-sm focus-ring">Status & Error (404/500)</a>
@@ -522,5 +529,48 @@
   </div>
 
   <script src="assets/js/main.js"></script>
+  <script src="alumni/assets/js/alumni-data.js"></script>
+  <script src="alumni/assets/js/alumni-catalog.js"></script>
+  <script>
+    function renderLandingSpotlight() {
+      const works = loadSpotlightWorks();
+      const section = document.getElementById("spotlight-karya");
+      section.hidden = !works.length;
+      const cards = works.map(work => {
+        const link = document.createElement("a");
+        link.href = showcaseWorkLink(work, "alumni/");
+        link.className = "block rounded-2xl border border-slate-200 overflow-hidden hover:shadow-md focus-ring";
+        if (work.banner) {
+          const image = document.createElement("img");
+          image.src = work.banner.startsWith("assets/") ? "alumni/" + work.banner : work.banner;
+          image.alt = "";
+          image.loading = "lazy";
+          image.className = "w-full aspect-video object-cover";
+          link.append(image);
+        }
+        const body = document.createElement("div");
+        body.className = "p-5 space-y-1";
+        const title = document.createElement("h3");
+        title.className = "font-bold text-lg text-slate-900";
+        title.textContent = work.nama;
+        const tagline = document.createElement("p");
+        tagline.className = "text-sm text-slate-600";
+        tagline.textContent = work.tagline;
+        const author = document.createElement("p");
+        author.className = "text-sm text-slate-600";
+        author.textContent = work.authorName;
+        body.append(title, tagline, author);
+        link.append(body);
+        return link;
+      });
+      document.getElementById("spotlight-karya-list").replaceChildren(...cards);
+    }
+
+    renderLandingSpotlight();
+    window.addEventListener("pageshow", event => {
+      if (event.persisted) renderLandingSpotlight();
+    });
+    window.addEventListener("storage", renderLandingSpotlight);
+  </script>
 </body>
 </html>

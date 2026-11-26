@@ -1,261 +1,317 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light">
+<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Showcase Alumni | Bengkel Koding UDINUS</title>
-  <meta name="description" content="Etalase software dan aplikasi karya alumni Bengkel Koding Universitas Dian Nuswantoro.">
+  <title>Karya Alumni | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Software & aplikasi karya rekan alumni Bengkel Koding Universitas Dian Nuswantoro.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="../assets/js/page-skeleton.js"></script>
-  <script src="assets/js/alumni.js"></script>
   <script src="assets/js/alumni-data.js"></script>
-  <script src="assets/js/alumni-profile-data.js"></script>
-  <script src="assets/js/alumni-profile-modals.js"></script>
-</head>
-<body>
-<main data-route="showcase">
-  <div x-data="showcasePage" @project-add.window="handleProjectAdd($event.detail)" class="w-full space-y-6 py-2 antialiased">
-    <!-- Toast Notifikasi -->
-    <template x-if="toast">
-      <div class="fixed bottom-6 right-6 z-[90] bg-gray-900 text-white px-5 py-3 rounded-xl shadow-xl flex items-center gap-3 animate-fade-in text-[14px]">
-        <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-        <span x-text="toast"></span>
-      </div>
-    </template>
+  <script src="assets/js/alumni-catalog.js?v=2"></script>
+  <script src="assets/js/portal-layout.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-gray-200">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            canvas: '#EFF2F7',
+            card: '#FFFFFF',
+            panel: '#F4F5F7',
+            borderline: '#E3E4E9',
+            primary: {
+              DEFAULT: '#3A5988',
+              hover: '#496DA8',
+              pressed: '#2F4B76',
+            },
+            accent: '#326ECE',
+            headline: '#0C1117',
+            bodytext: '#212224',
+            mutedtext: '#6B7280',
+            placeholder: '#91969C',
+            chip: {
+              bg: '#E2F1F9',
+              text: '#3A5A86',
+            },
+            neutralchip: {
+              bg: '#F4F5F7',
+              border: '#E3E4E9',
+              text: '#4B5563',
+            },
+            beta: {
+              marker: '#B26A12',
+              bg: '#FDF0DD',
+              text: '#B26A12',
+            },
+            live: {
+              marker: '#2B7A5B',
+              bg: '#E9F7F8',
+              text: '#2B7A5B',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: 'Inter', sans-serif; display: block !important; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+  </style>
+
+  <script>
+    function showcaseApp() {
+      return {
+        karyaList: loadShowcaseWorks(),
+        searchQuery: '',
+        selectedStack: '',
+        filterOpen: false,
+        toast: '',
+        toastTimer: null,
+
+        init() {
+          try {
+            const pendingToast = sessionStorage.getItem('bengkod_toast');
+            if (pendingToast) {
+              this.setToast(pendingToast);
+              sessionStorage.removeItem('bengkod_toast');
+            }
+          } catch (e) {}
+
+          const id = new URLSearchParams(window.location.search).get('id');
+          if (id) {
+            const work = findShowcaseWork(this.karyaList, id);
+            window.location.replace(showcaseWorkLink(work || { id }));
+          }
+        },
+
+        get allStacks() {
+          const set = new Set();
+          this.karyaList.forEach(k => {
+            (k.stack || []).forEach(s => set.add(s));
+          });
+          return Array.from(set).sort((a, b) => a.localeCompare(b));
+        },
+
+        get visibleKarya() {
+          const q = this.searchQuery.trim().toLowerCase();
+          return this.karyaList.filter(k => {
+            if (this.selectedStack && !(k.stack || []).includes(this.selectedStack)) {
+              return false;
+            }
+            if (!q) return true;
+            const hay = [k.nama, k.tagline, k.authorName, ...(k.stack || [])].join(' ').toLowerCase();
+            return hay.includes(q);
+          }).sort((a, b) => (b.waktu || 0) - (a.waktu || 0));
+        },
+
+        setStack(stack) {
+          this.selectedStack = stack;
+          this.filterOpen = false;
+        },
+
+        clearFilter() {
+          this.selectedStack = '';
+          this.searchQuery = '';
+        },
+
+        setToast(msg) {
+          this.toast = msg;
+          clearTimeout(this.toastTimer);
+          this.toastTimer = setTimeout(() => { this.toast = ''; }, 3200);
+        }
+      };
+    }
+
+    document.addEventListener('alpine:init', () => {
+      if (window.Alpine) {
+        window.Alpine.data('showcaseApp', showcaseApp);
+      }
+    });
+  </script>
+</head>
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="showcaseApp()">
+
+  <!-- TOAST NOTIFICATION -->
+  <template x-if="toast">
+    <div class="fixed bottom-6 right-6 z-[120] bg-[#0C1117] text-white px-5 py-3 rounded-[8px] shadow-sm flex items-center gap-3 text-[14px] border border-[#E3E4E9]/20" role="status">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
+      <span class="font-normal" x-text="toast"></span>
+      <button type="button" @click="toast = ''" class="text-[#91969C] hover:text-white ml-2 text-xs">✕</button>
+    </div>
+  </template>
+
+  <main data-karya-page="" class="flex-1 p-4 sm:p-6 lg:p-6 w-full space-y-6 flex flex-col min-h-0">
+
+    <!-- 1. HEADER JUDUL & SUBJUDUL -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-[#1E3A8A] tracking-tight">Showcase Alumni</h1>
-        <p class="text-sm text-gray-500 mt-1">
+        <h1 class="text-[26px] font-semibold text-[#0C1117] tracking-[-0.01em]">Karya Alumni</h1>
+        <p class="text-[14px] text-[#6B7280] mt-1 font-normal">
           Software &amp; aplikasi karya rekan alumni Bengkel Koding
         </p>
       </div>
-      <a
-        href="launch-karya.html"
-        id="btn-showcase-launch"
-        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full bg-[#1E3A8A] hover:bg-[#1D4ED8] text-white text-[14px] font-semibold shadow-sm transition-colors cursor-pointer shrink-0"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-        </svg>
+      <a href="launch-karya.html"
+         class="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-[8px] text-[14px] font-medium text-white bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] transition-colors cursor-pointer self-start sm:self-auto shadow-sm">
+        <span class="text-base leading-none font-medium">+</span>
         <span>Launch Karya</span>
       </a>
     </div>
 
-    <!-- Toolbar: jumlah karya, filter stack, pencarian -->
-    <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-      <p class="text-[13px] text-gray-500 order-last sm:order-none" x-text="visibleKarya.length + ' karya'"></p>
+    <!-- 2. TOOLBAR BARIS PILL (Tinggi 40px, Gap 12px) -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
 
-      <div class="flex items-center gap-3 sm:ml-auto">
-        <div class="relative shrink-0">
-          <label for="showcase-stack" class="sr-only">Filter tech stack</label>
-          <select
-            id="showcase-stack"
-            x-model="stackFilter"
-            class="appearance-none h-10 pl-4 pr-10 rounded-full border bg-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A] cursor-pointer transition-colors"
-            :class="stackFilter ? 'border-blue-200 bg-blue-50 text-[#1E3A8A]' : 'border-gray-200 text-gray-700 hover:border-gray-300'"
-          >
-            <option value="">Semua stack</option>
-            <template x-for="s in allStacks" :key="s">
-              <option :value="s" x-text="s"></option>
+      <div class="flex items-center gap-3 flex-wrap">
+
+        <!-- a. Pill Pencarian (Lebar 240px, tinggi 40px) -->
+        <div class="relative w-full sm:w-[240px] h-10 flex-shrink-0">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/>
+            </svg>
+          </span>
+          <input type="search"
+                 x-model="searchQuery"
+                 placeholder="Cari karya"
+                 class="w-full h-10 pl-10 pr-4 rounded-full border border-[#E3E4E9] bg-white text-[14px] text-[#212224] placeholder-[#91969C] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/25 transition-all">
+        </div>
+
+        <!-- c. Pill Filter Stack -->
+        <div class="relative flex-shrink-0" x-data="{ open: false }">
+          <button type="button"
+                  @click="open = !open"
+                  class="h-10 px-4 rounded-full border text-[14px] font-medium flex items-center gap-2 transition-colors cursor-pointer"
+                  :class="selectedStack ? 'bg-[#E2F1F9] border-[#3A5A86] text-[#3A5A86]' : 'bg-white border-[#E3E4E9] text-[#212224] hover:border-[#CBD5E1]'">
+            <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+            <span x-text="selectedStack ? selectedStack : 'Semua stack'"></span>
+            <svg class="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+
+          <div x-show="open"
+               @click.outside="open = false"
+               x-cloak
+               class="absolute left-0 mt-2 w-56 bg-white rounded-[12px] border border-[#E3E4E9] shadow-lg max-h-[280px] overflow-y-auto p-1.5 z-40">
+            <button type="button"
+                    @click="setStack(''); open = false"
+                    class="w-full text-left px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors flex items-center justify-between"
+                    :class="!selectedStack ? 'bg-[#E2F1F9] text-[#3A5A86]' : 'text-[#212224] hover:bg-[#F4F5F7]'">
+              <span>Semua stack</span>
+            </button>
+            <div class="h-px bg-[#E3E4E9] my-1"></div>
+            <template x-for="st in allStacks" :key="st">
+              <button type="button"
+                      @click="setStack(st); open = false"
+                      class="w-full text-left px-3 py-2 rounded-lg text-[13.5px] font-medium transition-colors flex items-center justify-between"
+                      :class="selectedStack === st ? 'bg-[#E2F1F9] text-[#3A5A86]' : 'text-[#212224] hover:bg-[#F4F5F7]'">
+                <span x-text="st"></span>
+              </button>
             </template>
-          </select>
-          <span class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" :class="stackFilter ? 'text-[#1E3A8A]' : 'text-gray-400'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg>
-          </span>
+          </div>
         </div>
 
-        <div class="relative flex-1 sm:w-64 sm:flex-none">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
-          </span>
-          <input
-            type="search"
-            x-model="query"
-            placeholder="Cari karya"
-            aria-label="Cari karya"
-            autocomplete="off"
-            class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/20 focus:border-[#1E3A8A]"
-          >
-        </div>
       </div>
+
+      <div class="text-[13px] text-[#6B7280] font-normal flex-shrink-0 self-center">
+        <span x-text="visibleKarya.length + ' karya'"></span>
+      </div>
+
     </div>
 
-    <!-- Grid Karya -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-      <template x-for="k in visibleKarya" :key="k.postId">
-        <a
-          :href="'detail-proyek.html?id=' + k.postId"
-          class="group flex flex-col bg-white rounded-xl border border-gray-200/90 shadow-xs hover:shadow-md hover:border-gray-300 transition-all overflow-hidden"
-        >
-          <!-- Banner 16:9 -->
-          <div class="aspect-video bg-gradient-to-br from-blue-50 to-indigo-50 overflow-hidden">
-            <template x-if="k.banner">
-              <img :src="k.banner" :alt="'Banner ' + k.nama" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
-            </template>
-            <template x-if="!k.banner">
-              <div class="w-full h-full flex items-center justify-center text-4xl font-black text-[#1E3A8A]/30" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
-            </template>
-          </div>
+    <!-- ======================================================
+         3. GRID KARTU SHOWCASE V2 (PENUH SATU HALAMAN)
+    ====================================================== -->
 
-          <div class="flex-1 flex flex-col p-4 gap-3">
-            <div class="flex items-start gap-3">
-              <div class="w-11 h-11 rounded-lg border border-gray-200 bg-white flex items-center justify-center shrink-0 overflow-hidden">
-                <template x-if="k.logo">
-                  <img :src="k.logo" :alt="k.nama" class="w-full h-full object-cover">
-                </template>
-                <template x-if="!k.logo">
-                  <span class="text-sm font-bold text-[#1E3A8A]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></span>
-                </template>
-              </div>
-              <div class="min-w-0 flex-1">
-                <h2 class="text-[16px] font-semibold text-gray-900 group-hover:text-[#1E3A8A] transition-colors truncate" x-text="k.nama"></h2>
-                <p class="text-[13px] text-gray-600 line-clamp-2 mt-0.5" x-text="k.tagline"></p>
-              </div>
-            </div>
-
-            <template x-if="k.stack.length > 0">
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <template x-for="s in k.stack.slice(0, 3)" :key="s">
-                  <span class="px-2 py-0.5 rounded-md bg-gray-50 border border-gray-200 text-gray-600 text-[12px] font-medium" x-text="s"></span>
-                </template>
-                <template x-if="k.stack.length > 3">
-                  <span class="text-[12px] text-gray-400" x-text="'+' + (k.stack.length - 3)"></span>
-                </template>
-              </div>
-            </template>
-
-            <div class="mt-auto pt-3 border-t border-gray-100 flex items-center gap-3">
-              <div class="flex items-center gap-2 min-w-0">
-                <template x-if="k.authorAvatar">
-                  <img :src="k.authorAvatar" :alt="k.authorName" class="w-6 h-6 rounded-full object-cover border border-gray-200 shrink-0">
-                </template>
-                <span class="text-[13px] text-gray-600 truncate" x-text="k.authorName"></span>
-              </div>
-            </div>
-          </div>
-        </a>
-      </template>
-    </div>
-
-    <!-- Kosong -->
+    <!-- Empty state keseluruhan -->
     <template x-if="visibleKarya.length === 0">
-      <div class="bg-white rounded-xl border border-dashed border-gray-300 p-10 text-center">
-        <p class="text-[15px] font-semibold text-gray-800">Belum ada karya yang cocok</p>
-        <p class="text-[13px] text-gray-500 mt-1">Coba kata kunci atau stack lain.</p>
+      <div class="w-full bg-white rounded-[12px] border border-dashed border-[#E3E4E9] p-10 text-center my-8">
+        <p class="text-[15px] font-semibold text-[#0C1117]">Belum ada karya yang cocok</p>
+        <p class="text-[13px] text-[#6B7280] mt-1 font-normal">Coba kata kunci atau stack lain.</p>
+        <button type="button"
+                @click="clearFilter()"
+                class="mt-4 px-4 py-2 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7]">
+          Reset Filter
+        </button>
       </div>
     </template>
-  </div>
-</main>
 
-<script>
-  function showcasePage() {
-    const currentAlumni = ALUMNI_DIRECTORY[0];
-    return {
-      posts: [],
-      stackFilter: "",
-      query: "",
-      toast: "",
-      toastTimer: null,
-      profile: {
-        name: currentAlumni.name,
-        headline: currentAlumni.headline,
-        avatarUrl: currentAlumni.avatarUrl || DEFAULT_AVATAR,
-      },
+    <!-- Grid Responsif Penuh Halaman (1 col mobile, 2 col tablet, 3 col desktop) -->
+    <div x-show="visibleKarya.length > 0"
+         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full">
 
-      init() {
-        this.muat();
-        window.addEventListener("bengkod_posts_updated", () => this.muat());
+      <!-- KARTU KARYA ALUMNI -->
+      <template x-for="k in visibleKarya" :key="k.id">
+        <a :href="showcaseWorkLink(k)"
+             class="group cursor-pointer flex flex-col bg-white border border-[#E3E4E9] hover:border-[#3A5A86] rounded-[12px] p-3 transition-all duration-150 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-[#3A5988]">
 
-        // Cek toast tertunda dari halaman launch-karya.html
-        try {
-          const pendingToast = sessionStorage.getItem("bengkod_toast");
-          if (pendingToast) {
-            this.setToast(pendingToast);
-            sessionStorage.removeItem("bengkod_toast");
-          }
-        } catch {}
+          <!-- 1. Banner 16:9 radius 8px selebar isi kartu (Fallback huruf awal 40px/600 #3A5A86 di atas #E2F1F9) -->
+          <div class="aspect-video w-full rounded-[8px] bg-[#E2F1F9] overflow-hidden relative">
+            <template x-if="k.banner">
+              <img :src="k.banner" :alt="k.nama" class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300">
+            </template>
+            <template x-if="!k.banner">
+              <div class="w-full h-full flex items-center justify-center text-[40px] font-semibold text-[#3A5A86]" x-text="(k.nama || 'A').charAt(0).toUpperCase()"></div>
+            </template>
+          </div>
 
-        try {
-          const saved = JSON.parse(localStorage.getItem("bengkod_alumni_profile") || "null");
-          if (saved) {
-            this.profile = {
-              name: saved.name || currentAlumni.name,
-              headline: saved.headline || currentAlumni.headline,
-              avatarUrl: saved.avatarUrl || currentAlumni.avatarUrl || DEFAULT_AVATAR,
-            };
-          }
-        } catch {}
-      },
+          <!-- 2. Baris Judul: Nama Karya 16px/600 maks 2 baris (Tanpa kotak logo) -->
+          <div class="mt-2.5">
+            <h3 class="text-[16px] font-semibold text-[#0C1117] group-hover:text-[#3A5A86] transition-colors line-clamp-2 leading-snug" x-text="k.nama"></h3>
+          </div>
 
-      muat() {
-        this.posts = typeof loadPosts === "function" ? loadPosts() : [];
-      },
+          <!-- 3. Baris Meta: Ikon Calendar 16px + Tanggal Posting 13px/400 (Gap 10px) -->
+          <div class="mt-2.5 flex items-center gap-1.5 text-[13px] text-[#6B7280] font-normal">
+            <svg class="w-4 h-4 text-[#6B7280] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+              <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+              <line x1="16" x2="16" y1="2" y2="6"/>
+              <line x1="8" x2="8" y1="2" y2="6"/>
+              <line x1="3" x2="21" y1="10" y2="10"/>
+            </svg>
+            <span x-text="k.date"></span>
+          </div>
 
-      // Satu baris per karya, diambil dari postingan feed yang membawa data karya
-      get allKarya() {
-        // "Baru saja" = karya yang baru diluncurkan, dianggap paling baru
-        const waktu = (p) => (p.date === "Baru saja" ? p.id : Date.parse(p.date) || 0);
-        return this.posts
-          .filter((p) => p.karya)
-          .map((p) => ({
-            postId: p.id,
-            nama: p.karya.nama,
-            tagline: p.karya.tagline || "",
-            logo: p.karya.logo || "",
-            banner: p.karya.bannerUrl || (p.karya.screenshots || [])[0] || "",
-            stack: p.karya.stack || [],
-            authorName: p.authorName || "Alumni",
-            authorAvatar: p.authorAvatar || "",
-            waktu: waktu(p),
-          }));
-      },
-      get allStacks() {
-        return [...new Set(this.allKarya.flatMap((k) => k.stack))].sort((a, b) => a.localeCompare(b));
-      },
-      get visibleKarya() {
-        const q = this.query.trim().toLowerCase();
-        const list = this.allKarya.filter((k) => {
-          if (this.stackFilter && !k.stack.includes(this.stackFilter)) return false;
-          if (!q) return true;
-          return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
-        });
-        // Karya terbaru tampil paling atas
-        return list.sort((a, b) => b.waktu - a.waktu);
-      },
+          <!-- 4. Tagline: 14px/400 muted, line-height 1.5, maks 2 baris (Gap 10px) -->
+          <p class="mt-2.5 text-[14px] text-[#6B7280] line-clamp-2 leading-[1.5] font-normal" x-text="k.tagline"></p>
 
-      handleProjectAdd(detail) {
-        if (!detail || !detail.title) return;
-        if (typeof saveStoredProjects === "function") {
-          const projects = typeof loadStoredProjects === "function" ? loadStoredProjects() : [];
-          saveStoredProjects([detail, ...projects.filter((p) => p.id !== detail.id)]);
-        }
-        if (typeof syncProjectToFeed === "function") {
-          syncProjectToFeed(detail, {
-            name: this.profile.name,
-            avatarUrl: this.profile.avatarUrl,
-            headline: this.profile.headline,
-          });
-        }
-        this.muat();
-        this.addProjectOpen = false;
-        this.setToast(`Karya "${detail.title}" berhasil diluncurkan!`);
-      },
+          <!-- 5. Chip Stack: Tinggi 24px, 12px/500, maks 3 chip +N (Gap 10px) -->
+          <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+            <template x-for="st in (k.stack || []).slice(0, 3)" :key="st">
+              <span class="h-6 px-2 rounded-[6px] bg-[#F4F5F7] border border-[#E3E4E9] text-[#4B5563] text-[12px] font-medium flex items-center" x-text="st"></span>
+            </template>
+            <template x-if="(k.stack || []).length > 3">
+              <span class="text-[12px] text-[#6B7280] font-normal ml-0.5" x-text="'+' + ((k.stack || []).length - 3)"></span>
+            </template>
+          </div>
 
-      setToast(msg) {
-        this.toast = msg;
-        clearTimeout(this.toastTimer);
-        this.toastTimer = setTimeout(() => (this.toast = ""), 2600);
-      },
-    };
-  }
-  document.addEventListener("alpine:init", () => {
-    Alpine.data("showcasePage", showcasePage);
-  });
-</script>
+          <div class="mt-auto flex min-w-0 items-center gap-2 pt-3">
+            <template x-if="k.authorAvatar">
+              <img :src="k.authorAvatar" alt="" class="h-6 w-6 shrink-0 rounded-full border border-[#E3E4E9] object-cover">
+            </template>
+            <template x-if="!k.authorAvatar">
+              <div aria-hidden="true" class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#E2F1F9] text-[10px] font-semibold text-[#3A5A86]" x-text="(k.authorName || 'A').charAt(0).toUpperCase()"></div>
+            </template>
+            <span class="truncate text-[13px] font-normal text-[#6B7280]" x-text="k.authorName"></span>
+          </div>
+
+        </a>
+      </template>
+
+    </div>
+
+  </main>
+
+  <script>mountAlumniPortal(document.querySelector('main'));</script>
 </body>
 </html>
