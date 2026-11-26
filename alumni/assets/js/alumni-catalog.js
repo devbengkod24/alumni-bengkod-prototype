@@ -4,6 +4,7 @@ const SHOWCASE_EXAMPLES = [
     postId: 1,
     nama: "AntreKlinik",
     category: "HealthTech & Layanan Publik",
+    period: "Jul 2026 – Okt 2026",
     date: "27 Okt 2026",
     city: "Semarang, Indonesia –",
     tagline: "Antrean klinik dari ponsel, tanpa menunggu di ruang tunggu.",
@@ -40,11 +41,17 @@ const SHOWCASE_EXAMPLES = [
     postId: 2,
     nama: "Sentimeter AI",
     category: "AI Analytics & NLP",
+    period: "Agu 2026 – Nov 2026",
     date: "03 Nov 2026",
     city: "Semarang, Indonesia –",
     tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan latensi rendah.",
     logo: "",
     banner: "assets/project-city.jpg",
+    demoLink: "https://sentimeter-ai.bengkelkoding.id",
+    contributors: [
+      { id: "c-1", name: "Rizky Pratama" },
+      { id: "c-2", name: "Dimas Aryo" }
+    ],
     stack: ["Python", "FastAPI", "Next.js", "Docker", "PyTorch"],
     authorName: "Clarista",
     authorAvatar: "https://i.pravatar.cc/150?img=5",
@@ -482,6 +489,7 @@ function loadShowcaseWorks() {
     const mapped = {
       id: `post-${post.id}`,
       nama: work.nama,
+      period: work.period || "",
       tagline: work.tagline || "",
       category: work.categoryTags?.join(" · ") || "",
       date: post.date,
@@ -502,8 +510,9 @@ function loadShowcaseWorks() {
       ...existing,
       sourcePostId: post.id,
       projectId: work.projectId,
+      period: work.period || existing?.period || "",
       demoLink: work.url || existing?.demoLink || "",
-      contributors: work.contributors ?? existing?.contributors ?? [],
+      contributors: (work.contributors && work.contributors.length) ? work.contributors : (existing?.contributors || []),
       attachments: (work.attachments && work.attachments.length) ? work.attachments : (existing?.attachments || [])
     });
   }
@@ -519,6 +528,7 @@ function loadShowcaseWorks() {
       byAuthorAndTitle.set(workKey, {
         ...existing,
         ...work,
+        period: work.period || existing?.period || "",
         banner: /^assets\/banner-/.test(work.banner || "") ? (existing?.banner || "assets/project-city.jpg") : (work.banner || existing?.banner || ""),
         demoLink: work.demoLink && work.demoLink !== "#" ? work.demoLink : existing?.demoLink || ""
       });
