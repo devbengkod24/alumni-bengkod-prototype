@@ -13,9 +13,9 @@
   const STATUS = [
     'Bekerja',
     'Wiraswasta',
-    'Melanjutkan Pendidikan',
-    'Tidak Bekerja Tetapi Sedang Mencari Pekerjaan',
-    'Belum Memungkinkan Bekerja',
+    'Studi Lanjut',
+    'Mencari Kerja',
+    'Belum Bekerja',
   ];
   const STATUS_BEKERJA = STATUS.slice(0, 2);
   const STATUS_STUDI = STATUS[2];
@@ -464,10 +464,13 @@
     const MAP_STATUS_LAMA = {
       'bekerja full time': 'Bekerja',
       'bekerja part time': 'Bekerja',
-      'sedang studi lanjut s2': 'Melanjutkan Pendidikan',
-      'sedang studi lanjut': 'Melanjutkan Pendidikan',
-      'menikah/mengurus keluarga': 'Belum Memungkinkan Bekerja',
-      'menikah / mengurus keluarga': 'Belum Memungkinkan Bekerja',
+      'sedang studi lanjut s2': 'Studi Lanjut',
+      'sedang studi lanjut': 'Studi Lanjut',
+      'melanjutkan pendidikan': 'Studi Lanjut',
+      'tidak bekerja tetapi sedang mencari pekerjaan': 'Mencari Kerja',
+      'menikah/mengurus keluarga': 'Belum Bekerja',
+      'menikah / mengurus keluarga': 'Belum Bekerja',
+      'belum memungkinkan bekerja': 'Belum Bekerja',
     };
     db.tracer.forEach(t => {
       const s = (t.status || '').trim().toLowerCase();
@@ -734,8 +737,9 @@
     kategori(t) {
       const s = (t?.status || '').trim().toLowerCase();
       if (s === 'bekerja full time' || s === 'bekerja part time') return STATUS[0];
-      if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') return STATUS_STUDI;
-      if (s === 'menikah/mengurus keluarga' || s === 'menikah / mengurus keluarga') return STATUS[4];
+      if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut' || s === 'melanjutkan pendidikan') return STATUS_STUDI;
+      if (s === 'tidak bekerja tetapi sedang mencari pekerjaan') return STATUS[3];
+      if (s === 'menikah/mengurus keluarga' || s === 'menikah / mengurus keluarga' || s === 'belum memungkinkan bekerja') return STATUS[4];
       return t?.status;
     },
 

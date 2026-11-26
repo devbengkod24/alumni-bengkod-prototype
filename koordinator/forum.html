@@ -62,23 +62,8 @@
         </div>
       </form>
 
-      <!-- Baris Filter Tab + Pencarian (gaya ringkas Beranda alumni) -->
-      <div class="flex items-center justify-between gap-3 flex-wrap">
-        <nav id="saring" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1" aria-label="Saring kategori"></nav>
-        <div class="relative w-full sm:w-64 shrink-0">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
-            <i data-lucide="search" class="w-3.5 h-3.5" aria-hidden="true"></i>
-          </span>
-          <input
-            type="search"
-            id="forum-cari"
-            placeholder="Cari postingan…"
-            aria-label="Cari postingan"
-            autocomplete="off"
-            class="w-full h-9 pl-9 pr-3.5 rounded-full bg-white border border-[#E3E4E9] text-[13px] text-[#212224] placeholder:text-[#91969C] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 transition-colors"
-          >
-        </div>
-      </div>
+      <!-- Baris Filter Tab (gaya ringkas Beranda alumni) -->
+      <nav id="saring" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1" aria-label="Saring kategori"></nav>
 
       <!-- Daftar Feed Postingan -->
       <div id="daftar" class="space-y-5"></div>
@@ -107,7 +92,6 @@
   const terbuka = new Set();
   const diperluas = new Set();
   let kategori = '';
-  let pencarianTeks = '';
 
   const semua = () => FeedBersama.semua(NAMA);
   const cari = id => FeedBersama.cari(id, NAMA);
@@ -201,7 +185,7 @@
   });
 
   // ===================== KARTU POSTINGAN =====================
-  // Titik tiga: salin tautan dan hapus. Koordinator moderator forum, jadi bisa menghapus postingan siapa pun.
+  // Titik tiga: hapus postingan. Koordinator moderator forum, jadi bisa menghapus postingan siapa pun.
   // Tidak ada "Laporkan" karena laporan alumni justru masuk ke koordinator (halaman Laporan Forum).
   function menuPost(p) {
     const item = (aksi, ikon, label, kelas = 'text-[#212224] hover:bg-[#F4F5F7]') => `
@@ -210,7 +194,6 @@
       <div data-menu class="relative shrink-0">
         <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan ${esc(p.penulis)}" class="w-8 h-8 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-[#F4F5F7] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3"><i data-lucide="ellipsis" class="w-4 h-4" aria-hidden="true"></i></button>
         <div data-panel-menu class="hidden absolute right-0 top-full mt-1 z-20 w-48 bg-white border border-[#E3E4E9] rounded-[10px] shadow-md p-1" role="menu">
-          ${item('bagikan', 'link', 'Salin tautan')}
           ${item('hapus', 'trash-2', 'Hapus postingan', 'text-red-700 hover:bg-red-50')}
         </div>
       </div>`;
@@ -525,17 +508,13 @@
   function render() {
     let list = semua();
     if (kategori) list = list.filter(p => p.kategori === kategori);
-    if (pencarianTeks) {
-      const q = pencarianTeks.toLowerCase();
-      list = list.filter(p => `${p.penulis} ${p.isi || ''} ${p.karya?.nama || ''} ${p.referral?.posisi || ''} ${p.referral?.perusahaan || ''}`.toLowerCase().includes(q));
-    }
 
     renderSaring();
     daftar.innerHTML = list.map(kartuPost).join('')
       || `<div class="bg-white border border-[#E3E4E9] rounded-[16px] p-8 text-center space-y-2 shadow-sm">
-            <p class="!text-[15px] font-semibold text-[#0C1117]">${pencarianTeks ? `Tidak ada postingan untuk "${esc(pencarianTeks)}"` : 'Belum ada postingan di kategori ini'}</p>
-            <p class="!text-[13px] text-[#6B7280]">Coba ganti filter kategori atau kata kunci pencarian.</p>
-            ${(kategori || pencarianTeks) ? `<button type="button" onclick="kategori='';pencarianTeks='';document.getElementById('forum-cari').value='';render();" class="mt-2 px-4 py-1.5 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7] cursor-pointer">Reset Filter Linimasa</button>` : ''}
+            <p class="!text-[15px] font-semibold text-[#0C1117]">Belum ada postingan di kategori ini</p>
+            <p class="!text-[13px] text-[#6B7280]">Coba ganti filter kategori lainnya.</p>
+            ${kategori ? `<button type="button" onclick="kategori='';render();" class="mt-2 px-4 py-1.5 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7] cursor-pointer">Reset Filter Linimasa</button>` : ''}
           </div>`;
     refreshIcons();
   }
@@ -551,8 +530,6 @@
     const p = cari(id);
     if (!p) return;
     kategori = '';
-    pencarianTeks = '';
-    document.getElementById('forum-cari').value = '';
     terbuka.add(p.id);
     render();
     const el = document.getElementById(`post-${id}`);
@@ -560,15 +537,6 @@
       el.scrollIntoView({ block: 'start', behavior: 'smooth' });
       el.classList.add('ring-2', 'ring-[#3A5988]');
       setTimeout(() => el.classList.remove('ring-2', 'ring-[#3A5988]'), 1600);
-    }
-  }
-
-  async function salinTautan(id) {
-    try {
-      await navigator.clipboard.writeText(new URL(`forum.html#post-${id}`, location.href).href);
-      showToast('Tautan postingan berhasil disalin.');
-    } catch {
-      showToast('Browser menolak izin salin.', 'error');
     }
   }
 
@@ -608,7 +576,6 @@
     }
     tutupMenu();
     if (aksi === 'hapus') return hapus(id);
-    if (aksi === 'bagikan') return salinTautan(id);
     if (aksi === 'tampil-balas') {
       const formBalas = document.getElementById(`form-balas-${tombol.dataset.komentarId}`);
       if (formBalas) {
@@ -663,11 +630,6 @@
     const tombol = e.target.closest('[data-kategori]');
     if (!tombol) return;
     kategori = tombol.dataset.kategori;
-    render();
-  });
-
-  document.getElementById('forum-cari').addEventListener('input', e => {
-    pencarianTeks = e.target.value.trim();
     render();
   });
 

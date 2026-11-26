@@ -67,7 +67,7 @@ assert.equal(tracer.simpan(NADIA, { ...jawaban, tahun_masuk: TAHUN + 1 }).field,
 
 // Pindah status mengosongkan jawaban cabang lama, tanpa membuat baris kedua
 const jumlahTracer = tracer.semua().length;
-tracer.simpan(NADIA, { ...jawaban, status: 'Melanjutkan Pendidikan', biaya_studi: 'Beasiswa', nama_studi: 'Kampus', prodi: 'S2', tgl_studi: '2026-09-01' });
+tracer.simpan(NADIA, { ...jawaban, status: 'Studi Lanjut', biaya_studi: 'Beasiswa', nama_studi: 'Kampus', prodi: 'S2', tgl_studi: '2026-09-01' });
 assert.equal(tracer.semua().length, jumlahTracer);
 assert.equal(tracer.milik(NADIA).nama_job, '');
 assert.equal(tracer.milik(NADIA).prodi, 'S2');
@@ -76,8 +76,8 @@ assert.equal(tracer.milik(NADIA).prodi, 'S2');
 assert.deepEqual(tracer.karir(tracer.milik(NADIA)), { tempat: 'Kampus', posisi: 'S2', ringkas: 'S2 di Kampus' });
 tracer.simpan(NADIA, { ...jawaban, status: 'Bekerja Part Time', nama_job: 'Studio Lepas', jabatan_job: 'Freelance' });
 assert.equal(tracer.karir(tracer.milik(NADIA)).ringkas, 'Freelance di Studio Lepas');
-tracer.simpan(NADIA, { ...jawaban, status: 'Belum Memungkinkan Bekerja' });
-assert.equal(tracer.karir(tracer.milik(NADIA)).ringkas, 'Belum Memungkinkan Bekerja');
+tracer.simpan(NADIA, { ...jawaban, status: 'Belum Bekerja' });
+assert.equal(tracer.karir(tracer.milik(NADIA)).ringkas, 'Belum Bekerja');
 assert.equal(tracer.karir(null).tempat, '');
 
 // Status karir: kota wajib, keahlian dipisah koma, studi lanjut dan pekerjaan sampingan bisa bersamaan dengan bekerja

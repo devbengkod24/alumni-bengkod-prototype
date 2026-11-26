@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Showcase Alumni | Koordinator Bengkel Koding</title>
+  <title>Karya Alumni | Koordinator Bengkel Koding</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=6">
@@ -23,7 +23,7 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
-        <h1 class="!text-[26px] font-semibold text-headline">Showcase Alumni</h1>
+        <h1 class="!text-[26px] font-semibold text-headline">Karya Alumni</h1>
         <p class="!text-[13.5px] text-neutral3 mt-1">
           Pilih karya yang tampil di Spotlight beranda alumni dan landing page.
         </p>
@@ -79,6 +79,11 @@
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
           <span>Reset</span>
         </button>
+
+        <button type="button" id="btn-reset-spotlight" onclick="konfirmasiResetSpotlight()" class="hidden self-end sm:self-auto inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[10px] border border-red-200 bg-white hover:bg-red-50 text-[13px] font-medium text-red-700 shadow-sm transition-colors cursor-pointer whitespace-nowrap">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          <span>Atur Ulang</span>
+        </button>
       </div>
     </div>
 
@@ -88,11 +93,11 @@
     <!-- Empty State -->
     <div id="empty-state" class="hidden bg-white rounded-[16px] border border-neutral4 shadow-sm p-12 text-center">
       <i data-lucide="rocket" class="w-9 h-9 mx-auto mb-3 text-[#CBD5E1]" aria-hidden="true"></i>
-      <p class="!text-[15px] font-semibold text-headline">Belum ada karya yang cocok</p>
-      <p class="!text-[13px] text-neutral3 mt-1">Coba kata kunci lain atau reset filter untuk melihat semua karya.</p>
-      <button type="button" onclick="resetFilterKarya()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors">
+      <p id="empty-title" class="!text-[15px] font-semibold text-headline">Belum ada karya yang cocok</p>
+      <p id="empty-desc" class="!text-[13px] text-neutral3 mt-1">Coba kata kunci lain atau reset filter untuk melihat semua karya.</p>
+      <button type="button" id="empty-action" onclick="resetFilterKarya()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors">
         <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
-        <span>Reset semua filter</span>
+        <span id="empty-action-label">Reset semua filter</span>
       </button>
     </div>
   </div>
@@ -186,11 +191,25 @@
 
   function resetFilterKarya() {
     stackFilter = "";
-    spotlightFilter = "all";
     query = "";
     document.getElementById("cari").value = "";
     document.getElementById("showcase-stack").value = "";
     render();
+  }
+
+  function konfirmasiResetSpotlight() {
+    const jumlah = loadSpotlightWorks().length;
+    if (!jumlah) return;
+    confirmAction({
+      title: "Cabut semua Spotlight?",
+      message: `Seluruh ${jumlah} karya yang sedang tampil di Spotlight akan dicabut dan tidak lagi tampil di Beranda alumni maupun landing page.`,
+      okLabel: "Ya, Cabut Semua",
+      danger: true,
+    }, () => {
+      clearSpotlightWorks();
+      render();
+      showToast("Semua karya telah dicabut dari Spotlight.");
+    });
   }
 
   function isiOpsiStack(semuaKarya) {
@@ -208,7 +227,8 @@
 
   function render() {
     const semuaKarya = loadShowcaseWorks();
-    const spotlightIds = new Set(loadSpotlightWorks().map(k => String(k.id)));
+    const spotlightOrder = new Map(loadSpotlightWorks().map((k, idx) => [String(k.id), idx]));
+    const spotlightIds = new Set(spotlightOrder.keys());
     const jumlahSpotlight = semuaKarya.filter(k => spotlightIds.has(String(k.id))).length;
 
     const countSemua = document.getElementById("count-tab-semua");
@@ -226,18 +246,26 @@
     countSemua.className = `px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums ${isAll ? "bg-white/20 text-white" : "bg-[#F4F5F7] text-neutral2"}`;
     countSpot.className = `px-1.5 py-0.5 rounded-[6px] text-[11.5px] leading-none tabular-nums ${!isAll ? "bg-white/20 text-white" : "bg-[#F4F5F7] text-neutral2"}`;
 
-    // Filter list
+    // Filter list, lalu urutkan karya Spotlight di paling atas sesuai urutan aktivasi terbaru
     const q = query.trim().toLowerCase();
     const filtered = semuaKarya.filter(k => {
       if (spotlightFilter === "spotlight" && !spotlightIds.has(String(k.id))) return false;
       if (stackFilter && !k.stack.includes(stackFilter)) return false;
       if (!q) return true;
       return [k.nama, k.tagline, k.authorName, ...k.stack].join(" ").toLowerCase().includes(q);
-    }).sort((a, b) => b.waktu - a.waktu);
+    }).sort((a, b) => {
+      const idxA = spotlightOrder.get(String(a.id));
+      const idxB = spotlightOrder.get(String(b.id));
+      if (idxA !== undefined && idxB !== undefined) return idxA - idxB;
+      if (idxA !== undefined) return -1;
+      if (idxB !== undefined) return 1;
+      return b.waktu - a.waktu;
+    });
 
-    const filterAktif = Boolean(stackFilter || q || spotlightFilter !== "all");
+    const filterAktif = Boolean(stackFilter || q);
     document.getElementById("btn-reset-filter").classList.toggle("hidden", !filterAktif);
-    document.getElementById("label-jumlah").textContent = filterAktif
+    document.getElementById("btn-reset-spotlight").classList.toggle("hidden", isAll || jumlahSpotlight === 0);
+    document.getElementById("label-jumlah").textContent = (filterAktif || !isAll)
       ? `Menampilkan ${filtered.length} dari ${semuaKarya.length} karya`
       : `${semuaKarya.length} karya tersedia untuk dikurasi`;
 
@@ -247,6 +275,16 @@
 
     if (filtered.length === 0) {
       grid.innerHTML = "";
+      const spotlightKosong = !isAll && jumlahSpotlight === 0;
+      document.getElementById("empty-title").textContent = spotlightKosong
+        ? "Belum ada karya di Spotlight"
+        : "Belum ada karya yang cocok";
+      document.getElementById("empty-desc").textContent = spotlightKosong
+        ? "Aktifkan Spotlight pada karya di tab Semua Karya untuk menampilkannya di sini."
+        : "Coba kata kunci lain atau reset filter untuk melihat karya.";
+      const emptyBtn = document.getElementById("empty-action");
+      emptyBtn.setAttribute("onclick", spotlightKosong ? "setSpotlightFilter('all')" : "resetFilterKarya()");
+      document.getElementById("empty-action-label").textContent = spotlightKosong ? "Lihat Semua Karya" : "Reset filter";
       empty.classList.remove("hidden");
     } else {
       empty.classList.add("hidden");

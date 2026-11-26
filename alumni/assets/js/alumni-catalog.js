@@ -563,8 +563,12 @@ function loadSpotlightWorks() {
 
 function toggleSpotlightWork(id) {
   const selected = loadSpotlightWorks().map(work => String(work.id));
-  const next = selected.includes(id) ? selected.filter(value => value !== id) : [...selected, id];
+  const next = selected.includes(id) ? selected.filter(value => value !== id) : [id, ...selected];
   localStorage.setItem(SPOTLIGHT_STORAGE_KEY, JSON.stringify(next));
+}
+
+function clearSpotlightWorks() {
+  localStorage.setItem(SPOTLIGHT_STORAGE_KEY, JSON.stringify([]));
 }
 
 function loadBoardGigs() {
