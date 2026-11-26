@@ -3,7 +3,7 @@
  * Dimuat di <head> setelah Tailwind CDN, data.js, dan sebelum main.js.
  */
 
-// Palet mengikuti desain portal modern: Inter, biru #3A5988, kanvas #F8FAFC
+// Palet mengikuti desain alumni v3 (alumni/dashboard.html): Inter, biru #3A5988, kanvas #EFF2F7
 tailwind.config = {
   theme: {
     extend: {
@@ -12,7 +12,7 @@ tailwind.config = {
         primary1: '#3A5988', primary2: '#496DA8', primary3: '#326ECE', primary4: '#B7C8E0', primary5: '#E2F1F9',
         secondary1: '#FFC150', secondary2: '#FFCD73', secondary3: '#FFE0A8', secondary4: '#E3E4E9',
         neutral1: '#212224', neutral2: '#4B5563', neutral3: '#6B7280', neutral4: '#E3E4E9', neutral5: '#F4F5F7', neutral6: '#FFFFFF',
-        canvas: '#F8FAFC', headline: '#0C1117', aktif: '#E5E9EC',
+        canvas: '#EFF2F7', headline: '#0C1117', aktif: '#E5E9EC',
         green1: '#1C6A1A', green2: '#068913', green3: '#CDFECF',
         red1: '#B00B0B', red2: '#D73D3D', red3: '#FCC6CD',
         yellow1: '#8F6F00', yellow2: '#FFCE22', yellow3: '#FFECAA',
@@ -27,7 +27,7 @@ document.head.insertAdjacentHTML('beforeend', `
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  html, html body { font-family: 'Inter', sans-serif !important; background-color: #F8FAFC !important; color: #212224; }
+  html body { font-family: 'Inter', sans-serif !important; background-color: #EFF2F7 !important; color: #212224; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
@@ -246,10 +246,10 @@ function downloadCSV(filename, rows) {
   URL.revokeObjectURL(a.href);
 }
 
-// Tombol Salin (opsional), Ekspor ke Excel, dan Cetak
-function pasangToolsTabel(idWadah, namaFile, ambilBaris, { salin = true } = {}) {
+// Tombol Salin, Ekspor ke Excel, dan Cetak seperti tabel DataTables di monolight
+function pasangToolsTabel(idWadah, namaFile, ambilBaris) {
   document.getElementById(idWadah).innerHTML = `
-    ${salin ? '<button type="button" data-aksi="salin" class="btn-outline"><i data-lucide="copy" class="w-4 h-4"></i> Salin</button>' : ''}
+    <button type="button" data-aksi="salin" class="btn-outline"><i data-lucide="copy" class="w-4 h-4"></i> Salin</button>
     <button type="button" data-aksi="excel" class="btn-outline"><i data-lucide="file-spreadsheet" class="w-4 h-4"></i> Ekspor ke Excel</button>
     <button type="button" data-aksi="cetak" class="btn-outline"><i data-lucide="printer" class="w-4 h-4"></i> Cetak</button>`;
   document.getElementById(idWadah).addEventListener('click', async e => {
@@ -349,19 +349,19 @@ const WARNA_KARTU = {
   biru: ['#E2F1F9', '#3A5988'],
 };
 
-// Kartu statistik di panel ringkasan dashboard.
-function kartuPintasan({ href, ikon, label, nilai, sub, warna, span = '' }) {
+// Sel statistik di panel ringkasan dashboard. Panelnya (grid gap-px berlatar garis) yang memberi pembatas antarsel.
+function kartuPintasan({ href, ikon, label, nilai, sub, warna }) {
   const [latar, teks] = WARNA_KARTU[warna];
   return `
-    <a href="${href}" class="group bg-white border border-neutral4 rounded-[16px] p-4 sm:p-5 shadow-sm flex flex-col justify-between gap-4 min-w-0 hover:border-primary4 hover:shadow-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-primary1/30 ${span}">
-      <span class="flex items-center justify-between gap-3">
-        <span class="w-10 h-10 rounded-[11px] flex items-center justify-center shrink-0" style="background:${latar};color:${teks};"><i data-lucide="${ikon}" class="w-5 h-5"></i></span>
-        <i data-lucide="arrow-up-right" class="w-4 h-4 text-neutral3/60 group-hover:text-primary1 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" aria-hidden="true"></i>
+    <a href="${href}" class="group bg-white p-4 sm:p-5 flex flex-col gap-3 min-w-0 hover:bg-[#F8FAFC] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary1/30">
+      <span class="flex items-center justify-between gap-2">
+        <span class="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0" style="background:${latar};color:${teks};"><i data-lucide="${ikon}" class="w-[18px] h-[18px]"></i></span>
+        <i data-lucide="arrow-up-right" class="w-4 h-4 text-[#91969C] opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true"></i>
       </span>
-      <span class="block min-w-0">
-        <span class="block text-[13px] font-medium text-neutral2 leading-snug truncate">${esc(label)}</span>
-        <span class="block text-[28px] font-semibold text-headline leading-none tabular-nums mt-2">${esc(nilai)}</span>
-        <span class="block text-[12px] text-neutral3 leading-snug truncate mt-1.5">${esc(sub)}</span>
+      <span class="min-w-0">
+        <span class="block text-[12.5px] font-medium text-neutral3 truncate">${esc(label)}</span>
+        <span class="block text-[26px] font-semibold text-headline leading-tight tabular-nums mt-0.5">${esc(nilai)}</span>
+        <span class="block text-[12px] text-neutral3 truncate mt-0.5">${esc(sub)}</span>
       </span>
     </a>`;
 }
@@ -448,8 +448,8 @@ const PORTAL_KOORDINATOR = {
     'mitra.html': ['Mitra'],
     'karya.html': ['Karya Alumni'],
     'pengumuman.html': ['Pengumuman'],
-    'notifikasi.html': ['Notifikasi'],
     'profil.html': ['Profil Saya'],
+    'pengaturan.html': ['Pengaturan Akun', 'profil.html'],
   },
   groups: [
     ['Menu Utama', [['dashboard.html', 'home'], ['data-alumni.html', 'idcard'], ['tracer.html', 'chart'], ['mitra.html', 'building']]],
@@ -459,30 +459,19 @@ const PORTAL_KOORDINATOR = {
   root: 'Koordinator',
   brand: 'Portal Koordinator',
   label: 'koordinator',
-  accountLinks: [['profil.html', 'Profil Saya']],
+  accountLinks: [['profil.html', 'Profil Saya'], ['pengaturan.html', 'Pengaturan Akun']],
 };
 
-const adalahNotifKoordinator = n => (
-  n.ikon === 'flag' ||
-  n.ikon === 'rocket' ||
-  String(n.tautan || '').startsWith('laporan-forum') ||
-  String(n.tautan || '').startsWith('karya')
-);
-const jenisNotifPortal = ikon => (ikon === 'rocket' ? 'gigs' : 'announcement');
-const picuPerubahanNotifPortal = () => window.dispatchEvent(new CustomEvent('bengkod:notifications-change'));
-
-// Notifikasi koordinator (DB.notifikasi) — khusus laporan forum masuk & alumni meluncurkan karya
+// Notifikasi koordinator (DB.notifikasi) dalam bentuk yang dibaca panel portal
 const NOTIF_PORTAL = {
-  getAll: () => DB.notifikasi.milik(SAYA.id).filter(adalahNotifKoordinator).map(n => ({
-    id: String(n.id), kind: jenisNotifPortal(n.ikon), title: n.pesan, meta: waktuLalu(n.waktu), href: n.tautan, unread: !n.dibaca,
+  getAll: () => DB.notifikasi.milik(SAYA.id).map(n => ({
+    id: String(n.id), kind: 'announcement', title: n.pesan, meta: waktuLalu(n.waktu), href: n.tautan, unread: !n.dibaca,
   })),
-  markRead: id => { DB.notifikasi.baca(id); picuPerubahanNotifPortal(); },
-  markAllRead: () => { DB.notifikasi.bacaSemua(SAYA.id); picuPerubahanNotifPortal(); },
-  remove: id => { DB.notifikasi.hapus(id); picuPerubahanNotifPortal(); },
-  clear: () => { DB.notifikasi.hapusSemua(SAYA.id); picuPerubahanNotifPortal(); },
-  allHref: 'notifikasi.html',
+  markRead: id => DB.notifikasi.baca(id),
+  markAllRead: () => DB.notifikasi.bacaSemua(SAYA.id),
+  allHref: '#',
+  showAll: () => bukaModalSemuaNotif(),
 };
-window.NOTIF_KOORDINATOR = NOTIF_PORTAL;
 
 function keluar() {
   confirmAction({ title: 'Keluar dari portal?', message: 'Sesi Anda di perangkat ini akan diakhiri. Masuk lagi lewat halaman login.', okLabel: 'Keluar', danger: true }, () => {
@@ -513,6 +502,63 @@ function pasangDropdown(tombol, panel) {
 
 let notifHalaman = 1;
 const NOTIF_PER_HALAMAN = 5;
+let filterModalNotif = 'semua';
+let halModalNotif = 1;
+const NOTIF_MODAL_PER_HAL = 6;
+
+function bukaModalSemuaNotif() {
+  document.getElementById('notif-panel')?.classList.add('hidden');
+  renderModalSemuaNotif();
+  openModal('modal-semua-notif');
+}
+
+function renderModalSemuaNotif() {
+  const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
+  const terfilter = filterModalNotif === 'belum' ? list.filter(n => !n.dibaca) : list;
+  const belum = list.filter(n => !n.dibaca).length;
+  const total = terfilter.length;
+  const awal = (halModalNotif - 1) * NOTIF_MODAL_PER_HAL;
+  const itemDitampilkan = terfilter.slice(awal, awal + NOTIF_MODAL_PER_HAL);
+
+  const btnSemua = document.getElementById('btn-tab-notif-semua');
+  const btnBelum = document.getElementById('btn-tab-notif-belum');
+  if (btnSemua && btnBelum) {
+    const isSemua = filterModalNotif === 'semua';
+    btnSemua.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${isSemua ? 'bg-[#3A5988] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
+    btnBelum.className = `px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer ${!isSemua ? 'bg-[#3A5988] text-white shadow-xs' : 'text-gray-600 hover:bg-gray-100 border border-gray-200'}`;
+  }
+
+  const wadah = document.getElementById('modal-notif-daftar');
+  if (!wadah) return;
+
+  wadah.innerHTML = itemDitampilkan.map(n => `
+    <div class="flex items-start gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:bg-gray-50/70 transition-colors ${n.dibaca ? 'bg-white' : 'bg-blue-50/30 border-blue-100'}">
+      <span class="w-9 h-9 rounded-full ${n.dibaca ? 'bg-gray-100 text-gray-500' : 'bg-blue-100 text-[#3A5988]'} flex items-center justify-center shrink-0 mt-0.5">
+        <i data-lucide="${esc(n.ikon)}" class="w-4 h-4"></i>
+      </span>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-start justify-between gap-2">
+          <a href="${esc(n.tautan)}" onclick="DB.notifikasi.baca(${n.id})" class="text-[14px] ${n.dibaca ? 'text-gray-700 font-medium' : 'text-gray-900 font-bold'} hover:text-[#3A5988] leading-snug">
+            ${esc(n.pesan)}
+          </a>
+          ${!n.dibaca ? '<span class="px-2 py-0.5 rounded-full bg-blue-100 text-[#3A5988] text-[10.5px] font-bold shrink-0">Baru</span>' : ''}
+        </div>
+        <p class="text-xs text-gray-400 mt-1">${waktuLalu(n.waktu)}</p>
+        <div class="flex items-center gap-3 mt-2.5 pt-2 border-t border-gray-100/80">
+          ${!n.dibaca ? `<button type="button" onclick="DB.notifikasi.baca(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#3A5988] hover:underline cursor-pointer">Tandai telah dibaca</button>` : ''}
+          <button type="button" onclick="DB.notifikasi.hapus(${n.id}); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-medium text-gray-400 hover:text-red-600 transition-colors cursor-pointer ml-auto flex items-center gap-1">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i><span>Hapus</span>
+          </button>
+        </div>
+      </div>
+    </div>`).join('') || `<div class="p-12 text-center text-gray-400"><i data-lucide="bell-off" class="w-10 h-10 mx-auto mb-2 text-gray-300"></i><p class="text-sm">Tidak ada notifikasi ${filterModalNotif === 'belum' ? 'yang belum dibaca' : ''}.</p></div>`;
+
+  renderPager('modal-notif-pager', total, NOTIF_MODAL_PER_HAL, halModalNotif, ke => {
+    halModalNotif = ke;
+    renderModalSemuaNotif();
+  });
+  refreshIcons();
+}
 
 function renderNotifikasi() {
   const list = DB.notifikasi.milik(SAYA.id).filter(n => SAYA.role !== 'alumni' || !n.tautan.startsWith('forum'));
@@ -566,9 +612,9 @@ function renderNotifikasi() {
     </div>
     ${total > 0 ? `
       <div class="px-4 py-2.5 border-t border-gray-100 bg-gray-50/70 flex items-center justify-between text-xs text-gray-600">
-        <a href="notifikasi.html" class="font-semibold text-[#3A5988] hover:underline">
+        <button type="button" data-lihat-semua class="font-semibold text-[#3A5988] hover:underline cursor-pointer">
           Lihat semua notif (${total})
-        </a>
+        </button>
         ${totalHalaman > 1 ? `
           <div class="flex items-center gap-1.5">
             <button type="button" data-notif-ke="${notifHalaman - 1}" ${notifHalaman <= 1 ? 'disabled' : ''} class="p-1 rounded hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer" title="Sebelumnya"><i data-lucide="chevron-left" class="w-3.5 h-3.5"></i></button>
@@ -705,8 +751,8 @@ document.addEventListener('DOMContentLoaded', () => {
               </span>
             </div>
             <div class="p-1.5">
-              <a href="profil.html" class="flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] text-neutral1 hover:bg-neutral5 transition-colors">
-                <i data-lucide="user-round" class="w-4 h-4 text-neutral3"></i><span>Profil Saya</span>
+              <a href="pengaturan.html" class="flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] text-neutral1 hover:bg-neutral5 transition-colors">
+                <i data-lucide="settings" class="w-4 h-4 text-neutral3"></i><span>Pengaturan Akun</span>
               </a>
               <button type="button" onclick="keluar()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-[8px] text-[13.5px] text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
                 <i data-lucide="log-out" class="w-4 h-4"></i><span>Keluar</span>
@@ -731,6 +777,34 @@ document.addEventListener('DOMContentLoaded', () => {
           <button type="button" onclick="closeModal('confirm-modal')" class="px-4 py-2.5 border border-neutral4 text-neutral1 text-[13.5px] font-medium rounded-[8px] hover:bg-neutral5 cursor-pointer">Batal</button>
           <button id="confirm-ok" class="cursor-pointer"></button>
         </div>
+      </div>
+    </div>
+
+    <!-- Modal Lihat Semua Notifikasi -->
+    <div id="modal-semua-notif" data-modal-backdrop class="modal-backdrop">
+      <div class="modal max-w-2xl" role="dialog" aria-modal="true" aria-labelledby="modal-notif-title">
+        <div class="flex items-center justify-between pb-3 border-b border-gray-200">
+          <div>
+            <h3 id="modal-notif-title" class="text-lg font-bold text-gray-900 tracking-tight">Semua Notifikasi</h3>
+            <p class="text-xs text-gray-500 mt-0.5">Kelola seluruh riwayat notifikasi dan pemberitahuan Anda</p>
+          </div>
+          <button type="button" onclick="closeModal('modal-semua-notif')" class="btn-icon" aria-label="Tutup"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+
+        <div class="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap">
+          <div class="flex items-center gap-1.5">
+            <button type="button" id="btn-tab-notif-semua" onclick="filterModalNotif = 'semua'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#3A5988] text-white transition-colors cursor-pointer">Semua</button>
+            <button type="button" id="btn-tab-notif-belum" onclick="filterModalNotif = 'belum'; halModalNotif = 1; renderModalSemuaNotif();" class="px-3.5 py-1.5 rounded-full text-xs font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors cursor-pointer">Belum Dibaca</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="DB.notifikasi.bacaSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif();" class="text-xs font-semibold text-[#3A5988] hover:underline cursor-pointer">Tandai semua dibaca</button>
+            <span class="text-gray-300">•</span>
+            <button type="button" onclick="confirmAction({ title: 'Hapus semua notifikasi?', message: 'Seluruh riwayat notifikasi Anda akan dibersihkan.', okLabel: 'Hapus Semua', danger: true }, () => { DB.notifikasi.hapusSemua(SAYA.id); renderNotifikasi(); renderModalSemuaNotif(); });" class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Hapus semua</button>
+          </div>
+        </div>
+
+        <div id="modal-notif-daftar" class="space-y-2.5 py-3 min-h-[240px]"></div>
+        <div id="modal-notif-pager" class="pt-3 border-t border-gray-100"></div>
       </div>
     </div>`);
 
@@ -819,6 +893,10 @@ document.addEventListener('DOMContentLoaded', () => {
       notifHalaman = Number(tombolHal.dataset.notifKe);
       renderNotifikasi();
       return;
+    }
+
+    if (e.target.closest('[data-lihat-semua]')) {
+      bukaModalSemuaNotif();
     }
   });
   renderNotifikasi();
