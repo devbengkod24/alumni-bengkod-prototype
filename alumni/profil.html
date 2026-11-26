@@ -74,6 +74,29 @@
       padding: 1.25rem clamp(1rem, 4vw, 1.5rem);
     }
     .profile-dialog .profile-action { min-height: 2.5rem; padding-inline: 1rem; }
+    .my-profile {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+    }
+    @media (min-width: 768px) and (min-height: 640px) {
+      .my-profile {
+        display: grid;
+        flex: none;
+        block-size: calc(100dvh - var(--portal-navbar-height, 72px));
+        grid-template-rows: auto minmax(0, 1fr);
+      }
+      .my-profile-columns {
+        min-block-size: 0;
+        grid-template-rows: minmax(0, 1fr);
+      }
+      .my-profile-sections {
+        align-self: stretch;
+        overflow-y: auto;
+        overscroll-behavior-y: contain;
+        padding: 1px 0.5rem 2px 1px;
+      }
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
@@ -282,12 +305,6 @@
 
         init() {
           this.restoreProfileSections();
-          this.$nextTick(() => {
-            const summary = this.$refs.profileSummary;
-            const sizeSummary = () => summary.style.setProperty('--profile-summary-height', `${summary.offsetHeight}px`);
-            sizeSummary();
-            new ResizeObserver(sizeSummary).observe(summary);
-          });
           window.addEventListener('pageshow', event => {
             if (!event.persisted) return;
             this.profile = loadProfilSaya();
@@ -643,7 +660,7 @@
     <span x-text="toast"></span>
   </div>
 
-  <main data-profile-page="view" class="w-full flex-1 space-y-6 p-4 sm:p-6 lg:p-6">
+  <main data-profile-page="view" class="my-profile w-full gap-6 p-4 sm:p-6">
     <header class="overflow-hidden rounded-[16px] shadow-sm border border-[#E3E4E9] bg-white">
       <div class="flex h-24 items-start justify-end bg-[#3A5988] px-4 py-4 sm:h-28 sm:px-6">
         <span class="rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]" x-text="'Alumni ' + profile.batch"></span>
@@ -689,8 +706,8 @@
       </div>
     </header>
 
-    <div class="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
-      <div class="min-w-0 space-y-4">
+    <div class="my-profile-columns grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
+      <div class="my-profile-sections min-w-0 space-y-4" role="region" aria-label="Detail profil" tabindex="0">
         <section class="profile-panel" aria-labelledby="profile-summary-title">
           <h2 id="profile-summary-title" class="profile-heading">Ringkasan Eksekutif</h2>
           <div class="profile-copy whitespace-pre-line">
@@ -901,7 +918,7 @@
         </section>
       </div>
 
-      <aside x-ref="profileSummary" aria-label="Ringkasan profil" class="profile-summary min-w-0 space-y-4">
+      <aside aria-label="Ringkasan profil" class="min-w-0 space-y-4">
         <section class="profile-panel" aria-labelledby="profile-completeness-title">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 id="profile-completeness-title" class="profile-heading">Kelengkapan Profil</h2>
@@ -931,20 +948,6 @@
               </template>
             </ul>
           </div>
-        </section>
-
-        <section class="profile-panel" aria-labelledby="profile-stats-title">
-          <h2 id="profile-stats-title" class="profile-heading">Statistik Profil</h2>
-          <dl class="grid grid-cols-2 gap-2">
-            <div class="rounded-[12px] bg-[#F4F5F7] px-3 py-2.5">
-              <dt class="text-[11px] text-[#4B5563]">Pengikut</dt>
-              <dd class="text-[22px] font-bold text-[#3A5988]" x-text="profile.followers"></dd>
-            </div>
-            <div class="rounded-[12px] bg-[#F4F5F7] px-3 py-2.5">
-              <dt class="text-[11px] text-[#4B5563]">Proyek</dt>
-              <dd class="text-[22px] font-bold text-[#3A5988]" x-text="projects.length"></dd>
-            </div>
-          </dl>
         </section>
       </aside>
     </div>
