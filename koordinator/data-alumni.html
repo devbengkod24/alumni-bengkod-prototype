@@ -20,80 +20,24 @@
     <p class="!text-[13.5px] text-neutral3 mt-1">Kelola dan pantau data profil, kontak, status kuesioner tracer, karier, dan keahlian alumni Bengkel Koding UDINUS.</p>
   </div>
 
-  <!-- Toolbar filter terpadu -->
-  <div class="bg-white border border-neutral4 rounded-[14px] p-4 sm:p-5 shadow-sm space-y-3.5 no-print">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="relative">
+  <!-- Toolbar pencarian & pemicu drawer filter -->
+  <div class="bg-white border border-neutral4 rounded-[14px] p-4 shadow-sm space-y-3 no-print">
+    <div class="flex items-center gap-2.5">
+      <div class="relative flex-1 min-w-0">
         <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="search" class="w-4 h-4"></i></span>
-        <input id="cari" type="search" aria-label="Cari alumni" placeholder="Cari nama, NIM, email, kota, jabatan, atau keahlian..."
-               class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
+        <input id="cari" type="search" aria-label="Cari nama alumni atau tempat kerja" placeholder="Cari nama alumni atau tempat kerja..."
+               class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-canvas focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
       </div>
-      <div class="relative">
-        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="building-2" class="w-4 h-4"></i></span>
-        <input id="cari-tempat" type="search" aria-label="Cari tempat kerja" placeholder="Kerja / studi di mana? (Cari perusahaan atau kampus...)"
-               class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
-      </div>
+      <button type="button" id="btn-buka-filter" aria-haspopup="dialog" aria-expanded="false" aria-controls="drawer-filter"
+              class="btn-outline h-10 px-3.5 sm:px-4 shrink-0">
+        <i data-lucide="sliders-horizontal" class="w-4 h-4 text-primary1" aria-hidden="true"></i>
+        <span>Filter</span>
+        <span id="badge-filter" class="hidden min-w-[20px] h-5 px-1.5 rounded-full bg-primary5 text-primary1 border border-primary4 text-[11px] font-semibold items-center justify-center tabular-nums"></span>
+      </button>
     </div>
-
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-      <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
-        <div class="relative">
-          <label for="filter-status" class="sr-only">Status alumni</label>
-          <select id="filter-status" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua status</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-        <div class="relative">
-          <label for="filter-batch" class="sr-only">Angkatan</label>
-          <select id="filter-batch" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua angkatan</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-        <div class="relative">
-          <label for="filter-skill" class="sr-only">Keahlian utama</label>
-          <select id="filter-skill" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua keahlian</option>
-            <option value="Laravel">Laravel / PHP</option>
-            <option value="React">React / Frontend</option>
-            <option value="Python">Python / ML</option>
-            <option value="Flutter">Flutter / Mobile</option>
-            <option value="Go">Golang / Cloud</option>
-            <option value="Docker">Docker / DevOps</option>
-            <option value="UI/UX">UI/UX Design</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-        <div class="relative">
-          <label for="filter-kota" class="sr-only">Kota domisili</label>
-          <select id="filter-kota" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua kota</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-        <div class="relative">
-          <label for="filter-jenjang" class="sr-only">Jenjang pendidikan</label>
-          <select id="filter-jenjang" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua jenjang</option>
-            <option value="s1">S1</option>
-            <option value="s2">Studi Lanjut</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-        <div class="relative">
-          <label for="filter-profil" class="sr-only">Pekerjaan sampingan</label>
-          <select id="filter-profil" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
-            <option value="">Semua profil</option>
-            <option value="sampingan">Punya pekerjaan sampingan</option>
-          </select>
-          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
-        </div>
-      </div>
-
-      <div class="flex items-center justify-end">
-        <button type="button" id="btn-reset-filter" class="hidden text-[13px] text-primary3 hover:underline font-medium cursor-pointer whitespace-nowrap">Reset</button>
-      </div>
+    <div id="baris-ringkas-filter" class="hidden flex-wrap items-center justify-between gap-2 pt-0.5">
+      <div id="chips-filter-aktif" class="flex flex-wrap items-center gap-1.5"></div>
+      <button type="button" id="btn-reset-filter" class="text-[12.5px] text-primary3 hover:underline font-medium cursor-pointer whitespace-nowrap ml-auto">Reset semua</button>
     </div>
   </div>
 
@@ -133,6 +77,35 @@
   </div>
 </main>
 
+<!-- Slide-over filter drawer dari sisi kanan layar -->
+<div id="drawer-filter" role="dialog" aria-modal="true" aria-labelledby="drawer-filter-title"
+     class="fixed inset-0 z-[100] hidden bg-headline/40 backdrop-blur-sm justify-end no-print">
+  <div id="drawer-filter-panel"
+       class="h-full w-full max-w-[460px] bg-white border-l border-neutral4 shadow-xl flex flex-col translate-x-full transition-transform duration-200">
+    <!-- Header Drawer -->
+    <div class="px-5 py-4 border-b border-neutral4 flex items-center justify-between gap-3 shrink-0">
+      <h2 id="drawer-filter-title" class="!text-[16px] font-bold text-headline tracking-[-0.01em]">Filter &amp; Urutkan</h2>
+      <button type="button" id="btn-tutup-filter" class="btn-icon" aria-label="Tutup panel filter">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Body 2 Kolom (Rail Kiri + Opsi Chip Kanan) -->
+    <div class="flex-1 min-h-0 flex overflow-hidden">
+      <nav id="rail-filter" aria-label="Kategori filter"
+           class="w-[124px] sm:w-[140px] shrink-0 bg-canvas border-r border-neutral4 py-2 overflow-y-auto custom-scrollbar"></nav>
+      <div id="opsi-filter"
+           class="flex-1 min-w-0 p-4 sm:p-5 space-y-5 overflow-y-auto custom-scrollbar"></div>
+    </div>
+
+    <!-- Sticky Footer -->
+    <div class="px-4 py-3.5 border-t border-neutral4 bg-white grid grid-cols-2 gap-3 shrink-0">
+      <button type="button" id="btn-atur-ulang" class="btn-outline w-full justify-center">Atur Ulang</button>
+      <button type="button" id="btn-terapkan-filter" class="btn-primary w-full justify-center">Terapkan</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const PER_HALAMAN = 10;
   let halaman = 1;
@@ -153,10 +126,10 @@
     ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
   ];
 
-  // Isi opsi status (kelompok dashboard + 5 status baku)
-  $('filter-status').innerHTML = `<option value="">Semua status</option>
-    <optgroup label="Kelompok">${Object.entries(KELOMPOK_STATUS).map(([kunci, [label]]) => `<option value="${kunci}">${label}</option>`).join('')}</optgroup>
-    <optgroup label="Status">${DB.STATUS.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('')}</optgroup>`;
+  const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '' });
+  let activeFilter = DEFAULT_FILTER();
+  let draftFilter = DEFAULT_FILTER();
+  let activeCategory = 'sort';
 
   function cocokStatus(t, status) {
     if (!status) return true;
@@ -209,34 +182,126 @@
       </tr>`;
   }
 
-  function filterAlumni(semua) {
-    const kata = $('cari').value.trim().toLowerCase();
-    const tempat = $('cari-tempat').value.trim().toLowerCase();
-    const status = $('filter-status').value;
-    const batch = $('filter-batch').value;
-    const kota = $('filter-kota').value;
-    const skill = $('filter-skill').value.toLowerCase();
-    const jenjang = $('filter-jenjang').value;
-    const profil = $('filter-profil').value;
+  const tracerAlumni = DB.akun.alumni().map(a => DB.tracer.milik(a.id)).filter(Boolean);
+  const daftarAngkatan = [...new Set(tracerAlumni.map(t => String(t.tahun_lulus)))].sort((a, b) => Number(b) - Number(a));
 
-    return semua.filter(a => {
-      const t = DB.tracer.milik(a.id);
-      const karir = DB.tracer.karir(t);
-      const keahlian = (t?.keahlian || []).join(' ').toLowerCase();
-      if (kata && !`${a.nama} ${t?.nim || a.nim || ''} ${a.email} ${t?.kota || ''} ${karir.ringkas} ${keahlian}`.toLowerCase().includes(kata)) return false;
-      if (tempat && !`${karir.tempat} ${t?.nama_studi || ''} ${t?.nama_sampingan || ''}`.toLowerCase().includes(tempat)) return false;
-      if (!cocokStatus(t, status)) return false;
-      if (batch && String(t?.tahun_lulus) !== batch) return false;
-      if (kota && t?.kota !== kota) return false;
-      if (skill && !keahlian.includes(skill)) return false;
-      if (jenjang === 's2' && !isS2(t)) return false;
-      if (jenjang === 's1' && isS2(t)) return false;
-      if (profil === 'sampingan' && !t?.nama_sampingan) return false;
-      return true;
-    });
+  const FILTER_SECTIONS = [
+    {
+      key: 'sort',
+      railLabel: 'Urutkan',
+      title: 'Urutkan',
+      options: [
+        { value: '', label: 'Default' },
+        { value: 'nama-asc', label: 'Nama (A–Z)' },
+        { value: 'angkatan-desc', label: 'Angkatan Terbaru' },
+        { value: 'angkatan-asc', label: 'Angkatan Terlama' },
+      ],
+    },
+    {
+      key: 'status',
+      railLabel: 'Status',
+      title: 'Status Alumni',
+      options: [
+        ...Object.entries(KELOMPOK_STATUS).map(([value, [label]]) => ({ value, label })),
+        ...DB.STATUS.map(s => ({ value: s, label: s })),
+      ],
+    },
+    {
+      key: 'batch',
+      railLabel: 'Angkatan',
+      title: 'Angkatan',
+      options: daftarAngkatan.map(v => ({ value: v, label: `Angkatan ${v}` })),
+    },
+  ];
+
+  function urutkanAlumni(list, sort) {
+    if (!sort) return list;
+    const salinan = [...list];
+    if (sort === 'nama-asc') return salinan.sort((a, b) => (a.nama || '').localeCompare(b.nama || '', 'id'));
+    const angkatan = a => Number(DB.tracer.milik(a.id)?.tahun_lulus || 0);
+    if (sort === 'angkatan-desc') return salinan.sort((a, b) => angkatan(b) - angkatan(a) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    if (sort === 'angkatan-asc') return salinan.sort((a, b) => angkatan(a) - angkatan(b) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    return salinan;
   }
 
-  const FILTER_IDS = ['filter-status', 'filter-batch', 'filter-skill', 'filter-kota', 'filter-jenjang', 'filter-profil'];
+  function filterAlumni(semua) {
+    const kata = $('cari').value.trim().toLowerCase();
+    const { sort, status, batch } = activeFilter;
+
+    const tersaring = semua.filter(a => {
+      const t = DB.tracer.milik(a.id);
+      const karir = DB.tracer.karir(t);
+      const teksCari = `${a.nama} ${karir.tempat || ''} ${t?.nama_studi || ''} ${t?.nama_sampingan || ''}`.toLowerCase();
+      if (kata && !teksCari.includes(kata)) return false;
+      if (!cocokStatus(t, status)) return false;
+      if (batch && String(t?.tahun_lulus) !== batch) return false;
+      return true;
+    });
+
+    return urutkanAlumni(tersaring, sort);
+  }
+
+  function renderDrawerContent() {
+    $('rail-filter').innerHTML = FILTER_SECTIONS.map(sec => {
+      const dipilih = Boolean(draftFilter[sec.key]);
+      const aktif = activeCategory === sec.key;
+      return `
+        <button type="button" data-rail-key="${sec.key}"
+                class="w-full px-3 py-2.5 text-left text-[12.5px] leading-snug flex items-center justify-between gap-1.5 border-l-[3px] transition-colors cursor-pointer ${
+                  aktif
+                    ? 'bg-white text-primary1 font-semibold border-primary1'
+                    : 'text-neutral2 hover:text-headline hover:bg-neutral5/70 font-medium border-transparent'
+                }">
+          <span class="truncate">${sec.railLabel}</span>
+          ${dipilih ? '<span class="w-1.5 h-1.5 rounded-full bg-primary1 shrink-0" aria-hidden="true"></span>' : ''}
+        </button>`;
+    }).join('');
+
+    $('opsi-filter').innerHTML = FILTER_SECTIONS.map(sec => `
+      <section id="sec-filter-${sec.key}" data-sec-key="${sec.key}" class="scroll-mt-3">
+        <h3 class="!text-[13.5px] font-semibold text-headline mb-2.5">${sec.title}</h3>
+        <div class="flex flex-wrap gap-2">
+          ${sec.options.map(opt => {
+            const dipilih = draftFilter[sec.key] === opt.value;
+            return `
+              <button type="button" data-filter-key="${sec.key}" data-filter-val="${esc(opt.value)}" aria-pressed="${dipilih}"
+                      class="px-3 py-2 rounded-[8px] text-[12.5px] leading-snug text-left transition-colors cursor-pointer border ${
+                        dipilih
+                          ? 'bg-primary5 text-primary1 border-primary4 font-semibold'
+                          : 'bg-neutral5 text-neutral1 border-transparent hover:border-neutral4 font-normal'
+                      }">${esc(opt.label)}</button>`;
+          }).join('')}
+        </div>
+      </section>`).join('');
+    refreshIcons();
+  }
+
+  function renderToolbarStatus() {
+    const entries = FILTER_SECTIONS
+      .filter(sec => activeFilter[sec.key])
+      .map(sec => {
+        const opt = sec.options.find(o => o.value === activeFilter[sec.key]);
+        return { key: sec.key, prefix: sec.railLabel, label: opt ? opt.label : activeFilter[sec.key] };
+      });
+    const badgeEl = $('badge-filter');
+    badgeEl.textContent = entries.length;
+    badgeEl.classList.toggle('hidden', entries.length === 0);
+    badgeEl.classList.toggle('inline-flex', entries.length > 0);
+
+    const kata = $('cari').value.trim();
+    const adaSesuatu = entries.length > 0 || Boolean(kata);
+    const barisRingkas = $('baris-ringkas-filter');
+    barisRingkas.classList.toggle('hidden', !adaSesuatu);
+    barisRingkas.classList.toggle('flex', adaSesuatu);
+
+    $('chips-filter-aktif').innerHTML = entries.map(e => `
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[8px] bg-primary5 text-primary1 border border-primary4 text-[12px] font-medium">
+        <span>${esc(e.prefix)}: ${esc(e.label)}</span>
+        <button type="button" data-hapus-chip="${e.key}" aria-label="Hapus filter ${esc(e.prefix)}" class="hover:text-headline cursor-pointer">
+          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+      </span>`).join('');
+  }
 
   function render() {
     const semua = DB.akun.alumni();
@@ -244,8 +309,7 @@
     const jumlahHal = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN));
     halaman = Math.min(halaman, jumlahHal);
 
-    const filterAktif = Boolean($('cari').value.trim() || $('cari-tempat').value.trim() || FILTER_IDS.some(id => $(id).value));
-    $('btn-reset-filter').classList.toggle('hidden', !filterAktif);
+    renderToolbarStatus();
 
     $('jumlah-hasil').textContent = hasil.length === semua.length
       ? `(${semua.length} alumni)`
@@ -254,7 +318,7 @@
       ? potong(hasil, halaman, PER_HALAMAN).map(barisAlumni).join('')
       : `<tr><td colspan="7" class="py-12 text-center text-neutral3">
           <p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang sesuai</p>
-          <p class="!text-[13px] mt-1">Coba ubah kata kunci pencarian atau reset filter.</p>
+          <p class="!text-[13px] mt-1">Coba ubah kata kunci pencarian atau atur ulang filter.</p>
         </td></tr>`;
 
     const awal = hasil.length ? (halaman - 1) * PER_HALAMAN + 1 : 0;
@@ -266,32 +330,99 @@
     refreshIcons();
   }
 
+  function bukaDrawer() {
+    draftFilter = { ...activeFilter };
+    renderDrawerContent();
+    const drawer = $('drawer-filter');
+    const panel = $('drawer-filter-panel');
+    drawer.classList.remove('hidden');
+    drawer.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+    $('btn-buka-filter').setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => panel.classList.remove('translate-x-full'));
+    $('btn-tutup-filter').focus();
+  }
+
+  function tutupDrawer() {
+    const drawer = $('drawer-filter');
+    const panel = $('drawer-filter-panel');
+    if (drawer.classList.contains('hidden')) return;
+    panel.classList.add('translate-x-full');
+    document.body.style.overflow = '';
+    $('btn-buka-filter').setAttribute('aria-expanded', 'false');
+    setTimeout(() => {
+      drawer.classList.add('hidden');
+      drawer.classList.remove('flex');
+    }, 180);
+    $('btn-buka-filter').focus();
+  }
+
   const ulang = () => { halaman = 1; render(); };
-  ['cari', 'cari-tempat'].forEach(id => $(id).addEventListener('input', ulang));
-  FILTER_IDS.forEach(id => $(id).addEventListener('change', ulang));
-  $('btn-reset-filter').addEventListener('click', () => {
-    ['cari', 'cari-tempat', ...FILTER_IDS].forEach(id => { $(id).value = ''; });
+  $('cari').addEventListener('input', ulang);
+  $('btn-buka-filter').addEventListener('click', bukaDrawer);
+  $('btn-tutup-filter').addEventListener('click', tutupDrawer);
+  $('drawer-filter').addEventListener('click', e => {
+    if (e.target === $('drawer-filter')) tutupDrawer();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !$('drawer-filter').classList.contains('hidden')) tutupDrawer();
+  });
+
+  $('rail-filter').addEventListener('click', e => {
+    const btn = e.target.closest('[data-rail-key]');
+    if (!btn) return;
+    activeCategory = btn.dataset.railKey;
+    renderDrawerContent();
+    $('sec-filter-' + activeCategory)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  $('opsi-filter').addEventListener('click', e => {
+    const chip = e.target.closest('[data-filter-key]');
+    if (!chip) return;
+    const { filterKey, filterVal } = chip.dataset;
+    activeCategory = filterKey;
+    draftFilter[filterKey] = draftFilter[filterKey] === filterVal ? '' : filterVal;
+    renderDrawerContent();
+  });
+
+  $('btn-atur-ulang').addEventListener('click', () => {
+    draftFilter = DEFAULT_FILTER();
+    activeCategory = 'sort';
+    renderDrawerContent();
+  });
+
+  $('btn-terapkan-filter').addEventListener('click', () => {
+    activeFilter = { ...draftFilter };
+    ulang();
+    tutupDrawer();
+  });
+
+  $('chips-filter-aktif').addEventListener('click', e => {
+    const btn = e.target.closest('[data-hapus-chip]');
+    if (!btn) return;
+    activeFilter[btn.dataset.hapusChip] = '';
     ulang();
   });
+
+  $('btn-reset-filter').addEventListener('click', () => {
+    $('cari').value = '';
+    activeFilter = DEFAULT_FILTER();
+    draftFilter = DEFAULT_FILTER();
+    ulang();
+  });
+
   $('hal-sebelum').addEventListener('click', () => { halaman--; render(); });
   $('hal-berikut').addEventListener('click', () => { halaman++; render(); });
-  // Klik di mana saja pada baris membuka profil
   $('daftar').addEventListener('click', e => {
     const tr = e.target.closest('tr[data-href]');
     if (tr && !e.target.closest('a')) location.href = tr.dataset.href;
   });
 
-  // Pilihan angkatan dan kota diambil dari data, jadi selalu cocok dengan isi tabel
-  const tracerAlumni = DB.akun.alumni().map(a => DB.tracer.milik(a.id)).filter(Boolean);
-  const isiOpsi = (id, nilai, label) => $(id).insertAdjacentHTML('beforeend',
-    nilai.map(v => `<option value="${esc(v)}">${esc(label(v))}</option>`).join(''));
-  isiOpsi('filter-batch', [...new Set(tracerAlumni.map(t => String(t.tahun_lulus)))].sort((a, b) => Number(b) - Number(a)), v => `Angkatan ${v}`);
-  isiOpsi('filter-kota', [...new Set(tracerAlumni.map(t => t.kota).filter(Boolean))].sort(), v => v);
-
   // Terapkan filter awal bila datang dari kartu Status Alumni di Dashboard (?status=... atau ?tahun=...)
   const paramAwal = new URLSearchParams(location.search);
-  if (paramAwal.get('status')) $('filter-status').value = paramAwal.get('status');
-  if (paramAwal.get('tahun')) $('filter-batch').value = paramAwal.get('tahun');
+  if (paramAwal.get('status')) activeFilter.status = paramAwal.get('status');
+  if (paramAwal.get('tahun')) activeFilter.batch = paramAwal.get('tahun');
+  draftFilter = { ...activeFilter };
 
   pasangToolsTabel('alat', 'data-alumni.csv', () => [
     KOLOM_EKSPOR.map(([, label]) => label),
