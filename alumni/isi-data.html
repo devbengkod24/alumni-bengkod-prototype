@@ -94,7 +94,7 @@
             </div>
           </a>
 
-          <a href="login.html?keluar=1"
+          <a href="../login.html?keluar=1"
              class="inline-flex h-8 items-center rounded-[8px] border border-[#DCE4F0] bg-white px-3 text-[12px] font-semibold text-[#475569] transition-colors hover:bg-[#F2F6FC] hover:text-[#0F172A]">
             Keluar
           </a>
@@ -131,7 +131,7 @@
   <script>
     (() => {
       if (!SAYA) {
-        location.replace('login.html');
+        location.replace('../login.html');
         return;
       }
       if (!IS_PREVIEW_MODE && DB.tracer.milik(SAYA.id)) {

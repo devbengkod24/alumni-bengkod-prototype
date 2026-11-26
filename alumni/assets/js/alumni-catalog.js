@@ -4,11 +4,16 @@ const SHOWCASE_EXAMPLES = [
     postId: 1,
     nama: "AntreKlinik",
     category: "HealthTech & Layanan Publik",
+    period: "Jul 2026 – Okt 2026",
     date: "27 Okt 2026",
     city: "Semarang, Indonesia –",
     tagline: "Antrean klinik dari ponsel, tanpa menunggu di ruang tunggu.",
     logo: "",
-    banner: "assets/banner-mobile-schedule.jpg",
+    banner: "assets/project-fuji.webp",
+    demoLink: "https://antreklinik.bengkelkoding.id",
+    attachments: [
+      { name: "Dokumentasi_Arsitektur_AntreKlinik.pdf", type: "application/pdf", size: 1240500 }
+    ],
     stack: ["Laravel", "MySQL", "REST API", "Tailwind CSS"],
     authorName: "Budi Santoso",
     authorAvatar: "https://i.pravatar.cc/150?img=11",
@@ -36,11 +41,17 @@ const SHOWCASE_EXAMPLES = [
     postId: 2,
     nama: "Sentimeter AI",
     category: "AI Analytics & NLP",
+    period: "Agu 2026 – Nov 2026",
     date: "03 Nov 2026",
     city: "Semarang, Indonesia –",
     tagline: "Engine analisis sentimen ulasan publik multi-bahasa dengan latensi rendah.",
     logo: "",
-    banner: "assets/banner-dashboard.jpg",
+    banner: "assets/project-city.jpg",
+    demoLink: "https://sentimeter-ai.bengkelkoding.id",
+    contributors: [
+      { id: "c-1", name: "Rizky Pratama" },
+      { id: "c-2", name: "Dimas Aryo" }
+    ],
     stack: ["Python", "FastAPI", "Next.js", "Docker", "PyTorch"],
     authorName: "Clarista",
     authorAvatar: "https://i.pravatar.cc/150?img=5",
@@ -72,7 +83,7 @@ const SHOWCASE_EXAMPLES = [
     city: "Semarang, Indonesia –",
     tagline: "Catat kas dan iuran warga tanpa buku besar, otomatis rekap bulanan.",
     logo: "",
-    banner: "assets/banner-mobile-schedule.jpg",
+    banner: "assets/project-fuji.webp",
     stack: ["Python", "Flask", "SQL", "Bootstrap"],
     authorName: "Fajar Nugroho",
     authorAvatar: "https://i.pravatar.cc/150?img=12",
@@ -105,7 +116,7 @@ const SHOWCASE_EXAMPLES = [
     city: "Semarang, Indonesia –",
     tagline: "Figma to Tailwind CSS v4 design token generator otomatis.",
     logo: "",
-    banner: "assets/banner-scooter.jpg",
+    banner: "assets/project-city.jpg",
     stack: ["TypeScript", "Node.js", "Tailwind CSS", "Figma API"],
     authorName: "Dimas Aryo",
     authorAvatar: "https://i.pravatar.cc/150?img=15",
@@ -137,7 +148,7 @@ const SHOWCASE_EXAMPLES = [
     city: "Semarang, Indonesia –",
     tagline: "Point of Sale & inventory digital kasir koperasi UMKM kampus.",
     logo: "",
-    banner: "assets/banner-dashboard.jpg",
+    banner: "assets/project-fuji.webp",
     stack: ["React", "TypeScript", "Tailwind CSS", "IndexedDB"],
     authorName: "Intan Permata",
     authorAvatar: "https://i.pravatar.cc/150?img=48",
@@ -168,7 +179,11 @@ const SHOWCASE_EXAMPLES = [
     city: "Semarang, Indonesia –",
     tagline: "Sistem pelacakan stok dan scanner barcode gudang multi-cabang berbasis mobile.",
     logo: "",
-    banner: "assets/banner-scooter.jpg",
+    banner: "assets/project-city.jpg",
+    demoLink: "https://logistik-scanner.bengkelkoding.id",
+    attachments: [
+      { name: "Panduan_Teknis_Logistik_Scanner.pdf", type: "application/pdf", size: 1120000 }
+    ],
     stack: ["Flutter", "Firebase", "Dart", "Provider"],
     authorName: "Hendra Setiawan",
     authorAvatar: "https://i.pravatar.cc/150?img=33",
@@ -263,7 +278,7 @@ const GIG_EXAMPLES = [
     status: "Terbuka",
     rolesNeeded: ["React Developer", "Data Visualization"],
     techStack: ["Next.js", "Tailwind CSS", "Recharts", "TypeScript"],
-    description: "Frontend dashboard untuk menyajikan sebaran karir alumni bengkod secara real-time dengan chart interaktif dan export data Excel/PDF.",
+    description: "Frontend dashboard untuk menyajikan sebaran karir alumni bengkod secara real-time dengan chart interaktif dan export data Excel/PDF. Dashboard akan menampilkan visualisasi data tracer study meliputi distribusi pekerjaan per bidang industri, rata-rata waktu tunggu kerja, dan tren gaji per angkatan.",
     applicantsCount: 4,
     applicants: [{
       id: "app-101",
@@ -474,11 +489,12 @@ function loadShowcaseWorks() {
     const mapped = {
       id: `post-${post.id}`,
       nama: work.nama,
+      period: work.period || "",
       tagline: work.tagline || "",
       category: work.categoryTags?.join(" · ") || "",
       date: post.date,
       logo: work.logo || "",
-      banner: work.bannerUrl || work.screenshots?.[0] || post.imageUrl || "",
+      banner: work.bannerUrl || (work.nama === "Sentimeter AI" || post.id % 2 === 0 ? "assets/project-city.jpg" : "assets/project-fuji.webp"),
       stack: work.stack || [],
       authorName: post.authorName,
       authorAvatar: post.authorAvatar,
@@ -494,9 +510,10 @@ function loadShowcaseWorks() {
       ...existing,
       sourcePostId: post.id,
       projectId: work.projectId,
+      period: work.period || existing?.period || "",
       demoLink: work.url || existing?.demoLink || "",
-      contributors: work.contributors ?? existing?.contributors ?? [],
-      attachments: work.attachments || []
+      contributors: (work.contributors && work.contributors.length) ? work.contributors : (existing?.contributors || []),
+      attachments: (work.attachments && work.attachments.length) ? work.attachments : (existing?.attachments || [])
     });
   }
   let stored;
@@ -511,6 +528,8 @@ function loadShowcaseWorks() {
       byAuthorAndTitle.set(workKey, {
         ...existing,
         ...work,
+        period: work.period || existing?.period || "",
+        banner: /^assets\/banner-/.test(work.banner || "") ? (existing?.banner || "assets/project-city.jpg") : (work.banner || existing?.banner || ""),
         demoLink: work.demoLink && work.demoLink !== "#" ? work.demoLink : existing?.demoLink || ""
       });
     }

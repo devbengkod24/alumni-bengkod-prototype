@@ -437,6 +437,7 @@ function syncProjectToFeed(project, author) {
   const karyaObj = {
     projectId: project.id,
     nama: project.title,
+    period: project.period || undefined,
     tagline: project.tagline || (project.desc ? project.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
     pitch: project.pitch || project.tagline || project.desc || undefined,
     categoryTags: categoryTags.length > 0 ? categoryTags : ["Software"],

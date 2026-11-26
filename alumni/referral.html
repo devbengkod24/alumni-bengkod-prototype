@@ -73,6 +73,24 @@
         currentUserHeadline: profile.headline,
 
         posts: loadBoardVacancies(),
+        savedPostIds: (() => {
+          try {
+            const raw = localStorage.getItem('bengkod_saved_referrals_v1');
+            return raw ? JSON.parse(raw) : [];
+          } catch { return []; }
+        })(),
+        handleToggleBookmark(id) {
+          if (this.savedPostIds.includes(id)) {
+            this.savedPostIds = this.savedPostIds.filter(x => x !== id);
+            this.setToast('Lowongan dihapus dari simpanan');
+          } else {
+            this.savedPostIds.push(id);
+            this.setToast('Lowongan berhasil disimpan');
+          }
+          try {
+            localStorage.setItem('bengkod_saved_referrals_v1', JSON.stringify(this.savedPostIds));
+          } catch {}
+        },
         detailModalOpen: false,
         descExpanded: false,
         referralMenuOpen: false,
@@ -156,6 +174,8 @@
         get browsePosts() {
           const q = this.searchQuery.trim().toLowerCase();
           return this.referralPosts.filter(p => {
+            if (this.activeTab === 'jelajahi' && this.isMine(p)) return false;
+            if (this.activeTab === 'saved' && !this.savedPostIds.includes(p.id)) return false;
             const r = p.referral;
             if (this.filterLevel && r.level !== this.filterLevel) return false;
             if (this.filterStatus === 'dibuka' && this.isClosed(p)) return false;
@@ -202,11 +222,7 @@
         },
 
         viewDetail(post) {
-          this.selectedPost = post;
-          this.detailModalOpen = true;
-          this.descExpanded = false;
-          this.referralMenuOpen = false;
-          history.pushState({ id: post.id }, '', boardVacancyLink(post.id));
+          window.location.href = 'detail-referral.html?id=' + encodeURIComponent(post.id);
         },
 
         closeDetailModal() {
@@ -440,7 +456,7 @@
           <!-- Tab Segmented -->
           <div class="bg-[#F4F5F7] p-1 rounded-[10px] inline-flex items-center gap-1 text-[13.5px]">
             <button type="button" @click="activeTab = 'jelajahi'" class="px-4 py-2 rounded-[8px] font-medium transition-colors" :class="activeTab === 'jelajahi' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
-              Jelajahi
+              Jelajahi Lowongan
             </button>
             <button type="button" @click="activeTab = 'saya'" class="px-4 py-2 rounded-[8px] font-medium transition-colors" :class="activeTab === 'saya' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
               Referral Saya (<span x-text="myPosts.length"></span>)
@@ -448,13 +464,16 @@
             <button type="button" @click="activeTab = 'terkirim'" class="px-4 py-2 rounded-[8px] font-medium transition-colors" :class="activeTab === 'terkirim' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
               Pengajuan Terkirim (<span x-text="sentItems.length"></span>)
             </button>
+            <button type="button" @click="activeTab = 'saved'" class="px-4 py-2 rounded-[8px] font-medium transition-colors" :class="activeTab === 'saved' ? 'bg-white text-[#0C1117] shadow-sm font-semibold' : 'text-[#6B7280] hover:text-[#0C1117]'">
+              Tersimpan (<span x-text="savedPostIds.length"></span>)
+            </button>
           </div>
         </div>
 
         <!-- ======================================================
-             A. TAB JELAJAHI: PANEL FILTER KIRI + DAFTAR KANAN
+             A. TAB JELAJAHI & TERSIMPAN: PANEL FILTER KIRI + DAFTAR KANAN
         ====================================================== -->
-        <div x-show="activeTab === 'jelajahi'" class="space-y-6">
+        <div x-show="activeTab === 'jelajahi' || activeTab === 'saved'" class="space-y-6">
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             <!-- PANEL FILTER KIRI (280px / 3.5 cols di desktop) -->
             <aside class="lg:col-span-4 xl:col-span-3 bg-[#F4F5F7] border border-[#E3E4E9] rounded-[12px] p-5 space-y-6 lg:sticky lg:top-6">
@@ -536,7 +555,7 @@
                 </div>
               </div>
 
-              <template x-for="post in browsePosts" :key="post.id">
+              <template x-for="(post, postIdx) in browsePosts" :key="post.id">
                   <div class="bg-white border border-[#E3E4E9] hover:border-[#3A5988]/50 rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all space-y-4">
                     
                     <div class="flex items-start justify-between gap-4">
@@ -556,40 +575,56 @@
                       </div>
 
                       <div class="text-right shrink-0">
-                        <div class="text-[12px] text-[#6B7280]" x-text="'Batas: ' + formatDate(post.referral.batas)"></div>
+                        <div class="text-[16px] font-semibold text-[#0C1117]" x-text="post.referral.perusahaan"></div>
+                        <div class="text-[12px] text-[#6B7280] mt-0.5 flex items-center justify-end gap-1">
+                          <svg class="w-3.5 h-3.5 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                          <span x-text="'Review s.d. ' + formatDate(post.referral.batas)"></span>
+                        </div>
                       </div>
                     </div>
 
-                    <!-- Baris Chip: Level (Biru), Status (Pink Terbuka / Abu Ditutup), Kuota (Kuning Sedikit) - Agak Kotak rounded-[8px] -->
+                    <!-- Baris Chip: Level (Biru Lembut), Batas Waktu (Pink / Kuning selang-seling) -->
                     <div class="flex flex-wrap items-center gap-2">
-                      <!-- Tingkat Pengalaman: BIRU (rounded-[8px]) -->
                       <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium bg-[#EBF3FB] text-[#2B5282]" x-text="post.referral.level"></span>
 
-                      <!-- Status: PINK bila Terbuka, Abu-abu bila Ditutup (rounded-[8px]) -->
-                      <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium"
-                            :class="isClosed(post) ? 'bg-[#E4EBF3] text-[#4B5563]' : 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60'"
-                            x-text="isClosed(post) ? 'Ditutup' : 'Terbuka'"></span>
-
-
+                      <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium flex items-center gap-1.5"
+                            :class="postIdx % 2 === 0
+                              ? 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60'
+                              : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]/70'">
+                        <svg class="w-3.5 h-3.5" :class="postIdx % 2 === 0 ? 'text-[#A95F77]' : 'text-[#B45309]'" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/></svg>
+                        <span x-text="'Batas: ' + formatDate(post.referral.batas)"></span>
+                      </span>
                     </div>
 
                     <!-- Ringkasan 2 Baris -->
                     <p class="text-[14px] text-[#212224] line-clamp-2 leading-[1.6]" x-text="post.content"></p>
 
-                    <!-- Footer Kartu: Info Batas di Kiri, Tombol Aksi di Kanan (Tanpa Garis) -->
+                    <!-- Footer Kartu: Tanggal di Kiri, Tombol Aksi di Kanan -->
                     <div class="flex items-center justify-between pt-3 text-[13px] text-[#6B7280]">
-                      <span x-text="'Info review s.d. ' + formatDate(post.referral.batas)"></span>
+                      <span x-text="'Diposting ' + formatDate(post.referral.batas)"></span>
                       <div class="flex items-center gap-2">
+                        <!-- Tombol Bookmark -->
+                        <button type="button" @click="handleToggleBookmark(post.id)" class="w-9 h-9 rounded-[8px] border border-[#E3E4E9] flex items-center justify-center hover:bg-[#F4F5F7] transition-colors" :class="savedPostIds.includes(post.id) ? 'bg-[#3A5988] text-white border-[#3A5988]' : 'text-[#6B7280]'">
+                          <svg class="w-4 h-4" :fill="savedPostIds.includes(post.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                        </button>
+
                         <!-- Tombol Primer "Lihat Detail" -->
                         <button type="button" @click="viewDetail(post)" class="h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium transition-colors">
                           Lihat Detail
                         </button>
 
-                        <!-- Tombol Cepat "Minta Referral" bila belum mengajukan, bukan pembuat, dan belum ditutup -->
-                        <template x-if="!isMine(post) && !myPengajuan(post) && !isClosed(post)">
+                        <!-- Tombol Cepat "Minta Referral" bila belum mengajukan -->
+                        <template x-if="!isMine(post) && !myPengajuan(post)">
                           <button type="button" @click.stop="openAjukanModal(post)" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] active:bg-[#2F4B76] text-white text-[13.5px] font-medium transition-colors flex items-center gap-1.5 shadow-sm">
                             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
                             <span>Minta Referral</span>
+                          </button>
+                        </template>
+
+                        <!-- Tombol "Batalkan Pengajuan" bila sudah mengajukan -->
+                        <template x-if="!isMine(post) && myPengajuan(post)">
+                          <button type="button" @click.stop="batalkanPengajuan(post)" class="h-9 px-3.5 rounded-[8px] border border-[#B4325F]/30 bg-white hover:bg-[#FAD9E9]/40 text-[#B4325F] text-[13px] font-medium transition-colors cursor-pointer">
+                            Batalkan Pengajuan
                           </button>
                         </template>
                       </div>
@@ -601,8 +636,8 @@
                 <!-- Empty State -->
                 <template x-if="browsePosts.length === 0">
                   <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-8 text-center space-y-3">
-                    <div class="text-[16px] font-semibold text-[#0C1117]">Tidak ada referral yang cocok</div>
-                    <p class="text-[13px] text-[#6B7280]">Coba gunakan kata kunci pencarian lain atau ubah filter level jabatan.</p>
+                    <div class="text-[16px] font-semibold text-[#0C1117]" x-text="activeTab === 'saved' ? 'Belum Ada Lowongan Tersimpan' : 'Tidak ada referral yang cocok'"></div>
+                    <p class="text-[13px] text-[#6B7280]" x-text="activeTab === 'saved' ? 'Tandai lowongan yang menarik bagi Anda untuk memantaunya di sini.' : 'Coba gunakan kata kunci pencarian lain atau ubah filter level jabatan.'"></p>
                     <template x-if="hasFilter">
                       <button type="button" @click="resetFilter()" class="h-9 px-4 rounded-[8px] bg-[#3A5988] text-white text-[13px] font-medium">Reset Filter</button>
                     </template>
@@ -616,31 +651,61 @@
              B. TAB REFERRAL SAYA
         ====================================================== -->
         <div x-show="activeTab === 'saya'" class="space-y-4">
-          <template x-for="post in myPosts" :key="post.id">
-            <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] space-y-3.5">
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="text-[16px] font-semibold text-[#0C1117]" x-text="post.referral.posisi + ' @ ' + post.referral.perusahaan"></h3>
-                  <p class="text-[13px] text-[#6B7280]" x-text="'Tingkat: ' + post.referral.level + ' · Batas review: ' + formatDate(post.referral.batas)"></p>
+          <template x-for="(post, postIdx) in myPosts" :key="post.id">
+            <div class="bg-white border border-[#E3E4E9] hover:border-[#3A5988]/50 rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all space-y-4">
+
+              <!-- Header Card -->
+              <div class="flex items-start gap-3.5">
+                <img :src="post.image || (post.id % 2 === 0 ? 'assets/project-city.jpg' : 'assets/project-fuji.webp')"
+                     :alt="post.referral.posisi"
+                     class="w-[52px] h-[52px] rounded-[10px] object-cover border border-[#E3E4E9] shrink-0">
+                <div class="flex-1 min-w-0 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <h3 class="text-[15.5px] font-semibold text-[#0C1117] leading-snug" x-text="post.referral.posisi"></h3>
+                    <p class="text-[13px] text-[#6B7280] mt-0.5">
+                      <span class="text-[#3A5988] font-medium" x-text="post.referral.perusahaan"></span>
+                      <span> · Diterbitkan oleh Anda</span>
+                    </p>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="text-[14.5px] font-semibold text-[#0C1117] whitespace-nowrap" x-text="post.referral.perusahaan"></div>
+                    <div class="text-[12px] text-[#6B7280] mt-0.5 flex items-center justify-end gap-1">
+                      <svg class="w-3.5 h-3.5 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                      <span x-text="'Review s.d. ' + formatDate(post.referral.batas)"></span>
+                    </div>
+                  </div>
                 </div>
-                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium"
-                      :class="isClosed(post) ? 'bg-[#E4EBF3] text-[#4B5563]' : 'bg-[#E9F7F8] text-[#2B7A5B]'"
-                      x-text="isClosed(post) ? 'Ditutup' : 'Terbuka'"></span>
               </div>
+
+              <!-- Chips: Level + Batas Waktu -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium bg-[#EBF3FB] text-[#2B5282]" x-text="post.referral.level"></span>
+                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium flex items-center gap-1.5"
+                      :class="postIdx % 2 === 0 ? 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60' : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]/70'">
+                  <svg class="w-3.5 h-3.5" :class="postIdx % 2 === 0 ? 'text-[#A95F77]' : 'text-[#B45309]'" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span x-text="'Batas: ' + formatDate(post.referral.batas)"></span>
+                </span>
+              </div>
+
+              <!-- Deskripsi singkat -->
+              <p class="text-[13.5px] text-[#374151] line-clamp-2 leading-relaxed" x-text="post.content"></p>
+
+              <!-- Footer: pelamar terdaftar + tombol aksi -->
               <div class="flex items-center justify-between pt-3">
-                <span class="text-[13px] text-[#6B7280]" x-text="(post.pengajuan || []).length + ' Rekan mengajukan (' + menungguCount(post) + ' menunggu)'"></span>
+                <span class="text-[12.5px] text-[#6B7280]" x-text="(post.pengajuan || []).length + ' pelamar terdaftar'"></span>
                 <div class="flex items-center gap-2">
-                  <button type="button" @click="toggleTutupReferral(post)" class="h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium">
-                    <span x-text="post.referral.ditutup ? 'Buka Kembali' : 'Tutup Referral'"></span>
-                  </button>
-                  <button type="button" @click="openEditReferralModal(post)" class="h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13.5px] font-medium">
+                  <button type="button" @click="openEditReferralModal(post)"
+                          class="h-9 px-3.5 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[#212224] text-[13px] font-medium transition-colors">
                     Edit
                   </button>
-                  <button type="button" @click="viewDetail(post)" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-medium">
-                    Lihat Detail
-                  </button>
+                  <a :href="'referral-pengajuan.html?id=' + encodeURIComponent(post.id)"
+                     class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-semibold inline-flex items-center gap-1.5 transition-colors">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Manajemen Pelamar
+                  </a>
                 </div>
               </div>
+
             </div>
           </template>
           <template x-if="myPosts.length === 0">
@@ -656,37 +721,61 @@
              C. TAB PENGAJUAN TERKIRIM
         ====================================================== -->
         <div x-show="activeTab === 'terkirim'" class="space-y-4">
-          <template x-for="item in sentItems" :key="item.post.id">
-            <div class="bg-white border border-[#E3E4E9] rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] space-y-3">
+          <template x-for="(item, itemIdx) in sentItems" :key="item.post.id">
+            <div class="bg-white border border-[#E3E4E9] hover:border-[#3A5988]/50 rounded-[12px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-md transition-all space-y-4">
+
+              <!-- Baris atas -->
               <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h3 class="text-[16px] font-semibold text-[#0C1117]" x-text="item.post.referral.posisi + ' di ' + item.post.referral.perusahaan"></h3>
-                  <p class="text-[13px] text-[#6B7280] mt-0.5">
-                    <span>Pereview: </span><span class="text-[#212224] font-medium" x-text="item.post.authorName"></span>
-                    <span> · Diajukan pada: </span><span x-text="formatDate(item.app.waktu)"></span>
-                  </p>
+                <div class="flex items-start gap-4 min-w-0">
+                  <img :src="item.post.image || (item.post.id % 2 === 0 ? 'assets/project-city.jpg' : 'assets/project-fuji.webp')"
+                       :alt="item.post.referral.posisi"
+                       class="w-14 h-14 rounded-[10px] object-cover border border-[#E3E4E9] shadow-xs shrink-0">
+                  <div class="space-y-1 min-w-0">
+                    <h3 class="text-[16px] font-semibold text-[#0C1117] tracking-[-0.01em]" x-text="item.post.referral.posisi"></h3>
+                    <p class="text-[13px] text-[#6B7280]">
+                      <span class="text-[#326ECE] font-medium" x-text="item.post.referral.perusahaan"></span>
+                      <span> · </span>
+                      <span x-text="'Pereview: ' + item.post.authorName"></span>
+                    </p>
+                  </div>
                 </div>
-                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium"
-                      :class="{
-                        'bg-[#FDF0DD] text-[#B26A12] border border-[#F6D8A8]': item.app.status === 'menunggu',
-                        'bg-[#E9F7F8] text-[#2B7A5B] border border-[#BDEEE5]': item.app.status === 'diterima',
-                        'bg-[#FAD9E9] text-[#B4325F] border border-[#F5B8D3]': item.app.status === 'ditolak'
-                      }">
-                  <span x-text="item.app.status === 'menunggu' ? 'Menunggu Review' : (item.app.status === 'diterima' ? 'Diterima' : 'Ditolak')"></span>
+                <div class="text-right shrink-0">
+                  <div class="text-[16px] font-semibold text-[#0C1117]" x-text="item.post.referral.perusahaan"></div>
+                  <div class="text-[12px] text-[#6B7280] mt-0.5 flex items-center justify-end gap-1">
+                    <svg class="w-3.5 h-3.5 text-[#6B7280]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <span x-text="'Review s.d. ' + formatDate(item.post.referral.batas)"></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chips: Level + Batas -->
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium bg-[#EBF3FB] text-[#2B5282]" x-text="item.post.referral.level"></span>
+                <span class="px-2.5 py-1 rounded-[8px] text-[12px] font-medium flex items-center gap-1.5"
+                      :class="itemIdx % 2 === 0 ? 'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]/60' : 'bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A]/70'">
+                  <svg class="w-3.5 h-3.5" :class="itemIdx % 2 === 0 ? 'text-[#A95F77]' : 'text-[#B45309]'" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span x-text="'Batas: ' + formatDate(item.post.referral.batas)"></span>
                 </span>
               </div>
 
-              <template x-if="item.app.pesan">
-                <p class="text-[13.5px] text-[#5F6672] bg-[#F4F5F7] p-3 rounded-[8px] border border-[#E3E4E9] line-clamp-2" x-text="'Pesan perkenalan: ' + item.app.pesan"></p>
-              </template>
+              <!-- Deskripsi singkat (2 baris) -->
+              <p class="text-[13.5px] text-[#374151] line-clamp-2 leading-relaxed" x-text="item.post.content"></p>
 
-              <div class="flex items-center justify-between pt-3">
-                <button type="button" @click="batalkanPengajuan(item.post, item.app)" class="text-[13px] text-[#B4325F] hover:underline font-medium cursor-pointer">
-                  Batalkan Pengajuan
-                </button>
-                <button type="button" @click="viewDetail(item.post)" class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-medium transition-colors">
-                  Lihat Detail Referral
-                </button>
+              <!-- Footer: Diajukan di kiri, Batalkan + Status di kanan -->
+              <div class="flex items-center justify-between gap-2 pt-3">
+                <span class="text-[12.5px] text-[#6B7280]" x-text="'Diajukan ' + formatDate(item.app.waktu)"></span>
+                <div class="flex items-center gap-2">
+                  <button type="button" @click="batalkanPengajuan(item.post, item.app)" class="h-9 px-3.5 rounded-[8px] border border-[#B4325F]/30 bg-white hover:bg-[#FAD9E9]/40 text-[#B4325F] text-[13px] font-medium transition-colors cursor-pointer">
+                    Batalkan Pengajuan
+                  </button>
+                  <span class="h-9 px-4 rounded-[8px] text-[13px] font-semibold inline-flex items-center"
+                        :class="{
+                          'bg-[#FDF0DD] text-[#B26A12] border border-[#F6D8A8]': item.app.status === 'menunggu',
+                          'bg-[#E9F7F8] text-[#2B7A5B] border border-[#BDEEE5]': item.app.status === 'diterima' || item.app.status === 'dihubungi',
+                          'bg-[#FEECEF] text-[#A95F77] border border-[#FAD2DF]': item.app.status !== 'menunggu' && item.app.status !== 'diterima' && item.app.status !== 'dihubungi'
+                        }"
+                        x-text="item.app.status === 'menunggu' ? 'Menunggu' : ((item.app.status === 'diterima' || item.app.status === 'dihubungi') ? 'Diterima' : 'Ditolak')"></span>
+                </div>
               </div>
             </div>
           </template>
@@ -919,7 +1008,6 @@
                 <label class="font-medium text-[#212224] text-[13.5px] block">Pengaju Referral</label>
                 <div class="h-11 px-4 rounded-[10px] bg-[#F8FAFC] border border-[#E3E4E9] flex items-center justify-between text-[14px]">
                   <span class="font-medium text-[#0C1117]" x-text="currentUserName">Aisha Dwi Rahmawati</span>
-                  <span class="text-[12px] font-medium text-[#6B7280]">Alumni Bengkod</span>
                 </div>
               </div>
 

@@ -136,7 +136,7 @@
             textShort: "Eksplorasi antarmuka baru untuk Weather & Flight Tracking Mobile App. Konsep desain ini dirancang untuk memudahkan tracking cuaca 7 harian, indeks kualitas udara (AQI), serta tracking pergerakan pesawat komersil secara real-time dengan latensi rendah...",
             textFull: "Eksplorasi antarmuka baru untuk Weather & Flight Tracking Mobile App. Konsep desain ini dirancang untuk memudahkan tracking cuaca 7 harian, indeks kualitas udara (AQI), serta tracking pergerakan pesawat komersil secara real-time dengan latensi rendah. Menggabungkan visual data forecast interaktif dan dark-mode optimized palette untuk kenyamanan mata pengguna saat malam hari.",
             isExpanded: false,
-            mediaImage: "assets/banner-dashboard.jpg",
+            mediaImage: "assets/project-city.jpg",
             likesCount: 234,
             isLiked: false,
             commentsCount: 96,
@@ -160,7 +160,7 @@
             textShort: "Halo rekan-rekan alumni Bengkod! Di tim kami saat ini ada tender side-project merancang ulang onboarding dan POS inventaris toko ritel. Dibutuhkan 1 rekan Flutter Dev dan 1 UI/UX. Budget estimasi Rp 5.000.000 durasi 3 minggu. Yang tertarik bisa langsung pitch ya!",
             textFull: "Halo rekan-rekan alumni Bengkod! Di tim kami saat ini ada tender side-project merancang ulang onboarding dan POS inventaris toko ritel. Dibutuhkan 1 rekan Flutter Dev dan 1 UI/UX. Budget estimasi Rp 5.000.000 durasi 3 minggu. Yang tertarik bisa langsung pitch ya! Desain dasar sudah siap di Figma, tinggal implementasi state management dan offline persistence.",
             isExpanded: false,
-            mediaImage: "assets/banner-mobile-schedule.jpg",
+            mediaImage: "assets/project-fuji.webp",
             embedGig: {
               title: "Redesign Flow Onboarding & POS Retail",
               budget: "Rp 5.000.000",
@@ -763,37 +763,32 @@
                      :style="'transform: translateX(-' + (spotlightIndex * 100) + '%)'">
                   <template x-for="work in spotlightWorks" :key="work.id">
                     <a :href="work.link"
-                       class="group block w-full shrink-0 overflow-hidden rounded-[14px] border border-[#E3E4E9] transition hover:border-[#3A5988]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A5988]">
-                      <div class="relative aspect-video overflow-hidden bg-gradient-to-br from-[#E2F1F9] to-[#F4F5F7]">
-                        <div aria-hidden="true" class="absolute inset-0 grid place-items-center text-3xl font-bold text-[#3A5988]"
-                             x-text="work.nama.slice(0, 2).toUpperCase()"></div>
+                       class="group flex flex-col w-full shrink-0 rounded-[12px] border border-[#E3E4E9] bg-white p-3 transition hover:border-[#3A5A86] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#3A5988]">
+                      <div class="relative aspect-video w-full overflow-hidden rounded-[8px] bg-[#E2F1F9]">
+                        <div aria-hidden="true" class="absolute inset-0 grid place-items-center text-3xl font-semibold text-[#3A5A86]"
+                             x-text="(work.nama || 'A').charAt(0).toUpperCase()"></div>
                         <template x-if="work.banner || work.logo">
                           <img :src="work.banner || work.logo"
                                :alt="'Tampilan karya ' + work.nama"
                                loading="lazy"
                                @error="$el.classList.add('hidden')"
                                :class="work.banner ? 'object-cover' : 'bg-[#F4F5F7] object-contain p-8'"
-                               class="absolute inset-0 h-full w-full transition-transform duration-300 motion-safe:group-hover:scale-[1.03]">
+                               class="absolute inset-0 h-full w-full transition-transform duration-300 motion-safe:group-hover:scale-[1.02]">
                         </template>
                       </div>
-                      <div class="space-y-3 p-3.5">
-                        <div class="space-y-1">
-                          <h4 class="break-words text-[15px] font-bold leading-snug text-[#0C1117] group-hover:text-[#3A5988]"
-                              x-text="work.nama"></h4>
-                          <p x-show="work.tagline" class="line-clamp-2 text-[12.5px] leading-relaxed text-[#6B7280]" x-text="work.tagline"></p>
-                        </div>
-                        <div class="flex items-center gap-2.5 border-t border-[#E3E4E9] pt-3">
-                          <div aria-hidden="true" class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] text-[12px] font-semibold text-[#3A5988]">
-                            <span x-text="(work.authorName || 'Alumni').slice(0, 1).toUpperCase()"></span>
+                      <div class="mt-2.5 space-y-2 flex-1 flex flex-col">
+                        <h4 class="break-words text-[15px] font-semibold leading-snug text-[#0C1117] group-hover:text-[#3A5A86] line-clamp-1"
+                            x-text="work.nama"></h4>
+                        <p x-show="work.tagline" class="line-clamp-2 text-[13px] leading-[1.5] text-[#6B7280] font-normal" x-text="work.tagline"></p>
+                        <div class="mt-auto pt-2 flex items-center gap-2 min-w-0">
+                          <div aria-hidden="true" class="relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] text-[10px] font-semibold text-[#3A5A86]">
+                            <span x-text="(work.authorName || 'A').slice(0, 1).toUpperCase()"></span>
                             <template x-if="work.authorAvatar">
                               <img :src="work.authorAvatar" alt="" loading="lazy"
                                    @error="$el.classList.add('hidden')" class="absolute inset-0 h-full w-full object-cover">
                             </template>
                           </div>
-                          <div class="min-w-0">
-                            <p class="text-[11px] leading-tight text-[#6B7280]">Dibuat oleh</p>
-                            <p class="break-words text-[13px] font-semibold text-[#212224]" x-text="work.authorName || 'Alumni'"></p>
-                          </div>
+                          <span class="truncate text-[12.5px] font-normal text-[#6B7280]" x-text="work.authorName || 'Alumni'"></span>
                         </div>
                       </div>
                     </a>

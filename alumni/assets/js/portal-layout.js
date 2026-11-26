@@ -10,9 +10,11 @@
     "detail-proyek.html": ["Detail Karya", "showcase.html"],
     "launch-karya.html": ["Publikasikan Karya", "showcase.html"],
     "gigs.html": ["Proyek"],
+    "detail-gigs.html": ["Detail Proyek", "gigs.html"],
     "lempar-proyek.html": ["Publikasikan Proyek", "gigs.html"],
     "gigs-pelamar.html": ["Pelamar Proyek", "gigs.html"],
     "referral.html": ["Lowongan"],
+    "detail-referral.html": ["Detail Lowongan", "referral.html"],
     "bagikan-referral.html": ["Bagikan Lowongan", "referral.html"],
     "referral-pengajuan.html": ["Pengajuan Lowongan", "referral.html"],
     "data-cv.html": ["Data CV"],
@@ -508,7 +510,7 @@
         } else if (window.confirm("Keluar dari Portal Alumni Bengkel Koding?")) {
           window.DB?.akun?.keluar();
           try { localStorage.removeItem("alumni_revisi_sesi_v1"); } catch {}
-          location.href = "login.html?keluar=1";
+          location.href = "../login.html?keluar=1";
         }
       });
     }

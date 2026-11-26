@@ -202,7 +202,10 @@
   // ===================== DATA CONTOH =====================
   function buatDataAwal() {
     const db = {
-      users: [{ id: 1, nama: 'Dr. Ayu Lestari, M.Kom', email: 'koordinator@contoh.id', password: 'koor12345', role: 'admin', status: 'verified', code: '', foto: '' }],
+      users: [
+        { id: 1, nama: 'Dr. Ayu Lestari, M.Kom', email: 'koordinator@contoh.id', password: 'koor12345', role: 'admin', status: 'verified', code: '', foto: '' },
+        { id: 1001, nama: 'Super Admin', email: 'superadmin@dinus.ac.id', password: 'super12345', role: 'superadmin', status: 'verified', code: '', foto: '' },
+      ],
       tracer: [],
       cv: { academics: [], jobs: [], projects: [], internships: [], organizations: [], awards: [], courses: [], skills: [] },
       feed: [],
@@ -520,6 +523,22 @@
       });
       if (adaFormat) simpan();
     }
+    const extraUsers = [
+      { id: 1001, nama: 'Super Admin', email: 'superadmin@dinus.ac.id', password: 'super12345', role: 'superadmin', status: 'verified', code: '', foto: '' },
+    ];
+    let adaAkunTambahan = false;
+    const tanpaMitra = db.users.filter(x => x.role !== 'mitra');
+    if (tanpaMitra.length !== db.users.length) {
+      db.users = tanpaMitra;
+      adaAkunTambahan = true;
+    }
+    extraUsers.forEach(u => {
+      if (!db.users.some(x => x.email.toLowerCase() === u.email)) {
+        db.users.push(u);
+        adaAkunTambahan = true;
+      }
+    });
+    if (adaAkunTambahan) simpan();
     return db;
   }
 
@@ -587,8 +606,9 @@
     masuk(email, password) {
       const u = akun.cariEmail(email);
       if (!u) return gagal('Email belum terdaftar, silakan mendaftar terlebih dahulu.', 'email');
+      if (u.role === 'mitra') return gagal('Akses role Mitra saat ini dinonaktifkan.', 'email');
       if (u.password !== password) return gagal('Password yang dimasukkan salah.', 'password');
-      if (u.status !== 'verified') return { ok: false, perluOtp: true, user: u, error: 'Akun belum diverifikasi.' };
+      if (u.status !== 'verified') return gagal('Akun belum diverifikasi.', 'email');
       try { localStorage.setItem(KEY_SESI, String(u.id)); } catch { /* storage diblokir */ }
       return { ok: true, user: u };
     },
