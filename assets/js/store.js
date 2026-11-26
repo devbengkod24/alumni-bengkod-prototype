@@ -354,10 +354,8 @@
   const SEED_LOGS = [
     { id: 1, waktu: '2026-10-22 09:15', user: 'Super Admin', role: 'SuperAdmin', action: 'Penugasan Koordinator', detail: 'Menugaskan Dr. Ayu Lestari, M.Kom sebagai Koordinator Divisi Dev & DS', ip: '10.14.0.1', status: 'Sukses' },
     { id: 2, waktu: '2026-10-21 15:40', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Verifikasi Lowongan', detail: 'Menyetujui lowongan Backend Developer (Laravel) dari PT Solusi Digital Jateng', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 3, waktu: '2026-10-21 14:10', user: 'Andi Kurniawan', role: 'Mitra', action: 'Pengajuan Lowongan', detail: 'Mengajukan lowongan Frontend Developer (React)', ip: '192.168.1.45', status: 'Sukses' },
     { id: 4, waktu: '2026-10-20 11:20', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Tolak Lowongan', detail: 'Menolak lowongan Mobile Developer Flutter (alasan: deskripsi kurang lengkap)', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 5, waktu: '2026-10-18 10:30', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Publikasi Pengumuman', detail: 'Menerbitkan pengumuman "Pengisian Tracer Study Angkatan 2025"', ip: '10.14.0.12', status: 'Sukses' },
-    { id: 6, waktu: '2026-10-15 08:30', user: 'Super Admin', role: 'SuperAdmin', action: 'Verifikasi Mitra', detail: 'Memverifikasi profil kemitraan PT Solusi Digital Jateng', ip: '10.14.0.1', status: 'Sukses' }
+    { id: 5, waktu: '2026-10-18 10:30', user: 'Dr. Ayu Lestari', role: 'Koordinator', action: 'Publikasi Pengumuman', detail: 'Menerbitkan pengumuman "Pengisian Tracer Study Angkatan 2025"', ip: '10.14.0.12', status: 'Sukses' }
   ];
 
   const SEED_LAPORAN = [
@@ -958,7 +956,7 @@
 
     // --- ACTIVITY LOGS ---
     getLogs() {
-      return lsGet(KEYS.LOGS, SEED_LOGS);
+      return lsGet(KEYS.LOGS, SEED_LOGS).filter(l => l.role !== 'Mitra' && !/verifikasi mitra/i.test(l.action || ''));
     },
     logActivity(role, action, detail, status = 'Sukses') {
       const logs = this.getLogs();

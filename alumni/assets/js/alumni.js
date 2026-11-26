@@ -568,7 +568,7 @@ document.addEventListener("alpine:init", () => {
       try {
         if (typeof DB !== "undefined" && DB.akun) DB.akun.keluar();
       } catch {}
-      window.location.href = alumniBasePrefix() + "login.html?keluar=1";
+      window.location.href = alumniRootPrefix() + "login.html?keluar=1";
     },
   }));
 });

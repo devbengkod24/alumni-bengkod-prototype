@@ -403,6 +403,18 @@ function saveStoredProjects(projects) {
   }
 }
 
+const KOOR_NOTIF_QUEUE_KEY = "bengkod_koor_notif_queue_v1";
+
+function antreNotifKoordinator(ikon, pesan, tautan) {
+  if (typeof window === "undefined") return;
+  try {
+    const queue = JSON.parse(localStorage.getItem(KOOR_NOTIF_QUEUE_KEY) || "[]");
+    const list = Array.isArray(queue) ? queue : [];
+    list.push({ ikon, pesan, tautan, waktu: new Date().toISOString() });
+    localStorage.setItem(KOOR_NOTIF_QUEUE_KEY, JSON.stringify(list));
+  } catch {}
+}
+
 function syncProjectToFeed(project, author) {
   if (!project || !project.title) return;
   const authorName = (author && author.name) || "Aisha Dwi Rahmawati";
@@ -425,6 +437,7 @@ function syncProjectToFeed(project, author) {
   const karyaObj = {
     projectId: project.id,
     nama: project.title,
+    period: project.period || undefined,
     tagline: project.tagline || (project.desc ? project.desc.slice(0, 100) : "Karya inovatif alumni Bengkel Koding"),
     pitch: project.pitch || project.tagline || project.desc || undefined,
     categoryTags: categoryTags.length > 0 ? categoryTags : ["Software"],
@@ -463,7 +476,11 @@ function syncProjectToFeed(project, author) {
     posts.unshift(newPost);
   }
 
-  return savePosts(posts);
+  const saved = savePosts(posts);
+  if (saved && existingIdx < 0) {
+    antreNotifKoordinator("rocket", `${authorName} meluncurkan karya baru "${karyaObj.nama}".`, "karya.html");
+  }
+  return saved;
 }
 
 // ===================== alumniDirectory.ts =====================

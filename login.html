@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id" data-color-mode="light" class="h-full overflow-hidden bg-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Masuk | Portal Alumni Bengkel Koding UDINUS</title>
+  <meta name="description" content="Masuk ke Portal Alumni, Koordinator, dan SuperAdmin Bengkel Koding Universitas Dian Nuswantoro.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            poppins: ['Poppins', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+  <script src="alumni/assets/js/data.js?v=10"></script>
+  <script src="alumni/assets/js/auth-panel.js?v=5"></script>
+  <script src="assets/js/auth-layout.js?v=1"></script>
+</head>
+<body class="h-screen h-dvh overflow-hidden bg-white text-[#0F172A] antialiased font-sans">
+  <div id="auth-root" class="h-full w-full"></div>
+
+  <script>
+    if (new URLSearchParams(location.search).has('keluar')) {
+      try { DB.akun.keluar(); } catch {}
+      history.replaceState(null, '', 'login.html');
+    }
+
+    renderAuthPage({
+      brandSubtitle: 'PORTAL TERPADU',
+      title: 'Masuk ke Portal',
+      subtitle: 'Gunakan email dan kata sandi akun Bengkel Koding Anda.',
+      panelOptions: {
+        eyebrow: 'PORTAL BENGKEL KODING',
+        title: 'Ruang kolaborasi<br>ekosistem alumni.',
+        subtitle: 'Alumni, Koordinator, dan Admin dalam satu pintu terpadu.',
+        mobileTitle: 'Ruang kolaborasi alumni',
+      },
+      formHtml: `
+        <form id="login-form" novalidate class="mt-3 lg:mt-[clamp(14px,2.2vh,24px)]">
+          <div>
+            <label for="email" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#0F172A] mb-0.5 lg:mb-1">
+              Email
+            </label>
+            <input id="email" name="email" type="email" autocomplete="email" required
+                   placeholder="nama@example.com"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13.5px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-email" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="mt-1.5 lg:mt-2">
+            <label for="password" class="block font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#0F172A] mb-0.5 lg:mb-1">
+              Kata sandi
+            </label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required
+                   placeholder="Masukkan kata sandi"
+                   class="w-full h-[38px] lg:h-[clamp(40px,5vh,46px)] px-3 rounded-[9px] lg:rounded-[10px] border border-[#8798B2] bg-white text-[13.5px] lg:text-[14px] text-[#0F172A] placeholder:text-[#475569] focus:outline-none focus:border-[#1E3A8A] focus:ring-2 focus:ring-[#1E3A8A]/15 transition-colors">
+            <p id="error-password" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 mt-1">
+            <a href="register.html" class="inline-flex items-center min-h-[28px] lg:min-h-[32px] font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+              Klaim akun alumni
+            </a>
+            <a href="lupa-password.html" class="inline-flex items-center min-h-[28px] lg:min-h-[32px] font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
+              Lupa kata sandi?
+            </a>
+          </div>
+
+          <button type="submit"
+                  class="mt-1.5 lg:mt-2 w-full h-[40px] lg:h-[clamp(42px,5.2vh,48px)] rounded-[10px] lg:rounded-[11px] bg-[#1E3A8A] hover:bg-[#1D4ED8] active:bg-[#172E71] text-white font-semibold text-[14px] lg:text-[15px] leading-[1.45] transition-colors cursor-pointer focus:outline-none focus:ring-4 focus:ring-[#1E3A8A]/20">
+            Masuk
+          </button>
+        </form>
+      `,
+      afterFormHtml: `
+        <div class="mt-2.5 lg:mt-3 p-2.5 lg:p-3 rounded-[12px] bg-[#EDF3FF]/75 border border-[#D9E3F4]">
+          <div class="flex items-center justify-between gap-2 mb-1.5">
+            <p class="text-[11px] lg:text-[12px] font-semibold text-[#1E3A8A]">Akun contoh semua role (klik isi cepat)</p>
+            <button type="button" id="btn-reset-demo" class="text-[11px] font-medium text-[#2563EB] hover:text-[#1E3A8A] underline underline-offset-2 cursor-pointer shrink-0">
+              Reset data
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 lg:gap-1.5">
+            <button type="button" data-demo-email="rizky@contoh.id" data-demo-pass="alumni123"
+                    class="w-full flex items-center justify-between gap-2 text-left px-2.5 py-1 lg:py-1.5 rounded-[8px] bg-white border border-[#D9E3F4] hover:border-[#2563EB] text-[11px] lg:text-[11.5px] text-[#0F172A] transition-colors cursor-pointer">
+              <span class="font-medium truncate">Alumni (Aktif)</span>
+              <span class="text-[10px] text-[#475569] hidden xl:inline truncate">rizky@contoh.id</span>
+            </button>
+            <button type="button" data-demo-email="nadia@contoh.id" data-demo-pass="alumni123"
+                    class="w-full flex items-center justify-between gap-2 text-left px-2.5 py-1 lg:py-1.5 rounded-[8px] bg-white border border-[#D9E3F4] hover:border-[#2563EB] text-[11px] lg:text-[11.5px] text-[#0F172A] transition-colors cursor-pointer">
+              <span class="font-medium truncate">Alumni (First Login)</span>
+              <span class="text-[10px] text-[#475569] hidden xl:inline truncate">nadia@contoh.id</span>
+            </button>
+            <button type="button" data-demo-email="koordinator@contoh.id" data-demo-pass="koor12345"
+                    class="w-full flex items-center justify-between gap-2 text-left px-2.5 py-1 lg:py-1.5 rounded-[8px] bg-white border border-[#D9E3F4] hover:border-[#2563EB] text-[11px] lg:text-[11.5px] text-[#0F172A] transition-colors cursor-pointer">
+              <span class="font-medium truncate">Koordinator</span>
+              <span class="text-[10px] text-[#475569] hidden xl:inline truncate">koordinator@contoh.id</span>
+            </button>
+            <button type="button" data-demo-email="superadmin@dinus.ac.id" data-demo-pass="super12345"
+                    class="w-full flex items-center justify-between gap-2 text-left px-2.5 py-1 lg:py-1.5 rounded-[8px] bg-white border border-[#D9E3F4] hover:border-[#2563EB] text-[11px] lg:text-[11.5px] text-[#0F172A] transition-colors cursor-pointer">
+              <span class="font-medium truncate">SuperAdmin</span>
+              <span class="text-[10px] text-[#475569] hidden xl:inline truncate">superadmin@dinus.ac.id</span>
+            </button>
+          </div>
+        </div>
+      `,
+    });
+
+    const form = document.getElementById('login-form');
+    const LOGIN_FIELDS = ['email', 'password'];
+
+    function tujuanSetelahMasuk(user) {
+      if (user.role === 'alumni') return DB.tracer.milik(user.id) ? 'alumni/dashboard.html' : 'alumni/isi-data.html';
+      if (user.role === 'admin') return 'koordinator/dashboard.html';
+      if (user.role === 'superadmin') return 'superadmin/index.html';
+      return 'index.html';
+    }
+
+    document.querySelectorAll('[data-demo-email]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        clearAuthErrors(form, LOGIN_FIELDS);
+        form.elements.email.value = btn.dataset.demoEmail;
+        form.elements.password.value = btn.dataset.demoPass;
+      });
+    });
+
+    document.getElementById('btn-reset-demo').addEventListener('click', () => {
+      DB.reset();
+      showAuthToast('Data contoh dikembalikan ke awal.');
+    });
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const email = form.elements.email.value;
+      const password = form.elements.password.value;
+      if (!email.trim()) return showAuthError(form, LOGIN_FIELDS, 'email', 'Email wajib diisi');
+      if (!password) return showAuthError(form, LOGIN_FIELDS, 'password', 'Password wajib diisi');
+
+      const hasil = DB.akun.masuk(email, password);
+      if (!hasil.ok) return showAuthError(form, LOGIN_FIELDS, hasil.field || 'email', hasil.error);
+      location.href = tujuanSetelahMasuk(hasil.user);
+    });
+  </script>
+</body>
+</html>

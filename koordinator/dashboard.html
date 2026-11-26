@@ -34,7 +34,7 @@
           <h3 id="judul-status" class="!text-base font-semibold text-headline">Jumlah Alumni per Status</h3>
           <p id="ket-status" class="!text-[13px] text-neutral3 mt-0.5"></p>
         </div>
-        <a href="tracer.html" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
+        <a href="data-alumni.html" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
           <span>Lihat semua</span>
           <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
         </a>
@@ -64,7 +64,7 @@
         <h3 id="judul-terdeteksi" class="!text-base font-semibold text-headline">Tiga Tahun Terakhir</h3>
         <p class="!text-[13px] text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study. Klik batang untuk melihat detail angkatan.</p>
       </div>
-      <a href="tracer.html?tab=statistik" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
+      <a href="tracer.html" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
         <span>Lihat semua</span>
         <i data-lucide="arrow-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
       </a>
@@ -84,7 +84,7 @@
   const tiga = DB.statistik.tigaTahun();
   const perStatus = DB.tracer.jumlahPerStatus();
   const totalJawaban = DB.tracer.semua().length;
-  const keAnalitik = status => `tracer.html?status=${encodeURIComponent(status)}`;
+  const keAnalitik = status => `data-alumni.html?status=${encodeURIComponent(status)}`;
 
   // Warna mengikuti kelompok kerja, sama di grafik batang dan grafik lingkaran:
   // navy = bekerja, emas = tidak bekerja, biru muda = melanjutkan pendidikan.

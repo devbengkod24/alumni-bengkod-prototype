@@ -11,17 +11,15 @@
   const SANDI_ALUMNI = 'alumni123';
 
   const STATUS = [
-    'Bekerja Full Time',
-    'Bekerja Part Time',
+    'Bekerja',
     'Wiraswasta',
     'Melanjutkan Pendidikan',
     'Tidak Bekerja Tetapi Sedang Mencari Pekerjaan',
     'Belum Memungkinkan Bekerja',
-    'Menikah/Mengurus Keluarga',
   ];
-  const STATUS_BEKERJA = STATUS.slice(0, 3);
-  const STATUS_STUDI = STATUS[3];
-  const STATUS_TIDAK_BEKERJA = STATUS.slice(4);
+  const STATUS_BEKERJA = STATUS.slice(0, 2);
+  const STATUS_STUDI = STATUS[2];
+  const STATUS_TIDAK_BEKERJA = STATUS.slice(3);
 
   const OPSI = {
     jns_kelamin: ['Laki-Laki', 'Perempuan'],
@@ -195,12 +193,8 @@
         { id: 1, id_user: 2, ikon: 'circle-check', pesan: `Jawaban Anda dipilih sebagai jawaban terbaik di "${JUDUL_WAWANCARA}".`, tautan: 'forum-detail.html?id=2#balasan-1', waktu: '2026-10-27T09:00:00', dibaca: false },
         { id: 2, id_user: 2, ikon: 'message-square', pesan: `Ananda Safitri membalas "${JUDUL_AI}".`, tautan: 'forum-detail.html?id=7#balasan-1', waktu: '2026-10-31T18:05:00', dibaca: false },
         { id: 3, id_user: 1, ikon: 'flag', pesan: `Fajar Saputra melaporkan balasan di "${JUDUL_AI}".`, tautan: 'laporan-forum.html', waktu: '2026-11-01T20:30:00', dibaca: false },
-        { id: 4, id_user: 1, ikon: 'users', pesan: 'Aisha Dwi Rahmawati memperbarui profil & data tracer.', tautan: 'profil-alumni.html?id=2', waktu: '2026-11-02T10:15:00', dibaca: false },
         { id: 5, id_user: 1, ikon: 'rocket', pesan: 'Bagas Pratama meluncurkan karya baru ke Showcase.', tautan: 'karya.html', waktu: '2026-11-03T14:20:00', dibaca: false },
-        { id: 6, id_user: 1, ikon: 'briefcase', pesan: 'Nadia Putri membagikan lowongan #Referral di PT Cakra Teknologi.', tautan: 'forum.html', waktu: '2026-11-04T08:45:00', dibaca: true },
         { id: 7, id_user: 1, ikon: 'flag', pesan: 'Yoga Pratama melaporkan postingan yang mengandung tautan mencurigakan.', tautan: 'laporan-forum.html', waktu: '2026-11-04T16:00:00', dibaca: false },
-        { id: 8, id_user: 1, ikon: 'clipboard-list', pesan: '5 alumni baru mengisi kuesioner tracer study.', tautan: 'tracer.html', waktu: '2026-11-05T11:30:00', dibaca: true },
-        { id: 9, id_user: 1, ikon: 'megaphone', pesan: 'Pengumuman "Jadwal Pelepasan Alumni" berhasil terbit.', tautan: 'pengumuman.html', waktu: '2026-11-05T15:00:00', dibaca: true },
       ],
     };
   }
@@ -208,7 +202,10 @@
   // ===================== DATA CONTOH =====================
   function buatDataAwal() {
     const db = {
-      users: [{ id: 1, nama: 'Dr. Ayu Lestari, M.Kom', email: 'koordinator@contoh.id', password: 'koor12345', role: 'admin', status: 'verified', code: '', foto: '' }],
+      users: [
+        { id: 1, nama: 'Dr. Ayu Lestari, M.Kom', email: 'koordinator@contoh.id', password: 'koor12345', role: 'admin', status: 'verified', code: '', foto: '' },
+        { id: 1001, nama: 'Super Admin', email: 'superadmin@dinus.ac.id', password: 'super12345', role: 'superadmin', status: 'verified', code: '', foto: '' },
+      ],
       tracer: [],
       cv: { academics: [], jobs: [], projects: [], internships: [], organizations: [], awards: [], courses: [], skills: [] },
       feed: [],
@@ -226,7 +223,7 @@
     const kampus = ['Universitas Dian Nuswantoro', 'Universitas Negeri Contoh', 'Institut Teknologi Nusantara'];
     const kota = ['Semarang', 'Semarang', 'Jakarta', 'Kudus', 'Yogyakarta', 'Bandung', 'Surabaya', 'Solo'];
     const keahlian = [['Laravel', 'MySQL', 'REST API'], ['React', 'Tailwind CSS', 'TypeScript'], ['Flutter', 'Firebase'], ['Figma', 'UI/UX Research'], ['Python', 'Machine Learning', 'SQL'], ['Docker', 'Linux', 'CI/CD'], ['Node.js', 'Express', 'MongoDB'], ['QA Testing', 'Selenium']];
-    const pola = [0, 0, 0, 2, 0, 1, 3, 0, 4, 0, 0, 1, 2, 0, 5, 0, 3, 0, 6, 0];
+    const pola = [0, 0, 0, 1, 0, 0, 2, 0, 3, 0, 0, 0, 1, 0, 4, 0, 2, 0, 4, 0];
     // [tahun lulus, total lulusan, jumlah yang mengisi tracer]
     const angkatan = [[2022, 24, 10], [2023, 28, 14], [2024, 30, 16], [2025, 26, 12], [2026, 18, 8]];
 
@@ -259,7 +256,7 @@
             bidang_job: i % 4 === 3 ? 'Non Infokom' : 'Infokom',
             jns_job: wira ? 'Wirausaha' : OPSI.jns_job[[0, 0, 4, 3, 0, 1][i % 6]],
             nama_job: wira ? `Usaha ${belakang} Digital` : instansi[i % instansi.length],
-            jabatan_job: wira ? 'Founder' : status === 'Bekerja Part Time' ? 'Freelance' : 'Staff',
+            jabatan_job: wira ? 'Founder' : i % 6 === 5 ? 'Freelance' : 'Staff',
             lingkup_job: OPSI.lingkup_job[[2, 1, 2, 3, 0, 4, 2][i % 7]],
           });
         }
@@ -462,26 +459,56 @@
       }));
     });
     if (tambahan.length) simpan();
-    // Normalisasi: satukan 'Sedang studi lanjut S2' ke 'Melanjutkan Pendidikan'
+    // Normalisasi status lama di localStorage ke 5 status baku saat ini
     let adaNormalisasi = false;
+    const MAP_STATUS_LAMA = {
+      'bekerja full time': 'Bekerja',
+      'bekerja part time': 'Bekerja',
+      'sedang studi lanjut s2': 'Melanjutkan Pendidikan',
+      'sedang studi lanjut': 'Melanjutkan Pendidikan',
+      'menikah/mengurus keluarga': 'Belum Memungkinkan Bekerja',
+      'menikah / mengurus keluarga': 'Belum Memungkinkan Bekerja',
+    };
     db.tracer.forEach(t => {
       const s = (t.status || '').trim().toLowerCase();
-      if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') {
-        t.status = 'Melanjutkan Pendidikan';
+      if (MAP_STATUS_LAMA[s]) {
+        t.status = MAP_STATUS_LAMA[s];
         adaNormalisasi = true;
       }
     });
     if (adaNormalisasi) simpan();
-    // Pastikan koordinator punya notifikasi contoh untuk paginasi jika belum ada
-    const notifKoor = db.notifikasi.filter(n => n.id_user === 1);
-    if (notifKoor.length < 5) {
-      const dataAwal = buatDataAwal();
-      const belumAda = dataAwal.notifikasi.filter(n => n.id_user === 1 && !db.notifikasi.some(x => x.id === n.id));
-      if (belumAda.length) {
-        db.notifikasi.push(...belumAda);
-        simpan();
-      }
+    // Notifikasi koordinator hanya boleh berisi laporan forum masuk & peluncuran karya alumni
+    let notifBerubah = false;
+    const bolehKoor = n => n.ikon === 'flag' || n.ikon === 'rocket' || String(n.tautan || '').startsWith('laporan-forum') || String(n.tautan || '').startsWith('karya');
+    const adminIds = new Set(db.users.filter(u => u.role === 'admin').map(u => u.id));
+    const bersihNotif = db.notifikasi.filter(n => !adminIds.has(n.id_user) || bolehKoor(n));
+    if (bersihNotif.length !== db.notifikasi.length) {
+      db.notifikasi = bersihNotif;
+      notifBerubah = true;
     }
+    try {
+      const antre = JSON.parse(localStorage.getItem('bengkod_koor_notif_queue_v1') || '[]');
+      if (Array.isArray(antre) && antre.length) {
+        let nextId = db.notifikasi.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
+        antre.forEach(item => {
+          if (!item || !bolehKoor(item)) return;
+          adminIds.forEach(idAdmin => {
+            db.notifikasi.push({
+              id: nextId++,
+              id_user: idAdmin,
+              ikon: item.ikon || 'flag',
+              pesan: item.pesan || '',
+              tautan: item.tautan || 'laporan-forum.html',
+              waktu: item.waktu || new Date().toISOString(),
+              dibaca: false,
+            });
+          });
+        });
+        localStorage.removeItem('bengkod_koor_notif_queue_v1');
+        notifBerubah = true;
+      }
+    } catch {}
+    if (notifBerubah) simpan();
     // Pelamar gig yang tersimpan sebelum ada pilihan versi CV: format diambil dari data contoh (hanya menambah field yang kosong)
     const tanpaFormat = (db.gigs || []).flatMap(g => g.pelamar.filter(a => !a.format).map(a => [g, a]));
     if (tanpaFormat.length) {
@@ -496,6 +523,22 @@
       });
       if (adaFormat) simpan();
     }
+    const extraUsers = [
+      { id: 1001, nama: 'Super Admin', email: 'superadmin@dinus.ac.id', password: 'super12345', role: 'superadmin', status: 'verified', code: '', foto: '' },
+    ];
+    let adaAkunTambahan = false;
+    const tanpaMitra = db.users.filter(x => x.role !== 'mitra');
+    if (tanpaMitra.length !== db.users.length) {
+      db.users = tanpaMitra;
+      adaAkunTambahan = true;
+    }
+    extraUsers.forEach(u => {
+      if (!db.users.some(x => x.email.toLowerCase() === u.email)) {
+        db.users.push(u);
+        adaAkunTambahan = true;
+      }
+    });
+    if (adaAkunTambahan) simpan();
     return db;
   }
 
@@ -563,8 +606,9 @@
     masuk(email, password) {
       const u = akun.cariEmail(email);
       if (!u) return gagal('Email belum terdaftar, silakan mendaftar terlebih dahulu.', 'email');
+      if (u.role === 'mitra') return gagal('Akses role Mitra saat ini dinonaktifkan.', 'email');
       if (u.password !== password) return gagal('Password yang dimasukkan salah.', 'password');
-      if (u.status !== 'verified') return { ok: false, perluOtp: true, user: u, error: 'Akun belum diverifikasi.' };
+      if (u.status !== 'verified') return gagal('Akun belum diverifikasi.', 'email');
       try { localStorage.setItem(KEY_SESI, String(u.id)); } catch { /* storage diblokir */ }
       return { ok: true, user: u };
     },
@@ -686,11 +730,13 @@
       return { tempat, posisi, ringkas: tempat ? `${posisi} di ${tempat}` : t?.status || 'Alumni Bengkel Koding' };
     },
 
-    // Status utama pilihan alumni. Nama lama "Sedang studi lanjut (S2)" disamakan dengan Melanjutkan Pendidikan.
-    // Dipakai dashboard dan filter Analitik Tracer supaya angka grafik sama dengan jumlah baris hasil filter.
+    // Status utama pilihan alumni. Status lama dinormalisasi ke 5 status baku saat ini.
     kategori(t) {
       const s = (t?.status || '').trim().toLowerCase();
-      return s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut' ? STATUS_STUDI : t?.status;
+      if (s === 'bekerja full time' || s === 'bekerja part time') return STATUS[0];
+      if (s === 'sedang studi lanjut s2' || s === 'sedang studi lanjut') return STATUS_STUDI;
+      if (s === 'menikah/mengurus keluarga' || s === 'menikah / mengurus keluarga') return STATUS[4];
+      return t?.status;
     },
 
     jumlahPerStatus() {
@@ -926,7 +972,7 @@
         data.feed.pop();
         return gagal('Gambar terlalu besar untuk disimpan di prototype ini.', 'gambar');
       }
-      // Karya yang ditulis langsung di Beranda ikut masuk portofolio supaya tetap satu sumber
+      // Karya yang ditulis langsung di Beranda ikut masuk portofolio dan diberitahukan ke koordinator
       if (jenis === 'karya') {
         if (!proyek) {
           proyek = { id: idBaru(data.cv.projects), id_alumni: idAlumni, nama_proyek: post.karya.nama, peran_proyek: 'Pembuat Produk', tahun_proyek: new Date().getFullYear(), stack_proyek: post.karya.stack.join(', '), link_proyek: post.karya.link, deskripsi_proyek: teks || post.karya.tagline };
@@ -934,6 +980,7 @@
         }
         proyek.id_post = post.id;
         post.karya.id_proyek = proyek.id;
+        data.users.filter(u => u.role === 'admin').forEach(u => beritahu(u.id, 'rocket', `${akun.cari(idAlumni).nama} meluncurkan karya baru "${post.karya.nama}".`, 'karya.html'));
         simpan();
       }
       return { ok: true, id: post.id };
