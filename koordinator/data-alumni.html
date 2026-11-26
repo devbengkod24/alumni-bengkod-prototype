@@ -15,38 +15,37 @@
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Data Alumni">
-  <div>
-    <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Data &amp; Direktori Alumni</h1>
-    <p class="!text-[13.5px] text-neutral3 mt-1">Kelola dan pantau data profil, status karier, dan keahlian alumni Bengkel Koding UDINUS.</p>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div>
+      <h1 class="!text-[26px] font-semibold text-headline">Data &amp; Direktori Alumni</h1>
+      <p class="!text-[13.5px] text-neutral3 mt-1">Pantau profil, status karier, dan sebaran keahlian alumni Bengkel Koding UDINUS.</p>
+    </div>
+    <span class="self-start sm:self-auto shrink-0 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[13px] font-semibold tabular-nums">
+      <i data-lucide="users" class="w-4 h-4" aria-hidden="true"></i>
+      <span id="total-terdaftar">0 Alumni Terdaftar</span>
+    </span>
   </div>
 
-  <!-- Toolbar filter (pola direktori alumni v3) -->
-  <div class="bg-white border border-neutral4 rounded-[14px] p-4 sm:p-5 shadow-sm space-y-4">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <div class="relative">
-        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="search" class="w-4 h-4"></i></span>
-        <input id="cari" type="search" aria-label="Cari alumni" placeholder="Cari nama, email, jabatan, atau keahlian..."
-               class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
-      </div>
-      <div class="relative">
-        <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="building-2" class="w-4 h-4"></i></span>
-        <input id="cari-tempat" type="search" aria-label="Cari tempat kerja" placeholder="Kerja di mana? (Cari perusahaan...)"
-               class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
-      </div>
+  <!-- Toolbar filter -->
+  <section class="bg-white border border-neutral4 rounded-[16px] p-4 sm:p-5 shadow-sm space-y-3.5" aria-label="Filter direktori alumni">
+    <div class="relative">
+      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="search" class="w-4 h-4"></i></span>
+      <input id="cari" type="search" aria-label="Cari alumni" placeholder="Cari nama, email, posisi, perusahaan, atau keahlian..."
+             class="w-full h-10 pl-10 pr-3.5 rounded-[10px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 transition-colors">
     </div>
 
-    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-      <div class="grid grid-cols-2 sm:flex sm:items-center gap-2 [&>:last-child]:col-span-2 sm:[&>:last-child]:col-span-1">
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+      <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-2">
         <div class="relative">
           <label for="filter-batch" class="sr-only">Angkatan</label>
-          <select id="filter-batch" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
+          <select id="filter-batch" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors">
             <option value="">Semua angkatan</option>
           </select>
           <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
         </div>
         <div class="relative">
           <label for="filter-skill" class="sr-only">Keahlian utama</label>
-          <select id="filter-skill" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
+          <select id="filter-skill" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors">
             <option value="">Semua keahlian</option>
             <option value="Laravel">Laravel / PHP</option>
             <option value="React">React / Frontend</option>
@@ -60,110 +59,135 @@
         </div>
         <div class="relative">
           <label for="filter-kota" class="sr-only">Kota domisili</label>
-          <select id="filter-kota" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[8px] border border-neutral4 bg-white text-[13.5px] text-neutral1 focus:outline-none focus:border-primary1 cursor-pointer">
+          <select id="filter-kota" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors">
             <option value="">Semua kota</option>
+          </select>
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+        </div>
+        <div class="relative">
+          <label for="filter-jenjang" class="sr-only">Jenjang pendidikan</label>
+          <select id="filter-jenjang" class="appearance-none w-full h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors">
+            <option value="">Semua jenjang</option>
+            <option value="s1">S1</option>
+            <option value="s2">Studi Lanjut</option>
           </select>
           <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
         </div>
       </div>
 
-      <div class="flex items-center gap-3">
-        <span class="text-[13px] text-neutral3 font-medium hidden sm:inline">Jenjang:</span>
-        <div id="jenjang" class="bg-neutral5 p-1 rounded-[10px] inline-flex items-center gap-1 text-[13px]" role="group" aria-label="Filter jenjang">
-          <button type="button" data-jenjang="" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">Semua</button>
-          <button type="button" data-jenjang="s1" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">S1</button>
-          <button type="button" data-jenjang="s2" class="h-8 px-3.5 rounded-[7px] transition-colors cursor-pointer">S2 (Studi Lanjut)</button>
-        </div>
-        <button type="button" id="btn-reset-filter" class="hidden text-[13px] text-primary3 hover:underline font-medium cursor-pointer whitespace-nowrap">Reset</button>
-      </div>
+      <button type="button" id="btn-reset-filter" class="hidden self-end lg:self-auto inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[10px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral2 hover:text-headline transition-colors cursor-pointer whitespace-nowrap">
+        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+        <span>Reset filter</span>
+      </button>
     </div>
-  </div>
+  </section>
 
   <!-- Tabel alumni -->
-  <div class="bg-white border border-neutral4 rounded-[14px] shadow-sm overflow-hidden">
-    <div class="px-6 py-4 border-b border-neutral4 flex items-center gap-2.5">
-      <h2 class="!text-[17px] font-bold text-headline tracking-[-0.01em]">Daftar Alumni</h2>
-      <span id="jumlah-hasil" class="text-[12px] text-neutral3"></span>
+  <section class="bg-white border border-neutral4 rounded-[16px] shadow-sm overflow-hidden" aria-labelledby="judul-daftar-alumni">
+    <div class="px-4 sm:px-6 py-4 border-b border-neutral4 flex items-center justify-between gap-3">
+      <div class="flex items-baseline gap-2">
+        <h2 id="judul-daftar-alumni" class="!text-[16px] font-semibold text-headline">Daftar Alumni</h2>
+        <span id="jumlah-hasil" class="text-[13px] text-neutral3 tabular-nums"></span>
+      </div>
     </div>
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="border-b border-neutral4 bg-white text-[13px] font-medium text-neutral3">
-            <th class="py-3.5 pl-6 pr-4 font-medium min-w-[240px]">Nama</th>
-            <th class="py-3.5 px-4 font-medium min-w-[140px]">Domisili</th>
-            <th class="py-3.5 px-4 font-medium min-w-[160px]">Posisi</th>
-            <th class="py-3.5 px-4 font-medium min-w-[170px]">Tempat Kerja</th>
-            <th class="py-3.5 pr-6 pl-4 font-medium text-right min-w-[110px]">Aksi</th>
+          <tr class="border-b border-neutral4 bg-[#F8FAFC] text-[12.5px] font-semibold text-neutral3">
+            <th class="py-3 pl-4 sm:pl-6 pr-2 font-semibold w-14 text-center">No</th>
+            <th class="py-3 px-4 font-semibold min-w-[230px]">Nama</th>
+            <th class="py-3 px-4 font-semibold min-w-[100px] whitespace-nowrap">Angkatan</th>
+            <th class="py-3 px-4 font-semibold min-w-[120px] whitespace-nowrap">Domisili</th>
+            <th class="py-3 px-4 font-semibold min-w-[160px]">Posisi</th>
+            <th class="py-3 px-4 font-semibold min-w-[160px]">Tempat Kerja</th>
+            <th class="py-3 pr-4 sm:pr-6 pl-4 font-semibold text-right min-w-[110px]">Aksi</th>
           </tr>
         </thead>
         <tbody id="daftar" class="divide-y divide-neutral4 text-[13.5px]"></tbody>
       </table>
     </div>
-    <div class="px-6 py-3.5 border-t border-neutral4 bg-[#FAFBFC] flex items-center justify-between gap-3 text-[12.5px] text-neutral3">
-      <span id="status-hasil"></span>
-      <div class="flex items-center gap-1">
-        <button type="button" id="hal-sebelum" class="px-2.5 py-1 rounded-[6px] border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">Sebelumnya</button>
-        <span id="hal-posisi" class="px-3 py-1 font-semibold text-headline tabular-nums"></span>
-        <button type="button" id="hal-berikut" class="px-2.5 py-1 rounded-[6px] border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">Berikutnya</button>
+    <div class="px-4 sm:px-6 py-3.5 border-t border-neutral4 bg-[#F8FAFC] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px] text-neutral3">
+      <span id="status-hasil" class="tabular-nums"></span>
+      <div class="flex items-center justify-end gap-1.5">
+        <button type="button" id="hal-sebelum" class="inline-flex items-center gap-1 h-9 px-3 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors">
+          <i data-lucide="chevron-left" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          <span>Sebelumnya</span>
+        </button>
+        <span id="hal-posisi" class="px-3 py-1.5 text-[12.5px] font-semibold text-headline tabular-nums"></span>
+        <button type="button" id="hal-berikut" class="inline-flex items-center gap-1 h-9 px-3 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors">
+          <span>Berikutnya</span>
+          <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+        </button>
       </div>
     </div>
-  </div>
+  </section>
 </main>
 
 <script>
   const PER_HALAMAN = 10;
   let halaman = 1;
-  let jenjang = '';
   const $ = id => document.getElementById(id);
 
   const isS2 = t => Boolean(t && (t.status === DB.STATUS_STUDI || t.nama_studi));
 
-  // Badge posisi berwarna lembut seperti direktori alumni v3
+  // Badge posisi berwarna lembut
   const WARNA_POSISI = {
-    bekerja: 'bg-[#E2F1F9] text-[#3A5A86]',
+    bekerja: 'bg-[#E2F1F9] text-[#3A5988]',
     studi: 'bg-[#FDF0DD] text-[#B26A12]',
     lain: 'bg-[#F4F5F7] text-[#4B5563]',
   };
   const kelompok = t => !t ? 'lain' : DB.STATUS_BEKERJA.includes(t.status) ? 'bekerja' : isS2(t) ? 'studi' : 'lain';
 
-  function barisAlumni(a) {
+  function barisAlumni(a, nomor) {
     const t = DB.tracer.milik(a.id);
     const karir = DB.tracer.karir(t);
     const foto = a.foto
-      ? `<img src="${esc(a.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral4">`
-      : `<span class="w-9 h-9 rounded-full bg-primary5 text-primary1 font-semibold text-[12px] flex items-center justify-center shrink-0">${esc(inisial(a.nama))}</span>`;
+      ? `<img src="${esc(a.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-10 h-10 rounded-full object-cover shrink-0 border border-neutral4">`
+      : `<span class="w-10 h-10 rounded-full bg-primary5 text-primary1 font-semibold text-[12.5px] flex items-center justify-center shrink-0">${esc(inisial(a.nama))}</span>`;
     const href = `profil-alumni.html?id=${a.id}`;
+    const jenjangBadge = isS2(t)
+      ? '<span class="px-1.5 py-0.5 rounded bg-[#FDF0DD] text-[#B26A12] text-[10.5px] font-semibold">S2</span>'
+      : '<span class="px-1.5 py-0.5 rounded bg-[#F4F5F7] text-[#4B5563] text-[10.5px] font-medium">S1</span>';
     return `
-      <tr class="hover:bg-[#F9FAFB] transition-colors group cursor-pointer" data-href="${href}">
-        <td class="py-4 pl-6 pr-4">
+      <tr class="hover:bg-[#F8FAFC] transition-colors group cursor-pointer" data-href="${href}">
+        <td class="py-3.5 pl-4 sm:pl-6 pr-2 text-center text-[13px] font-medium text-neutral3 tabular-nums">${nomor}</td>
+        <td class="py-3.5 px-4">
           <div class="flex items-center gap-3">
             ${foto}
             <div class="min-w-0">
-              <span class="block font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(a.nama)}</span>
-              <span class="block text-[12px] text-neutral3 truncate">Angkatan ${esc(t?.tahun_lulus || '-')} · ${isS2(t) ? 'S2' : 'S1'} · ${esc(a.email)}</span>
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(a.nama)}</span>
+                ${jenjangBadge}
+              </div>
+              <span class="block text-[12px] text-neutral3 truncate mt-0.5">${esc(a.email)}</span>
             </div>
           </div>
         </td>
-        <td class="py-4 px-4 text-[#374151]">${esc(t?.kota || '-')}</td>
-        <td class="py-4 px-4"><span class="inline-block px-2.5 py-1 rounded-[6px] text-[12px] font-medium ${WARNA_POSISI[kelompok(t)]}">${esc(karir.posisi || t?.status || 'Belum mengisi tracer')}</span></td>
-        <td class="py-4 px-4 font-medium text-neutral1">${esc(karir.tempat || '-')}</td>
-        <td class="py-4 pr-6 pl-4 text-right"><a href="${href}" class="text-[13px] font-medium text-primary1 hover:underline">Lihat detail</a></td>
+        <td class="py-3.5 px-4 text-neutral2 font-medium tabular-nums whitespace-nowrap">${esc(t?.tahun_lulus || '-')}</td>
+        <td class="py-3.5 px-4 text-neutral2 whitespace-nowrap">${esc(t?.kota || '-')}</td>
+        <td class="py-3.5 px-4"><span class="inline-block px-2.5 py-1 rounded-[6px] text-[12px] font-medium ${WARNA_POSISI[kelompok(t)]}">${esc(karir.posisi || t?.status || 'Belum mengisi tracer')}</span></td>
+        <td class="py-3.5 px-4 font-medium text-neutral1">${esc(karir.tempat || '-')}</td>
+        <td class="py-3.5 pr-4 sm:pr-6 pl-4 text-right whitespace-nowrap">
+          <a href="${href}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 group-hover:border-primary4 group-hover:text-primary1 transition-colors">
+            <span>Detail</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          </a>
+        </td>
       </tr>`;
   }
 
   function filterAlumni(semua) {
     const kata = $('cari').value.trim().toLowerCase();
-    const tempat = $('cari-tempat').value.trim().toLowerCase();
     const batch = $('filter-batch').value;
     const kota = $('filter-kota').value;
     const skill = $('filter-skill').value.toLowerCase();
+    const jenjang = $('filter-jenjang').value;
 
     return semua.filter(a => {
       const t = DB.tracer.milik(a.id);
       const karir = DB.tracer.karir(t);
       const keahlian = (t?.keahlian || []).join(' ').toLowerCase();
-      if (kata && !`${a.nama} ${a.email} ${karir.ringkas} ${keahlian}`.toLowerCase().includes(kata)) return false;
-      if (tempat && !karir.tempat.toLowerCase().includes(tempat)) return false;
+      if (kata && !`${a.nama} ${a.email} ${karir.ringkas} ${karir.tempat} ${keahlian}`.toLowerCase().includes(kata)) return false;
       if (batch && String(t?.tahun_lulus) !== batch) return false;
       if (kota && t?.kota !== kota) return false;
       if (skill && !keahlian.includes(skill)) return false;
@@ -173,35 +197,51 @@
     });
   }
 
+  const FILTER_SELECTS = ['filter-batch', 'filter-skill', 'filter-kota', 'filter-jenjang'];
+
+  function perbaruiStatusSelect() {
+    FILTER_SELECTS.forEach(id => {
+      const el = $(id);
+      const aktif = Boolean(el.value);
+      el.classList.toggle('border-primary4', aktif);
+      el.classList.toggle('bg-[#EBF2FC]', aktif);
+      el.classList.toggle('text-primary1', aktif);
+      el.classList.toggle('border-neutral4', !aktif);
+      el.classList.toggle('bg-white', !aktif);
+      el.classList.toggle('text-neutral1', !aktif);
+    });
+  }
+
+  function resetSemuaFilter() {
+    ['cari', ...FILTER_SELECTS].forEach(id => { $(id).value = ''; });
+    ulang();
+  }
+
   function render() {
     const semua = DB.akun.alumni();
     const hasil = filterAlumni(semua);
     const jumlahHal = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN));
     halaman = Math.min(halaman, jumlahHal);
 
-    const filterAktif = Boolean($('cari').value.trim() || $('cari-tempat').value.trim() || $('filter-batch').value || $('filter-skill').value || $('filter-kota').value || jenjang);
-    $('btn-reset-filter').classList.toggle('hidden', !filterAktif);
-    document.querySelectorAll('[data-jenjang]').forEach(b => {
-      const aktif = b.dataset.jenjang === jenjang;
-      b.setAttribute('aria-pressed', aktif);
-      b.classList.toggle('bg-white', aktif);
-      b.classList.toggle('text-headline', aktif);
-      b.classList.toggle('shadow-sm', aktif);
-      b.classList.toggle('font-semibold', aktif);
-      b.classList.toggle('font-medium', !aktif);
-      b.classList.toggle('text-neutral3', !aktif);
-    });
+    perbaruiStatusSelect();
+    $('total-terdaftar').textContent = `${semua.length} Alumni Terdaftar`;
 
-    $('jumlah-hasil').textContent = `(${hasil.length} rekan)`;
-    $('daftar').innerHTML = hasil.length
-      ? potong(hasil, halaman, PER_HALAMAN).map(barisAlumni).join('')
-      : `<tr><td colspan="5" class="py-12 text-center text-neutral3">
-          <p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang sesuai</p>
-          <p class="!text-[13px] mt-1">Coba ubah kata kunci pencarian atau reset filter.</p>
-        </td></tr>`;
+    const filterAktif = Boolean($('cari').value.trim() || FILTER_SELECTS.some(id => $(id).value));
+    $('btn-reset-filter').classList.toggle('hidden', !filterAktif);
 
     const awal = hasil.length ? (halaman - 1) * PER_HALAMAN + 1 : 0;
     const akhir = Math.min(halaman * PER_HALAMAN, hasil.length);
+    const mulaiNomor = (halaman - 1) * PER_HALAMAN;
+    $('jumlah-hasil').textContent = `(${hasil.length} alumni)`;
+    $('daftar').innerHTML = hasil.length
+      ? potong(hasil, halaman, PER_HALAMAN).map((a, idx) => barisAlumni(a, mulaiNomor + idx + 1)).join('')
+      : `<tr><td colspan="7" class="py-12 px-4 text-center text-neutral3">
+          <i data-lucide="users" class="w-9 h-9 mx-auto mb-3 text-[#CBD5E1]" aria-hidden="true"></i>
+          <p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang sesuai</p>
+          <p class="!text-[13px] text-neutral3 mt-1">Ubah kata kunci pencarian atau reset filter untuk melihat semua alumni.</p>
+          ${filterAktif ? '<button type="button" onclick="resetSemuaFilter()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Reset semua filter</span></button>' : ''}
+        </td></tr>`;
+
     $('status-hasil').innerHTML = `Menampilkan <strong class="text-headline">${awal}–${akhir}</strong> dari ${hasil.length} alumni`;
     $('hal-posisi').textContent = `${halaman} / ${jumlahHal}`;
     $('hal-sebelum').disabled = halaman <= 1;
@@ -210,19 +250,9 @@
   }
 
   const ulang = () => { halaman = 1; render(); };
-  ['cari', 'cari-tempat'].forEach(id => $(id).addEventListener('input', ulang));
-  ['filter-batch', 'filter-skill', 'filter-kota'].forEach(id => $(id).addEventListener('change', ulang));
-  $('jenjang').addEventListener('click', e => {
-    const b = e.target.closest('[data-jenjang]');
-    if (!b) return;
-    jenjang = b.dataset.jenjang;
-    ulang();
-  });
-  $('btn-reset-filter').addEventListener('click', () => {
-    ['cari', 'cari-tempat', 'filter-batch', 'filter-skill', 'filter-kota'].forEach(id => { $(id).value = ''; });
-    jenjang = '';
-    ulang();
-  });
+  $('cari').addEventListener('input', ulang);
+  FILTER_SELECTS.forEach(id => $(id).addEventListener('change', ulang));
+  $('btn-reset-filter').addEventListener('click', resetSemuaFilter);
   $('hal-sebelum').addEventListener('click', () => { halaman--; render(); });
   $('hal-berikut').addEventListener('click', () => { halaman++; render(); });
   // Klik di mana saja pada baris membuka profil

@@ -27,9 +27,8 @@
   </div>
 
   <section class="bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden">
-    <div class="p-4 sm:p-5 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center justify-between gap-3 no-print">
-      <div id="alat" class="flex flex-wrap gap-2"></div>
-      <div class="relative lg:w-72">
+    <div class="p-4 sm:p-5 border-b border-gray-200 flex items-center justify-start no-print">
+      <div class="relative w-full lg:w-80">
         <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
         <input id="cari" type="search" class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988]" placeholder="Cari judul atau isi..." aria-label="Cari pengumuman">
       </div>
@@ -123,10 +122,6 @@
   });
 
   document.getElementById('cari').addEventListener('input', () => { halaman = 1; render(); });
-  pasangToolsTabel('alat', 'pengumuman.csv', () => [
-    ['Judul', 'Isi Pengumuman', 'Tanggal'],
-    ...DB.pengumuman.semua().map(p => [p.judul, p.isi, p.published_at]),
-  ]);
   render();
 </script>
 </body>

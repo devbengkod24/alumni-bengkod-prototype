@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-color-mode="light" class="h-full bg-[#EFF2F7]">
+<html lang="id" data-color-mode="light" class="h-full bg-[#F8FAFC]">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,126 +18,222 @@
     body { font-family: "Inter", sans-serif; }
   </style>
 </head>
-<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="detailKaryaPage()">
-  <main data-karya-page="Detail Karya" class="mx-auto w-full max-w-[960px] flex-1 space-y-5 p-6 lg:p-8">
-    <a href="showcase.html" class="inline-flex items-center gap-2 rounded text-[13.5px] font-semibold text-[#3A5988] hover:underline">
-      <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7-7-7 7 7 7"/>
-      </svg>
-      Kembali ke Karya Alumni
-    </a>
+<body class="h-full bg-[#F8FAFC] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="detailKaryaPage()">
+  <main data-karya-page="Detail Karya" class="mx-auto w-full max-w-[1120px] flex-1 space-y-5 p-4 sm:p-6">
+    <div>
+      <a :href="backHref"
+         class="inline-flex items-center gap-2 h-9 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white hover:bg-[#F8FAFC] hover:border-[#B7C8E0] text-[13px] font-semibold text-[#3A5988] shadow-sm transition-colors">
+        <svg aria-hidden="true" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m7-7-7 7 7 7"/>
+        </svg>
+        <span x-text="backLabel"></span>
+      </a>
+    </div>
 
-    <p x-show="message" x-cloak x-text="message" role="status"
-       class="fixed bottom-6 right-6 z-50 rounded-[8px] bg-[#0C1117] px-4 py-3 text-[13.5px] text-white shadow-md"></p>
+    <div x-show="message" x-cloak role="status"
+         class="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 rounded-[10px] bg-[#0C1117] px-4 py-3 text-[13.5px] text-white shadow-lg">
+      <span class="h-2 w-2 rounded-full bg-emerald-400 shrink-0"></span>
+      <span x-text="message"></span>
+    </div>
 
     <template x-if="!work">
-      <section class="space-y-2 rounded-[16px] border border-[#E3E4E9] bg-white p-6 shadow-sm">
-        <h1 class="text-xl font-semibold text-[#0C1117]">Karya tidak ditemukan</h1>
-        <p class="text-[14px] text-[#6B7280]">Pilih karya lain dari daftar Karya Alumni.</p>
+      <section class="rounded-[16px] border border-[#E3E4E9] bg-white p-10 text-center shadow-sm space-y-2">
+        <svg aria-hidden="true" class="h-9 w-9 mx-auto text-[#CBD5E1]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+        </svg>
+        <h1 class="text-[18px] font-semibold text-[#0C1117]">Karya tidak ditemukan</h1>
+        <p class="text-[13.5px] text-[#6B7280]">Karya yang dipilih mungkin sudah dihapus atau tautannya tidak valid.</p>
+        <div class="pt-2">
+          <a :href="backHref"
+             class="inline-flex items-center gap-2 h-9 px-4 rounded-[8px] border border-[#E3E4E9] bg-white hover:bg-[#F4F5F7] text-[13px] font-semibold text-[#212224] transition-colors">
+            <span x-text="backLabel"></span>
+          </a>
+        </div>
       </section>
     </template>
 
     <template x-if="work">
-      <article class="space-y-6 rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm sm:p-8">
-        <header class="space-y-3">
-          <div>
-            <h1 class="break-words text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[#0C1117] sm:text-[30px]" x-text="work.nama"></h1>
-            <p x-show="work.tagline" class="mt-1.5 break-words text-[15px] text-[#6B7280]" x-text="work.tagline"></p>
-          </div>
-          <div class="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-[#6B7280]">
-            <div class="flex items-center gap-2">
-              <div class="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] font-semibold text-[#3A5988]" aria-hidden="true">
-                <span x-text="(work.authorName || 'Alumni').charAt(0).toUpperCase()"></span>
-                <template x-if="work.authorAvatar">
-                  <img :src="work.authorAvatar" alt="" @error="$el.classList.add('hidden')" class="absolute inset-0 h-full w-full object-cover">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        <!-- KOLOM UTAMA (KIRI): Identitas, Banner, Cerita & Fitur -->
+        <article class="lg:col-span-8 space-y-6 rounded-[16px] border border-[#E3E4E9] bg-white p-5 sm:p-7 shadow-sm min-w-0">
+          <header class="pb-5 border-b border-[#E3E4E9]">
+            <div class="flex items-start gap-4 min-w-0">
+              <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-[14px] border border-[#E3E4E9] bg-[#EBF2FC] flex items-center justify-center shrink-0 overflow-hidden">
+                <template x-if="work.logo && !logoBroken">
+                  <img :src="work.logo" :alt="work.nama" @error="logoBroken = true" class="h-full w-full object-cover">
+                </template>
+                <template x-if="!work.logo || logoBroken">
+                  <span class="text-[22px] font-bold text-[#3A5988]" x-text="(work.nama || 'K').charAt(0).toUpperCase()"></span>
                 </template>
               </div>
-              <span class="font-medium text-[#212224]" x-text="work.authorName || 'Alumni'"></span>
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h1 class="break-words text-[24px] sm:text-[28px] font-semibold leading-tight text-[#0C1117]" x-text="work.nama"></h1>
+                  <span x-show="isSpotlight" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#EBF2FC] border border-[#B7C8E0] text-[#3A5988] text-[11.5px] font-semibold">
+                    <svg aria-hidden="true" class="w-3 h-3 fill-current" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    Spotlight
+                  </span>
+                </div>
+                <p x-show="work.tagline" class="mt-1.5 break-words text-[14.5px] text-[#6B7280] leading-snug" x-text="work.tagline"></p>
+              </div>
             </div>
-            <span x-show="work.category" class="rounded-md bg-[#F4F5F7] px-2 py-1 text-[#3A5988]" x-text="work.category"></span>
-            <span x-show="work.date" x-text="work.date"></span>
-          </div>
-          <template x-if="demoLink">
-            <a :href="demoLink" target="_blank" rel="noopener noreferrer"
-               class="inline-flex items-center gap-2 rounded-[8px] border border-[#E3E4E9] px-3 py-2 text-[13px] font-semibold text-[#3A5988] hover:bg-[#F4F5F7]">
-              Buka Website / Demo
-              <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 5h6v6m0-6-9 9m7-1v6H5V7h6"/>
-              </svg>
-            </a>
+          </header>
+
+          <template x-if="work.banner && !bannerBroken">
+            <div class="aspect-video w-full overflow-hidden rounded-[14px] border border-[#E3E4E9] bg-[#EBF2FC]">
+              <img :src="work.banner" :alt="'Tampilan karya ' + work.nama" @error="bannerBroken = true"
+                   class="h-full w-full object-cover">
+            </div>
           </template>
-        </header>
 
-        <template x-if="work.banner">
-          <img :src="work.banner" :alt="'Tampilan karya ' + work.nama"
-               class="aspect-video w-full rounded-[12px] border border-[#E3E4E9] bg-[#E2F1F9] object-cover">
-        </template>
+          <section x-show="work.leadStory1 || work.leadStory2" class="space-y-3">
+            <h2 class="text-[16px] font-semibold text-[#0C1117]">Tentang Karya</h2>
+            <p x-show="work.leadStory1" class="break-words text-[14.5px] leading-relaxed text-[#374151]">
+              <strong x-show="work.city" class="font-semibold text-[#0C1117]" x-text="work.city"></strong>
+              <span class="whitespace-pre-wrap" x-text="work.leadStory1"></span>
+            </p>
+            <p x-show="work.leadStory2" class="whitespace-pre-wrap break-words text-[14.5px] leading-relaxed text-[#374151]" x-text="work.leadStory2"></p>
+          </section>
 
-        <section x-show="work.leadStory1 || work.leadStory2" class="space-y-3">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Tentang Karya</h2>
-          <p x-show="work.leadStory1" class="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-[#374151]">
-            <strong x-show="work.city" class="font-semibold" x-text="work.city"></strong>
-            <span x-text="work.leadStory1"></span>
-          </p>
-          <p x-show="work.leadStory2" class="whitespace-pre-wrap break-words text-[15px] leading-relaxed text-[#374151]" x-text="work.leadStory2"></p>
-        </section>
-
-        <section x-show="work.sectionHeading || work.sectionIntro || work.keyFeatures?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]" x-text="work.sectionHeading || 'Fitur Utama'"></h2>
-          <p x-show="work.sectionIntro" class="text-[15px] leading-relaxed text-[#374151]" x-text="work.sectionIntro"></p>
-          <ul class="list-disc space-y-1 pl-5 text-[15px] leading-relaxed text-[#374151]">
-            <template x-for="feature in (work.keyFeatures || [])" :key="feature">
-              <li x-text="feature"></li>
-            </template>
-          </ul>
-        </section>
-
-        <section x-show="work.stack?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Tech Stack yang Digunakan</h2>
-          <ul class="flex flex-wrap gap-2">
-            <template x-for="stack in (work.stack || [])" :key="stack">
-              <li class="rounded-md border border-[#E3E4E9] bg-[#F4F5F7] px-2.5 py-1 text-[13px] text-[#4B5563]" x-text="stack"></li>
-            </template>
-          </ul>
-        </section>
-
-        <template x-if="contributorNames.length">
-          <section class="space-y-2">
-            <h2 class="text-[17px] font-semibold text-[#0C1117]">Kontributor</h2>
-            <ul class="flex flex-wrap gap-2">
-              <template x-for="name in contributorNames" :key="name">
-                <li class="max-w-full break-words rounded-md bg-[#E2F1F9] px-2.5 py-1 text-[13px] font-medium text-[#3A5988]" x-text="name"></li>
+          <section x-show="work.sectionHeading || work.sectionIntro || work.keyFeatures?.length" class="space-y-2.5 pt-2 border-t border-[#E3E4E9]/80">
+            <h2 class="text-[16px] font-semibold text-[#0C1117]" x-text="work.sectionHeading || 'Fitur Utama'"></h2>
+            <p x-show="work.sectionIntro" class="text-[14px] leading-relaxed text-[#6B7280]" x-text="work.sectionIntro"></p>
+            <ul class="list-disc space-y-1.5 pl-5 text-[14.5px] leading-relaxed text-[#374151]">
+              <template x-for="feature in (work.keyFeatures || [])" :key="feature">
+                <li x-text="feature"></li>
               </template>
             </ul>
           </section>
-        </template>
+        </article>
 
-        <section x-show="work.attachments?.length" class="space-y-2">
-          <h2 class="text-[17px] font-semibold text-[#0C1117]">Lampiran Karya</h2>
-          <ul class="space-y-2">
-            <template x-for="(attachment, index) in (work.attachments || [])" :key="index">
-              <li>
-                <button type="button" @click="downloadAttachment(attachment, index)"
-                        class="flex w-full items-center justify-between gap-3 rounded-lg border border-[#E3E4E9] px-3 py-2 text-left text-[13px] hover:bg-[#F4F5F7]">
-                  <span class="min-w-0 break-words" x-text="attachment.name"></span>
-                  <span class="shrink-0 font-semibold text-[#3A5988]">Unduh</span>
+        <!-- KOLOM KANAN: Pembuat, Kurasi Spotlight, Tech Stack, Kontributor & Lampiran -->
+        <aside class="lg:col-span-4 space-y-4 lg:sticky lg:top-[88px]">
+          <section class="rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm space-y-4">
+            <h2 class="text-[14px] font-semibold text-[#0C1117]">Informasi Karya</h2>
+
+            <div class="flex items-center gap-3">
+              <div class="relative grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E2F1F9] text-[12.5px] font-semibold text-[#3A5988]" aria-hidden="true">
+                <span x-text="authorInitials"></span>
+                <template x-if="work.authorAvatar && !avatarBroken">
+                  <img :src="work.authorAvatar" alt="" @error="avatarBroken = true" class="absolute inset-0 h-full w-full object-cover">
+                </template>
+              </div>
+              <div class="min-w-0">
+                <span class="block text-[14px] font-semibold text-[#0C1117] truncate" x-text="work.authorName || 'Alumni'"></span>
+                <span class="block text-[12px] text-[#6B7280]" x-text="work.date || 'Karya Terbit'"></span>
+              </div>
+            </div>
+
+            <div x-show="work.category" class="pt-3 border-t border-[#E3E4E9]/80 flex items-center justify-between gap-2 text-[13px]">
+              <span class="text-[#6B7280]">Kategori</span>
+              <span class="rounded-[6px] bg-[#EBF2FC] px-2.5 py-1 text-[12px] font-medium text-[#3A5988]" x-text="work.category"></span>
+            </div>
+
+            <div x-show="demoLink || isKoordinator" class="pt-3 border-t border-[#E3E4E9]/80 space-y-2.5">
+              <template x-if="demoLink">
+                <a :href="demoLink" target="_blank" rel="noopener noreferrer"
+                   class="w-full h-10 rounded-[10px] px-4 bg-[#3A5988] hover:bg-[#496DA8] text-[13px] font-semibold text-white shadow-sm inline-flex items-center justify-center gap-2 transition-colors">
+                  <span>Buka Website</span>
+                  <svg aria-hidden="true" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5h6v6m0-6-9 9m7-1v6H5V7h6"/>
+                  </svg>
+                </a>
+              </template>
+
+              <template x-if="isKoordinator">
+                <button type="button" @click="toggleSpotlight()" :aria-pressed="isSpotlight"
+                        class="w-full h-10 rounded-[10px] px-3 text-[13px] font-semibold inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                        :class="isSpotlight ? 'border border-[#B7C8E0] bg-[#EBF2FC] hover:bg-[#DCEAF9] text-[#3A5988]' : 'border border-[#E3E4E9] bg-white hover:bg-[#F8FAFC] hover:border-[#B7C8E0] text-[#212224] hover:text-[#3A5988]'">
+                  <svg aria-hidden="true" class="w-4 h-4" :class="isSpotlight ? 'fill-current' : ''" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                  </svg>
+                  <span x-text="isSpotlight ? 'Lepas dari Spotlight' : 'Tampilkan di Spotlight'"></span>
                 </button>
-              </li>
-            </template>
-          </ul>
-        </section>
+              </template>
+            </div>
+          </section>
 
-      </article>
+          <section x-show="work.stack?.length" class="rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm space-y-3">
+            <h2 class="text-[14px] font-semibold text-[#0C1117]">Tech Stack</h2>
+            <ul class="flex flex-wrap gap-1.5">
+              <template x-for="stack in (work.stack || [])" :key="stack">
+                <li class="rounded-[6px] border border-[#E3E4E9] bg-[#F8FAFC] px-2.5 py-1 text-[12.5px] font-medium text-[#4B5563]" x-text="stack"></li>
+              </template>
+            </ul>
+          </section>
+
+          <template x-if="contributorNames.length">
+            <section class="rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm space-y-3">
+              <h2 class="text-[14px] font-semibold text-[#0C1117]">Kontributor</h2>
+              <ul class="flex flex-wrap gap-1.5">
+                <template x-for="name in contributorNames" :key="name">
+                  <li class="max-w-full break-words rounded-[6px] bg-[#E2F1F9] px-2.5 py-1 text-[12.5px] font-medium text-[#3A5988]" x-text="name"></li>
+                </template>
+              </ul>
+            </section>
+          </template>
+
+          <section x-show="work.attachments?.length" class="rounded-[16px] border border-[#E3E4E9] bg-white p-5 shadow-sm space-y-3">
+            <h2 class="text-[14px] font-semibold text-[#0C1117]">Lampiran Karya</h2>
+            <ul class="space-y-2">
+              <template x-for="(attachment, index) in (work.attachments || [])" :key="index">
+                <li>
+                  <button type="button" @click="downloadAttachment(attachment, index)"
+                          class="flex w-full items-center justify-between gap-3 rounded-[10px] border border-[#E3E4E9] bg-[#F8FAFC] hover:bg-white hover:border-[#B7C8E0] px-3.5 py-2.5 text-left text-[13px] transition-colors cursor-pointer">
+                    <span class="min-w-0 font-medium text-[#212224] break-words" x-text="attachment.name"></span>
+                    <span class="shrink-0 inline-flex items-center gap-1 font-semibold text-[#3A5988]">
+                      <svg aria-hidden="true" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4m4-5 5 5 5-5m-5 5V3"/>
+                      </svg>
+                      <span>Unduh</span>
+                    </span>
+                  </button>
+                </li>
+              </template>
+            </ul>
+          </section>
+        </aside>
+      </div>
     </template>
   </main>
 
   <script>
+    const params = new URLSearchParams(window.location.search);
+    const dariKoordinator = params.get("from") === "koordinator" || (!params.get("from") && document.referrer.includes("/koordinator/"));
+
+    function koordinatorProfileName() {
+      try {
+        const sesiId = Number(localStorage.getItem("alumni_revisi_sesi_v1"));
+        const db = JSON.parse(localStorage.getItem("alumni_revisi_data_v5") || "{}");
+        const user = Array.isArray(db.users) ? db.users.find(u => u.id === sesiId && u.role === "admin") : null;
+        return user?.nama || "Koordinator Alumni";
+      } catch {
+        return "Koordinator Alumni";
+      }
+    }
+
     function detailKaryaPage() {
-      const id = new URLSearchParams(window.location.search).get("id");
+      const id = params.get("id");
+      const work = findShowcaseWork(loadShowcaseWorks(), id);
+      const spotlightSet = new Set(loadSpotlightWorks().map(item => String(item.id)));
+
       return {
-        work: findShowcaseWork(loadShowcaseWorks(), id),
+        work,
+        isKoordinator: dariKoordinator,
+        backHref: dariKoordinator ? "../koordinator/karya.html" : "showcase.html",
+        backLabel: dariKoordinator ? "Kembali ke Showcase Alumni" : "Kembali ke Karya Alumni",
+        isSpotlight: work ? spotlightSet.has(String(work.id)) : false,
+        logoBroken: false,
+        bannerBroken: false,
+        avatarBroken: false,
         message: "",
         messageTimer: null,
+
+        get authorInitials() {
+          const words = String(this.work?.authorName || "AL").trim().split(/\s+/).filter(Boolean);
+          return words.slice(0, 2).map(w => w[0]).join("").toUpperCase() || "AL";
+        },
 
         get demoLink() {
           try {
@@ -152,6 +248,17 @@
           const contributors = this.work?.contributors || [];
           const names = contributors.map(person => (typeof person === "string" ? person : person?.name)?.trim());
           return [...new Set(names.filter(Boolean))];
+        },
+
+        toggleSpotlight() {
+          if (!this.work) return;
+          try {
+            toggleSpotlightWork(String(this.work.id));
+            this.isSpotlight = new Set(loadSpotlightWorks().map(item => String(item.id))).has(String(this.work.id));
+            this.notify(this.isSpotlight ? "Karya ditampilkan di Spotlight." : "Karya dilepas dari Spotlight.");
+          } catch {
+            this.notify("Pilihan Spotlight gagal disimpan.");
+          }
         },
 
         notify(message) {
@@ -170,7 +277,45 @@
       };
     }
 
-    mountAlumniPortal(document.querySelector('main'));
+    if (dariKoordinator) {
+      mountAlumniPortal(document.querySelector("main"), {
+        profile: { name: koordinatorProfileName(), meta: "Koordinator Alumni" },
+        logout: () => {
+          try { localStorage.removeItem("alumni_revisi_sesi_v1"); } catch {}
+          location.href = "../koordinator/login.html";
+        },
+        nav: {
+          routes: {
+            "../koordinator/dashboard.html": ["Dashboard"],
+            "../koordinator/data-alumni.html": ["Data Alumni"],
+            "../koordinator/tracer.html": ["Statistik & Tracer"],
+            "../koordinator/mitra.html": ["Mitra"],
+            "../koordinator/forum.html": ["Forum"],
+            "../koordinator/laporan-forum.html": ["Laporan Forum"],
+            "../koordinator/karya.html": ["Karya Alumni"],
+            "../koordinator/pengumuman.html": ["Pengumuman"],
+            "detail-karya.html": ["Detail Karya", "../koordinator/karya.html"]
+          },
+          groups: [
+            ["Menu Utama", [["../koordinator/dashboard.html", "home"], ["../koordinator/data-alumni.html", "idcard"], ["../koordinator/tracer.html", "chart"], ["../koordinator/mitra.html", "building"]]],
+            ["Komunitas", [["../koordinator/forum.html", "chat"], ["../koordinator/laporan-forum.html", "flag"], ["../koordinator/karya.html", "trophy"], ["../koordinator/pengumuman.html", "megaphone"]]]
+          ],
+          home: "../koordinator/dashboard.html",
+          root: "Koordinator",
+          brand: "Portal Koordinator",
+          label: "koordinator",
+          accountLinks: [["../koordinator/profil.html", "Profil Saya"]]
+        },
+        notifications: {
+          getAll: () => [],
+          markRead: () => {},
+          markAllRead: () => {},
+          allHref: "../koordinator/notifikasi.html"
+        }
+      });
+    } else {
+      mountAlumniPortal(document.querySelector("main"));
+    }
   </script>
 </body>
 </html>

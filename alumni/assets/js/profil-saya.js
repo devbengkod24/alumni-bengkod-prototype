@@ -21,7 +21,7 @@ const DEFAULT_PROFIL_SAYA = {
   github: "https://github.com/aishaadr",
   website: "https://aisharahma.dev",
   email: "aisha.rahma@alumni.dinus.ac.id",
-  careerStatus: "Bekerja Full Time",
+  careerStatus: "Bekerja",
   jobField: "Infokom",
   jobCategory: "Perusahaan Swasta",
   companyName: "PT GoTo Gojek Tokopedia",

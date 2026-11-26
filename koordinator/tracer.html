@@ -15,117 +15,161 @@
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Statistik &amp; Tracer">
-  <div class="w-full space-y-6 py-2 antialiased">
+  <div class="w-full space-y-5 antialiased">
     <!-- Header Halaman -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
       <div>
-        <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Statistik &amp; Analitik Tracer</h1>
-        <p class="text-sm text-gray-500 mt-0.5">
-          Jawaban kuesioner tracer study per alumni dan cakupan tiap angkatan
+        <h1 class="!text-[26px] font-semibold text-headline">Statistik &amp; Analitik Tracer</h1>
+        <p class="!text-[13.5px] text-neutral3 mt-1">
+          Jawaban kuesioner tracer study per alumni dan cakupan tiap angkatan.
         </p>
       </div>
-      <div id="header-aksi" class="no-print">
-        <button type="button" id="btn-sinkron-lms" onclick="sinkronDataLms()" class="hidden inline-flex items-center gap-2 px-4 py-2 rounded-full border border-gray-200 bg-white hover:bg-gray-50 text-sm font-semibold text-[#3A5988] shadow-2xs transition-colors cursor-pointer">
-          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-          <span>Sinkronkan Data LMS</span>
+
+      <!-- Navigasi Tab Terpadu -->
+      <div class="inline-flex items-center gap-1 p-1 bg-white border border-neutral4 rounded-[12px] shadow-sm overflow-x-auto no-scrollbar no-print self-start sm:self-auto" role="tablist" aria-label="Kategori Statistik dan Tracer">
+        <button
+          type="button"
+          id="btn-tab-tracer"
+          role="tab"
+          aria-selected="true"
+          aria-controls="panel-tracer"
+          onclick="pilihTab('tracer')"
+          class="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer bg-[#3A5988] text-white"
+        >
+          <i data-lucide="clipboard-list" class="w-4 h-4" aria-hidden="true"></i>
+          <span>Analitik Kuesioner</span>
+        </button>
+        <button
+          type="button"
+          id="btn-tab-statistik"
+          role="tab"
+          aria-selected="false"
+          aria-controls="panel-statistik"
+          onclick="pilihTab('statistik')"
+          class="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer text-neutral2 hover:text-headline hover:bg-[#F8FAFC]"
+        >
+          <i data-lucide="chart-column" class="w-4 h-4" aria-hidden="true"></i>
+          <span>Cakupan Angkatan</span>
         </button>
       </div>
-    </div>
-
-    <!-- Navigasi Tab Terpadu -->
-    <div class="flex items-center gap-2 overflow-x-auto no-scrollbar no-print" role="tablist" aria-label="Kategori Statistik dan Tracer">
-      <button
-        type="button"
-        id="btn-tab-tracer"
-        role="tab"
-        aria-selected="true"
-        onclick="pilihTab('tracer')"
-        class="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer bg-[#3A5988] text-white shadow-xs"
-      >
-        <i data-lucide="clipboard-list" class="w-4 h-4"></i>
-        <span>Analitik Kuesioner Tracer</span>
-      </button>
-      <button
-        type="button"
-        id="btn-tab-statistik"
-        role="tab"
-        aria-selected="false"
-        onclick="pilihTab('statistik')"
-        class="shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-      >
-        <i data-lucide="chart-column" class="w-4 h-4"></i>
-        <span>Target &amp; Cakupan Angkatan</span>
-      </button>
     </div>
 
     <!-- ======================================================
          TAB 1: ANALITIK KUESIONER TRACER
     ====================================================== -->
-    <div id="panel-tracer" class="space-y-6">
-      <section id="detail" class="bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden scroll-mt-20" aria-labelledby="judul-jawaban">
-        <div class="p-4 sm:p-5 border-b border-gray-200 space-y-3 no-print">
+    <div id="panel-tracer" role="tabpanel" aria-labelledby="btn-tab-tracer" class="space-y-5">
+      <section id="detail" class="bg-white rounded-[16px] border border-neutral4 shadow-sm overflow-hidden scroll-mt-20" aria-labelledby="judul-jawaban">
+        <div class="p-4 sm:p-6 border-b border-neutral4 space-y-4 no-print">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 id="judul-jawaban" class="!text-base font-semibold text-gray-900">Jawaban Kuesioner</h2>
-              <p id="jumlah-hasil" class="!text-xs text-gray-500 mt-0.5" aria-live="polite"></p>
+              <h2 id="judul-jawaban" class="!text-[16px] font-semibold text-headline">Jawaban Kuesioner</h2>
+              <p id="jumlah-hasil" class="!text-[13px] text-neutral3 mt-0.5 tabular-nums" aria-live="polite"></p>
             </div>
             <div id="alat" class="flex flex-wrap gap-2"></div>
           </div>
-          <div class="flex flex-col lg:flex-row gap-3">
-            <div class="relative flex-1 min-w-0">
-              <i data-lucide="search" class="w-4 h-4 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-              <input id="cari" type="search" class="w-full h-10 pl-10 pr-4 rounded-full border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988]" placeholder="Cari nama, NIM, tempat, atau kota" aria-label="Cari nama, NIM, tempat, atau kota">
+
+          <div class="space-y-2.5">
+            <div class="relative">
+              <i data-lucide="search" class="w-4 h-4 text-[#91969C] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+              <input id="cari" type="search" class="w-full h-10 pl-10 pr-3.5 rounded-[10px] border border-neutral4 bg-[#F8FAFC] focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 transition-colors" placeholder="Cari nama, NIM, perusahaan, atau kota..." aria-label="Cari nama, NIM, perusahaan, atau kota">
             </div>
-            <select id="f-status" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-64 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer" aria-label="Filter status"></select>
-            <select id="f-profil" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-56 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer" aria-label="Filter studi lanjut dan pekerjaan sampingan"></select>
-            <select id="f-tahun" class="h-10 px-4 rounded-full border border-gray-200 bg-white text-sm text-gray-700 lg:w-48 focus:outline-none focus:ring-2 focus:ring-[#3A5988]/20 focus:border-[#3A5988] cursor-pointer" aria-label="Filter angkatan"></select>
+
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-2.5">
+              <div class="grid grid-cols-1 sm:grid-cols-3 lg:flex lg:flex-wrap lg:items-center gap-2 flex-1">
+                <div class="relative">
+                  <label for="f-status" class="sr-only">Filter status</label>
+                  <select id="f-status" class="appearance-none w-full lg:w-auto lg:min-w-[200px] h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors" aria-label="Filter status"></select>
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                </div>
+                <div class="relative">
+                  <label for="f-profil" class="sr-only">Filter studi lanjut dan pekerjaan sampingan</label>
+                  <select id="f-profil" class="appearance-none w-full lg:w-auto lg:min-w-[180px] h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors" aria-label="Filter studi lanjut dan pekerjaan sampingan"></select>
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                </div>
+                <div class="relative">
+                  <label for="f-tahun" class="sr-only">Filter angkatan</label>
+                  <select id="f-tahun" class="appearance-none w-full lg:w-auto lg:min-w-[160px] h-10 pl-3.5 pr-9 rounded-[10px] border border-neutral4 bg-white text-[13.5px] font-medium text-neutral1 focus:outline-none focus:ring-2 focus:ring-primary1/15 focus:border-primary1 cursor-pointer transition-colors" aria-label="Filter angkatan"></select>
+                  <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#91969C]"><i data-lucide="chevron-down" class="w-4 h-4"></i></span>
+                </div>
+              </div>
+
+              <button type="button" id="btn-reset-filter" class="hidden self-end lg:self-auto inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[10px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral2 hover:text-headline transition-colors cursor-pointer whitespace-nowrap">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                <span>Reset filter</span>
+              </button>
+            </div>
           </div>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead><tr>
-              <th class="th">Alumni</th><th class="th">Angkatan</th><th class="th">Kontak</th><th class="th">Status</th><th class="th">Tempat</th><th class="th">Posisi</th><th class="th text-right no-print">Profil</th>
-            </tr></thead>
-            <tbody id="baris"></tbody>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-neutral4 bg-[#F8FAFC] text-[12.5px] font-semibold text-neutral3">
+                <th class="py-3 pl-4 sm:pl-6 pr-2 font-semibold w-14 text-center">No</th>
+                <th class="py-3 px-4 font-semibold min-w-[210px]">Alumni</th>
+                <th class="py-3 px-4 font-semibold whitespace-nowrap">Angkatan</th>
+                <th class="py-3 px-4 font-semibold min-w-[190px]">Kontak</th>
+                <th class="py-3 px-4 font-semibold whitespace-nowrap">Status</th>
+                <th class="py-3 px-4 font-semibold min-w-[160px]">Tempat</th>
+                <th class="py-3 px-4 font-semibold min-w-[130px]">Posisi</th>
+                <th class="py-3 pr-4 sm:pr-6 pl-4 font-semibold text-right whitespace-nowrap no-print">Profil</th>
+              </tr>
+            </thead>
+            <tbody id="baris" class="divide-y divide-neutral4 text-[13.5px]"></tbody>
           </table>
         </div>
-        <div id="pager" class="p-4 border-t border-gray-100 empty:hidden no-print"></div>
+        <div id="pager" class="px-4 sm:px-6 py-3.5 border-t border-neutral4 bg-[#F8FAFC] empty:hidden no-print"></div>
       </section>
     </div>
 
     <!-- ======================================================
          TAB 2: TARGET & CAKUPAN ANGKATAN (OTOMATIS DARI LMS)
     ====================================================== -->
-    <div id="panel-statistik" class="hidden space-y-5">
+    <div id="panel-statistik" role="tabpanel" aria-labelledby="btn-tab-statistik" class="hidden space-y-5">
       <!-- Banner Integrasi LMS -->
-      <div class="bg-blue-50/70 border border-blue-200/80 rounded-xl px-4 py-3.5 text-sm text-gray-700 flex items-start justify-between gap-4 flex-wrap">
-        <div class="flex items-start gap-2.5 flex-1 min-w-[260px]">
-          <i data-lucide="database" class="w-4 h-4 text-[#3A5988] shrink-0 mt-0.5"></i>
-          <p class="text-[13.5px] leading-relaxed">
-            Data tersinkronisasi otomatis dari <code class="px-1.5 py-0.5 rounded bg-white border border-blue-200 text-xs font-semibold text-[#3A5988]">lms-bengkod-api</code>.
-            Total asisten dihitung dari akun asisten lab aktif berumur <strong>≥ 1 tahun</strong> berdasarkan tahun pada NIM. Alumni terdeteksi adalah asisten yang telah melakukan verifikasi NIM awal registrasi dan aktif di Portal Alumni.
-          </p>
+      <div class="bg-[#EBF2FC]/70 border border-[#B7C8E0] rounded-[16px] p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="flex items-start gap-3 flex-1 min-w-0">
+          <span class="w-9 h-9 rounded-[10px] bg-white border border-[#B7C8E0] text-[#3A5988] flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="database" class="w-4 h-4" aria-hidden="true"></i>
+          </span>
+          <div class="min-w-0">
+            <p class="!text-[13.5px] text-neutral1 leading-relaxed">
+              Data tersinkronisasi otomatis dari <code class="px-1.5 py-0.5 rounded bg-white border border-[#B7C8E0] text-[12px] font-semibold text-[#3A5988]">lms-bengkod-api</code>.
+              Total asisten dihitung dari akun asisten lab aktif berumur <strong>≥ 1 tahun</strong> berdasarkan tahun pada NIM.
+            </p>
+            <p id="status-sinkron-lms" class="!text-[12px] font-medium text-neutral3 mt-1"></p>
+          </div>
         </div>
-        <span id="status-sinkron-lms" class="text-xs font-medium text-gray-500 whitespace-nowrap self-center"></span>
+        <button type="button" id="btn-sinkron-lms" onclick="sinkronDataLms()" class="self-start lg:self-auto shrink-0 inline-flex items-center gap-2 h-10 px-4 rounded-[10px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-semibold text-[#3A5988] shadow-sm transition-colors cursor-pointer no-print">
+          <i data-lucide="refresh-cw" class="w-4 h-4" aria-hidden="true"></i>
+          <span>Sinkronkan Data LMS</span>
+        </button>
       </div>
 
       <!-- 3 Kartu Ringkasan KPI -->
       <div id="kpi-statistik" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
 
       <!-- Tabel Agregasi Otomatis -->
-      <section class="bg-white rounded-xl border border-gray-200/90 shadow-xs overflow-hidden">
-        <div id="alat-statistik" class="p-4 border-b border-gray-200 flex flex-wrap gap-2 no-print"></div>
+      <section class="bg-white rounded-[16px] border border-neutral4 shadow-sm overflow-hidden" aria-labelledby="judul-cakupan">
+        <div class="px-4 sm:px-6 py-4 border-b border-neutral4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 id="judul-cakupan" class="!text-[16px] font-semibold text-headline">Rekap Cakupan per Angkatan</h2>
+            <p class="!text-[12.5px] text-neutral3 mt-0.5">Target adopsi portal minimal 50% dari total asisten tiap angkatan.</p>
+          </div>
+          <div id="alat-statistik" class="flex flex-wrap gap-2 no-print"></div>
+        </div>
         <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead><tr>
-              <th class="th">Angkatan</th>
-              <th class="th text-right">Total Asisten (LMS)</th>
-              <th class="th text-right">Terdaftar di Portal</th>
-              <th class="th">Cakupan Adopsi</th>
-              <th class="th">Status Adopsi</th>
-              <th class="th text-right no-print">Aksi</th>
-            </tr></thead>
-            <tbody id="baris-statistik"></tbody>
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-neutral4 bg-[#F8FAFC] text-[12.5px] font-semibold text-neutral3">
+                <th class="py-3 pl-4 sm:pl-6 pr-4 font-semibold whitespace-nowrap">Angkatan</th>
+                <th class="py-3 px-4 font-semibold text-right whitespace-nowrap">Total Asisten (LMS)</th>
+                <th class="py-3 px-4 font-semibold text-right whitespace-nowrap">Terdaftar di Portal</th>
+                <th class="py-3 px-4 font-semibold min-w-[180px]">Cakupan Adopsi</th>
+                <th class="py-3 px-4 font-semibold whitespace-nowrap">Status Adopsi</th>
+                <th class="py-3 pr-4 sm:pr-6 pl-4 font-semibold text-right whitespace-nowrap no-print">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="baris-statistik" class="divide-y divide-neutral4 text-[13.5px]"></tbody>
           </table>
         </div>
       </section>
@@ -136,21 +180,27 @@
 <script>
   let tabAktif = 'tracer';
 
-  function pilihTab(nama) {
+  function pilihTab(nama, syncUrl = true) {
     tabAktif = nama === 'statistik' ? 'statistik' : 'tracer';
     const isTracer = tabAktif === 'tracer';
 
     document.getElementById('panel-tracer').classList.toggle('hidden', !isTracer);
     document.getElementById('panel-statistik').classList.toggle('hidden', isTracer);
-    document.getElementById('btn-sinkron-lms').classList.toggle('hidden', isTracer);
 
     const btnTracer = document.getElementById('btn-tab-tracer');
     const btnStatistik = document.getElementById('btn-tab-statistik');
 
-    btnTracer.className = `shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${isTracer ? 'bg-[#3A5988] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}`;
-    btnStatistik.className = `shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-colors cursor-pointer ${!isTracer ? 'bg-[#3A5988] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}`;
+    btnTracer.className = `shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer ${isTracer ? 'bg-[#3A5988] text-white' : 'text-neutral2 hover:text-headline hover:bg-[#F8FAFC]'}`;
+    btnStatistik.className = `shrink-0 whitespace-nowrap inline-flex items-center gap-2 px-3.5 py-2 rounded-[8px] text-[13px] font-semibold transition-colors cursor-pointer ${!isTracer ? 'bg-[#3A5988] text-white' : 'text-neutral2 hover:text-headline hover:bg-[#F8FAFC]'}`;
     btnTracer.setAttribute('aria-selected', String(isTracer));
     btnStatistik.setAttribute('aria-selected', String(!isTracer));
+
+    if (syncUrl && history.replaceState) {
+      const url = new URL(location.href);
+      if (isTracer) url.searchParams.delete('tab');
+      else url.searchParams.set('tab', 'statistik');
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
+    }
 
     if (!isTracer) renderStatistik();
     refreshIcons();
@@ -208,34 +258,80 @@
       .sort((a, b) => b.tahun_lulus - a.tahun_lulus || a.nama_alumni.localeCompare(b.nama_alumni));
   }
 
+  const FILTER_SELECTS = [filterStatus, filterProfil, filterTahun];
+
+  function perbaruiStatusSelect() {
+    FILTER_SELECTS.forEach(el => {
+      const aktif = Boolean(el.value);
+      el.classList.toggle('border-primary4', aktif);
+      el.classList.toggle('bg-[#EBF2FC]', aktif);
+      el.classList.toggle('text-primary1', aktif);
+      el.classList.toggle('border-neutral4', !aktif);
+      el.classList.toggle('bg-white', !aktif);
+      el.classList.toggle('text-neutral1', !aktif);
+    });
+  }
+
+  function resetFilterTracer() {
+    document.getElementById('cari').value = '';
+    FILTER_SELECTS.forEach(el => { el.value = ''; });
+    ubahFilter();
+  }
+
   function render() {
     const list = daftar();
-    document.getElementById('baris').innerHTML = potong(list, halaman, PER_HALAMAN).map(t => {
+    const jumlahHal = Math.max(1, Math.ceil(list.length / PER_HALAMAN));
+    halaman = Math.min(halaman, jumlahHal);
+    const mulaiNomor = (halaman - 1) * PER_HALAMAN;
+
+    perbaruiStatusSelect();
+    const filterAktif = Boolean(document.getElementById('cari').value.trim() || FILTER_SELECTS.some(el => el.value));
+    document.getElementById('btn-reset-filter').classList.toggle('hidden', !filterAktif);
+
+    document.getElementById('baris').innerHTML = potong(list, halaman, PER_HALAMAN).map((t, idx) => {
       const karir = DB.tracer.karir(t);
+      const href = `profil-alumni.html?id=${t.id_alumni}`;
       return `
-      <tr class="tr">
-        <td class="td">
-          <div class="flex items-center gap-3 min-w-48">
+      <tr class="hover:bg-[#F8FAFC] transition-colors group cursor-pointer" data-href="${href}">
+        <td class="py-3.5 pl-4 sm:pl-6 pr-2 text-center text-[13px] font-medium text-neutral3 tabular-nums">${mulaiNomor + idx + 1}</td>
+        <td class="py-3.5 px-4">
+          <div class="flex items-center gap-3 min-w-0">
             ${fotoBulat(DB.akun.cari(t.id_alumni), 'w-9 h-9')}
-            <div class="min-w-0"><div class="font-medium">${esc(t.nama_alumni)}</div><div class="text-xs text-neutral3">${esc(t.nim)}</div></div>
+            <div class="min-w-0">
+              <span class="block font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(t.nama_alumni)}</span>
+              <span class="block text-[12px] text-neutral3 tabular-nums truncate">${esc(t.nim)}</span>
+            </div>
           </div>
         </td>
-        <td class="td">${esc(t.tahun_lulus)}</td>
-        <td class="td whitespace-nowrap">
-          <a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="block text-primary2 hover:underline">${esc(t.no_hp)}</a>
-          <a href="mailto:${esc(t.email)}" class="block text-xs text-neutral3 hover:text-primary1">${esc(t.email)}</a>
-          ${tautanAman(t.linkedin) ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="block text-xs text-neutral3 hover:text-primary1">LinkedIn</a>` : ''}
+        <td class="py-3.5 px-4 text-neutral2 font-medium tabular-nums whitespace-nowrap">${esc(t.tahun_lulus)}</td>
+        <td class="py-3.5 px-4">
+          <a href="mailto:${esc(t.email)}" class="block text-[13px] text-neutral1 hover:text-primary1 hover:underline truncate max-w-[200px]">${esc(t.email)}</a>
+          <div class="mt-1 flex items-center gap-2 text-[11.5px]">
+            <a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-primary2 hover:underline font-medium">WhatsApp</a>
+            ${tautanAman(t.linkedin) ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-neutral3 hover:text-primary1 hover:underline">LinkedIn</a>` : ''}
+          </div>
         </td>
-        <td class="td">${badgeStatus(DB.tracer.kategori(t))}</td>
-        <td class="td min-w-44">
-          ${esc(karir.tempat || '-')}
-          ${t.nama_studi && t.nama_job ? `<div class="text-xs text-neutral3 mt-0.5">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</div>` : ''}
-          ${t.nama_sampingan ? `<div class="text-xs text-neutral3 mt-0.5">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</div>` : ''}
+        <td class="py-3.5 px-4 whitespace-nowrap">${badgeStatus(DB.tracer.kategori(t))}</td>
+        <td class="py-3.5 px-4 text-neutral1">
+          <span class="block font-medium">${esc(karir.tempat || '-')}</span>
+          ${t.nama_studi && t.nama_job ? `<span class="block text-[12px] text-neutral3 mt-0.5">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</span>` : ''}
+          ${t.nama_sampingan ? `<span class="block text-[12px] text-neutral3 mt-0.5">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</span>` : ''}
         </td>
-        <td class="td min-w-36">${esc(karir.posisi || '-')}</td>
-        <td class="td text-right no-print"><a href="profil-alumni.html?id=${t.id_alumni}" class="text-[#3A5988] font-semibold hover:underline">Lihat</a></td>
+        <td class="py-3.5 px-4 text-neutral2">${esc(karir.posisi || '-')}</td>
+        <td class="py-3.5 pr-4 sm:pr-6 pl-4 text-right whitespace-nowrap no-print">
+          <a href="${href}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 group-hover:border-primary4 group-hover:text-primary1 transition-colors">
+            <span>Detail</span>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          </a>
+        </td>
       </tr>`;
-    }).join('') || '<tr><td colspan="7" class="td text-center text-neutral3 py-8">Tidak ada alumni yang cocok dengan filter ini. Ubah status, angkatan, atau kata kunci pencarian.</td></tr>';
+    }).join('') || `<tr><td colspan="8" class="py-12 px-4 text-center text-neutral3">
+      <i data-lucide="clipboard-list" class="w-9 h-9 mx-auto mb-3 text-[#CBD5E1]" aria-hidden="true"></i>
+      <p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang cocok</p>
+      <p class="!text-[13px] text-neutral3 mt-1">Ubah status, angkatan, atau kata kunci pencarian.</p>
+      ${filterAktif ? '<button type="button" onclick="resetFilterTracer()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i><span>Reset semua filter</span></button>' : ''}
+    </td></tr>`;
+
     const semua = DB.tracer.semua().length;
     document.getElementById('jumlah-hasil').textContent = list.length === semua
       ? `${semua} alumni sudah mengisi kuesioner`
@@ -250,6 +346,11 @@
   }
 
   document.getElementById('cari').addEventListener('input', ubahFilter);
+  document.getElementById('btn-reset-filter').addEventListener('click', resetFilterTracer);
+  document.getElementById('baris').addEventListener('click', e => {
+    const tr = e.target.closest('tr[data-href]');
+    if (tr && !e.target.closest('a')) location.href = tr.dataset.href;
+  });
   filterStatus.addEventListener('change', ubahFilter);
   filterTahun.addEventListener('change', ubahFilter);
   filterProfil.addEventListener('change', ubahFilter);
@@ -257,7 +358,7 @@
   pasangToolsTabel('alat', 'analitik-tracer.csv', () => [
     KOLOM_EKSPOR.map(([, label]) => label),
     ...daftar().map(t => KOLOM_EKSPOR.map(([k]) => [t[k] ?? ''].flat().join(', '))),
-  ]);
+  ], { salin: false });
 
   // ===================== BAGIAN 2: STATISTIK PER ANGKATAN (OTOMATIS LMS) =====================
   const cakupan = s => (s.alumni_total ? Math.round((s.alumni_terlacak / s.alumni_total) * 100) : 0);
@@ -274,42 +375,43 @@
     }
 
     document.getElementById('kpi-statistik').innerHTML = [
-      { label: 'Total Asisten di LMS (≥ 1 Thn)', nilai: totalLms, sub: 'Terdata berdasarkan tahun NIM', ikon: 'users', warna: 'bg-blue-50 text-[#3A5988]' },
+      { label: 'Total Asisten di LMS (≥ 1 Thn)', nilai: totalLms, sub: 'Terdata berdasarkan tahun NIM', ikon: 'users', warna: 'bg-[#E2F1F9] text-[#3A5988]' },
       { label: 'Alumni Terdaftar di Portal', nilai: totalPortal, sub: 'Lolos verifikasi NIM registrasi', ikon: 'user-check', warna: 'bg-emerald-50 text-emerald-700' },
-      { label: 'Rata-rata Rasio Adopsi', nilai: `${rasioTotal}%`, sub: 'Cakupan keseluruhan angkatan', ikon: 'trending-up', warna: 'bg-amber-50 text-amber-700' },
+      { label: 'Rata-rata Rasio Adopsi', nilai: `${rasioTotal}%`, sub: 'Cakupan keseluruhan angkatan', ikon: 'trending-up', warna: 'bg-[#FDF0DD] text-[#B26A12]' },
     ].map(k => `
-      <div class="bg-white rounded-xl border border-gray-200/90 shadow-xs p-4 flex items-center gap-3.5">
-        <div class="w-11 h-11 rounded-xl ${k.warna} flex items-center justify-center shrink-0"><i data-lucide="${k.ikon}" class="w-5 h-5"></i></div>
+      <div class="bg-white rounded-[16px] border border-neutral4 shadow-sm p-4 sm:p-5 flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-[12px] ${k.warna} flex items-center justify-center shrink-0"><i data-lucide="${k.ikon}" class="w-5 h-5"></i></div>
         <div class="min-w-0">
-          <p class="text-2xl font-bold text-gray-900 leading-tight tabular-nums">${esc(k.nilai)}</p>
-          <p class="text-xs font-semibold text-gray-700 mt-0.5">${esc(k.label)}</p>
-          <p class="text-[11px] text-gray-400">${esc(k.sub)}</p>
+          <span class="block text-[24px] font-semibold text-headline leading-tight tabular-nums">${esc(k.nilai)}</span>
+          <span class="block text-[13px] font-semibold text-neutral1 mt-0.5">${esc(k.label)}</span>
+          <span class="block text-[12px] text-neutral3 mt-0.5">${esc(k.sub)}</span>
         </div>
       </div>`).join('');
 
     document.getElementById('baris-statistik').innerHTML = rows.map(s => {
       const pct = cakupan(s);
       const statusBadge = pct >= 50 ? badge('Adopsi Baik', 'green') : badge('Perlu Sosialisasi', 'yellow');
+      const href = `detail-kelulusan.html?tahun=${s.tahun_lulus}`;
       return `
-      <tr class="tr">
-        <td class="td font-semibold text-gray-900 whitespace-nowrap">Angkatan ${s.tahun_lulus}</td>
-        <td class="td text-right tabular-nums font-medium text-gray-700">${s.alumni_total}</td>
-        <td class="td text-right tabular-nums font-semibold text-[#3A5988]">${s.alumni_terlacak}</td>
-        <td class="td">
+      <tr class="hover:bg-[#F8FAFC] transition-colors group">
+        <td class="py-3.5 pl-4 sm:pl-6 pr-4 font-semibold text-headline whitespace-nowrap tabular-nums">Angkatan ${s.tahun_lulus}</td>
+        <td class="py-3.5 px-4 text-right tabular-nums font-medium text-neutral2">${s.alumni_total}</td>
+        <td class="py-3.5 px-4 text-right tabular-nums font-semibold text-[#3A5988]">${s.alumni_terlacak}</td>
+        <td class="py-3.5 px-4">
           <div class="flex items-center gap-2.5 min-w-36">
-            <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden"><div class="h-full bg-[#3A5988] rounded-full transition-all" style="width:${Math.min(pct, 100)}%"></div></div>
-            <span class="text-xs font-semibold text-gray-700 w-10 text-right tabular-nums">${pct}%</span>
+            <div class="flex-1 h-2 bg-neutral5 rounded-full overflow-hidden"><div class="h-full bg-[#3A5988] rounded-full transition-all" style="width:${Math.min(pct, 100)}%"></div></div>
+            <span class="text-[12.5px] font-semibold text-neutral1 w-10 text-right tabular-nums">${pct}%</span>
           </div>
         </td>
-        <td class="td whitespace-nowrap">${statusBadge}</td>
-        <td class="td text-right whitespace-nowrap no-print">
-          <a href="detail-kelulusan.html?tahun=${s.tahun_lulus}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 hover:border-gray-300 text-xs font-semibold text-[#3A5988] shadow-2xs transition-colors cursor-pointer">
+        <td class="py-3.5 px-4 whitespace-nowrap">${statusBadge}</td>
+        <td class="py-3.5 pr-4 sm:pr-6 pl-4 text-right whitespace-nowrap no-print">
+          <a href="${href}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 group-hover:border-primary4 group-hover:text-primary1 transition-colors">
             <span>Rincian</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+            <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
           </a>
         </td>
       </tr>`;
-    }).join('') || '<tr><td colspan="6" class="td text-center text-gray-400 py-8">Belum ada data sinkronisasi LMS.</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="py-12 px-4 text-center text-[13px] text-neutral3">Belum ada data sinkronisasi LMS.</td></tr>';
     refreshIcons();
   }
 
@@ -322,7 +424,7 @@
   pasangToolsTabel('alat-statistik', 'cakupan-per-angkatan.csv', () => [
     ['Angkatan', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
     ...DB.statistik.semua().map(s => [s.tahun_lulus, s.alumni_total, s.alumni_terlacak, `${cakupan(s)}%`]),
-  ]);
+  ], { salin: false });
 
   render();
   renderStatistik();

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id" data-role="admin" data-color-mode="light" class="h-full bg-[#EFF2F7]">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semua Notifikasi | Koordinator Bengkel Koding</title>
+  <meta name="description" content="Daftar semua pemberitahuan laporan forum yang masuk dan karya baru yang diluncurkan alumni Bengkel Koding.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="../alumni/assets/js/data.js?v=10"></script>
+  <script src="../alumni/assets/js/app.js?v=11"></script>
+  <script src="../alumni/assets/js/portal-layout.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    [x-cloak]:not(body) { display: none !important; }
+    body { font-family: "Inter", sans-serif; }
+  </style>
+</head>
+<body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white">
+<main x-data="notifikasiKoordinatorPage()" data-title="Notifikasi" class="mx-auto w-full max-w-[1400px] flex-1 space-y-6 p-6 lg:p-8">
+
+  <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-[26px] font-semibold tracking-[-0.01em] text-[#0C1117]">Semua Notifikasi</h1>
+      <p class="mt-1 text-[14px] text-[#6B7280]">
+        Lihat pembaruan laporan forum yang masuk dan karya baru yang diluncurkan alumni.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto" x-show="items.length > 0" x-cloak>
+      <template x-if="!confirmClear">
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button"
+                  x-show="unreadCount > 0"
+                  @click="markAllRead()"
+                  class="inline-flex h-10 items-center justify-center rounded-[10px] border border-[#DCE3ED] bg-white px-4 text-[13.5px] font-semibold text-[#1E3A8A] shadow-2xs transition-colors hover:bg-[#EFF6FF] cursor-pointer">
+            Tandai semua dibaca
+          </button>
+          <button type="button"
+                  @click="confirmClear = true"
+                  class="inline-flex h-10 items-center justify-center gap-2 rounded-[10px] border border-[#F5B8D3] bg-[#FFF5F8] px-4 text-[13.5px] font-semibold text-[#B4325F] shadow-2xs transition-colors hover:bg-[#FAD9E9] cursor-pointer">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            <span>Hapus semua</span>
+          </button>
+        </div>
+      </template>
+      <template x-if="confirmClear">
+        <div class="flex flex-wrap items-center gap-2 rounded-[10px] border border-[#F5B8D3] bg-[#FFF5F8] px-3 py-1.5">
+          <span class="text-[13px] font-semibold text-[#9D174D]">Hapus semua notifikasi?</span>
+          <button type="button"
+                  @click="clearAll()"
+                  class="inline-flex h-8 items-center justify-center rounded-[8px] bg-[#DC2626] px-3 text-[12.5px] font-semibold text-white transition-colors hover:bg-[#B91C1C] cursor-pointer">
+            Ya, Hapus
+          </button>
+          <button type="button"
+                  @click="confirmClear = false"
+                  class="inline-flex h-8 items-center justify-center rounded-[8px] border border-[#DCE3ED] bg-white px-3 text-[12.5px] font-semibold text-[#475569] transition-colors hover:bg-[#F8FAFC] cursor-pointer">
+            Batal
+          </button>
+        </div>
+      </template>
+    </div>
+  </header>
+
+  <section class="overflow-hidden rounded-[18px] border border-[#DCE3ED] bg-white shadow-sm">
+    <div class="flex flex-wrap items-center gap-2 border-b border-[#DCE3ED] px-5 py-3.5">
+      <button type="button"
+              @click="filter = 'all'"
+              class="inline-flex h-9 items-center rounded-[9px] px-3.5 text-[13px] font-semibold transition-colors cursor-pointer"
+              :class="filter === 'all' ? 'bg-[#1E3A8A] text-white' : 'text-[#1E3A8A] hover:bg-[#EFF6FF]'">
+        Semua
+      </button>
+      <button type="button"
+              @click="filter = 'unread'"
+              class="inline-flex h-9 items-center rounded-[9px] px-3.5 text-[13px] font-semibold transition-colors cursor-pointer"
+              :class="filter === 'unread' ? 'bg-[#1E3A8A] text-white' : 'text-[#1E3A8A] hover:bg-[#EFF6FF]'">
+        <span x-text="'Belum dibaca (' + unreadCount + ')'">Belum dibaca (0)</span>
+      </button>
+    </div>
+
+    <div class="divide-y divide-[#DCE3ED]">
+      <template x-for="item in filteredItems" :key="item.id">
+        <div class="flex items-start gap-3 px-5 py-4 transition-colors hover:bg-[#F8FAFC]"
+             :class="item.unread ? 'bg-[#ECF4FF]' : 'bg-white'">
+          <a :href="item.href"
+             @click="markRead(item.id)"
+             class="flex min-w-0 flex-1 items-start gap-3.5">
+            <span class="grid h-[38px] w-[38px] shrink-0 place-items-center rounded-[12px]"
+                  :class="item.unread ? 'bg-white' : 'bg-[#F8FAFC]'"
+                  aria-hidden="true">
+              <img :src="iconUrl(item.kind)" alt="" class="h-[18px] w-[18px]">
+            </span>
+            <div class="min-w-0 flex-1 space-y-1">
+              <p class="text-[14px] sm:text-[15px] leading-snug text-[#0F172A]"
+                 :class="item.unread ? 'font-semibold' : 'font-normal'"
+                 x-text="item.title"></p>
+              <p class="text-[12.5px] sm:text-[13px] text-[#475569]" x-text="item.meta"></p>
+            </div>
+            <span x-show="item.unread"
+                  class="mt-2 h-2.5 w-2.5 shrink-0 rounded-full bg-[#2563EB]"
+                  aria-label="Belum dibaca"></span>
+          </a>
+          <button type="button"
+                  @click="removeItem(item.id)"
+                  class="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-[8px] text-[#94A3B8] transition-colors hover:bg-[#FEE2E2] hover:text-[#DC2626] cursor-pointer"
+                  aria-label="Hapus notifikasi"
+                  title="Hapus notifikasi">
+            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        </div>
+      </template>
+
+      <template x-if="items.length === 0">
+        <div class="px-6 py-12 text-center space-y-1.5">
+          <p class="text-[15px] font-semibold text-[#0F172A]">Belum ada notifikasi</p>
+          <p class="text-[13px] text-[#64748B]">Semua notifikasi telah dihapus atau belum ada pemberitahuan baru.</p>
+        </div>
+      </template>
+
+      <template x-if="items.length > 0 && filteredItems.length === 0">
+        <div class="px-6 py-12 text-center space-y-2">
+          <p class="text-[15px] font-semibold text-[#0F172A]">Semua notifikasi sudah dibaca</p>
+          <p class="text-[13px] text-[#64748B]">Tidak ada pemberitahuan yang belum dibaca saat ini.</p>
+          <button type="button"
+                  x-show="filter === 'unread'"
+                  @click="filter = 'all'"
+                  class="mt-2 inline-flex h-9 items-center rounded-[8px] border border-[#DCE3ED] px-4 text-[13px] font-semibold text-[#1E3A8A] hover:bg-[#EFF6FF] cursor-pointer">
+            Lihat Semua Notifikasi
+          </button>
+        </div>
+      </template>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  function notifikasiKoordinatorPage() {
+    const sumber = () => window.NOTIF_KOORDINATOR || window.BengkodNotifications;
+    return {
+      filter: "all",
+      confirmClear: false,
+      items: sumber() ? sumber().getAll() : [],
+
+      init() {
+        window.addEventListener("bengkod:notifications-change", () => {
+          this.items = sumber() ? sumber().getAll() : [];
+          if (!this.items.length) this.confirmClear = false;
+        });
+      },
+
+      get unreadCount() {
+        return this.items.filter(item => item.unread).length;
+      },
+
+      get filteredItems() {
+        return this.filter === "unread" ? this.items.filter(item => item.unread) : this.items;
+      },
+
+      iconUrl(kind) {
+        return window.BengkodNotifications ? window.BengkodNotifications.iconUrl(kind) : "../alumni/assets/img/notif/announcement.svg";
+      },
+
+      markRead(id) {
+        sumber()?.markRead(id);
+      },
+
+      markAllRead() {
+        sumber()?.markAllRead();
+      },
+
+      removeItem(id) {
+        sumber()?.remove?.(id);
+      },
+
+      clearAll() {
+        this.confirmClear = false;
+        sumber()?.clear?.();
+      }
+    };
+  }
+
+  document.addEventListener("alpine:init", () => {
+    Alpine.data("notifikasiKoordinatorPage", notifikasiKoordinatorPage);
+  });
+</script>
+</body>
+</html>

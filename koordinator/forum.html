@@ -20,35 +20,9 @@
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Forum">
   <!-- Layout 12-kolom seragam dengan Beranda Alumni -->
-  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 py-2 antialiased">
-    <!-- KOLOM UTAMA (FEED) -->
-    <div class="lg:col-span-8 flex flex-col gap-5 min-w-0">
-      <!-- Header Forum: Judul + Search bar -->
-      <div class="space-y-4">
-        <div>
-          <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Forum &amp; Linimasa Alumni</h1>
-          <p class="text-sm text-gray-500 mt-0.5">
-            Linimasa forum diskusi, karya, dan info loker bersama rekan alumni laboratorium
-          </p>
-        </div>
-
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-          <div class="relative flex-1 min-w-0">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
-              <i data-lucide="search" class="w-4 h-4"></i>
-            </span>
-            <input
-              type="search"
-              id="forum-cari"
-              placeholder="Cari postingan atau topik diskusi…"
-              aria-label="Cari postingan"
-              autocomplete="off"
-              class="w-full pl-11 pr-4 py-2.5 rounded-full bg-white border border-gray-200 text-[14.5px] text-gray-900 placeholder:text-gray-400 shadow-2xs focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 transition-all"
-            >
-          </div>
-
-        </div>
-      </div>
+  <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-start antialiased">
+    <!-- KOLOM UTAMA (FEED): disamakan dengan Beranda Alumni -->
+    <div class="lg:col-span-8 space-y-5 min-w-0">
 
       <!-- Composer langsung tampil seperti Beranda alumni (alumni/dashboard.html) -->
       <form id="composer" class="bg-white border border-[#E3E4E9] rounded-[16px] p-4 sm:p-5 shadow-sm space-y-3.5" novalidate autocomplete="off">
@@ -56,8 +30,8 @@
           <div id="avatar-composer" class="shrink-0 mt-0.5"></div>
           <div class="flex-1 min-w-0 rounded-[22px] bg-[#F4F5F7] hover:bg-[#EAECEF] focus-within:bg-white border border-[#E3E4E9] focus-within:border-[#3A5988] px-4 py-2.5 transition-colors">
             <textarea name="isi" rows="1" maxlength="3000" aria-label="Isi postingan"
-                      placeholder="Bagikan kabar, informasi, materi, atau pengumuman ke rekan alumni..."
-                      class="block w-full h-6 min-h-[24px] max-h-[144px] p-0 bg-transparent border-0 resize-none overflow-hidden text-[13.5px] leading-[24px] text-[#212224] placeholder-[#91969C] focus:outline-none"></textarea>
+                      placeholder="Tulis update, diskusikan ide, atau lempar info..."
+                      class="block w-full h-6 min-h-[24px] max-h-[72px] p-0 bg-transparent border-0 resize-none overflow-hidden text-[13.5px] leading-[24px] text-[#212224] placeholder-[#91969C] focus:outline-none"></textarea>
           </div>
         </div>
 
@@ -72,7 +46,7 @@
 
         <p data-error class="hidden text-[13px] text-red-600" role="alert"></p>
 
-        <div class="flex items-center justify-between gap-2 pt-1">
+        <div class="flex items-center justify-between gap-2 pt-1 flex-wrap">
           <button type="button" data-pilih title="Tambahkan foto"
                   class="h-9 px-3 rounded-[8px] hover:bg-[#F4F5F7] text-[13px] font-medium text-[#4B5563] flex items-center gap-2 transition-colors cursor-pointer">
             <svg class="w-4 h-4 text-[#326ECE]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
@@ -88,16 +62,31 @@
         </div>
       </form>
 
-      <!-- Tab Kategori Feed (sama dengan Beranda alumni) -->
-      <nav id="saring" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 text-sm" aria-label="Saring kategori"></nav>
+      <!-- Baris Filter Tab + Pencarian (gaya ringkas Beranda alumni) -->
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <nav id="saring" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1" aria-label="Saring kategori"></nav>
+        <div class="relative w-full sm:w-64 shrink-0">
+          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none">
+            <i data-lucide="search" class="w-3.5 h-3.5" aria-hidden="true"></i>
+          </span>
+          <input
+            type="search"
+            id="forum-cari"
+            placeholder="Cari postingan…"
+            aria-label="Cari postingan"
+            autocomplete="off"
+            class="w-full h-9 pl-9 pr-3.5 rounded-full bg-white border border-[#E3E4E9] text-[13px] text-[#212224] placeholder:text-[#91969C] focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-[#3A5988]/15 transition-colors"
+          >
+        </div>
+      </div>
 
       <!-- Daftar Feed Postingan -->
-      <div id="daftar" class="space-y-6"></div>
+      <div id="daftar" class="space-y-5"></div>
     </div>
 
     <!-- KOLOM SAMPING (KANAN): Pengumuman dan Gigs, sama dengan Beranda alumni -->
     <div class="lg:col-span-4 h-full">
-      <aside id="kanan" class="sticky top-[80px] space-y-5 max-h-[calc(100vh-95px)] overflow-y-auto no-scrollbar overscroll-contain scroll-smooth pr-0.5 pb-6" aria-label="Pengumuman dan gigs alumni"></aside>
+      <aside id="kanan" class="lg:sticky lg:top-[88px] space-y-5 lg:max-h-[calc(100dvh-7rem)] overflow-y-auto no-scrollbar overscroll-contain scroll-smooth pr-0.5 pb-6" aria-label="Pengumuman dan gigs alumni"></aside>
     </div>
   </div>
 </main>
@@ -125,19 +114,19 @@
   const tautkan = teks => esc(teks).replace(/https?:\/\/[^\s<]+/g, url => `<a href="${url}" target="_blank" rel="noreferrer" class="text-primary1 font-medium hover:underline break-all">${url}</a>`);
   const keterangan = p => p.headline || (p.peran === 'Koordinator' ? NAMA_ROLE.admin : p.peran === 'Mitra' ? 'Mitra Bengkel Koding' : 'Alumni Bengkel Koding');
 
-  // Foto penulis 64px seperti Beranda alumni; tanpa foto memakai inisial
+  // Foto penulis 44px seperti Beranda alumni; tanpa foto memakai inisial
   const fotoPenulis = p => (p.foto
-    ? `<img src="${esc(p.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm shrink-0">`
-    : `<div class="w-16 h-16 rounded-full bg-primary5 border border-primary4/50 text-primary1 font-bold text-base flex items-center justify-center shrink-0 shadow-sm" aria-hidden="true">${esc(inisial(p.penulis))}</div>`);
+    ? `<img src="${esc(p.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-11 h-11 rounded-full object-cover border border-[#E3E4E9] shrink-0">`
+    : `<div class="w-11 h-11 rounded-full bg-primary5 border border-primary4/50 text-primary1 font-bold text-sm flex items-center justify-center shrink-0" aria-hidden="true">${esc(inisial(p.penulis))}</div>`);
 
   // ===================== COMPOSER (LANGSUNG DI ATAS LINIMASA) =====================
   document.getElementById('avatar-composer').innerHTML = fotoBulat(SAYA, 'w-10 h-10');
 
-  // Kolom isi ikut memanjang sampai 6 baris, lalu bisa digulir
+  // Kolom isi ikut memanjang sampai 3 baris (72px) seperti Beranda alumni, lalu bisa digulir
   function sesuaikanTinggi() {
     isiComposer.style.height = '24px';
-    isiComposer.style.height = Math.min(isiComposer.scrollHeight, 144) + 'px';
-    isiComposer.style.overflowY = isiComposer.scrollHeight > 144 ? 'auto' : 'hidden';
+    isiComposer.style.height = Math.min(isiComposer.scrollHeight, 72) + 'px';
+    isiComposer.style.overflowY = isiComposer.scrollHeight > 72 ? 'auto' : 'hidden';
   }
 
   function aturComposer() {
@@ -215,41 +204,46 @@
   // Titik tiga: salin tautan dan hapus. Koordinator moderator forum, jadi bisa menghapus postingan siapa pun.
   // Tidak ada "Laporkan" karena laporan alumni justru masuk ke koordinator (halaman Laporan Forum).
   function menuPost(p) {
-    const item = (aksi, ikon, label, kelas = 'text-gray-700 hover:bg-gray-50') => `
-      <button type="button" data-aksi="${aksi}" data-id="${p.id}" role="menuitem" class="w-full flex items-center gap-2.5 px-4 py-2 text-left font-medium cursor-pointer focus:outline-none focus-visible:bg-gray-100 ${kelas}"><i data-lucide="${ikon}" class="w-4 h-4" aria-hidden="true"></i>${label}</button>`;
+    const item = (aksi, ikon, label, kelas = 'text-[#212224] hover:bg-[#F4F5F7]') => `
+      <button type="button" data-aksi="${aksi}" data-id="${p.id}" role="menuitem" class="w-full flex items-center gap-2 rounded-[6px] px-3 py-2 text-left text-[13px] font-medium cursor-pointer focus:outline-none focus-visible:bg-[#F4F5F7] ${kelas}"><i data-lucide="${ikon}" class="w-4 h-4" aria-hidden="true"></i>${label}</button>`;
     return `
       <div data-menu class="relative shrink-0">
-        <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan ${esc(p.penulis)}" class="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3"><i data-lucide="ellipsis" class="w-[18px] h-[18px]" aria-hidden="true"></i></button>
-        <div data-panel-menu class="hidden absolute right-0 top-9 z-20 w-48 bg-white border border-gray-200 rounded-xl shadow-lg py-1.5 text-[14px]" role="menu">
-          ${item('bagikan', 'link', 'Salin Tautan')}
-          <div class="border-t border-gray-100 mt-1 pt-1">${item('hapus', 'trash-2', 'Hapus Postingan', 'text-red-600 hover:bg-red-50')}</div>
+        <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan ${esc(p.penulis)}" class="w-8 h-8 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-[#F4F5F7] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3"><i data-lucide="ellipsis" class="w-4 h-4" aria-hidden="true"></i></button>
+        <div data-panel-menu class="hidden absolute right-0 top-full mt-1 z-20 w-48 bg-white border border-[#E3E4E9] rounded-[10px] shadow-md p-1" role="menu">
+          ${item('bagikan', 'link', 'Salin tautan')}
+          ${item('hapus', 'trash-2', 'Hapus postingan', 'text-red-700 hover:bg-red-50')}
         </div>
       </div>`;
   }
 
   function isiPost(p) {
     if (!p.isi) return '';
-    const panjang = p.isi.length > BATAS_RINGKAS && !diperluas.has(p.id);
-    const teks = panjang ? `${p.isi.slice(0, BATAS_RINGKAS).trim()}…` : p.isi;
-    return `<p class="text-[15px] text-gray-800 leading-relaxed mt-3 whitespace-pre-line break-words">${tautkan(teks)}${panjang ? ` <button type="button" data-aksi="perluas" data-id="${p.id}" class="text-gray-500 font-semibold hover:text-[#3A5988] hover:underline cursor-pointer">selengkapnya</button>` : ''}</p>`;
+    const butuhLipat = p.isi.length > BATAS_RINGKAS;
+    const terbukaTeks = diperluas.has(p.id);
+    const teks = butuhLipat && !terbukaTeks ? `${p.isi.slice(0, BATAS_RINGKAS).trim()}…` : p.isi;
+    return `
+      <div class="text-[14px] text-[#374151] leading-relaxed space-y-1">
+        <p class="!text-[14px] whitespace-pre-wrap break-words">${tautkan(teks)}</p>
+        ${butuhLipat ? `<button type="button" data-aksi="perluas" data-id="${p.id}" class="text-[12.5px] font-bold text-[#3A5988] hover:underline uppercase tracking-wide cursor-pointer pt-0.5">${terbukaTeks ? 'TUTUP' : 'READ MORE'}</button>` : ''}
+      </div>`;
   }
 
   function kartuKarya(k, p) {
     return `
-      <a href="../alumni/detail-proyek.html?id=${p.id}" class="mt-3 flex items-center gap-3.5 p-3.5 rounded-xl border border-gray-200/90 bg-white hover:bg-gray-50/80 transition-colors group cursor-pointer w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
-        <div class="w-12 h-12 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center shrink-0 overflow-hidden">
-          ${k.logo ? `<img src="${esc(k.logo)}" alt="" width="48" height="48" class="w-full h-full object-cover">` : `<span class="text-base font-semibold text-[#3A5988]">${esc((k.nama || 'A').charAt(0).toUpperCase())}</span>`}
+      <a href="../alumni/detail-proyek.html?id=${p.id}" class="flex items-center gap-3.5 p-4 rounded-[12px] border border-[#E3E4E9] bg-[#F8FAFC] hover:border-[#3A5988] transition-colors group cursor-pointer w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
+        <div class="w-11 h-11 rounded-[10px] border border-[#E3E4E9] bg-white flex items-center justify-center shrink-0 overflow-hidden">
+          ${k.logo ? `<img src="${esc(k.logo)}" alt="" width="44" height="44" class="w-full h-full object-cover">` : `<span class="text-base font-semibold text-[#3A5988]">${esc((k.nama || 'A').charAt(0).toUpperCase())}</span>`}
         </div>
         <div class="flex-1 min-w-0 space-y-0.5">
           <div class="flex items-center justify-between gap-2">
-            <h4 class="text-[15px] font-medium text-gray-900 group-hover:text-[#3A5988] transition-colors truncate">${esc(k.nama)}</h4>
-            <span class="text-[13px] font-medium text-[#3A5988] shrink-0">Detail</span>
+            <h4 class="text-[14.5px] font-bold text-[#0C1117] group-hover:text-[#3A5988] transition-colors truncate">${esc(k.nama)}</h4>
+            <span class="text-[12.5px] font-semibold text-[#3A5988] shrink-0">Detail</span>
           </div>
-          <p class="text-[13px] text-gray-500 line-clamp-1">${esc(k.tagline || '')}</p>
+          <p class="!text-[12.5px] text-[#6B7280] line-clamp-1">${esc(k.tagline || '')}</p>
           ${(k.stack || []).length ? `
             <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
-              ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-gray-100 text-gray-600">${esc(s)}</span>`).join('')}
-              ${k.stack.length > 3 ? `<span class="text-[11px] text-gray-500">+${k.stack.length - 3}</span>` : ''}
+              ${k.stack.slice(0, 3).map(s => `<span class="px-2 py-0.5 rounded text-[11px] bg-white border border-[#E3E4E9] text-[#4B5563]">${esc(s)}</span>`).join('')}
+              ${k.stack.length > 3 ? `<span class="text-[11px] text-[#6B7280]">+${k.stack.length - 3}</span>` : ''}
             </div>` : ''}
         </div>
       </a>`;
@@ -260,13 +254,11 @@
     const r = p.referral;
     const pengajuan = (p.pengajuan || []).length;
     return `
-      <div class="mt-3 rounded-xl border border-gray-200 bg-white p-4 space-y-2 shadow-2xs">
-        <span class="text-[12px] font-medium uppercase tracking-wider text-[#3A5988]">#Referral</span>
-        <div>
-          <h4 class="text-[15px] sm:text-[16px] font-medium text-gray-900 leading-snug">${esc(r.posisi || 'Peluang Karier')} · ${esc(r.perusahaan || '')}</h4>
-          <p class="text-[13px] text-gray-500 mt-0.5">${[r.level, r.batas ? `Review sampai ${fmtDate(r.batas)}` : ''].filter(Boolean).map(esc).join(' · ')}</p>
-        </div>
-        <p class="pt-1.5 text-[13px] text-gray-600 flex items-center gap-1.5">
+      <div class="rounded-[12px] border border-[#E3E4E9] bg-[#F8FAFC] p-4 space-y-1.5">
+        <p class="!text-[12px] font-medium text-[#3A5988]">Lowongan / Referral</p>
+        <h4 class="text-[14.5px] font-bold text-[#0C1117] leading-snug">${esc(r.posisi || 'Peluang Karier')}${r.perusahaan ? ` @ ${esc(r.perusahaan)}` : ''}</h4>
+        <p class="!text-[12.5px] text-[#6B7280]">${[r.level, r.batas ? `Review sampai ${fmtDate(r.batas)}` : ''].filter(Boolean).map(esc).join(' · ')}</p>
+        <p class="pt-1 !text-[12.5px] text-[#4B5563] flex items-center gap-1.5">
           <i data-lucide="users" class="w-3.5 h-3.5 text-[#3A5988]" aria-hidden="true"></i>
           ${pengajuan ? `${pengajuan} alumni sudah mengajukan referral` : 'Belum ada alumni yang mengajukan'}
         </p>
@@ -275,45 +267,48 @@
 
   function komentarItem(p, k) {
     return `
-      <div class="flex items-start gap-3">
-        <img src="../alumni/assets/img/user.png" alt="${esc(k.penulis)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
+      <div class="flex items-start gap-2.5 text-[13px]">
+        <img src="../alumni/assets/img/user.png" alt="${esc(k.penulis)}" class="w-7 h-7 rounded-full object-cover shrink-0 mt-0.5 border border-[#E3E4E9]">
         <div class="flex-1 min-w-0">
-          <div class="bg-gray-50 rounded-xl px-4 py-3 border border-gray-100">
-            <p class="text-[14px] font-semibold text-gray-900 flex items-center gap-1.5 flex-wrap">
-              <span>${esc(k.penulis)}</span>
-              ${k.peran === 'Koordinator' ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#3A5988] border-blue-200">Koordinator</span>' : ''}
-              ${k.penulis === p.penulis && k.peran !== 'Koordinator' ? '<span class="text-gray-500 text-[12px] font-normal">· Penulis</span>' : ''}
-            </p>
-            <p class="text-[14px] text-gray-700 mt-0.5 leading-relaxed whitespace-pre-line break-words">${tautkan(k.isi)}</p>
+          <div class="bg-[#F8FAFC] p-3 rounded-[12px] space-y-0.5">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-bold text-[#0C1117] flex items-center gap-1.5 flex-wrap">
+                <span>${esc(k.penulis)}</span>
+                ${k.peran === 'Koordinator' ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10.5px] font-semibold bg-[#E2F1F9] text-[#3A5988]">Koordinator</span>' : ''}
+                ${k.penulis === p.penulis && k.peran !== 'Koordinator' ? '<span class="text-[#6B7280] text-[11.5px] font-normal">Penulis</span>' : ''}
+              </span>
+              <span class="text-[11px] text-[#91969C] shrink-0">${waktuLalu(k.waktu)}</span>
+            </div>
+            <p class="!text-[13px] text-[#374151] leading-relaxed whitespace-pre-line break-words">${tautkan(k.isi)}</p>
           </div>
-          <div class="flex items-center gap-4 mt-2 px-1 text-gray-700">
+          <div class="flex items-center gap-4 mt-1.5 px-1 text-[#6B7280]">
             <button
               type="button"
               data-aksi="suka-komentar"
               data-id="${p.id}"
               data-komentar-id="${k.id}"
-              class="flex items-center gap-1.5 text-[13px] font-bold text-gray-800 hover:text-[#3A5988] transition-colors cursor-pointer"
+              class="flex items-center gap-1 text-[12px] font-semibold text-[#4B5563] hover:text-[#3A5988] transition-colors cursor-pointer"
               title="Suka komentar"
             >
               <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
-              <span>${(k.disukai || []).length > 0 ? (k.disukai || []).length : ''}</span>
+              <span>${(k.disukai || []).length > 0 ? (k.disukai || []).length : 'Suka'}</span>
             </button>
             <button
               type="button"
               data-aksi="tampil-balas"
               data-komentar-id="${k.id}"
-              class="flex items-center text-gray-800 hover:text-[#3A5988] transition-colors cursor-pointer"
+              class="flex items-center gap-1 text-[12px] font-semibold text-[#4B5563] hover:text-[#3A5988] transition-colors cursor-pointer"
               title="Balas komentar ini"
             >
               <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+              <span>Balas</span>
             </button>
-            <span class="text-[12px] text-gray-500 font-normal">${waktuLalu(k.waktu)}</span>
             <button
               type="button"
               data-aksi="hapus-komentar"
               data-id="${p.id}"
               data-komentar-id="${k.id}"
-              class="text-[12px] font-semibold text-gray-500 hover:text-red-600 transition-colors cursor-pointer ml-auto"
+              class="text-[12px] font-medium text-[#6B7280] hover:text-red-600 transition-colors cursor-pointer ml-auto"
             >
               Hapus
             </button>
@@ -321,38 +316,38 @@
 
           <!-- Balasan Komentar -->
           ${(k.balasan || []).length ? `
-            <div class="space-y-3 mt-3 pl-2 sm:pl-3 relative">
-              <div class="absolute -left-2 top-0 bottom-3 w-0.5 bg-gray-200"></div>
+            <div class="space-y-2.5 mt-2.5 pl-3 border-l-2 border-[#E3E4E9]">
               ${k.balasan.map(reply => `
-                <div class="flex items-start gap-2.5 relative">
-                  <div class="absolute -left-2 top-3 w-2.5 border-b-2 border-gray-200"></div>
-                  <img src="../alumni/assets/img/user.png" alt="${esc(reply.penulis)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                <div class="flex items-start gap-2">
+                  <img src="../alumni/assets/img/user.png" alt="${esc(reply.penulis)}" class="w-6 h-6 rounded-full object-cover shrink-0 border border-[#E3E4E9] mt-0.5">
                   <div class="flex-1 min-w-0">
-                    <div class="bg-gray-50 rounded-xl px-3.5 py-2.5 border border-gray-100">
-                      <p class="text-[13px] font-bold text-gray-900">${esc(reply.penulis)}</p>
-                      <p class="text-[13px] text-gray-700 mt-0.5 leading-relaxed">
+                    <div class="bg-[#F8FAFC] rounded-[10px] px-3 py-2 space-y-0.5">
+                      <div class="flex items-center justify-between gap-2">
+                        <span class="text-[12.5px] font-bold text-[#0C1117]">${esc(reply.penulis)}</span>
+                        <span class="text-[11px] text-[#91969C] shrink-0">${waktuLalu(reply.waktu)}</span>
+                      </div>
+                      <p class="!text-[12.5px] text-[#374151] leading-relaxed">
                         <span class="font-semibold text-[#3A5988] mr-1">@${esc(k.penulis)}</span><span>${tautkan(reply.isi)}</span>
                       </p>
                     </div>
-                    <div class="flex items-center gap-3 mt-1 px-1 text-gray-600">
+                    <div class="flex items-center gap-3 mt-1 px-1 text-[#6B7280]">
                       <button
                         type="button"
                         data-aksi="suka-balasan"
                         data-id="${p.id}"
                         data-komentar-id="${k.id}"
                         data-balasan-id="${reply.id}"
-                        class="flex items-center gap-1 text-[12px] font-bold text-gray-700 hover:text-[#3A5988] transition-colors cursor-pointer"
+                        class="flex items-center gap-1 text-[11.5px] font-semibold text-[#4B5563] hover:text-[#3A5988] transition-colors cursor-pointer"
                       >
                         <i data-lucide="thumbs-up" class="w-3 h-3"></i>
-                        <span>${(reply.disukai || []).length > 0 ? (reply.disukai || []).length : ''}</span>
+                        <span>${(reply.disukai || []).length > 0 ? (reply.disukai || []).length : 'Suka'}</span>
                       </button>
-                      <span class="text-[12px] text-gray-500">${waktuLalu(reply.waktu)}</span>
                       <button
                         type="button"
                         data-aksi="hapus-komentar"
                         data-id="${p.id}"
                         data-komentar-id="${reply.id}"
-                        class="text-[11px] font-semibold text-gray-500 hover:text-red-600 transition-colors cursor-pointer ml-auto"
+                        class="text-[11.5px] font-medium text-[#6B7280] hover:text-red-600 transition-colors cursor-pointer ml-auto"
                       >
                         Hapus
                       </button>
@@ -362,26 +357,21 @@
             </div>` : ''}
 
           <!-- Form Balas Inline -->
-          <div id="form-balas-${k.id}" class="hidden flex items-start gap-2.5 mt-3 pl-2 sm:pl-3 relative">
-            <div class="absolute -left-2.5 top-0 h-4 w-3 border-l-2 border-b-2 border-gray-200 rounded-bl-xl pointer-events-none"></div>
-            <img src="../alumni/assets/img/user.png" alt="${esc(SAYA.nama)}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-gray-200 mt-1 z-10">
-            <div class="flex-1 min-w-0">
-              <form data-balas="${p.id}" data-induk="${k.id}" class="relative flex items-center bg-white rounded-full border border-gray-300 focus-within:border-[#3A5988] focus-within:ring-2 focus-within:ring-[#3A5988]/10 px-3.5 py-1.5 transition-all shadow-2xs">
-                <span class="font-bold text-[13px] text-gray-900 mr-1.5 flex-shrink-0 select-none">@${esc(k.penulis)}</span>
-                <input
-                  name="isi"
-                  required
-                  placeholder="Tulis balasan..."
-                  class="flex-1 bg-transparent text-[13px] text-gray-900 placeholder:text-gray-400 focus:outline-none min-w-0"
-                >
-                <button
-                  type="submit"
-                  class="ml-2 text-[13px] font-semibold text-[#3A5988] hover:text-[#496DA8] transition-colors cursor-pointer flex-shrink-0"
-                >
-                  Send
-                </button>
-              </form>
-            </div>
+          <div id="form-balas-${k.id}" class="hidden mt-2.5 pl-3 border-l-2 border-[#E3E4E9]">
+            <form data-balas="${p.id}" data-induk="${k.id}" class="flex items-center gap-2">
+              <input
+                name="isi"
+                required
+                placeholder="Balas @${esc(k.penulis)}..."
+                class="flex-1 h-8 px-3 rounded-full bg-[#F4F5F7] focus:bg-white border border-[#E3E4E9] focus:border-[#3A5988] text-[12.5px] text-[#212224] placeholder:text-[#91969C] focus:outline-none transition-colors min-w-0"
+              >
+              <button
+                type="submit"
+                class="h-8 px-3.5 rounded-full bg-[#3A5988] hover:bg-[#496DA8] text-white text-[12px] font-medium transition-colors shrink-0 cursor-pointer"
+              >
+                Kirim
+              </button>
+            </form>
           </div>
         </div>
       </div>`;
@@ -389,30 +379,28 @@
 
   function panelKomentar(p) {
     return `
-      <div class="border-t border-gray-100 bg-white px-5 py-4">
+      <div class="pt-3 space-y-3">
         <!-- Input komentar baru -->
-        <form data-komentar="${p.id}" class="flex items-start gap-3 mb-4">
-          <img src="../alumni/assets/img/user.png" alt="${esc(SAYA.nama)}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-gray-200">
-          <div class="flex-1 relative">
-            <input
-              name="isi"
-              required
-              maxlength="1000"
-              placeholder="Tulis komentar..."
-              class="w-full px-4 py-2.5 pr-20 rounded-full border border-gray-200 bg-gray-50 text-[14px] text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-[#3A5988] focus:ring-2 focus:ring-gray-900/10"
-            >
-            <button
-              type="submit"
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-semibold text-[#3A5988] hover:text-[#496DA8] transition-colors cursor-pointer"
-            >
-              Send
-            </button>
-          </div>
+        <form data-komentar="${p.id}" class="flex items-center gap-2">
+          <img src="../alumni/assets/img/user.png" alt="${esc(SAYA.nama)}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-[#E3E4E9]">
+          <input
+            name="isi"
+            required
+            maxlength="1000"
+            placeholder="Tulis tanggapan atau masukan untuk rekan..."
+            class="flex-1 h-9 px-3.5 rounded-full bg-[#F4F5F7] focus:bg-white border border-[#E3E4E9] focus:border-[#3A5988] text-[13px] text-[#212224] placeholder-[#91969C] focus:outline-none transition-colors"
+          >
+          <button
+            type="submit"
+            class="h-9 px-4 rounded-full bg-[#3A5988] hover:bg-[#496DA8] text-white text-[12.5px] font-medium transition-colors shrink-0 cursor-pointer"
+          >
+            Kirim
+          </button>
         </form>
 
         <!-- Daftar komentar -->
         ${p.komentar.length ? `
-          <div class="space-y-4">
+          <div class="space-y-3 pt-2">
             ${p.komentar.map(k => komentarItem(p, k)).join('')}
           </div>` : ''}
       </div>`;
@@ -423,60 +411,57 @@
   function kartuPost(p) {
     const buka = terbuka.has(p.id);
     const jumlah = jumlahKomentar(p);
-    const tombol = 'flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-lg transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3';
 
     return `
-      <article id="post-${p.id}" class="border border-gray-200/90 rounded-xl relative shadow-xs hover:border-gray-300 transition-colors bg-white scroll-mt-24">
-        <div class="p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3.5 min-w-0">
-              ${fotoPenulis(p)}
-              <div class="flex flex-col min-w-0">
-                <p class="text-[17px] font-semibold text-gray-900 leading-tight">${esc(p.penulis)}</p>
-                <p class="text-[14px] text-gray-500 leading-snug mt-1">${esc(keterangan(p))}</p>
-                <div class="flex items-center gap-1.5 text-[13px] text-gray-500 mt-1 flex-wrap">
-                  <span>${waktuLalu(p.waktu)}</span>
-                  <span aria-hidden="true">•</span>
-                  <span class="inline-flex items-center gap-1 text-[12px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded-full"><i data-lucide="globe" class="w-3 h-3" aria-hidden="true"></i>Semua orang</span>
-                </div>
-              </div>
+      <article id="post-${p.id}" class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 shadow-sm space-y-4 scroll-mt-24">
+        <!-- Header Postingan: Avatar 44px, Nama, Headline · Waktu, Menu Titik Tiga -->
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            ${fotoPenulis(p)}
+            <div class="min-w-0">
+              <h4 class="text-[15px] font-bold text-[#0C1117] leading-tight truncate">${esc(p.penulis)}</h4>
+              <p class="!text-[12.5px] text-[#6B7280] mt-0.5 truncate">${esc(keterangan(p))} · ${waktuLalu(p.waktu)}</p>
             </div>
-            ${menuPost(p)}
           </div>
-
-          ${!p.referral && p.kategori === 'referral' ? `
-            <span class="inline-flex items-center gap-1 mt-3.5 px-2 py-0.5 rounded-full text-[11px] font-semibold border bg-blue-50 text-[#3A5988] border-blue-200"><i data-lucide="briefcase" class="w-3 h-3" aria-hidden="true"></i>Loker / Referral</span>` : ''}
-          ${isiPost(p)}
-          ${p.referral ? kartuReferral(p) : ''}
-          ${p.karya ? kartuKarya(p.karya, p) : ''}
+          ${menuPost(p)}
         </div>
+
+        ${!p.referral && p.kategori === 'referral' ? `
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border bg-[#E2F1F9] text-[#3A5988] border-[#B7C8E0]"><i data-lucide="briefcase" class="w-3 h-3" aria-hidden="true"></i>Lowongan / Referral</span>` : ''}
+        ${isiPost(p)}
+        ${p.referral ? kartuReferral(p) : ''}
+        ${p.karya ? kartuKarya(p.karya, p) : ''}
 
         ${p.gambar && !p.karya ? `
-          <div class="px-5 pb-5">
-            <img src="${esc(p.gambar)}" alt="Gambar dari ${esc(p.penulis)}" loading="lazy" class="w-full max-h-[220px] object-cover rounded-xl border border-gray-200/80">
+          <div class="rounded-[14px] overflow-hidden border border-[#E3E4E9] bg-[#E2F1F9] aspect-[16/9]">
+            <img src="${esc(p.gambar)}" alt="Gambar dari ${esc(p.penulis)}" loading="lazy" class="w-full h-full object-cover">
           </div>` : ''}
 
-        <!-- Baris Reaksi & Statistik Interaksi -->
-        <div class="px-5 py-2.5 border-t border-gray-100 flex items-center justify-between text-[14px] text-gray-500">
-          <div class="flex items-center gap-2">
-            <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#3A5988] text-white" aria-hidden="true">
-              <i data-lucide="thumbs-up" class="w-[11px] h-[11px] fill-current"></i>
-            </span>
-            <span class="font-medium text-gray-700">${p.suka} menyukai</span>
-          </div>
-          <button type="button" data-aksi="buka" data-id="${p.id}" class="hover:text-[#3A5988] hover:underline cursor-pointer rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">${jumlah} komentar</button>
-        </div>
+        <!-- Baris Aksi & Counter (persis Beranda alumni) -->
+        <div class="pt-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-[13px] text-[#6B7280]">
+            <div class="flex items-center gap-4 sm:gap-6 font-medium">
+              <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${p.disukaiSaya}"
+                      class="flex items-center gap-1.5 transition-colors cursor-pointer group ${p.disukaiSaya ? 'text-[#3A5988] font-bold' : 'hover:text-[#0C1117]'}">
+                <svg class="w-[18px] h-[18px] group-hover:scale-110 transition-transform" fill="${p.disukaiSaya ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+                </svg>
+                <span>${p.disukaiSaya ? 'Disukai' : 'Suka'}</span>
+              </button>
 
-        <!-- Tombol Interaksi (Suka & Komentar) -->
-        <div class="px-5 py-1.5 flex items-center justify-around border-t border-gray-100 text-[15px]">
-          <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${p.disukaiSaya}" class="${tombol} text-[#3A5988] hover:bg-blue-50 ${p.disukaiSaya ? 'font-bold bg-blue-50/80 shadow-2xs' : 'font-semibold'}">
-            <i data-lucide="thumbs-up" class="w-[18px] h-[18px] ${p.disukaiSaya ? 'fill-current' : ''}" aria-hidden="true"></i>
-            <span>Suka</span>
-          </button>
-          <button type="button" data-aksi="buka" data-id="${p.id}" aria-expanded="${buka}" class="${tombol} ${buka ? 'text-[#3A5988] font-bold bg-blue-50/50' : 'text-gray-600 hover:text-[#3A5988] hover:bg-blue-50/50 font-semibold'}">
-            <i data-lucide="message-square" class="w-[18px] h-[18px]" aria-hidden="true"></i>
-            <span>Komentar</span>
-          </button>
+              <button type="button" data-aksi="buka" data-id="${p.id}" aria-expanded="${buka}"
+                      class="flex items-center gap-1.5 transition-colors cursor-pointer ${buka ? 'text-[#3A5988] font-semibold' : 'hover:text-[#0C1117]'}">
+                <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Komentar</span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 text-[12.5px] text-[#6B7280] tabular-nums">
+              <span>${p.suka} Suka</span>
+              <span aria-hidden="true">·</span>
+              <button type="button" data-aksi="buka" data-id="${p.id}" class="hover:text-[#3A5988] hover:underline cursor-pointer rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">${jumlah} Komentar</button>
+            </div>
+          </div>
         </div>
 
         ${buka ? panelKomentar(p) : ''}
@@ -485,9 +470,9 @@
 
   // ===================== SARING KATEGORI =====================
   function renderSaring() {
-    document.getElementById('saring').innerHTML = [['', 'Semua'], ...Object.entries(KATEGORI)].map(([k, label]) => {
+    document.getElementById('saring').innerHTML = [['', 'Semua Linimasa'], ...Object.entries(KATEGORI)].map(([k, label]) => {
       const aktif = kategori === k;
-      return `<button type="button" data-kategori="${k}" aria-pressed="${aktif}" class="px-4 py-2 rounded-full font-semibold transition-colors shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3 ${aktif ? 'bg-[#3A5988] text-white shadow-xs' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}">${label}</button>`;
+      return `<button type="button" data-kategori="${k}" aria-pressed="${aktif}" class="h-8 px-3.5 rounded-full text-[13px] transition-colors shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3 ${aktif ? 'bg-[#3A5988] text-white font-semibold' : 'bg-white border border-[#E3E4E9] text-[#4B5563] font-medium hover:bg-[#F4F5F7]'}">${label}</button>`;
     }).join('');
   }
 
@@ -547,8 +532,10 @@
 
     renderSaring();
     daftar.innerHTML = list.map(kartuPost).join('')
-      || `<div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-500 text-[15px]">
-            ${pencarianTeks ? `Tidak ada postingan yang cocok dengan "${esc(pencarianTeks)}". Coba kata kunci lain.` : 'Belum ada postingan untuk kategori ini. Klik tombol "Buat Postingan" untuk membagikan kabar ke rekan alumni.'}
+      || `<div class="bg-white border border-[#E3E4E9] rounded-[16px] p-8 text-center space-y-2 shadow-sm">
+            <p class="!text-[15px] font-semibold text-[#0C1117]">${pencarianTeks ? `Tidak ada postingan untuk "${esc(pencarianTeks)}"` : 'Belum ada postingan di kategori ini'}</p>
+            <p class="!text-[13px] text-[#6B7280]">Coba ganti filter kategori atau kata kunci pencarian.</p>
+            ${(kategori || pencarianTeks) ? `<button type="button" onclick="kategori='';pencarianTeks='';document.getElementById('forum-cari').value='';render();" class="mt-2 px-4 py-1.5 rounded-full border border-[#E3E4E9] bg-white text-[13px] font-medium text-[#3A5988] hover:bg-[#F4F5F7] cursor-pointer">Reset Filter Linimasa</button>` : ''}
           </div>`;
     refreshIcons();
   }
@@ -643,7 +630,7 @@
       return segarkan(id);
     }
     if (aksi === 'suka') FeedBersama.suka(id, NAMA);
-    if (aksi === 'perluas') diperluas.add(id);
+    if (aksi === 'perluas' && !diperluas.delete(id)) diperluas.add(id);
     if (aksi === 'buka' && !terbuka.delete(id)) terbuka.add(id);
     segarkan(id);
     if (aksi === 'buka' && terbuka.has(id)) document.querySelector(`[data-komentar="${id}"] input`)?.focus();
