@@ -39,63 +39,41 @@
       }
     }
   </script>
+  <link rel="stylesheet" href="assets/css/profile-layout.css">
   <style>
     [x-cloak]:not(body) { display: none !important; }
     body { font-family: "Inter", sans-serif; display: block !important; }
-    .profile-panel {
-      display: grid;
-      gap: 0.875rem;
-      min-width: 0;
-      padding: clamp(1rem, 2vw, 1.375rem);
+    .profile-dialog {
+      width: min(640px, calc(100% - 2rem));
+      max-height: calc(100dvh - 2rem);
+      margin: auto;
+      padding: 0;
+      overflow: hidden;
       border: 1px solid #e3e4e9;
-      border-radius: 1rem;
+      border-radius: 20px;
       background: #fff;
-      box-shadow: 0 1px 2px rgb(12 17 23 / 5%);
+      color: #212224;
+      box-shadow: 0 22px 55px rgb(12 17 23 / 20%);
     }
-    .profile-heading {
-      color: #0c1117;
-      font-size: 1rem;
-      font-weight: 700;
-      line-height: 1.35;
+    .profile-dialog-compact { width: min(460px, calc(100% - 2rem)); }
+    .profile-dialog::backdrop { background: rgb(12 17 23 / 52%); }
+    body:has(.profile-dialog[open]) { overflow: hidden; }
+    .profile-dialog-layout {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100dvh - 2rem - 2px);
     }
-    .profile-subheading {
-      color: #6b7280;
-      font-size: 0.72rem;
-      font-weight: 650;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
+    .profile-dialog-header, .profile-dialog-footer {
+      flex-shrink: 0;
+      padding: 1rem clamp(1rem, 4vw, 1.5rem);
     }
-    .profile-copy {
-      display: grid;
-      gap: 0.5rem;
-      color: #4b5563;
-      font-size: 0.875rem;
-      line-height: 1.65;
+    .profile-dialog-body {
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding: 1.25rem clamp(1rem, 4vw, 1.5rem);
     }
-    .profile-action {
-      display: inline-flex;
-      align-items: center;
-      min-height: 2rem;
-      padding: 0.25rem 0.625rem;
-      border: 1px solid #e3e4e9;
-      border-radius: 0.5rem;
-      background: #fff;
-      color: #3a5988;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      transition: background-color 150ms, border-color 150ms;
-    }
-    .profile-action:hover { border-color: #a7b8cf; background: #f4f5f7; }
-    .profile-action-primary { border-color: #3a5988; background: #3a5988; color: #fff; }
-    .profile-action-primary:hover { border-color: #496da8; background: #496da8; }
-    .profile-tools li {
-      padding: 0.1875rem 0.625rem;
-      border-radius: 999px;
-      background: #f4f5f7;
-      color: #4b5563;
-      font-size: 0.72rem;
-      line-height: 1.45;
-    }
+    .profile-dialog .profile-action { min-height: 2.5rem; padding-inline: 1rem; }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
@@ -107,6 +85,7 @@
       return {
         toast: '',
         toastTimer: null,
+        modalError: '',
         
         // Modals state
         avatarModalOpen: false,
@@ -303,11 +282,26 @@
 
         init() {
           this.restoreProfileSections();
+          this.$nextTick(() => {
+            const summary = this.$refs.profileSummary;
+            const sizeSummary = () => summary.style.setProperty('--profile-summary-height', `${summary.offsetHeight}px`);
+            sizeSummary();
+            new ResizeObserver(sizeSummary).observe(summary);
+          });
           window.addEventListener('pageshow', event => {
             if (!event.persisted) return;
             this.profile = loadProfilSaya();
             this.restoreProfileSections();
           });
+        },
+
+        syncProfileDialog(dialog, open) {
+          if (open && !dialog.open) {
+            this.modalError = '';
+            dialog.showModal();
+          } else if (!open && dialog.open) {
+            dialog.close();
+          }
         },
 
         rememberProfileSections() {
@@ -326,12 +320,39 @@
             for (const key of ['experiences', 'projects', 'skills', 'educations', 'certifications', 'organizations']) {
               if (Array.isArray(saved?.[key])) this[key] = saved[key];
             }
+            const savedLists = this.readProfileLists();
+            for (const section of ['educations', 'certifications', 'organizations']) {
+              if (Array.isArray(savedLists[section])) this[section] = savedLists[section];
+            }
             const message = sessionStorage.getItem('bengkod_profil_notice');
             if (message) {
               sessionStorage.removeItem('bengkod_profil_notice');
               this.setToast(message);
             }
           } catch {}
+        },
+
+        readProfileLists() {
+          try {
+            return JSON.parse(localStorage.getItem('bengkod_profil_history')) || {};
+          } catch {
+            return {};
+          }
+        },
+
+        updateProfileList(section, update) {
+          const saved = this.readProfileLists();
+          const current = Array.isArray(saved[section]) ? saved[section] : this[section];
+          const next = update(current);
+          try {
+            localStorage.setItem('bengkod_profil_history', JSON.stringify({ ...saved, [section]: next }));
+          } catch {
+            this.modalError = 'Perubahan gagal disimpan.';
+            this.setToast(this.modalError);
+            return false;
+          }
+          this[section] = next;
+          return true;
         },
 
         openAvatarModal() {
@@ -344,7 +365,7 @@
             try {
               this.profile = saveProfilSaya({ avatarUrl: this.avatarUrlDraft.trim() });
             } catch {
-              this.setToast('Foto profil gagal disimpan.');
+              this.modalError = 'Foto profil gagal disimpan.';
               return;
             }
           }
@@ -363,8 +384,13 @@
           }
         },
 
-        copyShareLink() {
-          navigator.clipboard.writeText(window.location.href);
+        async copyShareLink() {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+          } catch {
+            this.modalError = 'Tautan profil gagal disalin.';
+            return;
+          }
           this.setToast('Tautan profil berhasil disalin ke clipboard');
           this.shareModalOpen = false;
         },
@@ -382,7 +408,7 @@
 
         saveExperience() {
           if (!this.experienceDraft.title.trim() || !this.experienceDraft.place.trim()) {
-            this.setToast('Mohon lengkapi judul posisi dan nama instansi');
+            this.modalError = 'Mohon lengkapi judul posisi dan nama instansi';
             return;
           }
           if (this.experienceDraft.id) {
@@ -417,7 +443,7 @@
 
         saveProject() {
           if (!this.projectDraft.title.trim()) {
-            this.setToast('Mohon isi judul portofolio proyek');
+            this.modalError = 'Mohon isi judul portofolio proyek';
             return;
           }
           const tags = this.projectDraft.tagsText ? this.projectDraft.tagsText.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -455,7 +481,7 @@
 
         saveSkill() {
           if (!this.skillDraft.name.trim()) {
-            this.setToast('Mohon ketikkan nama keahlian');
+            this.modalError = 'Mohon ketikkan nama keahlian';
             return;
           }
           if (this.skillDraft.id) {
@@ -489,7 +515,7 @@
 
         saveEducation() {
           if (!this.educationDraft.name.trim() || !this.educationDraft.major.trim()) {
-            this.setToast('Mohon isi nama instansi dan program studi');
+            this.modalError = 'Mohon isi nama instansi dan program studi';
             return;
           }
           const tags = this.educationDraft.tagsText ? this.educationDraft.tagsText.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -501,19 +527,16 @@
             grade: this.educationDraft.grade.trim(),
             tags: tags
           };
-          if (this.educationDraft.id) {
-            const idx = this.educations.findIndex(e => e.id === this.educationDraft.id);
-            if (idx !== -1) this.educations[idx] = eduData;
-            this.setToast('Data pendidikan berhasil diperbarui');
-          } else {
-            this.educations.push(eduData);
-            this.setToast('Data pendidikan berhasil ditambahkan');
-          }
+          const editing = Boolean(this.educationDraft.id);
+          if (!this.updateProfileList('educations', items => editing
+            ? items.map(item => item.id === eduData.id ? eduData : item)
+            : [...items, eduData])) return;
+          this.setToast(editing ? 'Data pendidikan berhasil diperbarui' : 'Data pendidikan berhasil ditambahkan');
           this.educationModalOpen = false;
         },
 
         deleteEducation(id) {
-          this.educations = this.educations.filter(e => e.id !== id);
+          if (!this.updateProfileList('educations', items => items.filter(item => item.id !== id))) return;
           this.educationModalOpen = false;
           this.setToast('Data pendidikan berhasil dihapus');
         },
@@ -532,7 +555,7 @@
 
         saveCert() {
           if (!this.certDraft.name.trim() || !this.certDraft.issuer.trim()) {
-            this.setToast('Mohon isi nama sertifikasi dan lembaga penerbit');
+            this.modalError = 'Mohon isi nama sertifikasi dan lembaga penerbit';
             return;
           }
           const tags = this.certDraft.tagsText ? this.certDraft.tagsText.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -545,19 +568,16 @@
             tags: tags,
             url: this.certDraft.url.trim() || "#"
           };
-          if (this.certDraft.id) {
-            const idx = this.certifications.findIndex(c => c.id === this.certDraft.id);
-            if (idx !== -1) this.certifications[idx] = certData;
-            this.setToast('Sertifikasi berhasil diperbarui');
-          } else {
-            this.certifications.push(certData);
-            this.setToast('Sertifikasi berhasil ditambahkan');
-          }
+          const editing = Boolean(this.certDraft.id);
+          if (!this.updateProfileList('certifications', items => editing
+            ? items.map(item => item.id === certData.id ? certData : item)
+            : [...items, certData])) return;
+          this.setToast(editing ? 'Sertifikasi berhasil diperbarui' : 'Sertifikasi berhasil ditambahkan');
           this.certModalOpen = false;
         },
 
         deleteCert(id) {
-          this.certifications = this.certifications.filter(c => c.id !== id);
+          if (!this.updateProfileList('certifications', items => items.filter(item => item.id !== id))) return;
           this.certModalOpen = false;
           this.setToast('Sertifikasi berhasil dihapus');
         },
@@ -576,7 +596,7 @@
 
         saveOrg() {
           if (!this.orgDraft.name.trim() || !this.orgDraft.role.trim()) {
-            this.setToast('Mohon isi nama organisasi dan peran Anda');
+            this.modalError = 'Mohon isi nama organisasi dan peran Anda';
             return;
           }
           const tags = this.orgDraft.tagsText ? this.orgDraft.tagsText.split(',').map(t => t.trim()).filter(Boolean) : [];
@@ -589,19 +609,16 @@
             desc: this.orgDraft.desc.trim(),
             tags: tags
           };
-          if (this.orgDraft.id) {
-            const idx = this.organizations.findIndex(o => o.id === this.orgDraft.id);
-            if (idx !== -1) this.organizations[idx] = orgData;
-            this.setToast('Data organisasi berhasil diperbarui');
-          } else {
-            this.organizations.push(orgData);
-            this.setToast('Data organisasi berhasil ditambahkan');
-          }
+          const editing = Boolean(this.orgDraft.id);
+          if (!this.updateProfileList('organizations', items => editing
+            ? items.map(item => item.id === orgData.id ? orgData : item)
+            : [...items, orgData])) return;
+          this.setToast(editing ? 'Data organisasi berhasil diperbarui' : 'Data organisasi berhasil ditambahkan');
           this.orgModalOpen = false;
         },
 
         deleteOrg(id) {
-          this.organizations = this.organizations.filter(o => o.id !== id);
+          if (!this.updateProfileList('organizations', items => items.filter(item => item.id !== id))) return;
           this.orgModalOpen = false;
           this.setToast('Data organisasi berhasil dihapus');
         }
@@ -737,67 +754,67 @@
         </section>
 
         <section class="profile-panel" aria-labelledby="profile-education-title">
-          <h2 id="profile-education-title" class="profile-heading">Riwayat Pendidikan</h2>
-          <div class="grid items-start gap-4 xl:grid-cols-2">
-            <div class="min-w-0 space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="profile-subheading">Pendidikan</h3>
-                <button type="button" @click="openAddEducation()" class="profile-action">+ Tambah</button>
-              </div>
-              <template x-for="edu in educations" :key="edu.id">
-                <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1.5 group">
-                  <div class="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h4 class="text-[15px] font-bold text-[#111827]" x-text="edu.name || edu.school"></h4>
-                      <p class="text-[13px] text-[#3A5988] font-medium" x-text="edu.major || [edu.degree, edu.field].filter(Boolean).join(' · ')"></p>
-                      <p class="text-[12px] text-[#6B7280]" x-text="edu.period"></p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <button type="button" @click="openEditEducation(edu)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-[#3A5988]" title="Edit">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/></svg>
-                      </button>
-                      <button type="button" @click="deleteEducation(edu.id)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-red-500" title="Hapus">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                      </button>
-                    </div>
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="profile-education-title" class="profile-heading">Riwayat Pendidikan</h2>
+            <button type="button" @click="openAddEducation()" class="profile-action">+ Tambah</button>
+          </div>
+          <div class="space-y-3">
+            <template x-for="edu in educations" :key="edu.id">
+              <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1.5 group">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h4 class="text-[15px] font-bold text-[#111827]" x-text="edu.name || edu.school"></h4>
+                    <p class="text-[13px] text-[#3A5988] font-medium" x-text="edu.major || [edu.degree, edu.field].filter(Boolean).join(' · ')"></p>
+                    <p class="text-[12px] text-[#6B7280]" x-text="edu.period"></p>
                   </div>
-                  <template x-if="edu.grade || edu.gpa">
-                    <span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-[#EBF3FB] text-[#2B5282]" x-text="edu.grade || 'IPK ' + edu.gpa"></span>
+                  <div class="flex items-center gap-1">
+                    <button type="button" @click="openEditEducation(edu)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-[#3A5988]" title="Edit">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/></svg>
+                    </button>
+                    <button type="button" @click="deleteEducation(edu.id)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-red-500" title="Hapus">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <template x-if="edu.grade || edu.gpa">
+                  <span class="inline-block px-2 py-0.5 rounded text-[11px] font-semibold bg-[#EBF3FB] text-[#2B5282]" x-text="edu.grade || 'IPK ' + edu.gpa"></span>
+                </template>
+              </div>
+            </template>
+          </div>
+        </section>
+
+        <section class="profile-panel" aria-labelledby="profile-certifications-title">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="profile-certifications-title" class="profile-heading">Sertifikasi</h2>
+            <button type="button" @click="openAddCert()" class="profile-action">+ Tambah</button>
+          </div>
+          <div class="space-y-3">
+            <template x-for="cert in certifications" :key="cert.id">
+              <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1.5 group">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <h4 class="text-[15px] font-bold text-[#111827]" x-text="cert.name"></h4>
+                    <p class="text-[13px] text-[#3A5988] font-medium" x-text="cert.issuer"></p>
+                    <p class="text-[12px] text-[#6B7280]" x-text="cert.date || cert.issueDate"></p>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <button type="button" @click="openEditCert(cert)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-[#3A5988]" title="Edit">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/></svg>
+                    </button>
+                    <button type="button" @click="deleteCert(cert.id)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-red-500" title="Hapus">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <p x-show="cert.credId" class="text-[11.5px] font-medium text-[#3A5988]" x-text="'ID: ' + cert.credId"></p>
+                <div class="flex flex-wrap gap-1 pt-0.5">
+                  <template x-for="t in (cert.tags || [])" :key="t">
+                    <span class="px-2 py-0.5 rounded text-[10.5px] font-medium bg-white border border-[#E3E4E9] text-[#4B5563]" x-text="t"></span>
                   </template>
                 </div>
-              </template>
-            </div>
-            <div class="min-w-0 space-y-3">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h3 class="profile-subheading">Sertifikasi</h3>
-                <button type="button" @click="openAddCert()" class="profile-action">+ Tambah</button>
               </div>
-              <template x-for="cert in certifications" :key="cert.id">
-                <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1.5 group">
-                  <div class="flex flex-wrap items-start justify-between gap-2">
-                    <div>
-                      <h4 class="text-[15px] font-bold text-[#111827]" x-text="cert.name"></h4>
-                      <p class="text-[13px] text-[#3A5988] font-medium" x-text="cert.issuer"></p>
-                      <p class="text-[12px] text-[#6B7280]" x-text="cert.date || cert.issueDate"></p>
-                    </div>
-                    <div class="flex items-center gap-1">
-                      <button type="button" @click="openEditCert(cert)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-[#3A5988]" title="Edit">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"/></svg>
-                      </button>
-                      <button type="button" @click="deleteCert(cert.id)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-red-500" title="Hapus">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                      </button>
-                    </div>
-                  </div>
-                  <p x-show="cert.credId" class="text-[11.5px] font-medium text-[#3A5988]" x-text="'ID: ' + cert.credId"></p>
-                  <div class="flex flex-wrap gap-1 pt-0.5">
-                    <template x-for="t in (cert.tags || [])" :key="t">
-                      <span class="px-2 py-0.5 rounded text-[10.5px] font-medium bg-white border border-[#E3E4E9] text-[#4B5563]" x-text="t"></span>
-                    </template>
-                  </div>
-                </div>
-              </template>
-            </div>
+            </template>
           </div>
         </section>
 
@@ -866,7 +883,7 @@
                   <div>
                     <h4 class="text-[15px] font-bold text-[#111827]" x-text="org.role"></h4>
                     <p class="text-[13px] text-[#3A5988] font-medium" x-text="org.name"></p>
-                    <p class="text-[12px] text-[#6B7280]" x-text="org.period"></p>
+                    <p class="text-[12px] text-[#6B7280]" x-text="[org.period, org.affiliated].filter(Boolean).join(' · ')"></p>
                   </div>
                   <div class="flex items-center gap-1">
                     <button type="button" @click="openEditOrg(org)" class="w-6 h-6 flex items-center justify-center text-[#6B7280] hover:text-[#3A5988]" title="Edit">
@@ -878,13 +895,18 @@
                   </div>
                 </div>
                 <p class="text-[14px] text-[#4B5563] leading-relaxed pt-0.5" x-text="org.desc"></p>
+                <div x-show="org.tags?.length" class="flex flex-wrap gap-1.5">
+                  <template x-for="(tag, index) in (org.tags || [])" :key="index">
+                    <span class="rounded-md border border-[#E3E4E9] bg-white px-2 py-0.5 text-[11px] text-[#4B5563]" x-text="tag"></span>
+                  </template>
+                </div>
               </div>
             </template>
           </div>
         </section>
       </div>
 
-      <aside aria-label="Ringkasan profil" class="min-w-0 space-y-4">
+      <aside x-ref="profileSummary" aria-label="Ringkasan profil" class="profile-summary min-w-0 space-y-4">
         <section class="profile-panel" aria-labelledby="profile-completeness-title">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 id="profile-completeness-title" class="profile-heading">Kelengkapan Profil</h2>
@@ -944,65 +966,53 @@
     </div>
   </main>
 
-  <!-- ========================================================
-       MODAL: GANTI FOTO PROFIL
-  ======================================================== -->
-  <div x-show="avatarModalOpen"
-       class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-       style="display: none;"
-       x-transition:enter="transition ease-out duration-200"
-       x-transition:enter-start="opacity-0"
-       x-transition:enter-end="opacity-100"
-       x-transition:leave="transition ease-in duration-150"
-       x-transition:leave-start="opacity-100"
-       x-transition:leave-end="opacity-0">
-    
-    <div class="bg-white rounded-[20px] border border-[#E3E4E9] shadow-2xl max-w-md w-full overflow-hidden"
-         @click.away="avatarModalOpen = false">
-      <div class="px-6 py-4 border-b border-[#E3E4E9] flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#0C1117]">Ganti Foto Profil</h3>
-        <button type="button" @click="avatarModalOpen = false" class="text-[#91969C] hover:text-[#0C1117]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  <dialog class="profile-dialog profile-dialog-compact" aria-labelledby="profile-avatar-title"
+          x-effect="syncProfileDialog($el, avatarModalOpen)"
+          @close="if (!$el.open) avatarModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveAvatar()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-avatar-title" class="text-[17px] font-bold text-[#0C1117]">Ganti Foto Profil</h2>
+        <button type="button" @click="avatarModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
-      </div>
-      <div class="p-6 space-y-4 text-center">
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
         <div class="flex justify-center">
           <img :src="avatarUrlDraft || profile.avatarUrl" class="w-24 h-24 rounded-[16px] object-cover border-2 border-[#3A5988]">
         </div>
         <div class="space-y-1.5 text-left text-[13px]">
           <label class="block font-semibold text-[#0C1117]">Unggah Berkas Baru</label>
-          <input type="file" accept="image/*" @change="handleAvatarUpload($event)" class="w-full text-[12px] text-[#6B7280]">
+          <input autofocus type="file" accept="image/*" @change="handleAvatarUpload($event)" class="w-full text-[12px] text-[#6B7280]">
         </div>
         <div class="space-y-1.5 text-left text-[13px]">
           <label class="block font-semibold text-[#0C1117]">Atau Masukkan URL Gambar</label>
           <input type="url" x-model="avatarUrlDraft" placeholder="https://..." class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
         </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="px-6 py-4 border-t border-[#E3E4E9] bg-[#F8FAFC] flex justify-end gap-2.5">
-        <button type="button" @click="avatarModalOpen = false" class="px-4 py-2 rounded-[8px] border border-[#E3E4E9] text-[13px] font-medium">Batal</button>
-        <button type="button" @click="saveAvatar()" class="px-5 py-2 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-medium">Terapkan Foto</button>
-      </div>
-    </div>
-  </div>
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
+        <button type="button" @click="avatarModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Terapkan Foto</button>
+      </footer>
+    </form>
+  </dialog>
 
-  <!-- ========================================================
-       MODAL: TAMBAH / EDIT PENGALAMAN KERJA
-  ======================================================== -->
-  <div x-show="experienceModalOpen"
-       class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-       style="display: none;">
-    <div class="bg-white rounded-[20px] border border-[#E3E4E9] shadow-2xl max-w-xl w-full overflow-hidden"
-         @click.away="experienceModalOpen = false">
-      <div class="px-6 py-4.5 border-b border-[#E3E4E9] flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#0C1117]" x-text="experienceDraft.id ? 'Edit Pengalaman Kerja' : 'Tambah Pengalaman Kerja'"></h3>
-        <button type="button" @click="experienceModalOpen = false" class="text-[#91969C] hover:text-[#0C1117]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  <dialog class="profile-dialog" aria-labelledby="profile-experience-dialog-title"
+          x-effect="syncProfileDialog($el, experienceModalOpen)"
+          @close="if (!$el.open) experienceModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveExperience()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-experience-dialog-title" class="text-[17px] font-bold text-[#0C1117]" x-text="experienceDraft.id ? 'Edit Pengalaman Kerja' : 'Tambah Pengalaman Kerja'"></h2>
+        <button type="button" @click="experienceModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
-      </div>
-      <div class="p-6 space-y-4 text-[13.5px]">
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
         <div>
           <label class="block font-semibold text-[#0C1117] mb-1">Posisi / Jabatan</label>
-          <input type="text" x-model="experienceDraft.title" placeholder="Contoh: Frontend Developer" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
+          <input autofocus type="text" x-model="experienceDraft.title" placeholder="Contoh: Frontend Developer" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -1033,37 +1043,33 @@
           <label class="block font-semibold text-[#0C1117] mb-1">Deskripsi Singkat Tanggung Jawab</label>
           <textarea rows="3" x-model="experienceDraft.note" placeholder="Deskripsikan peran dan capaian utama..." class="w-full p-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988] leading-relaxed"></textarea>
         </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="px-6 py-4 border-t border-[#E3E4E9] bg-[#F8FAFC] flex items-center justify-between">
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
         <template x-if="experienceDraft.id">
-          <button type="button" @click="deleteExperience(experienceDraft.id)" class="text-red-600 hover:underline text-[13px] font-medium">Hapus Data Ini</button>
+          <button type="button" @click="deleteExperience(experienceDraft.id)" class="mr-auto rounded-[8px] px-2 py-2 text-[13px] font-medium text-red-700 hover:bg-red-50">Hapus Data Ini</button>
         </template>
-        <div class="flex gap-2 ml-auto">
-          <button type="button" @click="experienceModalOpen = false" class="px-4 py-2 rounded-[8px] border border-[#E3E4E9] text-[13px] font-medium">Batal</button>
-          <button type="button" @click="saveExperience()" class="px-5 py-2 rounded-[8px] bg-[#3A5988] text-white text-[13px] font-medium">Simpan</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        <button type="button" @click="experienceModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
 
-  <!-- ========================================================
-       MODAL: TAMBAH / EDIT PORTOFOLIO PROYEK
-  ======================================================== -->
-  <div x-show="projectModalOpen"
-       class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-       style="display: none;">
-    <div class="bg-white rounded-[20px] border border-[#E3E4E9] shadow-2xl max-w-xl w-full overflow-hidden"
-         @click.away="projectModalOpen = false">
-      <div class="px-6 py-4.5 border-b border-[#E3E4E9] flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#0C1117]" x-text="projectDraft.id ? 'Edit Portofolio Proyek' : 'Tambah Portofolio Proyek'"></h3>
-        <button type="button" @click="projectModalOpen = false" class="text-[#91969C] hover:text-[#0C1117]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  <dialog class="profile-dialog" aria-labelledby="profile-project-title"
+          x-effect="syncProfileDialog($el, projectModalOpen)"
+          @close="if (!$el.open) projectModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveProject()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-project-title" class="text-[17px] font-bold text-[#0C1117]" x-text="projectDraft.id ? 'Edit Portofolio Proyek' : 'Tambah Portofolio Proyek'"></h2>
+        <button type="button" @click="projectModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
-      </div>
-      <div class="p-6 space-y-4 text-[13.5px]">
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
         <div>
           <label class="block font-semibold text-[#0C1117] mb-1">Judul Karya / Proyek</label>
-          <input type="text" x-model="projectDraft.title" placeholder="Contoh: Sistem Deteksi Cuaca Real-time" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
+          <input autofocus type="text" x-model="projectDraft.title" placeholder="Contoh: Sistem Deteksi Cuaca Real-time" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
@@ -1091,37 +1097,33 @@
           <label class="block font-semibold text-[#0C1117] mb-1">Deskripsi Ringkas</label>
           <textarea rows="3" x-model="projectDraft.desc" placeholder="Tuliskan latar belakang masalah dan solusi teknis yang Anda buat..." class="w-full p-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988] leading-relaxed"></textarea>
         </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="px-6 py-4 border-t border-[#E3E4E9] bg-[#F8FAFC] flex items-center justify-between">
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
         <template x-if="projectDraft.id">
-          <button type="button" @click="deleteProject(projectDraft.id)" class="text-red-600 hover:underline text-[13px] font-medium">Hapus Proyek</button>
+          <button type="button" @click="deleteProject(projectDraft.id)" class="mr-auto rounded-[8px] px-2 py-2 text-[13px] font-medium text-red-700 hover:bg-red-50">Hapus Proyek</button>
         </template>
-        <div class="flex gap-2 ml-auto">
-          <button type="button" @click="projectModalOpen = false" class="px-4 py-2 rounded-[8px] border border-[#E3E4E9] text-[13px] font-medium">Batal</button>
-          <button type="button" @click="saveProject()" class="px-5 py-2 rounded-[8px] bg-[#3A5988] text-white text-[13px] font-medium">Simpan Proyek</button>
-        </div>
-      </div>
-    </div>
-  </div>
+        <button type="button" @click="projectModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Simpan Proyek</button>
+      </footer>
+    </form>
+  </dialog>
 
-  <!-- ========================================================
-       MODAL: TAMBAH KETERAMPILAN / SKILLS
-  ======================================================== -->
-  <div x-show="skillModalOpen"
-       class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-       style="display: none;">
-    <div class="bg-white rounded-[20px] border border-[#E3E4E9] shadow-2xl max-w-md w-full overflow-hidden"
-         @click.away="skillModalOpen = false">
-      <div class="px-6 py-4.5 border-b border-[#E3E4E9] flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#0C1117]">Tambah Keterampilan</h3>
-        <button type="button" @click="skillModalOpen = false" class="text-[#91969C] hover:text-[#0C1117]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  <dialog class="profile-dialog profile-dialog-compact" aria-labelledby="profile-skill-title"
+          x-effect="syncProfileDialog($el, skillModalOpen)"
+          @close="if (!$el.open) skillModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveSkill()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-skill-title" class="text-[17px] font-bold text-[#0C1117]">Tambah Keterampilan</h2>
+        <button type="button" @click="skillModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
-      </div>
-      <div class="p-6 space-y-4 text-[13.5px]">
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
         <div>
           <label class="block font-semibold text-[#0C1117] mb-1">Nama Keterampilan / Teknologi</label>
-          <input type="text" x-model="skillDraft.name" placeholder="Contoh: Golang, React, Figma" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
+          <input autofocus type="text" x-model="skillDraft.name" placeholder="Contoh: Golang, React, Figma" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:outline-none focus:border-[#3A5988]">
         </div>
         <div>
           <label class="block font-semibold text-[#0C1117] mb-1">Tingkat Kemahiran</label>
@@ -1131,29 +1133,170 @@
             <option value="Tingkat Dasar">Tingkat Dasar (Beginner)</option>
           </select>
         </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="px-6 py-4 border-t border-[#E3E4E9] bg-[#F8FAFC] flex justify-end gap-2">
-        <button type="button" @click="skillModalOpen = false" class="px-4 py-2 rounded-[8px] border border-[#E3E4E9] text-[13px] font-medium">Batal</button>
-        <button type="button" @click="saveSkill()" class="px-5 py-2 rounded-[8px] bg-[#3A5988] text-white text-[13px] font-medium">Tambahkan</button>
-      </div>
-    </div>
-  </div>
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
+        <button type="button" @click="skillModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Tambahkan</button>
+      </footer>
+    </form>
+  </dialog>
 
-  <!-- ========================================================
-       MODAL: BAGIKAN PROFIL
-  ======================================================== -->
-  <div x-show="shareModalOpen"
-       class="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-       style="display: none;">
-    <div class="bg-white rounded-[20px] border border-[#E3E4E9] shadow-2xl max-w-md w-full overflow-hidden"
-         @click.away="shareModalOpen = false">
-      <div class="px-6 py-4.5 border-b border-[#E3E4E9] flex items-center justify-between">
-        <h3 class="text-[17px] font-bold text-[#0C1117]">Bagikan Profil Anda</h3>
-        <button type="button" @click="shareModalOpen = false" class="text-[#91969C] hover:text-[#0C1117]">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+  <dialog class="profile-dialog" aria-labelledby="profile-education-dialog-title"
+          x-effect="syncProfileDialog($el, educationModalOpen)"
+          @close="if (!$el.open) educationModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveEducation()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-education-dialog-title" class="text-[17px] font-bold text-[#0C1117]" x-text="educationDraft.id ? 'Edit Pendidikan' : 'Tambah Pendidikan'"></h2>
+        <button type="button" @click="educationModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
         </button>
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="edu-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Instansi</label>
+            <input type="text" id="edu-name" x-model="educationDraft.name" required autofocus class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="edu-major" class="mb-1 block font-semibold text-[#0C1117]">Program Studi</label>
+            <input type="text" id="edu-major" x-model="educationDraft.major" required class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="edu-period" class="mb-1 block font-semibold text-[#0C1117]">Periode</label>
+            <input type="text" id="edu-period" x-model="educationDraft.period" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="edu-grade" class="mb-1 block font-semibold text-[#0C1117]">Nilai atau Predikat</label>
+            <input type="text" id="edu-grade" x-model="educationDraft.grade" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div>
+          <label for="edu-tagsText" class="mb-1 block font-semibold text-[#0C1117]">Tag (pisahkan dengan koma)</label>
+          <input type="text" id="edu-tagsText" x-model="educationDraft.tagsText" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+        </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="p-6 space-y-4 text-[13.5px]">
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
+        <button type="button" @click="educationModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="profile-dialog" aria-labelledby="profile-cert-dialog-title"
+          x-effect="syncProfileDialog($el, certModalOpen)"
+          @close="if (!$el.open) certModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveCert()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-cert-dialog-title" class="text-[17px] font-bold text-[#0C1117]" x-text="certDraft.id ? 'Edit Sertifikasi' : 'Tambah Sertifikasi'"></h2>
+        <button type="button" @click="certModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="cert-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Sertifikasi</label>
+            <input type="text" id="cert-name" x-model="certDraft.name" required autofocus class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="cert-issuer" class="mb-1 block font-semibold text-[#0C1117]">Lembaga Penerbit</label>
+            <input type="text" id="cert-issuer" x-model="certDraft.issuer" required class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="cert-date" class="mb-1 block font-semibold text-[#0C1117]">Tanggal Terbit</label>
+            <input type="text" id="cert-date" x-model="certDraft.date" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="cert-credId" class="mb-1 block font-semibold text-[#0C1117]">ID Kredensial</label>
+            <input type="text" id="cert-credId" x-model="certDraft.credId" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div>
+          <label for="cert-url" class="mb-1 block font-semibold text-[#0C1117]">Tautan Kredensial</label>
+          <input type="url" id="cert-url" x-model="certDraft.url" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+        </div>
+        <div>
+          <label for="cert-tagsText" class="mb-1 block font-semibold text-[#0C1117]">Tag (pisahkan dengan koma)</label>
+          <input type="text" id="cert-tagsText" x-model="certDraft.tagsText" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+        </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
+      </div>
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
+        <button type="button" @click="certModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="profile-dialog" aria-labelledby="profile-org-dialog-title"
+          x-effect="syncProfileDialog($el, orgModalOpen)"
+          @close="if (!$el.open) orgModalOpen = false" @click.self="$el.close()">
+    <form class="profile-dialog-layout" @submit.prevent="saveOrg()" novalidate>
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-org-dialog-title" class="text-[17px] font-bold text-[#0C1117]" x-text="orgDraft.id ? 'Edit Organisasi' : 'Tambah Organisasi'"></h2>
+        <button type="button" @click="orgModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="org-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Organisasi</label>
+            <input type="text" id="org-name" x-model="orgDraft.name" required autofocus class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="org-role" class="mb-1 block font-semibold text-[#0C1117]">Peran atau Jabatan</label>
+            <input type="text" id="org-role" x-model="orgDraft.role" required class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label for="org-period" class="mb-1 block font-semibold text-[#0C1117]">Periode</label>
+            <input type="text" id="org-period" x-model="orgDraft.period" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+          <div>
+            <label for="org-affiliated" class="mb-1 block font-semibold text-[#0C1117]">Afiliasi</label>
+            <input type="text" id="org-affiliated" x-model="orgDraft.affiliated" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+          </div>
+        </div>
+        <div>
+          <label for="org-desc" class="mb-1 block font-semibold text-[#0C1117]">Deskripsi</label>
+          <textarea rows="3" id="org-desc" x-model="orgDraft.desc" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]"></textarea>
+        </div>
+        <div>
+          <label for="org-tagsText" class="mb-1 block font-semibold text-[#0C1117]">Tag (pisahkan dengan koma)</label>
+          <input type="text" id="org-tagsText" x-model="orgDraft.tagsText" class="w-full rounded-[8px] border border-[#E3E4E9] px-3 py-2.5 focus:border-[#3A5988] focus:outline-none focus:ring-1 focus:ring-[#3A5988]">
+        </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
+      </div>
+      <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
+        <button type="button" @click="orgModalOpen = false" class="profile-action">Batal</button>
+        <button type="submit" class="profile-action profile-action-primary">Simpan</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="profile-dialog profile-dialog-compact" aria-labelledby="profile-share-title"
+          x-effect="syncProfileDialog($el, shareModalOpen)"
+          @close="if (!$el.open) shareModalOpen = false" @click.self="$el.close()">
+    <div class="profile-dialog-layout">
+      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
+        <h2 id="profile-share-title" class="text-[17px] font-bold text-[#0C1117]">Bagikan Profil Anda</h2>
+        <button type="button" @click="shareModalOpen = false" aria-label="Tutup dialog"
+                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
+          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+      <div class="profile-dialog-body space-y-4 text-[14px]">
         <p class="text-[#4B5563]">Salin tautan profil untuk dibagikan kepada rekan kerja, mitra, atau recruiter industri:</p>
         <div class="flex items-center gap-2 p-2 rounded-[8px] bg-[#F8FAFC] border border-[#E3E4E9]">
           <input type="text" readonly :value="window.location.href" class="w-full bg-transparent text-[12.5px] text-[#212224] focus:outline-none select-all font-mono">
@@ -1161,9 +1304,10 @@
             Salin
           </button>
         </div>
+        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <script>mountAlumniPortal(document.querySelector('main'));</script>
 </body>
