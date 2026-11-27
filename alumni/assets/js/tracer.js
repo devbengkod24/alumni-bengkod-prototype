@@ -71,10 +71,10 @@ function formTracer(wadah, t, setelahSimpan, batal) {
           <div><label for="f-nama" class="label">Nama Alumni</label><input id="f-nama" class="input !bg-neutral5" value="${esc(SAYA.nama)}" readonly></div>
           <div><label for="f-email" class="label">Alamat Email</label><input id="f-email" class="input !bg-neutral5" value="${esc(SAYA.email)}" readonly></div>
           ${pilihan('jns_kelamin', 'Jenis Kelamin', DB.OPSI.jns_kelamin, v.jns_kelamin, 'Pilih Jenis Kelamin')}
-          ${isian('nim', 'NIM', v.nim ?? '', 'placeholder="Masukkan NIM sewaktu mahasiswa"')}
+          ${isian('nim', 'NIM', v.nim ?? SAYA.nim ?? '', 'placeholder="Masukkan NIM sewaktu mahasiswa"')}
           ${isian('tahun_masuk', 'Tahun Masuk', v.tahun_masuk ?? '', `type="number" min="1990" max="${TAHUN_INI}" step="1" placeholder="Masukkan tahun masuk perkuliahan"`)}
           ${isian('tahun_lulus', 'Tahun Lulus', v.tahun_lulus ?? '', `type="number" min="1990" max="${TAHUN_INI}" step="1" placeholder="Masukkan tahun lulus perkuliahan"`)}
-          ${isian('no_hp', 'Nomor HP (WhatsApp)', v.no_hp ?? '', 'inputmode="numeric" pattern="[0-9]{8,15}" title="Masukkan 8 sampai 15 angka" placeholder="Nomor yang terhubung WhatsApp"')}
+          ${isian('no_hp', 'Nomor HP (WhatsApp)', v.no_hp ?? SAYA.no_hp ?? '', 'inputmode="numeric" pattern="[0-9]{8,15}" title="Masukkan 8 sampai 15 angka" placeholder="Nomor yang terhubung WhatsApp"')}
           ${isian('kota', 'Kota Domisili', v.kota ?? '', 'placeholder="Contoh: Semarang"')}
           <div><label for="f-keahlian" class="label">Keahlian</label>
             <input id="f-keahlian" name="keahlian" class="input" value="${esc((v.keahlian || []).join(', '))}" placeholder="Contoh: Laravel, React, Figma">

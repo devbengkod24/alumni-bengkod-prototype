@@ -581,6 +581,11 @@
 
   const idBaru = list => list.reduce((m, x) => Math.max(m, x.id || 0), 0) + 1;
   const bersih = s => String(s ?? '').trim();
+  const normTelp = s => {
+    const d = String(s ?? '').replace(/\D/g, '');
+    if (d.startsWith('62')) return `0${d.slice(2)}`;
+    return d;
+  };
   const kodeAcak = () => String(Math.floor(100000 + Math.random() * 900000));
   const gagal = (error, field) => ({ ok: false, error, field });
   const kini = () => new Date().toISOString();
@@ -630,7 +635,7 @@
       for (const s of statistik.semua()) {
         for (const a of statistik.detailAngkatan(s.tahun_lulus).asisten) {
           if (!a.terdaftar && !dipakai.has(a.nim.toUpperCase())) {
-            hasil.push({ nim: a.nim, nama: a.nama, email: a.email });
+            hasil.push({ nim: a.nim, nama: a.nama, email: a.email, no_hp: a.no_hp });
             if (hasil.length >= limit) return hasil;
           }
         }
@@ -638,10 +643,12 @@
       return hasil;
     },
 
-    daftar({ nama, nim, email, password, password_confirm }) {
+    daftar({ nama, nim, no_telp, email, password, password_confirm }) {
       if (!bersih(nama)) return gagal('Nama lengkap wajib diisi.', 'nama');
       const nimNorm = bersih(nim).toUpperCase();
       if (!nimNorm) return gagal('NIM wajib diisi.', 'nim');
+      const telpNorm = normTelp(no_telp);
+      if (telpNorm.length < 8) return gagal('Nomor telepon minimal 8 digit angka.', 'no_telp');
       const data = muat();
       const sudahDipakai =
         data.users.some(u => (u.nim || '').toUpperCase() === nimNorm) ||
@@ -651,6 +658,9 @@
         .flatMap(s => statistik.detailAngkatan(s.tahun_lulus).asisten)
         .find(a => a.nim.toUpperCase() === nimNorm && !a.terdaftar);
       if (!asistenLms) return gagal('NIM tidak ditemukan pada data alumni asisten lab Bengkel Koding.', 'nim');
+      if (normTelp(asistenLms.no_hp) !== telpNorm) {
+        return gagal('Nomor telepon tidak cocok dengan NIM asisten lab di LMS.', 'no_telp');
+      }
       const emailBersih = bersih(email);
       if (!/^\S+@\S+\.\S+$/.test(emailBersih)) return gagal('Format email tidak valid.', 'email');
       if (akun.cariEmail(emailBersih)) return gagal('Alamat email sudah terdaftar, silakan gunakan email lain.', 'email');
@@ -659,7 +669,7 @@
         return gagal('Konfirmasi password tidak cocok.', 'password_confirm');
       }
       const user = {
-        id: idBaru(data.users), nama: bersih(nama), nim: nimNorm, email: emailBersih, password,
+        id: idBaru(data.users), nama: bersih(nama), nim: nimNorm, no_hp: telpNorm, email: emailBersih, password,
         role: 'alumni', status: 'verified', code: '', foto: '',
       };
       data.users.push(user);
@@ -809,6 +819,28 @@
           && (!dicari || [t.nama_alumni, t.kota, tracer.karir(t).ringkas, ...t.keahlian].join(' ').toLowerCase().includes(dicari)))
         .sort((a, b) => a.nama_alumni.localeCompare(b.nama_alumni));
     },
+
+    ubahNamaMitra(namaLama, namaBaru) {
+      const lama = bersih(namaLama);
+      const baru = bersih(namaBaru);
+      if (!baru) return gagal('Nama mitra wajib diisi.', 'nama_mitra');
+      if (lama === baru) return gagal('Nama mitra baru sama dengan nama saat ini.', 'nama_mitra');
+      const data = muat();
+      const targetIds = new Set();
+      data.tracer.forEach(t => {
+        if (STATUS_BEKERJA.includes(tracer.kategori(t)) && t.jns_job !== 'Wirausaha' && t.nama_job === lama) {
+          t.nama_job = baru;
+          t.updated_at = hariIni();
+          targetIds.add(t.id_alumni);
+        }
+      });
+      if (!targetIds.size) return gagal('Mitra tidak ditemukan.', 'nama_mitra');
+      (data.cv?.jobs || []).forEach(j => {
+        if (targetIds.has(j.id_alumni) && j.nama_job === lama) j.nama_job = baru;
+      });
+      simpan();
+      return { ok: true, jumlah: targetIds.size, nama: baru };
+    },
   };
 
   // ===================== STATISTIK (OTOMATIS DARI LMS-BENGKOD-API) =====================
@@ -879,12 +911,13 @@
         const idxB = (thn * 2 + k * 5) % namaBelakangLms.length;
         const nimNo = 14000 + (thn % 10) * 100 + k * 19;
         const nim = `A11.${thn - 4}.${nimNo}`;
+        const telp = `0812${String(20000000 + ((thn % 100) * 10000) + k * 137).slice(-8)}`;
         belum.push({
           id: null,
           nama: `${namaDepanLms[idx]} ${namaBelakangLms[idxB]}`,
           nim,
           email: `${nim.toLowerCase()}@mhs.dinus.ac.id`,
-          no_hp: '', // Di lms-bengkod-api tabel users hanya menyimpan identity_code, name, dan email
+          no_hp: telp,
           terdaftar: false,
           status_karir: '',
           updated_at: '',
