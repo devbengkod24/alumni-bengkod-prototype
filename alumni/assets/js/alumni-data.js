@@ -304,7 +304,7 @@ const INITIAL_POSTS = [
       perusahaan: "PT Kreasi Data Nusantara",
       posisi: "Data Analyst",
       level: "Junior (1-2 tahun)",
-      batas: "2026-11-27",
+      batas: "2026-12-15",
     },
     pengajuan: [
       {
@@ -313,8 +313,8 @@ const INITIAL_POSTS = [
         authorAvatar: DEFAULT_AVATAR,
         authorHeadline: "Data Scientist & Data Analyst | Undergraduate Student at Dian Nuswantoro University",
         pesan: "Halo Rafi! Saya tertarik dengan posisi Data Analyst ini. Saya terbiasa mengolah data dengan Python dan SQL, dan pernah membangun dashboard analisis sentimen untuk proyek Sentimeter AI.",
-        status: "masukan",
-        masukan: "Profilmu kuat di analisis data. Tambahkan contoh dashboard bisnis (SQL + BI) di portofolio, lalu ajukan lagi di periode berikutnya ya.",
+        status: "ditolak",
+        masukan: "Profilmu kuat di analisis data, namun saat ini tim membutuhkan kandidat yang sudah memiliki portofolio dashboard bisnis menggunakan SQL dan Looker Studio/Power BI. Kamu bisa lengkapi portofolio lalu ajukan ulang sebelum batas review.",
         waktu: "2026-11-06T10:20:00",
         no_hp: "081234567890",
         linkedin: "https://www.linkedin.com/in/aisharah",

@@ -103,6 +103,8 @@
         selectedCategoryTag: "",
         filterBudget: "",
         selectedAppIds: [],
+        openReasonGigIds: [],
+        openAcceptMsgGigIds: [],
         toast: "",
         toastTimer: null,
 
@@ -287,7 +289,8 @@
           }
 
           const applicants = target.applicants || [];
-          if (applicants.some(app => app.applicantId === profile.id)) {
+          const existingIdx = applicants.findIndex(app => app.applicantId === profile.id);
+          if (existingIdx !== -1 && gigApplicantStatus(applicants[existingIdx]) !== "rejected") {
             this.applyError = "Anda sudah mengajukan lamaran untuk proyek ini.";
             return;
           }
@@ -307,7 +310,7 @@
 
           const appliedAt = new Date();
           const applicant = {
-            id: "app-" + appliedAt.getTime() + "-" + profile.id,
+            id: existingIdx !== -1 ? applicants[existingIdx].id : ("app-" + appliedAt.getTime() + "-" + profile.id),
             applicantId: profile.id,
             applicantName: profile.name,
             applicantAvatar: profile.avatar,
@@ -317,31 +320,83 @@
             pitchMessage: pitch,
             portfolioUrl: portfolio,
             appliedDate: appliedAt.toISOString(),
-            status: "PENDING"
+            status: "PENDING",
+            rejectionReason: "",
+            acceptanceMessage: ""
           };
-          if (!saveBoardGig(target, { applicants: [...applicants, applicant] })) {
+          const nextApplicants = existingIdx !== -1
+            ? applicants.map((a, idx) => idx === existingIdx ? applicant : a)
+            : [...applicants, applicant];
+          if (!saveBoardGig(target, { applicants: nextApplicants })) {
             this.applyError = "Lamaran gagal disimpan. Coba lagi.";
             return;
           }
 
           this.gigs = loadBoardGigs();
           this.quickApplyModalOpen = false;
-          this.setToast("Lamaran proyek berhasil dikirim!");
+          this.setToast(existingIdx !== -1 ? "Lamaran berhasil diajukan ulang!" : "Lamaran proyek berhasil dikirim!");
+        },
+
+        toggleGigReason(gigId) {
+          if (this.openReasonGigIds.includes(gigId)) {
+            this.openReasonGigIds = this.openReasonGigIds.filter(id => id !== gigId);
+          } else {
+            this.openReasonGigIds = [...this.openReasonGigIds, gigId];
+          }
+        },
+
+        isGigReasonOpen(gigId) {
+          return this.openReasonGigIds.includes(gigId);
+        },
+
+        toggleGigAcceptMsg(gigId) {
+          if (this.openAcceptMsgGigIds.includes(gigId)) {
+            this.openAcceptMsgGigIds = this.openAcceptMsgGigIds.filter(id => id !== gigId);
+          } else {
+            this.openAcceptMsgGigIds = [...this.openAcceptMsgGigIds, gigId];
+          }
+        },
+
+        isGigAcceptMsgOpen(gigId) {
+          return this.openAcceptMsgGigIds.includes(gigId);
+        },
+
+        cpGigMailto(gig, app) {
+          const email = (gig && gig.ownerEmail) || "tim@perusahaan.com";
+          const title = (gig && gig.title) || (app && app.gigTitle) || "Proyek Alumni";
+          const subject = encodeURIComponent("Konfirmasi Proyek - " + title);
+          return `mailto:${email}?subject=${subject}`;
+        },
+
+        isGigClosed(gig) {
+          if (!gig) return true;
+          if (gig.status && gig.status !== "Terbuka") return true;
+          if (!gig.deadline) return false;
+          return gig.deadline < new Date().toISOString().slice(0, 10);
+        },
+
+        ajukanUlangGig(gig, app) {
+          if (!gig) return;
+          this.targetApplyGig = gig;
+          this.applyPitchMessage = (app && app.pitchMessage) || "";
+          this.applyPortfolioUrl = (app && app.portfolioUrl) || "";
+          this.applyError = "";
+          this.quickApplyModalOpen = true;
         },
 
         handleWithdrawApp(gigId) {
           const target = loadBoardGigs().find(gig => gig.id === gigId);
           const applicants = target?.applicants || [];
           const application = applicants.find(app => app.applicantId === profile.id);
-          if (!application || gigApplicantStatus(application) !== "pending") return;
-          if (!confirm("Tarik kembali lamaran untuk proyek ini?")) return;
+          if (!application || gigApplicantStatus(application) === "accepted") return;
+          if (!confirm("Batalkan lamaran untuk proyek ini?")) return;
           if (!saveBoardGig(target, { applicants: applicants.filter(app => app.id !== application.id) })) {
             this.setToast("Lamaran gagal ditarik. Coba lagi.");
             return;
           }
 
           this.gigs = loadBoardGigs();
-          this.setToast("Lamaran berhasil ditarik.");
+          this.setToast("Lamaran berhasil dibatalkan.");
         },
 
         openEditGigModal(gig) {
@@ -735,16 +790,58 @@
                 </template>
               </div>
 
-              <!-- Deskripsi singkat (2 baris) -->
-              <p class="text-[13.5px] text-[#374151] line-clamp-2 leading-relaxed" x-text="(gigs.find(g => g.id === app.gigId) && gigs.find(g => g.id === app.gigId).description) || app.pitchMessage || ''"></p>
+              <!-- Deskripsi singkat + Teks biru Alasan / Pesan dari Pemilik Proyek -->
+              <div>
+                <p class="text-[13.5px] text-[#374151] line-clamp-2 leading-relaxed" x-text="(gigs.find(g => g.id === app.gigId) && gigs.find(g => g.id === app.gigId).description) || app.pitchMessage || ''"></p>
 
-              <!-- Footer: Diajukan di kiri, Tarik Lamaran + Status di kanan -->
-              <div class="flex items-center justify-between gap-2 pt-3">
+                <!-- Alasan Belum Diterima (khusus status ditolak, teks biru klik -> teks hitam biasa di bawahnya) -->
+                <template x-if="applicantStatus(app) === 'rejected'">
+                  <div class="mt-0.5">
+                    <button type="button"
+                            @click="toggleGigReason(app.gigId)"
+                            class="block text-left text-[13.5px] font-medium leading-relaxed text-[#326ECE] hover:underline cursor-pointer">
+                      Alasan Belum Diterima
+                    </button>
+                    <p x-show="isGigReasonOpen(app.gigId)"
+                       x-cloak
+                       class="mt-0.5 text-[13.5px] leading-relaxed text-[#0C1117]"
+                       x-text="app.rejectionReason || 'Belum ada catatan tambahan dari pemilik proyek.'"></p>
+                  </div>
+                </template>
+
+                <!-- Pesan dari Pemilik Proyek (khusus status diterima, teks biru klik -> teks hitam biasa di bawahnya) -->
+                <template x-if="applicantStatus(app) === 'accepted'">
+                  <div class="mt-0.5">
+                    <button type="button"
+                            @click="toggleGigAcceptMsg(app.gigId)"
+                            class="block text-left text-[13.5px] font-medium leading-relaxed text-[#326ECE] hover:underline cursor-pointer">
+                      Pesan dari Pemilik Proyek
+                    </button>
+                    <p x-show="isGigAcceptMsgOpen(app.gigId)"
+                       x-cloak
+                       class="mt-0.5 text-[13.5px] leading-relaxed text-[#0C1117]"
+                       x-text="app.acceptanceMessage || 'Selamat! Pengajuan Anda pada proyek ini diterima. Silakan hubungi CP melalui email kantor.'"></p>
+                  </div>
+                </template>
+              </div>
+
+              <!-- Footer: Diajukan di kiri, Aksi + Status di kanan -->
+              <div class="flex flex-wrap items-center justify-between gap-2 pt-3">
                 <span class="text-[12.5px] text-[#6B7280]" x-text="'Diajukan ' + formatDate(app.appliedDate)"></span>
-                <div class="flex items-center gap-2">
-                  <button type="button" x-show="applicantStatus(app) !== 'rejected'" @click="handleWithdrawApp(app.gigId)" class="h-9 px-3.5 rounded-[8px] border border-[#B4325F]/30 bg-white hover:bg-[#FAD9E9]/40 text-[#B4325F] text-[13px] font-medium transition-colors cursor-pointer">
-                    Tarik Lamaran
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="button" x-show="applicantStatus(app) !== 'accepted'" @click="handleWithdrawApp(app.gigId)" class="h-9 px-3.5 rounded-[8px] border border-[#B4325F]/30 bg-white hover:bg-[#FAD9E9]/40 text-[#B4325F] text-[13px] font-medium transition-colors cursor-pointer">
+                    Batalkan Lamaran
                   </button>
+                  <template x-if="applicantStatus(app) === 'rejected' && !isGigClosed(gigs.find(g => g.id === app.gigId))">
+                    <button type="button" @click="ajukanUlangGig(gigs.find(g => g.id === app.gigId), app)" class="h-9 px-3.5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-semibold transition-colors cursor-pointer">
+                      Ajukan Ulang
+                    </button>
+                  </template>
+                  <template x-if="applicantStatus(app) === 'accepted'">
+                    <a :href="cpGigMailto(gigs.find(g => g.id === app.gigId), app)" class="h-9 px-3.5 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer">
+                      Hubungi CP <span aria-hidden="true">↗</span>
+                    </a>
+                  </template>
                   <span class="h-9 px-4 rounded-[8px] text-[13px] font-semibold inline-flex items-center"
                         :class="{
                           'bg-[#FDF0DD] text-[#B26A12] border border-[#F6D8A8]': applicantStatus(app) === 'pending',

@@ -23,6 +23,8 @@ function bengkodGigPelamar() {
     rejectTarget: null,
     rejectReason: "",
     rejectError: "",
+    acceptTarget: null,
+    acceptMessage: "",
     toast: "",
     toastTimer: null,
     applicantStatus: gigApplicantStatus,
@@ -134,17 +136,28 @@ function bengkodGigPelamar() {
     },
 
     submitRejection() {
-      const reason = this.rejectReason.trim();
-      if (!reason || reason.length > 500) {
-        this.rejectError = "Isi alasan penolakan dengan maksimal 500 karakter.";
-        return;
-      }
+      const reason = this.rejectReason.trim().slice(0, 500);
       if (this.rejectTarget && this.decide(this.rejectTarget.id, "REJECTED", reason)) {
         this.$refs.rejectDialog.close();
       }
     },
 
-    decide(applicantId, status, reason = "") {
+    openAccept(app) {
+      if (gigApplicantStatus(app) !== "pending") return;
+      this.acceptTarget = app;
+      const title = (this.gig && this.gig.title) || "proyek ini";
+      this.acceptMessage = `Selamat ${app.applicantName}! Profil Anda sesuai untuk berkolaborasi di ${title}. Silakan kirimkan email konfirmasi ke tim@perusahaan.com untuk jadwal onboarding.`;
+      this.$refs.acceptDialog.showModal();
+    },
+
+    submitAccept() {
+      const message = this.acceptMessage.trim().slice(0, 500);
+      if (this.acceptTarget && this.decide(this.acceptTarget.id, "ACCEPTED", message)) {
+        this.$refs.acceptDialog.close();
+      }
+    },
+
+    decide(applicantId, status, note = "") {
       const gig = readProject();
       const applicant = gig?.applicants?.find(app => app.id === applicantId);
       const notifyError = message => {
@@ -157,14 +170,15 @@ function bengkodGigPelamar() {
         return false;
       }
       const decision = { status };
-      if (status === "REJECTED") decision.rejectionReason = reason;
+      if (status === "REJECTED") decision.rejectionReason = note;
+      if (status === "ACCEPTED") decision.acceptanceMessage = note;
       const applicants = gig.applicants.map(app => app.id === applicantId ? { ...app, ...decision } : app);
       if (!saveBoardGig(gig, { applicants })) {
         notifyError("Keputusan gagal disimpan. Coba lagi.");
         return false;
       }
       this.gig = readProject();
-      this.setToast(status === "REJECTED" ? "Penolakan dan alasannya disimpan." : "Pengajuan diterima.");
+      this.setToast(status === "REJECTED" ? "Penolakan dan saran disimpan." : "Pengajuan diterima.");
       return true;
     },
 
