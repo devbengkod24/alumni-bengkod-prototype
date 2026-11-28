@@ -125,12 +125,14 @@
   };
 
   const KOLOM_EKSPOR = [
-    ['nama_alumni', 'Nama'], ['jns_kelamin', 'Jenis Kelamin'], ['nim', 'NIM'], ['tahun_masuk', 'Tahun Masuk'], ['tahun_lulus', 'Tahun Lulus'],
-    ['no_hp', 'No WhatsApp'], ['email', 'Email'], ['linkedin', 'LinkedIn'], ['status', 'Status'], ['bidang_job', 'Bidang Pekerjaan'], ['jns_job', 'Kategori Pekerjaan'],
+    ['nama_alumni', 'Nama'], ['jns_kelamin', 'Jenis Kelamin'], ['tahun_lulus', 'Tahun Lulus'],
+    ['no_hp', 'No WhatsApp'], ['email', 'Email'], ['linkedin', 'LinkedIn'], ['status', 'Status'], ['jns_job', 'Kategori Pekerjaan'],
     ['nama_job', 'Tempat Kerja'], ['jabatan_job', 'Jabatan'], ['lingkup_job', 'Tingkat Pekerjaan'], ['biaya_studi', 'Biaya Studi'],
     ['nama_studi', 'Nama Universitas'], ['prodi', 'Program Studi'], ['tgl_studi', 'Tanggal Studi'],
     ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
   ];
+
+  const tahunLulusTracer = t => (t ? (t.tahun_lulus || DB.tahunLulusDariNim(t.nim) || (t.tahun_masuk ? Number(t.tahun_masuk) + 4 : '') || '') : '');
 
   const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '', mitra: '' });
   let activeFilter = DEFAULT_FILTER();
@@ -156,12 +158,11 @@
       ? `<img src="${esc(a.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral4">`
       : `<span class="w-9 h-9 rounded-full bg-primary5 text-primary1 font-semibold text-[12px] flex items-center justify-center shrink-0">${esc(inisial(a.nama))}</span>`;
     const href = `profil-alumni.html?id=${a.id}`;
-    const nimLabel = t?.nim || a.nim;
+    const lulus = tahunLulusTracer(t);
     const metaParts = [
-      nimLabel ? esc(nimLabel) : '',
-      `Angkatan ${esc(t?.tahun_lulus || '-')}`,
+      lulus ? `Lulus Tahun ${esc(lulus)}` : 'Lulus Tahun -',
       isS2(t) ? 'S2' : 'S1',
-    ].filter(Boolean).join(' · ');
+    ].join(' · ');
     const domisili = t?.kota ? esc(t.kota) : '';
     const waLink = t?.no_hp
       ? `<a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-primary2 hover:underline font-medium">WhatsApp</a>`
@@ -233,7 +234,7 @@
   }
 
   const tracerAlumni = DB.akun.alumni().map(a => DB.tracer.milik(a.id)).filter(Boolean);
-  const daftarAngkatan = [...new Set(tracerAlumni.map(t => String(t.tahun_lulus)))].sort((a, b) => Number(b) - Number(a));
+  const daftarTahunLulus = [...new Set(tracerAlumni.map(t => String(tahunLulusTracer(t))).filter(Boolean))].sort((a, b) => Number(b) - Number(a));
   const daftarMitra = [...new Set(
     tracerAlumni
       .filter(t => DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) && t.jns_job !== 'Wirausaha' && t.nama_job)
@@ -248,8 +249,8 @@
       options: [
         { value: '', label: 'Default' },
         { value: 'nama-asc', label: 'Nama (A–Z)' },
-        { value: 'angkatan-desc', label: 'Angkatan Terbaru' },
-        { value: 'angkatan-asc', label: 'Angkatan Terlama' },
+        { value: 'lulus-desc', label: 'Tahun Lulus Terbaru' },
+        { value: 'lulus-asc', label: 'Tahun Lulus Terlama' },
       ],
     },
     {
@@ -263,9 +264,9 @@
     },
     {
       key: 'batch',
-      railLabel: 'Angkatan',
-      title: 'Angkatan',
-      options: daftarAngkatan.map(v => ({ value: v, label: `Angkatan ${v}` })),
+      railLabel: 'Tahun Lulus',
+      title: 'Tahun Lulus',
+      options: daftarTahunLulus.map(v => ({ value: v, label: `Lulus Tahun ${v}` })),
     },
     {
       key: 'mitra',
@@ -279,9 +280,9 @@
     if (!sort) return list;
     const salinan = [...list];
     if (sort === 'nama-asc') return salinan.sort((a, b) => (a.nama || '').localeCompare(b.nama || '', 'id'));
-    const angkatan = a => Number(DB.tracer.milik(a.id)?.tahun_lulus || 0);
-    if (sort === 'angkatan-desc') return salinan.sort((a, b) => angkatan(b) - angkatan(a) || (a.nama || '').localeCompare(b.nama || '', 'id'));
-    if (sort === 'angkatan-asc') return salinan.sort((a, b) => angkatan(a) - angkatan(b) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    const tahunLulus = a => Number(tahunLulusTracer(DB.tracer.milik(a.id)) || 0);
+    if (sort === 'lulus-desc') return salinan.sort((a, b) => tahunLulus(b) - tahunLulus(a) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    if (sort === 'lulus-asc') return salinan.sort((a, b) => tahunLulus(a) - tahunLulus(b) || (a.nama || '').localeCompare(b.nama || '', 'id'));
     return salinan;
   }
 
@@ -295,7 +296,7 @@
       const teksCari = `${a.nama} ${karir.tempat || ''} ${t?.nama_studi || ''} ${t?.nama_sampingan || ''}`.toLowerCase();
       if (kata && !teksCari.includes(kata)) return false;
       if (!cocokStatus(t, status)) return false;
-      if (batch && String(t?.tahun_lulus) !== batch) return false;
+      if (batch && String(tahunLulusTracer(t)) !== batch) return false;
       if (mitra && (!DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) || t?.jns_job === 'Wirausaha' || t?.nama_job !== mitra)) return false;
       return true;
     });
@@ -493,8 +494,11 @@
   pasangToolsTabel('alat', 'data-alumni.csv', () => [
     KOLOM_EKSPOR.map(([, label]) => label),
     ...filterAlumni(DB.akun.alumni()).map(a => {
-      const t = DB.tracer.milik(a.id) || { nama_alumni: a.nama, email: a.email, nim: a.nim || '' };
-      return KOLOM_EKSPOR.map(([k]) => [t[k] ?? ''].flat().join(', '));
+      const t = DB.tracer.milik(a.id) || { nama_alumni: a.nama, email: a.email };
+      return KOLOM_EKSPOR.map(([k]) => {
+        const val = k === 'angkatan' ? angkatanNim(t) : (t[k] ?? '');
+        return [val].flat().join(', ');
+      });
     }),
   ], { salin: false });
 

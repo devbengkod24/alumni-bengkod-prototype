@@ -66,10 +66,7 @@
             <p id="error-password" class="hidden text-[11px] leading-tight text-red-600 mt-0.5" role="alert"></p>
           </div>
 
-          <div class="flex items-center justify-between gap-2 mt-1">
-            <a href="register.html" class="inline-flex items-center min-h-[28px] lg:min-h-[32px] font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
-              Klaim akun alumni
-            </a>
+          <div class="flex items-center justify-end mt-1">
             <a href="lupa-password.html" class="inline-flex items-center min-h-[28px] lg:min-h-[32px] font-semibold text-[12px] lg:text-[13px] leading-[1.4] text-[#1E3A8A] hover:underline focus:outline-none focus:ring-2 focus:ring-[#1E3A8A]/30 rounded">
               Lupa kata sandi?
             </a>
@@ -82,7 +79,23 @@
         </form>
       `,
       afterFormHtml: `
-        <div class="mt-2.5 lg:mt-3 p-2.5 lg:p-3 rounded-[12px] bg-[#EDF3FF]/75 border border-[#D9E3F4]">
+        <div class="mt-2.5 p-2.5 lg:p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-start gap-2.5">
+          <svg class="w-4 h-4 text-blue-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <div>
+            <p class="text-[12.5px] lg:text-[13.5px] font-semibold text-blue-800 leading-snug mb-0.5">Alumni Asisten Lab Bengkel Koding?</p>
+            <p class="text-[11.5px] lg:text-xs text-blue-600 leading-relaxed">
+              Belum punya akun portal?
+              <a href="register.html" class="underline font-semibold hover:text-blue-800">Klaim akun alumni</a>
+              menggunakan NIM dan nomor telepon terdaftar di LMS.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-2.5 p-2.5 lg:p-3 rounded-[12px] bg-[#EDF3FF]/75 border border-[#D9E3F4]">
           <div class="flex items-center justify-between gap-2 mb-1.5">
             <p class="text-[11px] lg:text-[12px] font-semibold text-[#1E3A8A]">Akun contoh semua role (klik isi cepat)</p>
             <button type="button" id="btn-reset-demo" class="text-[11px] font-medium text-[#2563EB] hover:text-[#1E3A8A] underline underline-offset-2 cursor-pointer shrink-0">

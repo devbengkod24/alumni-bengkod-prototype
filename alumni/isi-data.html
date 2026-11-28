@@ -142,7 +142,7 @@
       document.getElementById('sapaan').textContent =
         `Selamat datang, ${SAYA.nama}. Isi data ini sekali saja sebelum masuk. Setelah disimpan, Anda akan langsung masuk ke Profil Saya.`;
 
-      const existing = DB.tracer.milik(SAYA.id) || (SAYA.nim ? { nim: SAYA.nim } : null);
+      const existing = DB.tracer.milik(SAYA.id);
       formTracer(document.getElementById('isi'), existing, () => {
         try {
           sessionStorage.setItem('bengkod_toast', 'Data awal berhasil disimpan. Selamat datang di Portal Alumni!');
@@ -151,7 +151,6 @@
       });
 
       const placeholderMap = {
-        nim: 'Contoh: A11.2020.12345',
         tahun_masuk: 'Contoh: 2020',
         tahun_lulus: 'Contoh: 2024',
         no_hp: 'Contoh: 081234567890',

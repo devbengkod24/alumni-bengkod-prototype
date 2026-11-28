@@ -19,7 +19,7 @@
     <div>
       <h1 class="!text-[26px] font-semibold text-headline">Lacak Alumni</h1>
       <p class="!text-[13.5px] text-neutral3 mt-1">
-        Pantau cakupan alumni asisten laboratorium Bengkel Koding yang terdaftar di portal tiap angkatan.
+        Pantau cakupan alumni asisten laboratorium Bengkel Koding yang terdaftar di portal tiap tahun lulus.
       </p>
     </div>
 
@@ -32,7 +32,7 @@
         <div class="min-w-0">
           <p class="!text-[13.5px] text-neutral1 leading-relaxed">
             Data tersinkronisasi otomatis dari <code class="px-1.5 py-0.5 rounded bg-white border border-[#B7C8E0] text-[12px] font-semibold text-[#3A5988]">lms-bengkod-api</code>.
-            Total asisten dihitung dari akun asisten lab aktif berumur <strong>≥ 1 tahun</strong> berdasarkan tahun pada NIM.
+            Total asisten dihitung dari akun asisten lab yang tahun NIM-nya telah memasuki masa kelulusan (<strong>mulai Maret tahun ke-4 / Semester 8</strong>) dan dikelompokkan berdasarkan estimasi tahun lulus (<code>tahun NIM + 4</code>).
           </p>
           <p id="status-sinkron-lms" class="!text-[12px] font-medium text-neutral3 mt-1"></p>
         </div>
@@ -50,8 +50,8 @@
     <section class="bg-white rounded-[16px] border border-neutral4 shadow-sm overflow-hidden" aria-labelledby="judul-cakupan">
       <div class="px-4 sm:px-6 py-4 border-b border-neutral4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 id="judul-cakupan" class="!text-[16px] font-semibold text-headline">Rekap Cakupan per Angkatan</h2>
-          <p class="!text-[12.5px] text-neutral3 mt-0.5">Target adopsi portal minimal 50% dari total asisten tiap angkatan.</p>
+          <h2 id="judul-cakupan" class="!text-[16px] font-semibold text-headline">Rekap Cakupan per Tahun Lulus</h2>
+          <p class="!text-[12.5px] text-neutral3 mt-0.5">Target adopsi portal minimal 50% dari total asisten tiap tahun lulus.</p>
         </div>
         <div id="alat-statistik" class="flex flex-wrap gap-2 no-print"></div>
       </div>
@@ -59,7 +59,7 @@
         <table class="w-full text-left border-collapse">
           <thead>
             <tr class="border-b border-neutral4 bg-[#F8FAFC] text-[12.5px] font-semibold text-neutral3">
-              <th class="py-3 pl-4 sm:pl-6 pr-4 font-semibold whitespace-nowrap">Angkatan</th>
+              <th class="py-3 pl-4 sm:pl-6 pr-4 font-semibold whitespace-nowrap">Tahun Lulus</th>
               <th class="py-3 px-4 font-semibold text-right whitespace-nowrap">Total Asisten (LMS)</th>
               <th class="py-3 px-4 font-semibold text-right whitespace-nowrap">Terdaftar di Portal</th>
               <th class="py-3 px-4 font-semibold min-w-[180px]">Cakupan Adopsi</th>
@@ -89,9 +89,9 @@
     }
 
     document.getElementById('kpi-statistik').innerHTML = [
-      { label: 'Total Asisten di LMS (≥ 1 Thn)', nilai: totalLms, sub: 'Terdata berdasarkan tahun NIM', ikon: 'users', warna: 'bg-[#E2F1F9] text-[#3A5988]' },
-      { label: 'Alumni Terdaftar di Portal', nilai: totalPortal, sub: 'Lolos verifikasi NIM registrasi', ikon: 'user-check', warna: 'bg-emerald-50 text-emerald-700' },
-      { label: 'Rata-rata Rasio Adopsi', nilai: `${rasioTotal}%`, sub: 'Cakupan keseluruhan angkatan', ikon: 'trending-up', warna: 'bg-[#FDF0DD] text-[#B26A12]' },
+      { label: 'Total Asisten di LMS (Layak Lulus)', nilai: totalLms, sub: 'Dikelompokkan per tahun lulus dari tahun NIM', ikon: 'users', warna: 'bg-[#E2F1F9] text-[#3A5988]' },
+      { label: 'Alumni Terdaftar di Portal', nilai: totalPortal, sub: 'Lolos verifikasi klaim akun', ikon: 'user-check', warna: 'bg-emerald-50 text-emerald-700' },
+      { label: 'Rata-rata Rasio Adopsi', nilai: `${rasioTotal}%`, sub: 'Cakupan keseluruhan tahun lulus', ikon: 'trending-up', warna: 'bg-[#FDF0DD] text-[#B26A12]' },
     ].map(k => `
       <div class="bg-white rounded-[16px] border border-neutral4 shadow-sm p-4 sm:p-5 flex items-center gap-3.5">
         <div class="w-11 h-11 rounded-[12px] ${k.warna} flex items-center justify-center shrink-0"><i data-lucide="${k.ikon}" class="w-5 h-5"></i></div>
@@ -108,7 +108,7 @@
       const href = `detail-kelulusan.html?tahun=${s.tahun_lulus}`;
       return `
       <tr class="hover:bg-[#F8FAFC] transition-colors group">
-        <td class="py-3.5 pl-4 sm:pl-6 pr-4 font-semibold text-headline whitespace-nowrap tabular-nums">Angkatan ${s.tahun_lulus}</td>
+        <td class="py-3.5 pl-4 sm:pl-6 pr-4 font-semibold text-headline whitespace-nowrap tabular-nums">Lulus Tahun ${s.tahun_lulus}</td>
         <td class="py-3.5 px-4 text-right tabular-nums font-medium text-neutral2">${s.alumni_total}</td>
         <td class="py-3.5 px-4 text-right tabular-nums font-semibold text-[#3A5988]">${s.alumni_terlacak}</td>
         <td class="py-3.5 px-4">
@@ -132,12 +132,12 @@
   function sinkronDataLms() {
     DB.statistik.sinkronLms();
     renderStatistik();
-    showToast('Data angkatan berhasil disinkronkan dengan lms-bengkod-api.');
+    showToast('Data tahun lulus berhasil disinkronkan dengan lms-bengkod-api.');
   }
 
-  pasangToolsTabel('alat-statistik', 'cakupan-per-angkatan.csv', () => [
-    ['Angkatan', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
-    ...DB.statistik.semua().map(s => [s.tahun_lulus, s.alumni_total, s.alumni_terlacak, `${cakupan(s)}%`]),
+  pasangToolsTabel('alat-statistik', 'cakupan-per-tahun-lulus.csv', () => [
+    ['Tahun Lulus', 'Total Asisten (LMS)', 'Alumni Terdaftar (Portal)', 'Persentase Cakupan'],
+    ...DB.statistik.semua().map(s => [`Lulus Tahun ${s.tahun_lulus}`, s.alumni_total, s.alumni_terlacak, `${cakupan(s)}%`]),
   ], { salin: false });
 
   renderStatistik();

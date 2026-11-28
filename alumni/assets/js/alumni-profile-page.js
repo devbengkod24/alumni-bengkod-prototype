@@ -138,11 +138,6 @@ ALUMNI_PARTIALS["profile-top"] = ({ variant }) => {
               </div>`}
             </div>
 
-            <!-- NIM di bawah nama (edit intro), font dan spasi persis sama dengan headline -->
-            <template x-if="profile.nim">
-              <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed" x-text="'NIM: ' + profile.nim"></p>
-            </template>
-
             <!-- Headline Profesi -->
             <p class="text-[14px] sm:text-[15px] text-gray-700 font-normal leading-relaxed max-w-3xl" x-text="profile.headline"></p>
 
@@ -980,7 +975,6 @@ function profilePageData(variant = "profil", extra = {}, initialData = null) {
       const tracer = user ? DB.tracer.milik(user.id) || {} : {};
       const hasil = this.simpanKeTracer(
         {
-          nim: next.nim || tracer.nim,
           no_hp: next.whatsapp || tracer.no_hp,
           kota: next.city || tracer.kota,
           linkedin: next.linkedin || tracer.linkedin,

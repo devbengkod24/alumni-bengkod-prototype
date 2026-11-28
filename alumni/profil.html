@@ -106,6 +106,8 @@
         toast: '',
         toastTimer: null,
         modalError: '',
+        avatarFileName: '',
+        avatarReading: false,
         
         // Modals state
         avatarModalOpen: false,
@@ -378,10 +380,14 @@
 
         openAvatarModal() {
           this.avatarUrlDraft = this.profile.avatarUrl;
+          this.avatarFileName = '';
+          this.avatarReading = false;
+          this.modalError = '';
           this.avatarModalOpen = true;
         },
 
         saveAvatar() {
+          if (this.avatarReading) return;
           if (this.avatarUrlDraft && this.avatarUrlDraft.trim()) {
             try {
               this.profile = saveProfilSaya({ avatarUrl: this.avatarUrlDraft.trim() });
@@ -394,14 +400,20 @@
           this.setToast('Foto profil berhasil diperbarui');
         },
 
-        handleAvatarUpload(e) {
-          const file = e.target.files && e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-              this.avatarUrlDraft = evt.target.result;
-            };
-            reader.readAsDataURL(file);
+        async handleAvatarUpload(e) {
+          const input = e.target;
+          const file = input.files && input.files[0];
+          if (!file || this.avatarReading) return;
+          this.avatarReading = true;
+          this.modalError = '';
+          try {
+            this.avatarUrlDraft = await readProfileImage(file, 1);
+            this.avatarFileName = file.name;
+          } catch (error) {
+            this.modalError = error.message || 'Gambar gagal dibaca.';
+          } finally {
+            this.avatarReading = false;
+            input.value = '';
           }
         },
 
@@ -660,7 +672,7 @@
           <img :src="profile.coverImageUrl" alt="" class="absolute inset-0 h-full w-full object-cover">
         </template>
         <div class="relative flex justify-end">
-          <span class="rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]" x-text="'Alumni ' + profile.batch"></span>
+          <span class="rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]" x-text="'Lulus Tahun ' + profile.batch"></span>
         </div>
       </div>
       <div class="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 px-4 pb-4 sm:gap-5 sm:px-6 sm:pb-5">
@@ -935,21 +947,37 @@
       </header>
       <div class="profile-dialog-body space-y-4 text-[14px]">
         <div class="flex justify-center">
-          <img :src="avatarUrlDraft || profile.avatarUrl" class="w-24 h-24 rounded-[16px] object-cover border-2 border-[#3A5988]">
+          <img :src="avatarUrlDraft || profile.avatarUrl" alt="Pratinjau foto profil" class="h-24 w-24 rounded-[16px] border-2 border-[#3A5988] bg-[#F4F5F7] object-cover shadow-xs">
+        </div>
+        <div class="space-y-2 text-left text-[13px]">
+          <label for="modal-avatar-file" class="block font-semibold text-[#0C1117]">Unggah Berkas Baru</label>
+          <div class="flex flex-wrap items-center gap-3 rounded-[10px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-3 py-2.5">
+            <input id="modal-avatar-file" autofocus type="file" accept="image/jpeg,image/png,image/webp" :disabled="avatarReading"
+                   @change="handleAvatarUpload($event)" aria-describedby="modal-avatar-help" class="peer sr-only">
+            <label for="modal-avatar-file"
+                   class="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[8px] border border-[#CBD5E1] bg-white px-3.5 text-[13px] font-semibold text-[#3A5988] shadow-xs transition-colors hover:border-[#3A5988] hover:bg-[#EBF3FB] peer-focus-visible:ring-2 peer-focus-visible:ring-[#3A5988] peer-focus-visible:ring-offset-1 peer-disabled:pointer-events-none peer-disabled:opacity-50">
+              <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+              </svg>
+              <span x-text="avatarFileName ? 'Ganti Berkas' : 'Pilih Foto'"></span>
+            </label>
+            <span class="min-w-0 flex-1 truncate text-[12.5px] text-[#4B5563]"
+                  x-text="avatarReading ? 'Memuat pratinjau…' : (avatarFileName || 'Belum ada berkas dipilih')"></span>
+          </div>
+          <p id="modal-avatar-help" class="text-[12px] text-[#6B7280]">Format JPG, PNG, atau WebP persegi hingga 1 MB.</p>
         </div>
         <div class="space-y-1.5 text-left text-[13px]">
-          <label class="block font-semibold text-[#0C1117]">Unggah Berkas Baru</label>
-          <input autofocus type="file" accept="image/*" @change="handleAvatarUpload($event)" class="w-full text-[12px] text-[#6B7280]">
-        </div>
-        <div class="space-y-1.5 text-left text-[13px]">
-          <label class="block font-semibold text-[#0C1117]">Atau Masukkan URL Gambar</label>
-          <input type="url" x-model="avatarUrlDraft" placeholder="https://..." class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
+          <label for="modal-avatar-url" class="block font-semibold text-[#0C1117]">Atau Masukkan URL Gambar</label>
+          <input id="modal-avatar-url" type="url"
+                 :value="avatarUrlDraft && avatarUrlDraft.startsWith('data:') ? '' : avatarUrlDraft"
+                 @input="avatarUrlDraft = $event.target.value; avatarFileName = ''; modalError = ''"
+                 placeholder="https://..." class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
         </div>
         <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
       <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
         <button type="button" @click="avatarModalOpen = false" class="profile-action">Batal</button>
-        <button type="submit" class="profile-action profile-action-primary">Terapkan Foto</button>
+        <button type="submit" :disabled="avatarReading" class="profile-action profile-action-primary disabled:opacity-50">Terapkan Foto</button>
       </footer>
     </form>
   </dialog>

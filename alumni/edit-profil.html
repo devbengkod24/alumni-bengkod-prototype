@@ -18,55 +18,90 @@
   <script src="assets/js/portal-layout.js"></script>
 </head>
 <body class="h-full bg-[#EFF2F7] text-[#212224] antialiased selection:bg-[#3A5988] selection:text-white" x-data="editProfilPage()">
-  <main data-profile-page="edit" class="mx-auto w-full max-w-[960px] flex-1 space-y-5 p-4 sm:p-6 lg:p-8">
+  <main data-profile-page="edit" class="mx-auto w-full max-w-[1400px] flex-1 space-y-6 p-4 sm:p-6 lg:p-8">
     <div>
+      <a href="profil.html" class="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-[#6B7280] hover:text-[#3A5988] transition-colors mb-3">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        <span>Kembali ke Profil Saya</span>
+      </a>
       <h1 class="text-[26px] font-semibold tracking-[-0.01em] text-[#0C1117]">Edit Profil</h1>
       <p class="mt-1 text-[14px] text-[#6B7280]">Perbarui biodata, kontak, dan ringkasan profil alumni.</p>
     </div>
 
-    <form @submit.prevent="saveProfile()" class="rounded-[16px] border border-[#E3E4E9] bg-white shadow-sm">
-      <div class="space-y-4 p-5 text-[14px] sm:p-6">
-        <div class="space-y-2">
-          <label for="profil-banner" class="block font-semibold text-[#0C1117]">Banner Profil</label>
-          <div class="profile-cover relative overflow-hidden rounded-[10px] bg-[#3A5988]">
-            <template x-if="draft.coverImageUrl">
-              <img :src="draft.coverImageUrl" alt="Pratinjau banner profil" class="absolute inset-0 h-full w-full object-cover">
-            </template>
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-2">
+    <form @submit.prevent="saveProfile()" class="overflow-hidden rounded-[16px] border border-[#E3E4E9] bg-white shadow-sm">
+      <!-- Header Visual ala Profil: Banner Penuh + Foto Profil Overlapping -->
+      <div class="border-b border-[#E3E4E9]">
+        <div class="profile-cover relative flex items-start justify-end overflow-hidden bg-[#3A5988] px-4 py-3 sm:px-6">
+          <template x-if="draft.coverImageUrl">
+            <img :src="draft.coverImageUrl" alt="Pratinjau banner profil" class="absolute inset-0 h-full w-full object-cover">
+          </template>
+          <div class="relative z-10 flex flex-wrap items-center justify-end gap-2">
             <input id="profil-banner" type="file" accept="image/jpeg,image/png,image/webp" :disabled="!!imageReading"
-                   @change="selectImage($event, 'coverImageUrl', 2)" aria-describedby="profil-banner-help" class="max-w-full text-[13px]">
+                   @change="selectImage($event, 'coverImageUrl', 2)" aria-describedby="profil-media-help" class="peer sr-only">
+            <label for="profil-banner"
+                   class="inline-flex h-8 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-white/80 bg-white/95 px-3 text-[12px] font-semibold text-[#3A5988] shadow-sm transition-colors hover:bg-white peer-focus-visible:ring-2 peer-focus-visible:ring-[#3A5988] peer-focus-visible:ring-offset-1 peer-disabled:pointer-events-none peer-disabled:opacity-50">
+              <svg class="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+              </svg>
+              <span x-text="draft.coverImageUrl ? 'Ganti Banner' : 'Pilih Banner'"></span>
+            </label>
             <button type="button" x-show="draft.coverImageUrl" x-cloak :disabled="!!imageReading"
-                    @click="draft.coverImageUrl = ''; imageErrors.coverImageUrl = ''" class="profile-action disabled:opacity-50">Hapus Banner</button>
+                    @click="draft.coverImageUrl = ''; fileNames.coverImageUrl = ''; imageErrors.coverImageUrl = ''"
+                    class="inline-flex h-8 shrink-0 items-center rounded-full border border-red-200 bg-white/95 px-3 text-[12px] font-semibold text-red-700 shadow-sm transition-colors hover:bg-red-50 disabled:opacity-50">
+              Hapus
+            </button>
           </div>
-          <p id="profil-banner-help" class="text-[12px] text-[#6B7280]">Gambar horizontal JPG, PNG, atau WebP hingga 2 MB.</p>
-          <p x-show="imageReading === 'coverImageUrl'" x-cloak role="status" class="text-[12px] text-[#6B7280]">Memuat pratinjau…</p>
-          <p x-show="imageErrors.coverImageUrl" x-cloak x-text="imageErrors.coverImageUrl" role="alert" class="text-[13px] text-red-700"></p>
         </div>
 
-        <div class="space-y-2">
-          <label for="profil-foto" class="block font-semibold text-[#0C1117]">Foto Profil</label>
-          <div class="flex flex-wrap items-center gap-3">
-            <img :src="draft.avatarUrl" alt="Pratinjau foto profil" class="h-20 w-20 shrink-0 rounded-[12px] border border-[#E3E4E9] bg-[#F4F5F7] object-cover">
-            <div class="min-w-0 space-y-1.5">
-              <input id="profil-foto" type="file" accept="image/jpeg,image/png,image/webp" :disabled="!!imageReading"
-                     @change="selectImage($event, 'avatarUrl', 1)" aria-describedby="profil-foto-help" class="max-w-full text-[13px]">
-              <p id="profil-foto-help" class="text-[12px] text-[#6B7280]">JPG, PNG, atau WebP hingga 1 MB.</p>
-              <p x-show="imageReading === 'avatarUrl'" x-cloak role="status" class="text-[12px] text-[#6B7280]">Memuat pratinjau…</p>
-              <p x-show="imageErrors.avatarUrl" x-cloak x-text="imageErrors.avatarUrl" role="alert" class="text-[13px] text-red-700"></p>
+        <div class="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-4 px-5 pb-5 sm:gap-5 sm:px-8 sm:pb-6">
+          <div class="relative -mt-10 aspect-square w-24 shrink-0 sm:-mt-12 sm:w-32">
+            <input id="profil-foto" type="file" accept="image/jpeg,image/png,image/webp" :disabled="!!imageReading"
+                   @change="selectImage($event, 'avatarUrl', 1)" aria-describedby="profil-media-help" class="peer sr-only">
+            <label for="profil-foto"
+                   class="group relative block h-full w-full cursor-pointer overflow-hidden rounded-[12px] border-4 border-white bg-[#E2F1F9] shadow-sm peer-focus-visible:ring-2 peer-focus-visible:ring-[#3A5988] peer-focus-visible:ring-offset-1 peer-disabled:pointer-events-none peer-disabled:opacity-60">
+              <img :src="draft.avatarUrl" alt="Pratinjau foto profil" class="h-full w-full object-cover">
+              <span class="absolute inset-x-0 bottom-0 bg-[#0C1117]/75 py-1 text-center text-[11px] font-medium text-white transition sm:opacity-0 sm:group-hover:opacity-100 peer-focus-visible:opacity-100">Ubah Foto</span>
+            </label>
+          </div>
+
+          <div class="min-w-0 space-y-2 pt-3">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="min-w-0">
+                <h2 class="truncate text-[17px] font-semibold text-[#0C1117]" x-text="draft.name || 'Profil Alumni'"></h2>
+                <p class="mt-0.5 truncate text-[13px] text-[#6B7280]" x-text="draft.headline || 'Lengkapi headline dan informasi profil Anda'"></p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <label for="profil-foto"
+                       class="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[8px] border border-[#CBD5E1] bg-white px-3.5 text-[13px] font-semibold text-[#3A5988] shadow-xs transition-colors hover:border-[#3A5988] hover:bg-[#EBF3FB]">
+                  <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                  </svg>
+                  <span x-text="fileNames.avatarUrl ? 'Ganti Foto Profil' : 'Pilih Foto Profil'"></span>
+                </label>
+              </div>
             </div>
+
+            <div class="flex flex-wrap items-center gap-2 text-[12px] text-[#6B7280]">
+              <p id="profil-media-help">Banner: JPG, PNG, WebP maks. 2 MB · Foto profil: persegi maks. 1 MB.</p>
+              <template x-if="fileNames.coverImageUrl">
+                <span class="inline-flex items-center rounded-full bg-[#EBF3FB] px-2.5 py-0.5 text-[11.5px] font-medium text-[#2B5282]" x-text="'Banner: ' + fileNames.coverImageUrl"></span>
+              </template>
+              <template x-if="fileNames.avatarUrl">
+                <span class="inline-flex items-center rounded-full bg-[#EBF3FB] px-2.5 py-0.5 text-[11.5px] font-medium text-[#2B5282]" x-text="'Foto: ' + fileNames.avatarUrl"></span>
+              </template>
+            </div>
+            <p x-show="imageReading" x-cloak role="status" class="text-[12px] text-[#3A5988]">Memuat pratinjau gambar…</p>
+            <p x-show="imageErrors.coverImageUrl" x-cloak x-text="imageErrors.coverImageUrl" role="alert" class="text-[13px] text-red-700"></p>
+            <p x-show="imageErrors.avatarUrl" x-cloak x-text="imageErrors.avatarUrl" role="alert" class="text-[13px] text-red-700"></p>
           </div>
         </div>
+      </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="profil-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Lengkap</label>
-            <input type="text" id="profil-name" x-model="draft.name" required class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
-          </div>
-          <div>
-            <label for="profil-nim" class="mb-1 block font-semibold text-[#0C1117]">NIM Alumni</label>
-            <input type="text" id="profil-nim" x-model="draft.nim" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
-          </div>
+      <div class="space-y-5 p-6 text-[14px] sm:p-8">
+
+        <div>
+          <label for="profil-name" class="mb-1 block font-semibold text-[#0C1117]">Nama Lengkap</label>
+          <input type="text" id="profil-name" x-model="draft.name" required class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
         </div>
 
         <div>
@@ -76,7 +111,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="profil-batch" class="mb-1 block font-semibold text-[#0C1117]">Angkatan Kelulusan</label>
+            <label for="profil-batch" class="mb-1 block font-semibold text-[#0C1117]">Tahun Lulus</label>
             <input type="text" id="profil-batch" x-model="draft.batch" class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
           </div>
           <div>
@@ -114,7 +149,7 @@
 
         <p x-show="error" x-cloak x-text="error" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
-      <div class="flex flex-wrap justify-end gap-2.5 border-t border-[#E3E4E9] px-5 py-4 sm:px-6">
+      <div class="flex flex-wrap justify-end gap-2.5 border-t border-[#E3E4E9] px-6 py-4 sm:px-8">
         <a href="profil.html" class="inline-flex h-10 items-center rounded-[8px] border border-[#E3E4E9] px-4 text-[13px] font-semibold hover:bg-[#F4F5F7]">Batal</a>
         <button type="submit" :disabled="!!imageReading" class="h-10 rounded-[8px] bg-[#3A5988] px-5 text-[13px] font-semibold text-white shadow-sm hover:bg-[#496DA8] disabled:opacity-50">Simpan Perubahan</button>
       </div>
@@ -124,12 +159,13 @@
   <script>
     function editProfilPage() {
       const profile = loadProfilSaya();
-      const fields = ["name", "nim", "headline", "batch", "location", "email", "linkedin", "github", "website", "about", "coverImageUrl", "avatarUrl"];
+      const fields = ["name", "headline", "batch", "location", "email", "linkedin", "github", "website", "about", "coverImageUrl", "avatarUrl"];
       const original = Object.fromEntries(fields.map(field => [field, String(profile[field] ?? "")]));
       return {
         profile,
         draft: { ...original },
         error: "",
+        fileNames: { coverImageUrl: "", avatarUrl: "" },
         imageErrors: { coverImageUrl: "", avatarUrl: "" },
         imageReading: "",
 
@@ -141,6 +177,7 @@
           this.imageErrors[field] = "";
           try {
             this.draft[field] = await readProfileImage(file, limitMb);
+            this.fileNames[field] = file.name;
           } catch (error) {
             this.imageErrors[field] = error.message;
           } finally {

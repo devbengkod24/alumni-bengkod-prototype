@@ -59,7 +59,7 @@
         type="text"
         id="search-input"
         oninput="handleSearch(this.value)"
-        placeholder="Cari nama alumni, NIM, email, perusahaan..."
+        placeholder="Cari nama alumni, email, perusahaan..."
         class="w-full pl-10 pr-4 py-2 border border-neutral4 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-4 focus:ring-primary5 focus:border-primary1 placeholder-neutral3 transition-all"
       >
     </div>
@@ -109,7 +109,7 @@
       <table class="w-full text-left border-collapse" id="alumni-table">
         <thead>
           <tr>
-            <th class="th">Nama &amp; NIM Alumni</th>
+            <th class="th">Nama Alumni</th>
             <th class="th">Email Resmi</th>
             <th class="th">Divisi &amp; Lulus</th>
             <th class="th">Status Karir &amp; Institusi</th>
@@ -177,15 +177,9 @@
         <input type="text" id="input-nama" required placeholder="Contoh: Rizky Pratama" class="input">
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label for="input-nim" class="label text-xs">NIM Mahasiswa</label>
-          <input type="text" id="input-nim" required placeholder="A11.2019.11823" class="input">
-        </div>
-        <div>
-          <label for="input-email" class="label text-xs">Email Resmi / Pribadi</label>
-          <input type="email" id="input-email" required placeholder="alumni@gmail.com" class="input">
-        </div>
+      <div>
+        <label for="input-email" class="label text-xs">Email Resmi / Pribadi</label>
+        <input type="email" id="input-email" required placeholder="alumni@gmail.com" class="input">
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -280,15 +274,9 @@
         <input type="text" id="edit-nama" required class="input">
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div>
-          <label for="edit-nim" class="label text-xs">NIM Mahasiswa</label>
-          <input type="text" id="edit-nim" required class="input">
-        </div>
-        <div>
-          <label for="edit-email" class="label text-xs">Email Resmi / Pribadi</label>
-          <input type="email" id="edit-email" required class="input">
-        </div>
+      <div>
+        <label for="edit-email" class="label text-xs">Email Resmi / Pribadi</label>
+        <input type="email" id="edit-email" required class="input">
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -380,7 +368,6 @@
       const q = searchQuery.toLowerCase();
       items = items.filter(a =>
         a.nama.toLowerCase().includes(q) ||
-        a.nim.toLowerCase().includes(q) ||
         a.email.toLowerCase().includes(q) ||
         (a.perusahaan || '').toLowerCase().includes(q)
       );
@@ -399,7 +386,7 @@
         const isAktif = a.status_akun === 'Aktif';
         return `
           <tr class="tr group">
-            <!-- 1. Nama & NIM -->
+            <!-- 1. Nama Alumni -->
             <td class="td">
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-teal-100 text-teal-700 font-bold text-xs flex items-center justify-center shrink-0 border border-teal-200">
@@ -407,7 +394,6 @@
                 </div>
                 <div class="min-w-0">
                   <div class="font-semibold text-neutral1 text-sm">${esc(a.nama)}</div>
-                  <div class="text-[11px] text-neutral3 font-mono">NIM: ${esc(a.nim)}</div>
                 </div>
               </div>
             </td>
@@ -527,7 +513,6 @@
   window.handleAddAlumniSubmit = function(e) {
     e.preventDefault();
     const nama = document.getElementById('input-nama').value.trim();
-    const nim = document.getElementById('input-nim').value.trim();
     const email = document.getElementById('input-email').value.trim();
     const divisi = document.getElementById('input-divisi').value;
     const tahun = Number(document.getElementById('input-tahun-lulus').value);
@@ -538,7 +523,6 @@
     const newAlumni = {
       id: Date.now(),
       nama,
-      nim,
       email,
       tahun_lulus: tahun,
       divisi,
@@ -551,7 +535,7 @@
 
     SUPERADMIN.alumni.unshift(newAlumni);
     saveAlumni();
-    addActivityLog('Pendaftaran Akun Alumni', `Mendaftarkan akun alumni ${nama} (${nim}) - ${divisi}`);
+    addActivityLog('Pendaftaran Akun Alumni', `Mendaftarkan akun alumni ${nama} - ${divisi}`);
     closeModal('add-alumni-modal');
 
     if (typeof showToast === 'function') {
@@ -567,7 +551,6 @@
 
     document.getElementById('edit-id').value = a.id;
     document.getElementById('edit-nama').value = a.nama;
-    document.getElementById('edit-nim').value = a.nim;
     document.getElementById('edit-email').value = a.email;
     document.getElementById('edit-divisi').value = a.divisi;
     document.getElementById('edit-tahun-lulus').value = a.tahun_lulus;
@@ -585,7 +568,6 @@
     if (!a) return;
 
     a.nama = document.getElementById('edit-nama').value.trim();
-    a.nim = document.getElementById('edit-nim').value.trim();
     a.email = document.getElementById('edit-email').value.trim();
     a.divisi = document.getElementById('edit-divisi').value;
     a.tahun_lulus = Number(document.getElementById('edit-tahun-lulus').value);
@@ -594,7 +576,7 @@
     a.status_akun = document.getElementById('edit-status-akun').value;
 
     saveAlumni();
-    addActivityLog('Edit Akun Alumni', `Memperbarui profil akun alumni ${a.nama} (${a.nim})`);
+    addActivityLog('Edit Akun Alumni', `Memperbarui profil akun alumni ${a.nama}`);
     closeModal('edit-alumni-modal');
 
     if (typeof showToast === 'function') {
@@ -643,9 +625,9 @@
 
   window.exportAlumniCSV = function() {
     const list = SUPERADMIN.alumni || [];
-    let csv = 'Nama,NIM,Email,Divisi,Tahun Lulus,Status Karir,Perusahaan,Status Akun,Terdaftar\n';
+    let csv = 'Nama,Email,Divisi,Tahun Lulus,Status Karir,Perusahaan,Status Akun,Terdaftar\n';
     list.forEach(a => {
-      csv += `"${a.nama}","${a.nim}","${a.email}","${a.divisi}","${a.tahun_lulus}","${a.status_karir}","${a.perusahaan}","${a.status_akun}","${a.terdaftar}"\n`;
+      csv += `"${a.nama}","${a.email}","${a.divisi}","${a.tahun_lulus}","${a.status_karir}","${a.perusahaan}","${a.status_akun}","${a.terdaftar}"\n`;
     });
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
