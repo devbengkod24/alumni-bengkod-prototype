@@ -132,7 +132,7 @@
     ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
   ];
 
-  const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '' });
+  const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '', mitra: '' });
   let activeFilter = DEFAULT_FILTER();
   let draftFilter = DEFAULT_FILTER();
   let activeCategory = 'sort';
@@ -234,6 +234,11 @@
 
   const tracerAlumni = DB.akun.alumni().map(a => DB.tracer.milik(a.id)).filter(Boolean);
   const daftarAngkatan = [...new Set(tracerAlumni.map(t => String(t.tahun_lulus)))].sort((a, b) => Number(b) - Number(a));
+  const daftarMitra = [...new Set(
+    tracerAlumni
+      .filter(t => DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) && t.jns_job !== 'Wirausaha' && t.nama_job)
+      .map(t => t.nama_job),
+  )].sort((a, b) => a.localeCompare(b, 'id'));
 
   const FILTER_SECTIONS = [
     {
@@ -262,6 +267,12 @@
       title: 'Angkatan',
       options: daftarAngkatan.map(v => ({ value: v, label: `Angkatan ${v}` })),
     },
+    {
+      key: 'mitra',
+      railLabel: 'Mitra',
+      title: 'Mitra / Instansi',
+      options: daftarMitra.map(v => ({ value: v, label: v })),
+    },
   ];
 
   function urutkanAlumni(list, sort) {
@@ -276,7 +287,7 @@
 
   function filterAlumni(semua) {
     const kata = $('cari').value.trim().toLowerCase();
-    const { sort, status, batch } = activeFilter;
+    const { sort, status, batch, mitra } = activeFilter;
 
     const tersaring = semua.filter(a => {
       const t = DB.tracer.milik(a.id);
@@ -285,6 +296,7 @@
       if (kata && !teksCari.includes(kata)) return false;
       if (!cocokStatus(t, status)) return false;
       if (batch && String(t?.tahun_lulus) !== batch) return false;
+      if (mitra && (!DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) || t?.jns_job === 'Wirausaha' || t?.nama_job !== mitra)) return false;
       return true;
     });
 
@@ -471,10 +483,11 @@
     if (baris && !e.target.closest('a')) location.href = baris.dataset.href;
   }));
 
-  // Terapkan filter awal bila datang dari kartu Status Alumni di Dashboard (?status=... atau ?tahun=...)
+  // Terapkan filter awal bila datang dari Dashboard (?status=..., ?tahun=...) atau Mitra (?mitra=...)
   const paramAwal = new URLSearchParams(location.search);
   if (paramAwal.get('status')) activeFilter.status = paramAwal.get('status');
   if (paramAwal.get('tahun')) activeFilter.batch = paramAwal.get('tahun');
+  if (paramAwal.get('mitra')) activeFilter.mitra = paramAwal.get('mitra');
   draftFilter = { ...activeFilter };
 
   pasangToolsTabel('alat', 'data-alumni.csv', () => [

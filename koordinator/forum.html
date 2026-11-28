@@ -190,10 +190,14 @@
   function menuPost(p) {
     const item = (aksi, ikon, label, kelas = 'text-[#212224] hover:bg-[#F4F5F7]') => `
       <button type="button" data-aksi="${aksi}" data-id="${p.id}" role="menuitem" class="w-full flex items-center gap-2 rounded-[6px] px-3 py-2 text-left text-[13px] font-medium cursor-pointer focus:outline-none focus-visible:bg-[#F4F5F7] ${kelas}"><i data-lucide="${ikon}" class="w-4 h-4" aria-hidden="true"></i>${label}</button>`;
+    const opsiPin = p.isPinned
+      ? item('lepas-sematan', 'pin-off', 'Lepas sematan')
+      : item('buka-sematkan', 'pin', 'Sematkan postingan');
     return `
       <div data-menu class="relative shrink-0">
         <button type="button" data-aksi="menu" data-id="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Opsi postingan ${esc(p.penulis)}" class="w-8 h-8 rounded-full flex items-center justify-center text-[#6B7280] hover:bg-[#F4F5F7] transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3"><i data-lucide="ellipsis" class="w-4 h-4" aria-hidden="true"></i></button>
-        <div data-panel-menu class="hidden absolute right-0 top-full mt-1 z-20 w-48 bg-white border border-[#E3E4E9] rounded-[10px] shadow-md p-1" role="menu">
+        <div data-panel-menu class="hidden absolute right-0 top-full mt-1 z-20 w-52 bg-white border border-[#E3E4E9] rounded-[10px] shadow-md p-1" role="menu">
+          ${opsiPin}
           ${item('hapus', 'trash-2', 'Hapus postingan', 'text-red-700 hover:bg-red-50')}
         </div>
       </div>`;
@@ -391,12 +395,19 @@
 
   const jumlahKomentar = p => p.komentar.reduce((n, k) => n + 1 + (k.balasan || []).length, 0);
 
+  const fmtBatasPin = ms => (ms ? new Date(ms).toLocaleString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '');
+
   function kartuPost(p) {
     const buka = terbuka.has(p.id);
     const jumlah = jumlahKomentar(p);
 
     return `
-      <article id="post-${p.id}" class="bg-white border border-[#E3E4E9] rounded-[16px] p-5 shadow-sm space-y-4 scroll-mt-24">
+      <article id="post-${p.id}" class="bg-white border ${p.isPinned ? 'border-[#B7C8E0] ring-1 ring-[#E2F1F9]' : 'border-[#E3E4E9]'} rounded-[16px] p-5 shadow-sm space-y-4 scroll-mt-24">
+        ${p.isPinned ? `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[12px] font-semibold">
+            <i data-lucide="pin" class="w-3.5 h-3.5" aria-hidden="true"></i>
+            <span>Disematkan${p.pinnedDurationLabel ? ` (${esc(p.pinnedDurationLabel)})` : ''} · s.d. ${esc(fmtBatasPin(p.pinnedUntil))}</span>
+          </div>` : ''}
         <!-- Header Postingan: Avatar 44px, Nama, Headline · Waktu, Menu Titik Tiga -->
         <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
@@ -560,6 +571,49 @@
     });
   }
 
+  document.body.insertAdjacentHTML('beforeend', kerangkaModal(
+    'modal-sematkan',
+    'Sematkan Postingan',
+    `<input type="hidden" name="id">
+     <p class="!text-[13px] text-neutral2">Postingan yang disematkan akan selalu tampil di urutan teratas Beranda Alumni dan Forum selama kurun waktu pilihan Anda.</p>
+     <fieldset class="space-y-2">
+       <legend class="label">Pilih durasi sematan</legend>
+       <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+         ${pilihanPil('radio', 'durasi', '24', '24 Jam', 'clock')}
+         ${pilihanPil('radio', 'durasi', '168', '7 Hari', 'calendar-days')}
+         ${pilihanPil('radio', 'durasi', '720', '30 Hari', 'calendar')}
+       </div>
+     </fieldset>`,
+    'Sematkan',
+    'max-w-md',
+  ));
+
+  pasangForm(
+    'modal-sematkan',
+    'Postingan berhasil disematkan.',
+    fd => {
+      const id = Number(fd.get('id'));
+      const durasi = Number(fd.get('durasi'));
+      if (!durasi) return { ok: false, error: 'Pilih durasi sematan terlebih dahulu.' };
+      return FeedBersama.sematkan(id, durasi);
+    },
+    () => render(),
+  );
+
+  function bukaSematkan(id) {
+    const formPin = bukaModalForm('modal-sematkan', { id: String(id) });
+    const radioDefault = formPin.querySelector('input[name="durasi"][value="168"]');
+    if (radioDefault) radioDefault.checked = true;
+    refreshIcons();
+  }
+
+  function lepasSematan(id) {
+    const hasil = FeedBersama.lepasSematan(id);
+    if (!hasil.ok) return showToast(hasil.error, 'error');
+    render();
+    showToast('Sematan postingan dilepas.');
+  }
+
   // ===================== AKSI EVENT DELEGATION =====================
   daftar.addEventListener('click', e => {
     const tombol = e.target.closest('[data-aksi]');
@@ -575,6 +629,8 @@
       return;
     }
     tutupMenu();
+    if (aksi === 'buka-sematkan') return bukaSematkan(id);
+    if (aksi === 'lepas-sematan') return lepasSematan(id);
     if (aksi === 'hapus') return hapus(id);
     if (aksi === 'tampil-balas') {
       const formBalas = document.getElementById(`form-balas-${tombol.dataset.komentarId}`);

@@ -55,7 +55,10 @@ function formatAlumniPost(post, shown) {
     authorId: post.authorId,
     repostedBy: post.repostedBy,
     fromDashboard: post.fromDashboard,
-    dashboardPresentation: post.dashboardPresentation
+    dashboardPresentation: post.dashboardPresentation,
+    pinnedAt: post.pinned_at ? Date.parse(post.pinned_at) || 0 : 0,
+    pinnedUntil: post.pinned_until ? Date.parse(post.pinned_until) || 0 : 0,
+    pinnedDurationLabel: post.pinned_duration || ""
   };
 }
 
@@ -135,13 +138,34 @@ function alumniPostActions() {
       this.toast = message;
       clearTimeout(this.toastTimer);
       this.toastTimer = setTimeout(() => { this.toast = ""; }, 3200);
+    },
+
+    isPinnedActive(post) {
+      return Boolean(post?.pinnedUntil && post.pinnedUntil > Date.now());
+    },
+
+    formatPinnedUntil(post) {
+      if (!post?.pinnedUntil) return "";
+      return new Date(post.pinnedUntil).toLocaleString("id-ID", {
+        day: "numeric",
+        month: "short",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
     }
   };
 }
 
 function mountAlumniPostCards() {
   document.querySelector("[data-alumni-post-card]").innerHTML = String.raw`<article :id="'post-' + post.id" x-init="$nextTick(() => scrollToLinkedPost($el))"
-         class="scroll-mt-28 bg-white border border-[#E3E4E9] rounded-[16px] p-5 shadow-sm space-y-4">
+         :class="isPinnedActive(post) ? 'border-[#B7C8E0] ring-1 ring-[#E2F1F9]' : 'border-[#E3E4E9]'"
+         class="scroll-mt-28 bg-white border rounded-[16px] p-5 shadow-sm space-y-4">
+
+  <div x-show="isPinnedActive(post)" x-cloak
+       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[12px] font-semibold">
+    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+    <span x-text="'Disematkan' + (post.pinnedDurationLabel ? ' (' + post.pinnedDurationLabel + ')' : '') + ' · s.d. ' + formatPinnedUntil(post)"></span>
+  </div>
 
   <p x-show="post.repostedBy" x-cloak class="text-[12.5px] text-[#6B7280]"
      x-text="post.repostedBy + ' membagikan ulang postingan ini'"></p>

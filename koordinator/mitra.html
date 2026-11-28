@@ -17,258 +17,242 @@
 <main data-title="Mitra">
   <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
     <div>
-      <h1 class="!text-[26px] font-semibold text-headline">Mitra</h1>
-      <p class="!text-[13.5px] text-neutral3 mt-1">Instansi tempat alumni bekerja dari jawaban tracer study. Pilih mitra untuk melihat daftar alumninya.</p>
+      <h1 class="!text-[26px] font-semibold text-headline tracking-[-0.01em]">Mitra</h1>
+      <p class="!text-[13.5px] text-neutral3 mt-1">Daftar instansi tempat alumni bekerja dari jawaban tracer study. Edit nama mitra atau lihat daftar alumni yang bekerja di sana.</p>
     </div>
     <span id="ringkasan" class="self-start sm:self-auto shrink-0 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[13px] font-semibold tabular-nums"></span>
   </div>
 
-  <!-- Layar lebar: daftar mitra (kiri) + tabel alumni di mitra terpilih (kanan). HP: daftar dulu, lalu tabel penuh. -->
-  <div id="tata-letak">
-    <section id="panel-daftar" aria-labelledby="judul-daftar">
-      <h2 id="judul-daftar" class="sr-only">Daftar mitra</h2>
-      <div class="p-3.5 border-b border-neutral4 bg-[#F8FAFC]/60">
-        <div class="relative">
-          <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="search" class="w-4 h-4"></i></span>
-          <input id="cari-mitra" type="search" autocomplete="off" aria-label="Cari mitra atau nama alumni" placeholder="Cari mitra atau nama alumni..."
-                 class="w-full h-10 pl-10 pr-3.5 rounded-[10px] border border-neutral4 bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 focus:ring-2 focus:ring-primary1/15 transition-colors">
-        </div>
+  <!-- Toolbar pencarian -->
+  <div class="bg-white border border-neutral4 rounded-[14px] p-4 shadow-sm">
+    <div class="relative">
+      <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#91969C] pointer-events-none"><i data-lucide="search" class="w-4 h-4"></i></span>
+      <input id="cari-mitra" type="search" autocomplete="off" aria-label="Cari nama mitra atau kota domisili" placeholder="Cari nama mitra atau kota domisili..."
+             class="w-full h-10 pl-10 pr-3 rounded-[8px] border border-neutral4 bg-canvas focus:bg-white text-[13.5px] text-neutral1 placeholder-[#91969C] focus:outline-none focus:border-primary1 transition-colors">
+    </div>
+  </div>
+
+  <!-- Tabel daftar mitra -->
+  <div class="bg-white border border-neutral4 rounded-[14px] shadow-sm overflow-hidden">
+    <div class="px-5 sm:px-6 py-4 border-b border-neutral4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <h2 class="!text-[17px] font-bold text-headline tracking-[-0.01em]">Daftar Mitra</h2>
+        <span id="jumlah-hasil" class="text-[12px] text-neutral3 tabular-nums"></span>
       </div>
-      <ul id="daftar-mitra"></ul>
-    </section>
-    <section id="panel-alumni" class="hidden min-w-0" aria-live="polite"></section>
+    </div>
+
+    <div class="hidden md:block">
+      <table class="w-full table-fixed text-left border-collapse">
+        <colgroup>
+          <col class="w-[34%]">
+          <col class="w-[16%]">
+          <col class="w-[24%]">
+          <col class="w-[26%]">
+        </colgroup>
+        <thead>
+          <tr class="border-b border-neutral4 bg-white text-[13px] font-medium text-neutral3">
+            <th class="py-3.5 pl-6 pr-3 font-medium">Nama Mitra</th>
+            <th class="py-3.5 px-3 font-medium">Jumlah Alumni</th>
+            <th class="py-3.5 px-3 font-medium">Domisili</th>
+            <th class="py-3.5 pr-6 pl-3 font-medium text-right">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="daftar-mitra" class="divide-y divide-neutral4 text-[13.5px]"></tbody>
+      </table>
+    </div>
+
+    <div id="daftar-mitra-mobile" class="md:hidden divide-y divide-neutral4"></div>
+
+    <div class="px-5 sm:px-6 py-3.5 border-t border-neutral4 bg-[#FAFBFC] flex items-center justify-between gap-3 text-[12.5px] text-neutral3">
+      <span id="status-hasil"></span>
+      <div class="flex items-center gap-1">
+        <button type="button" id="hal-sebelum" class="px-2.5 py-1 rounded-[6px] border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">Sebelumnya</button>
+        <span id="hal-posisi" class="px-3 py-1 font-semibold text-headline tabular-nums"></span>
+        <button type="button" id="hal-berikut" class="px-2.5 py-1 rounded-[6px] border border-neutral4 bg-white text-neutral1 hover:bg-neutral5 disabled:text-[#91969C] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer">Berikutnya</button>
+      </div>
+    </div>
   </div>
 </main>
 
 <script>
+  const PER_HALAMAN = 10;
+  let halaman = 1;
   const $ = id => document.getElementById(id);
-  const tataLetak = $('tata-letak');
-  const panelDaftar = $('panel-daftar');
-  const daftarMitra = $('daftar-mitra');
-  const panelAlumni = $('panel-alumni');
-  const cariMitra = $('cari-mitra');
-
-  // Mitra = instansi tempat alumni bekerja menurut tracer. Usaha milik sendiri (Wirausaha) tidak dihitung sebagai mitra.
-  const PEKERJA = DB.tracer.semua().filter(t => DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) && t.nama_job && t.jns_job !== 'Wirausaha');
-  const MITRA = Object.values(PEKERJA.reduce((kelompok, t) => {
-    (kelompok[t.nama_job] ||= { nama: t.nama_job, alumni: [] }).alumni.push(t);
-    return kelompok;
-  }, {}))
-    .map(m => ({
-      ...m,
-      kota: [...new Set(m.alumni.map(t => t.kota).filter(Boolean))],
-      alumni: m.alumni.sort((a, b) => a.nama_alumni.localeCompare(b.nama_alumni)),
-    }))
-    .sort((a, b) => b.alumni.length - a.alumni.length || a.nama.localeCompare(b.nama));
-
-  // Nama mitra yang sedang dibuka. Layar lebar selalu split dan langsung membuka mitra pertama;
-  // layar kecil mulai dari daftar mitra, lalu tabel alumni tampil penuh setelah satu mitra dipilih.
-  const layarLebar = window.matchMedia('(min-width: 1024px)');
-  let terpilih = '';
 
   const inisialMitra = nama => inisial(nama.replace(/^(PT|CV)\s+/i, ''));
-  const logoMitra = (nama, ukuran = 'w-10 h-10') => `<span class="${ukuran} rounded-[10px] bg-primary5 text-primary1 font-semibold text-[13px] flex items-center justify-center shrink-0" aria-hidden="true">${esc(inisialMitra(nama))}</span>`;
+  const logoMitra = nama => `<span class="w-9 h-9 rounded-[10px] bg-primary5 text-primary1 font-semibold text-[12.5px] flex items-center justify-center shrink-0" aria-hidden="true">${esc(inisialMitra(nama))}</span>`;
 
-  function mitraTersaring() {
-    const kata = cariMitra.value.trim().toLowerCase();
-    if (!kata) return MITRA;
-    return MITRA.filter(m => m.nama.toLowerCase().includes(kata) || m.alumni.some(t => t.nama_alumni.toLowerCase().includes(kata)));
+  // Mitra = instansi tempat alumni bekerja menurut tracer. Usaha milik sendiri (Wirausaha) tidak dihitung sebagai mitra.
+  function kumpulkanMitra() {
+    const pekerja = DB.tracer.semua().filter(t => DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) && t.nama_job && t.jns_job !== 'Wirausaha');
+    const grup = pekerja.reduce((acc, t) => {
+      (acc[t.nama_job] ||= { nama: t.nama_job, alumni: [] }).alumni.push(t);
+      return acc;
+    }, {});
+    const list = Object.values(grup)
+      .map(m => ({
+        nama: m.nama,
+        jumlah: m.alumni.length,
+        kota: [...new Set(m.alumni.map(t => t.kota).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'id')),
+      }))
+      .sort((a, b) => b.jumlah - a.jumlah || a.nama.localeCompare(b.nama, 'id'));
+    return { list, totalAlumni: pekerja.length };
   }
 
-  // ===================== DAFTAR MITRA =====================
+  function saringMitra(list) {
+    const kata = $('cari-mitra').value.trim().toLowerCase();
+    if (!kata) return list;
+    return list.filter(m => m.nama.toLowerCase().includes(kata) || m.kota.some(k => k.toLowerCase().includes(kata)));
+  }
+
+  function formatDomisili(kota) {
+    return kota.length ? kota.join(', ') : '-';
+  }
+
   function barisMitra(m) {
-    const aktif = m.nama === terpilih;
+    const hrefAlumni = `data-alumni.html?mitra=${encodeURIComponent(m.nama)}`;
     return `
-      <li>
-        <button type="button" data-mitra="${esc(m.nama)}" ${aktif ? 'aria-current="true"' : ''} class="w-full flex items-center gap-3 px-4 py-3 text-left transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary1/25 ${aktif ? 'bg-[#EBF2FC]' : 'hover:bg-[#F8FAFC]'}">
-          <span class="w-9 h-9 rounded-[10px] font-semibold text-[13px] flex items-center justify-center shrink-0 ${aktif ? 'bg-white border border-primary4 text-primary1' : 'bg-primary5 text-primary1'}" aria-hidden="true">${esc(inisialMitra(m.nama))}</span>
-          <span class="min-w-0 flex-1">
-            <span class="block text-[13.5px] truncate ${aktif ? 'font-semibold text-primary1' : 'font-medium text-headline'}">${esc(m.nama)}</span>
-            <span class="block text-[12px] text-neutral3 tabular-nums mt-0.5">${m.alumni.length} alumni${m.kota.length ? `, ${esc(m.kota[0])}${m.kota.length > 1 ? ` +${m.kota.length - 1}` : ''}` : ''}</span>
-          </span>
-          <i data-lucide="chevron-right" class="w-4 h-4 shrink-0 ${aktif ? 'text-primary1' : 'text-[#91969C]'}" aria-hidden="true"></i>
-        </button>
-      </li>`;
-  }
-
-  function resetCariMitra() {
-    cariMitra.value = '';
-    renderDaftar();
-    renderAlumni();
-    cariMitra.focus();
-  }
-
-  function renderDaftar() {
-    const hasil = mitraTersaring();
-    const split = Boolean(terpilih);
-    $('ringkasan').innerHTML = `<i data-lucide="building-2" class="w-4 h-4" aria-hidden="true"></i><span>${MITRA.length} Mitra (${PEKERJA.length} Alumni)</span>`;
-
-    tataLetak.className = 'grid grid-cols-1 lg:grid-cols-[minmax(0,17.5rem)_minmax(0,1fr)] xl:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] gap-5 items-start';
-    // HP: saat mitra dibuka, daftar disembunyikan dan tabel alumni tampil penuh
-    panelDaftar.className = `${split ? 'hidden lg:flex' : 'flex'} flex-col bg-white border border-neutral4 rounded-[16px] shadow-sm overflow-hidden lg:sticky lg:top-[88px] lg:max-h-[calc(100dvh-7rem)]`;
-    daftarMitra.className = 'flex-1 overflow-y-auto overscroll-contain divide-y divide-neutral4';
-
-    daftarMitra.innerHTML = !MITRA.length
-      ? '<li class="px-4 py-10 text-center text-[13px] text-neutral3">Belum ada alumni yang mencantumkan tempat kerja di tracer study.</li>'
-      : hasil.map(barisMitra).join('')
-        || `<li class="px-4 py-10 text-center text-[13px] text-neutral3">
-            <p class="!text-[13.5px] font-semibold text-headline">Mitra tidak ditemukan</p>
-            <p class="!text-[12.5px] text-neutral3 mt-1">Tidak ada yang cocok dengan "${esc(cariMitra.value.trim())}".</p>
-            <button type="button" onclick="resetCariMitra()" class="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-medium text-neutral1 cursor-pointer transition-colors">
-              <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
-              <span>Reset pencarian</span>
+      <tr class="hover:bg-[#F9FAFB] transition-colors">
+        <td class="py-3.5 pl-6 pr-3 align-middle">
+          <div class="flex items-center gap-3 min-w-0">
+            ${logoMitra(m.nama)}
+            <span class="font-semibold text-headline break-words">${esc(m.nama)}</span>
+          </div>
+        </td>
+        <td class="py-3.5 px-3 align-middle whitespace-nowrap">
+          <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[12px] font-semibold tabular-nums">${m.jumlah} alumni</span>
+        </td>
+        <td class="py-3.5 px-3 align-middle text-neutral2 break-words">${esc(formatDomisili(m.kota))}</td>
+        <td class="py-3.5 pr-6 pl-3 align-middle text-right whitespace-nowrap">
+          <div class="inline-flex items-center justify-end gap-2">
+            <button type="button" data-edit-mitra="${esc(m.nama)}" class="btn-outline h-8 px-3 py-0 text-[12.5px]">
+              <i data-lucide="pencil" class="w-3.5 h-3.5" aria-hidden="true"></i>
+              <span>Edit</span>
             </button>
-          </li>`;
-    refreshIcons();
-  }
-
-  // ===================== ALUMNI DI MITRA TERPILIH =====================
-  function kontak(href, ikon, label, luar = false) {
-    return `<a href="${esc(href)}" ${luar ? 'target="_blank" rel="noreferrer"' : ''} aria-label="${label}" title="${label}" class="w-9 h-9 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 hover:border-primary4 hover:text-primary1 text-neutral2 flex items-center justify-center transition-colors"><i data-lucide="${ikon}" class="w-4 h-4" aria-hidden="true"></i></a>`;
-  }
-
-  function barisAlumni(t, nomor) {
-    const akun = DB.akun.cari(t.id_alumni) || { nama: t.nama_alumni };
-    const pekerjaan = DB.cv.milik('jobs', t.id_alumni).find(j => j.nama_job === t.nama_job);
-    const linkedin = tautanAman(t.linkedin);
-    const href = `profil-alumni.html?id=${t.id_alumni}`;
-    return `
-      <tr class="hover:bg-[#F8FAFC] transition-colors group cursor-pointer" data-href="${href}">
-        <td class="py-3.5 pl-4 sm:pl-5 pr-2 text-center text-[13px] font-medium text-neutral3 tabular-nums">${nomor}</td>
-        <td class="py-3.5 px-4">
-          <div class="flex items-center gap-3">
-            ${fotoBulat(akun, 'w-9 h-9')}
-            <div class="min-w-0">
-              <span class="block font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(t.nama_alumni)}</span>
-              <span class="block text-[12px] text-neutral3 tabular-nums">Angkatan ${esc(t.tahun_lulus)}</span>
-            </div>
+            <a href="${hrefAlumni}" class="btn-primary h-8 px-3 py-0 text-[12.5px]">
+              <span>Lihat Daftar Alumni</span>
+            </a>
           </div>
-        </td>
-        <td class="py-3.5 px-4"><span class="inline-block px-2.5 py-1 rounded-[6px] text-[12px] font-medium bg-[#E2F1F9] text-[#3A5988] whitespace-nowrap">${esc(t.jabatan_job || 'Belum diisi')}</span></td>
-        <td class="py-3.5 px-4 text-neutral2 tabular-nums whitespace-nowrap">${esc(pekerjaan?.periode_masuk_job || '-')}</td>
-        <td class="py-3.5 px-4 text-neutral2 whitespace-nowrap">${esc(t.kota || '-')}</td>
-        <td class="py-3.5 px-4">
-          <div class="flex gap-1.5">
-            ${t.no_hp ? kontak(tautanWa(t.no_hp), 'phone', 'WhatsApp', true) : ''}
-            ${t.email ? kontak(`mailto:${t.email}`, 'mail', 'Email') : ''}
-            ${linkedin ? kontak(linkedin, 'external-link', 'LinkedIn', true) : ''}
-          </div>
-        </td>
-        <td class="py-3.5 pr-4 sm:pr-5 pl-4 text-right whitespace-nowrap">
-          <a href="${href}" class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] border border-neutral4 bg-white text-[12.5px] font-medium text-neutral1 group-hover:border-primary4 group-hover:text-primary1 transition-colors">
-            <span>Detail</span>
-            <i data-lucide="chevron-right" class="w-3.5 h-3.5" aria-hidden="true"></i>
-          </a>
         </td>
       </tr>`;
   }
 
-  function renderAlumni() {
-    const hasilCari = mitraTersaring();
-    if (cariMitra.value.trim() && !hasilCari.length && layarLebar.matches) {
-      panelAlumni.classList.remove('hidden');
-      panelAlumni.innerHTML = `
-        <div class="bg-white border border-neutral4 rounded-[16px] shadow-sm p-12 text-center text-neutral3">
-          <i data-lucide="building-2" class="w-9 h-9 mx-auto mb-3 text-[#CBD5E1]" aria-hidden="true"></i>
-          <p class="!text-[15px] font-semibold text-headline">Tidak ada mitra yang cocok</p>
-          <p class="!text-[13px] text-neutral3 mt-1">Ubah kata kunci pencarian atau reset untuk menampilkan daftar mitra.</p>
-          <button type="button" onclick="resetCariMitra()" class="mt-4 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 cursor-pointer transition-colors">
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5" aria-hidden="true"></i>
-            <span>Reset pencarian</span>
-          </button>
-        </div>`;
-      refreshIcons();
-      return;
-    }
-
-    const m = MITRA.find(x => x.nama === terpilih);
-    panelAlumni.classList.toggle('hidden', !m);
-    if (!m) { panelAlumni.innerHTML = ''; return; }
-
-    const infoKota = m.kota.length ? m.kota.join(', ') : 'Lokasi belum dicatat';
-    panelAlumni.innerHTML = `
-      <h2 id="judul-mitra" tabindex="-1" class="sr-only">Alumni di ${esc(m.nama)}</h2>
-      <!-- HP: tombol kembali ke daftar mitra -->
-      <div class="lg:hidden mb-3">
-        <button type="button" data-tutup class="inline-flex items-center gap-1.5 h-9 px-3 rounded-[10px] border border-neutral4 bg-white hover:bg-neutral5 text-[13px] font-medium text-neutral1 transition-colors cursor-pointer">
-          <i data-lucide="chevron-left" class="w-4 h-4" aria-hidden="true"></i><span>Daftar mitra</span>
-        </button>
-      </div>
-      <div class="bg-white border border-neutral4 rounded-[16px] shadow-sm overflow-hidden">
-        <div class="px-4 sm:px-5 py-4 border-b border-neutral4 flex flex-wrap items-center justify-between gap-3">
+  function kartuMitraMobile(m) {
+    const hrefAlumni = `data-alumni.html?mitra=${encodeURIComponent(m.nama)}`;
+    return `
+      <div class="p-4 space-y-3">
+        <div class="flex items-start justify-between gap-3">
           <div class="flex items-center gap-3 min-w-0">
-            ${logoMitra(m.nama, 'w-10 h-10')}
+            ${logoMitra(m.nama)}
             <div class="min-w-0">
-              <p class="!text-[16px] font-semibold text-headline truncate">${esc(m.nama)}</p>
-              <p class="!text-[12.5px] text-neutral3 truncate">${esc(infoKota)}</p>
+              <p class="!text-[14px] font-semibold text-headline break-words">${esc(m.nama)}</p>
+              <p class="!text-[12.5px] text-neutral3 mt-0.5 break-words">${esc(formatDomisili(m.kota))}</p>
             </div>
           </div>
-          <span class="shrink-0 inline-flex items-center px-3 py-1 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[12.5px] font-semibold tabular-nums">${m.alumni.length} Alumni</span>
+          <span class="shrink-0 inline-flex items-center px-2.5 py-1 rounded-full bg-[#E2F1F9] text-[#3A5988] text-[12px] font-semibold tabular-nums">${m.jumlah} alumni</span>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse text-[13.5px]">
-            <caption class="sr-only">Alumni yang bekerja di ${esc(m.nama)}</caption>
-            <thead>
-              <tr class="border-b border-neutral4 bg-[#F8FAFC] text-[12.5px] font-semibold text-neutral3">
-                <th class="py-3 pl-4 sm:pl-5 pr-2 font-semibold w-12 text-center">No</th>
-                <th class="py-3 px-4 font-semibold min-w-[190px]">Nama</th>
-                <th class="py-3 px-4 font-semibold whitespace-nowrap">Jabatan</th>
-                <th class="py-3 px-4 font-semibold whitespace-nowrap">Mulai bekerja</th>
-                <th class="py-3 px-4 font-semibold whitespace-nowrap">Kota</th>
-                <th class="py-3 px-4 font-semibold">Kontak</th>
-                <th class="py-3 pr-4 sm:pr-5 pl-4 font-semibold text-right whitespace-nowrap">Aksi</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-neutral4">${m.alumni.map((t, idx) => barisAlumni(t, idx + 1)).join('')}</tbody>
-          </table>
+        <div class="flex items-center gap-2 pt-0.5">
+          <button type="button" data-edit-mitra="${esc(m.nama)}" class="btn-outline h-9 px-3 py-0 text-[12.5px] flex-1">
+            <i data-lucide="pencil" class="w-3.5 h-3.5" aria-hidden="true"></i>
+            <span>Edit</span>
+          </button>
+          <a href="${hrefAlumni}" class="btn-primary h-9 px-3 py-0 text-[12.5px] flex-[2]">
+            <span>Lihat Daftar Alumni</span>
+          </a>
         </div>
-        <div class="px-4 sm:px-5 py-3 border-t border-neutral4 bg-[#F8FAFC] text-[12.5px] text-neutral3 tabular-nums">${m.alumni.length} alumni bekerja di ${esc(m.nama)}</div>
       </div>`;
+  }
+
+  function render() {
+    const { list, totalAlumni } = kumpulkanMitra();
+    const hasil = saringMitra(list);
+    const jumlahHal = Math.max(1, Math.ceil(hasil.length / PER_HALAMAN));
+    halaman = Math.min(halaman, jumlahHal);
+
+    $('ringkasan').innerHTML = `<i data-lucide="building-2" class="w-4 h-4" aria-hidden="true"></i><span>${list.length} Mitra (${totalAlumni} Alumni)</span>`;
+    $('jumlah-hasil').textContent = hasil.length === list.length ? `(${list.length} mitra)` : `(${hasil.length} dari ${list.length} mitra)`;
+
+    const halamanIni = potong(hasil, halaman, PER_HALAMAN);
+    const kosongHtml = list.length
+      ? '<p class="!text-[15px] font-semibold text-headline">Mitra tidak ditemukan</p><p class="!text-[13px] mt-1">Ubah kata kunci pencarian untuk menampilkan mitra lainnya.</p>'
+      : '<p class="!text-[15px] font-semibold text-headline">Belum ada data mitra</p><p class="!text-[13px] mt-1">Belum ada alumni yang mencantumkan tempat kerja di tracer study.</p>';
+
+    $('daftar-mitra').innerHTML = hasil.length
+      ? halamanIni.map(barisMitra).join('')
+      : `<tr><td colspan="4" class="py-12 text-center text-neutral3">${kosongHtml}</td></tr>`;
+    $('daftar-mitra-mobile').innerHTML = hasil.length
+      ? halamanIni.map(kartuMitraMobile).join('')
+      : `<div class="py-12 px-4 text-center text-neutral3">${kosongHtml}</div>`;
+
+    const awal = hasil.length ? (halaman - 1) * PER_HALAMAN + 1 : 0;
+    const akhir = Math.min(halaman * PER_HALAMAN, hasil.length);
+    $('status-hasil').innerHTML = `Menampilkan <strong class="text-headline">${awal}–${akhir}</strong> dari ${hasil.length} mitra`;
+    $('hal-posisi').textContent = `${halaman} / ${jumlahHal}`;
+    $('hal-sebelum').disabled = halaman <= 1;
+    $('hal-berikut').disabled = halaman >= jumlahHal;
     refreshIcons();
   }
 
-  // ===================== AKSI =====================
-  function buka(nama) {
-    terpilih = nama;
-    history.replaceState(null, '', nama ? `?mitra=${encodeURIComponent(nama)}` : location.pathname);
-    renderDaftar();
-    renderAlumni();
-    if (nama) {
-      $('judul-mitra')?.focus({ preventScroll: true });
-      if (!layarLebar.matches) window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.body.insertAdjacentHTML('beforeend', kerangkaModal(
+    'modal-edit-mitra',
+    'Edit Nama Mitra',
+    `<input type="hidden" name="nama_lama">
+     <div>
+       <label for="f-nama-mitra" class="label">Nama Mitra <span class="text-red2">*</span></label>
+       <input id="f-nama-mitra" name="nama_mitra" class="input" maxlength="150" required autocomplete="off" placeholder="Contoh: PT Tokopedia">
+       <p id="info-edit-mitra" class="!text-[12.5px] text-neutral3 mt-2"></p>
+     </div>`,
+    'Simpan Perubahan',
+    'max-w-md',
+  ));
+
+  const formEdit = document.querySelector('#modal-edit-mitra form');
+  const inputNamaMitra = formEdit.elements.nama_mitra;
+  const infoEditMitra = $('info-edit-mitra');
+
+  function perbaruiInfoEdit() {
+    const { list } = kumpulkanMitra();
+    const lama = formEdit.elements.nama_lama.value;
+    const baru = inputNamaMitra.value.trim();
+    const sumber = list.find(m => m.nama === lama);
+    const tujuan = baru && baru !== lama ? list.find(m => m.nama.toLowerCase() === baru.toLowerCase()) : null;
+    if (tujuan) {
+      infoEditMitra.innerHTML = `Nama <strong>${esc(tujuan.nama)}</strong> sudah terdaftar (${tujuan.jumlah} alumni). Menyimpan akan menggabungkan ${sumber?.jumlah || 0} alumni ke <strong>${esc(tujuan.nama)}</strong>.`;
+    } else {
+      infoEditMitra.textContent = `Perubahan ini akan memperbarui nama tempat kerja untuk ${sumber?.jumlah || 0} alumni terkait.`;
     }
   }
 
-  daftarMitra.addEventListener('click', e => {
-    const b = e.target.closest('[data-mitra]');
-    if (b) buka(b.dataset.mitra);
-  });
-  panelAlumni.addEventListener('click', e => {
-    if (e.target.closest('[data-tutup]')) {
-      const sebelumnya = terpilih;
-      buka('');
-      daftarMitra.querySelector(`[data-mitra="${CSS.escape(sebelumnya)}"]`)?.focus();
-      return;
-    }
-    const tr = e.target.closest('tr[data-href]');
-    if (tr && !e.target.closest('a')) location.href = tr.dataset.href;
-  });
-  cariMitra.addEventListener('input', () => {
-    renderDaftar();
-    renderAlumni();
-  });
+  inputNamaMitra.addEventListener('input', perbaruiInfoEdit);
 
-  // ?mitra=<nama> membuka mitra itu; ?alumni=<id> (tautan lama) membuka mitra tempat alumni tersebut bekerja
-  const param = new URLSearchParams(location.search);
-  const dariAlumni = PEKERJA.find(t => t.id_alumni === Number(param.get('alumni')))?.nama_job;
-  terpilih = MITRA.some(m => m.nama === param.get('mitra')) ? param.get('mitra') : (dariAlumni || (layarLebar.matches ? MITRA[0]?.nama || '' : ''));
-  renderDaftar();
-  renderAlumni();
+  pasangForm(
+    'modal-edit-mitra',
+    'Nama mitra berhasil diperbarui.',
+    fd => {
+      const { list } = kumpulkanMitra();
+      const lama = fd.get('nama_lama');
+      const baruRaw = String(fd.get('nama_mitra') || '').trim();
+      const tujuan = list.find(m => m.nama !== lama && m.nama.toLowerCase() === baruRaw.toLowerCase());
+      return DB.tracer.ubahNamaMitra(lama, tujuan ? tujuan.nama : baruRaw);
+    },
+    () => render(),
+  );
 
-  // HP diputar atau jendela dilebarkan: layar lebar tidak pernah kembali ke kartu penuh
-  layarLebar.addEventListener('change', () => {
-    if (layarLebar.matches && !terpilih && MITRA.length) buka(MITRA[0].nama);
-  });
+  function bukaEditMitra(nama) {
+    bukaModalForm('modal-edit-mitra', { nama_lama: nama, nama_mitra: nama });
+    perbaruiInfoEdit();
+  }
+
+  [$('daftar-mitra'), $('daftar-mitra-mobile')].forEach(el => el.addEventListener('click', e => {
+    const btn = e.target.closest('[data-edit-mitra]');
+    if (btn) bukaEditMitra(btn.dataset.editMitra);
+  }));
+
+  $('cari-mitra').addEventListener('input', () => { halaman = 1; render(); });
+  $('hal-sebelum').addEventListener('click', () => { halaman--; render(); });
+  $('hal-berikut').addEventListener('click', () => { halaman++; render(); });
+
+  render();
 </script>
 </body>
 </html>
