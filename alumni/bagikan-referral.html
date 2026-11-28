@@ -94,6 +94,17 @@
                    required
                    class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
           </div>
+
+          <div class="space-y-1.5 sm:col-span-2">
+            <label for="ref-email-kantor" class="block text-[13.5px] font-medium text-[#212224]">
+              Email Kantor Pereview <span class="text-[#6B7280] font-normal">(opsional, untuk kontak kandidat yang diterima)</span>
+            </label>
+            <input type="email"
+                   id="ref-email-kantor"
+                   x-model="form.emailKantor"
+                   placeholder="Contoh: nama@perusahaan.com"
+                   class="w-full h-11 px-3.5 rounded-[10px] border border-[#E3E4E9] bg-white focus:outline-none focus:border-[#3A5988] text-[14px]">
+          </div>
         </div>
       </div>
 
@@ -148,6 +159,7 @@
         posisi: "",
         level: "Magang / Freshgrad",
         batas: defaultDeadline,
+        emailKantor: "",
         isi: "",
       },
 
@@ -176,6 +188,7 @@
             posisi: this.form.posisi.trim(),
             level: this.form.level,
             batas: this.form.batas,
+            emailKantor: this.form.emailKantor.trim(),
             ditutup: false,
           },
           pengajuan: [],

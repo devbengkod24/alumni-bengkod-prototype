@@ -50,22 +50,28 @@
       </div>
       <div id="alat" class="flex flex-wrap gap-2 no-print"></div>
     </div>
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
+    <div class="hidden md:block">
+      <table class="w-full table-fixed text-left border-collapse">
+        <colgroup>
+          <col class="w-[27%]">
+          <col class="w-[21%]">
+          <col class="w-[17%]">
+          <col class="w-[22%]">
+          <col class="w-[13%]">
+        </colgroup>
         <thead>
           <tr class="border-b border-neutral4 bg-white text-[13px] font-medium text-neutral3">
-            <th class="py-3.5 pl-6 pr-4 font-medium min-w-[230px]">Nama</th>
-            <th class="py-3.5 px-4 font-medium min-w-[190px]">Kontak</th>
-            <th class="py-3.5 px-4 font-medium min-w-[125px]">Domisili</th>
-            <th class="py-3.5 px-4 font-medium whitespace-nowrap">Status</th>
-            <th class="py-3.5 px-4 font-medium min-w-[140px]">Posisi</th>
-            <th class="py-3.5 px-4 font-medium min-w-[175px]">Tempat Kerja</th>
-            <th class="py-3.5 pr-6 pl-4 font-medium text-right min-w-[110px] no-print">Aksi</th>
+            <th class="py-3.5 pl-5 pr-3 font-medium">Nama</th>
+            <th class="py-3.5 px-3 font-medium">Kontak</th>
+            <th class="py-3.5 px-3 font-medium">Status</th>
+            <th class="py-3.5 px-3 font-medium">Karier / Studi</th>
+            <th class="py-3.5 pr-5 pl-3 font-medium text-right no-print">Aksi</th>
           </tr>
         </thead>
         <tbody id="daftar" class="divide-y divide-neutral4 text-[13.5px]"></tbody>
       </table>
     </div>
+    <div id="daftar-mobile" class="md:hidden divide-y divide-neutral4"></div>
     <div class="px-6 py-3.5 border-t border-neutral4 bg-[#FAFBFC] flex items-center justify-between gap-3 text-[12.5px] text-neutral3 no-print">
       <span id="status-hasil"></span>
       <div class="flex items-center gap-1">
@@ -119,14 +125,16 @@
   };
 
   const KOLOM_EKSPOR = [
-    ['nama_alumni', 'Nama'], ['jns_kelamin', 'Jenis Kelamin'], ['nim', 'NIM'], ['tahun_masuk', 'Tahun Masuk'], ['tahun_lulus', 'Tahun Lulus'],
-    ['no_hp', 'No WhatsApp'], ['email', 'Email'], ['linkedin', 'LinkedIn'], ['status', 'Status'], ['bidang_job', 'Bidang Pekerjaan'], ['jns_job', 'Kategori Pekerjaan'],
+    ['nama_alumni', 'Nama'], ['jns_kelamin', 'Jenis Kelamin'], ['tahun_lulus', 'Tahun Lulus'],
+    ['no_hp', 'No WhatsApp'], ['email', 'Email'], ['linkedin', 'LinkedIn'], ['status', 'Status'], ['jns_job', 'Kategori Pekerjaan'],
     ['nama_job', 'Tempat Kerja'], ['jabatan_job', 'Jabatan'], ['lingkup_job', 'Tingkat Pekerjaan'], ['biaya_studi', 'Biaya Studi'],
     ['nama_studi', 'Nama Universitas'], ['prodi', 'Program Studi'], ['tgl_studi', 'Tanggal Studi'],
     ['nama_sampingan', 'Tempat Sampingan'], ['peran_sampingan', 'Peran Sampingan'], ['kota', 'Kota'], ['keahlian', 'Keahlian'],
   ];
 
-  const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '' });
+  const tahunLulusTracer = t => (t ? (t.tahun_lulus || DB.tahunLulusDariNim(t.nim) || (t.tahun_masuk ? Number(t.tahun_masuk) + 4 : '') || '') : '');
+
+  const DEFAULT_FILTER = () => ({ sort: '', status: '', batch: '', mitra: '' });
   let activeFilter = DEFAULT_FILTER();
   let draftFilter = DEFAULT_FILTER();
   let activeCategory = 'sort';
@@ -138,15 +146,24 @@
     return KELOMPOK_STATUS[status] ? KELOMPOK_STATUS[status][1].includes(k) : k === status;
   }
 
-  function barisAlumni(a) {
+  function badgeStatusTabel(t) {
+    if (!t) return `<span title="Belum mengisi tracer" aria-label="Belum mengisi tracer">${badge('Belum Tracer', 'gray')}</span>`;
+    return badgeStatus(DB.tracer.kategori(t));
+  }
+
+  function dataBarisAlumni(a) {
     const t = DB.tracer.milik(a.id);
     const karir = DB.tracer.karir(t);
     const foto = a.foto
       ? `<img src="${esc(a.foto)}" alt="" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral4">`
       : `<span class="w-9 h-9 rounded-full bg-primary5 text-primary1 font-semibold text-[12px] flex items-center justify-center shrink-0">${esc(inisial(a.nama))}</span>`;
     const href = `profil-alumni.html?id=${a.id}`;
-    const nimLabel = t?.nim || a.nim;
-    const statusBadge = t ? badgeStatus(DB.tracer.kategori(t)) : badge('Belum mengisi tracer', 'gray');
+    const lulus = tahunLulusTracer(t);
+    const metaParts = [
+      lulus ? `Lulus Tahun ${esc(lulus)}` : 'Lulus Tahun -',
+      isS2(t) ? 'S2' : 'S1',
+    ].join(' · ');
+    const domisili = t?.kota ? esc(t.kota) : '';
     const waLink = t?.no_hp
       ? `<a href="${esc(tautanWa(t.no_hp))}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-primary2 hover:underline font-medium">WhatsApp</a>`
       : '';
@@ -154,36 +171,75 @@
       ? `<a href="${esc(tautanAman(t.linkedin))}" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1 text-neutral3 hover:text-primary1 hover:underline">LinkedIn</a>`
       : '';
     const extraKontak = [waLink, liLink].filter(Boolean).join('');
+    const karierUtama = [karir.posisi, karir.tempat].filter(Boolean).join(' · ') || '-';
+    return { t, foto, href, metaParts, domisili, statusHtml: badgeStatusTabel(t), extraKontak, karierUtama };
+  }
 
+  function barisAlumni(a) {
+    const { t, foto, href, metaParts, domisili, statusHtml, extraKontak, karierUtama } = dataBarisAlumni(a);
     return `
       <tr class="hover:bg-[#F9FAFB] transition-colors group cursor-pointer" data-href="${href}">
-        <td class="py-4 pl-6 pr-4">
-          <div class="flex items-center gap-3">
+        <td class="py-3.5 pl-5 pr-3 align-top">
+          <div class="flex items-start gap-2.5 min-w-0">
             ${foto}
-            <div class="min-w-0">
-              <span class="block font-semibold text-headline group-hover:text-primary1 transition-colors truncate">${esc(a.nama)}</span>
-              <span class="block text-[12px] text-neutral3 truncate">${nimLabel ? `${esc(nimLabel)} · ` : ''}Angkatan ${esc(t?.tahun_lulus || '-')} · ${isS2(t) ? 'S2' : 'S1'}</span>
+            <div class="min-w-0 flex-1">
+              <span class="block font-semibold text-headline group-hover:text-primary1 transition-colors break-words">${esc(a.nama)}</span>
+              <span class="block text-[12px] text-neutral3 leading-snug break-words mt-0.5">${metaParts}</span>
+              ${domisili ? `<span class="inline-flex items-center gap-1 text-[12px] text-neutral3 leading-snug mt-0.5 break-words"><i data-lucide="map-pin" class="w-3 h-3 shrink-0" aria-hidden="true"></i><span>${domisili}</span></span>` : ''}
             </div>
           </div>
         </td>
-        <td class="py-4 px-4">
-          <a href="mailto:${esc(a.email)}" class="block text-[13px] text-neutral1 hover:text-primary1 hover:underline truncate max-w-[200px]">${esc(a.email)}</a>
-          ${extraKontak ? `<div class="mt-1 flex items-center gap-2.5 text-[11.5px]">${extraKontak}</div>` : ''}
+        <td class="py-3.5 px-3 align-top min-w-0">
+          <a href="mailto:${esc(a.email)}" class="block text-[13px] text-neutral1 hover:text-primary1 hover:underline break-all">${esc(a.email)}</a>
+          ${extraKontak ? `<div class="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-[11.5px]">${extraKontak}</div>` : ''}
         </td>
-        <td class="py-4 px-4 text-[#374151]">${esc(t?.kota || '-')}</td>
-        <td class="py-4 px-4 whitespace-nowrap">${statusBadge}</td>
-        <td class="py-4 px-4 font-medium text-neutral1">${esc(karir.posisi || '-')}</td>
-        <td class="py-4 px-4 font-medium text-neutral1">
-          <span class="block">${esc(karir.tempat || '-')}</span>
-          ${t?.nama_studi && t?.nama_job ? `<span class="block text-[12px] font-normal text-neutral3 mt-0.5">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</span>` : ''}
-          ${t?.nama_sampingan ? `<span class="block text-[12px] font-normal text-neutral3 mt-0.5">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</span>` : ''}
+        <td class="py-3.5 px-3 align-top">${statusHtml}</td>
+        <td class="py-3.5 px-3 align-top font-medium text-neutral1 min-w-0">
+          <span class="block break-words">${esc(karierUtama)}</span>
+          ${t?.nama_studi && t?.nama_job ? `<span class="block text-[12px] font-normal text-neutral3 mt-0.5 break-words">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</span>` : ''}
+          ${t?.nama_sampingan ? `<span class="block text-[12px] font-normal text-neutral3 mt-0.5 break-words">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</span>` : ''}
         </td>
-        <td class="py-4 pr-6 pl-4 text-right whitespace-nowrap no-print"><a href="${href}" class="text-[13px] font-medium text-primary1 hover:underline">Lihat detail</a></td>
+        <td class="py-3.5 pr-5 pl-3 align-top text-right whitespace-nowrap no-print"><a href="${href}" class="text-[13px] font-medium text-primary1 hover:underline">Lihat detail</a></td>
       </tr>`;
   }
 
+  function kartuAlumniMobile(a) {
+    const { t, foto, href, metaParts, domisili, statusHtml, extraKontak, karierUtama } = dataBarisAlumni(a);
+    return `
+      <div class="p-4 space-y-2.5 hover:bg-[#F9FAFB] transition-colors cursor-pointer" data-href="${href}">
+        <div class="flex items-start justify-between gap-2.5">
+          <div class="flex items-start gap-2.5 min-w-0 flex-1">
+            ${foto}
+            <div class="min-w-0 flex-1">
+              <span class="block text-[14px] font-semibold text-headline break-words">${esc(a.nama)}</span>
+              <span class="block text-[12px] text-neutral3 leading-snug break-words mt-0.5">${metaParts}</span>
+              ${domisili ? `<span class="inline-flex items-center gap-1 text-[12px] text-neutral3 leading-snug mt-0.5 break-words"><i data-lucide="map-pin" class="w-3 h-3 shrink-0" aria-hidden="true"></i><span>${domisili}</span></span>` : ''}
+            </div>
+          </div>
+          <div class="shrink-0">${statusHtml}</div>
+        </div>
+        <div class="text-[13px] text-neutral1 space-y-1 pl-[46px]">
+          <p class="!text-[13px] font-medium text-neutral1 break-words">${esc(karierUtama)}</p>
+          ${t?.nama_studi && t?.nama_job ? `<p class="!text-[12px] text-neutral3 break-words">S2: ${esc(t.prodi)}, ${esc(t.nama_studi)}</p>` : ''}
+          ${t?.nama_sampingan ? `<p class="!text-[12px] text-neutral3 break-words">Sampingan: ${esc(t.peran_sampingan)}, ${esc(t.nama_sampingan)}</p>` : ''}
+          <div class="pt-1 flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
+            <div class="min-w-0">
+              <a href="mailto:${esc(a.email)}" class="block text-neutral2 hover:text-primary1 hover:underline break-all">${esc(a.email)}</a>
+              ${extraKontak ? `<div class="mt-0.5 flex flex-wrap items-center gap-x-2.5 text-[11.5px]">${extraKontak}</div>` : ''}
+            </div>
+            <a href="${href}" class="text-[12.5px] font-medium text-primary1 hover:underline shrink-0">Lihat detail</a>
+          </div>
+        </div>
+      </div>`;
+  }
+
   const tracerAlumni = DB.akun.alumni().map(a => DB.tracer.milik(a.id)).filter(Boolean);
-  const daftarAngkatan = [...new Set(tracerAlumni.map(t => String(t.tahun_lulus)))].sort((a, b) => Number(b) - Number(a));
+  const daftarTahunLulus = [...new Set(tracerAlumni.map(t => String(tahunLulusTracer(t))).filter(Boolean))].sort((a, b) => Number(b) - Number(a));
+  const daftarMitra = [...new Set(
+    tracerAlumni
+      .filter(t => DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) && t.jns_job !== 'Wirausaha' && t.nama_job)
+      .map(t => t.nama_job),
+  )].sort((a, b) => a.localeCompare(b, 'id'));
 
   const FILTER_SECTIONS = [
     {
@@ -193,8 +249,8 @@
       options: [
         { value: '', label: 'Default' },
         { value: 'nama-asc', label: 'Nama (A–Z)' },
-        { value: 'angkatan-desc', label: 'Angkatan Terbaru' },
-        { value: 'angkatan-asc', label: 'Angkatan Terlama' },
+        { value: 'lulus-desc', label: 'Tahun Lulus Terbaru' },
+        { value: 'lulus-asc', label: 'Tahun Lulus Terlama' },
       ],
     },
     {
@@ -208,9 +264,15 @@
     },
     {
       key: 'batch',
-      railLabel: 'Angkatan',
-      title: 'Angkatan',
-      options: daftarAngkatan.map(v => ({ value: v, label: `Angkatan ${v}` })),
+      railLabel: 'Tahun Lulus',
+      title: 'Tahun Lulus',
+      options: daftarTahunLulus.map(v => ({ value: v, label: `Lulus Tahun ${v}` })),
+    },
+    {
+      key: 'mitra',
+      railLabel: 'Mitra',
+      title: 'Mitra / Instansi',
+      options: daftarMitra.map(v => ({ value: v, label: v })),
     },
   ];
 
@@ -218,15 +280,15 @@
     if (!sort) return list;
     const salinan = [...list];
     if (sort === 'nama-asc') return salinan.sort((a, b) => (a.nama || '').localeCompare(b.nama || '', 'id'));
-    const angkatan = a => Number(DB.tracer.milik(a.id)?.tahun_lulus || 0);
-    if (sort === 'angkatan-desc') return salinan.sort((a, b) => angkatan(b) - angkatan(a) || (a.nama || '').localeCompare(b.nama || '', 'id'));
-    if (sort === 'angkatan-asc') return salinan.sort((a, b) => angkatan(a) - angkatan(b) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    const tahunLulus = a => Number(tahunLulusTracer(DB.tracer.milik(a.id)) || 0);
+    if (sort === 'lulus-desc') return salinan.sort((a, b) => tahunLulus(b) - tahunLulus(a) || (a.nama || '').localeCompare(b.nama || '', 'id'));
+    if (sort === 'lulus-asc') return salinan.sort((a, b) => tahunLulus(a) - tahunLulus(b) || (a.nama || '').localeCompare(b.nama || '', 'id'));
     return salinan;
   }
 
   function filterAlumni(semua) {
     const kata = $('cari').value.trim().toLowerCase();
-    const { sort, status, batch } = activeFilter;
+    const { sort, status, batch, mitra } = activeFilter;
 
     const tersaring = semua.filter(a => {
       const t = DB.tracer.milik(a.id);
@@ -234,7 +296,8 @@
       const teksCari = `${a.nama} ${karir.tempat || ''} ${t?.nama_studi || ''} ${t?.nama_sampingan || ''}`.toLowerCase();
       if (kata && !teksCari.includes(kata)) return false;
       if (!cocokStatus(t, status)) return false;
-      if (batch && String(t?.tahun_lulus) !== batch) return false;
+      if (batch && String(tahunLulusTracer(t)) !== batch) return false;
+      if (mitra && (!DB.STATUS_BEKERJA.includes(DB.tracer.kategori(t)) || t?.jns_job === 'Wirausaha' || t?.nama_job !== mitra)) return false;
       return true;
     });
 
@@ -314,12 +377,15 @@
     $('jumlah-hasil').textContent = hasil.length === semua.length
       ? `(${semua.length} alumni)`
       : `(${hasil.length} dari ${semua.length} alumni)`;
+    const halamanIni = potong(hasil, halaman, PER_HALAMAN);
+    const kosongHtml = `<p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang sesuai</p>
+          <p class="!text-[13px] mt-1">Coba ubah kata kunci pencarian atau atur ulang filter.</p>`;
     $('daftar').innerHTML = hasil.length
-      ? potong(hasil, halaman, PER_HALAMAN).map(barisAlumni).join('')
-      : `<tr><td colspan="7" class="py-12 text-center text-neutral3">
-          <p class="!text-[15px] font-semibold text-headline">Tidak ada alumni yang sesuai</p>
-          <p class="!text-[13px] mt-1">Coba ubah kata kunci pencarian atau atur ulang filter.</p>
-        </td></tr>`;
+      ? halamanIni.map(barisAlumni).join('')
+      : `<tr><td colspan="5" class="py-12 text-center text-neutral3">${kosongHtml}</td></tr>`;
+    $('daftar-mobile').innerHTML = hasil.length
+      ? halamanIni.map(kartuAlumniMobile).join('')
+      : `<div class="py-12 px-4 text-center text-neutral3">${kosongHtml}</div>`;
 
     const awal = hasil.length ? (halaman - 1) * PER_HALAMAN + 1 : 0;
     const akhir = Math.min(halaman * PER_HALAMAN, hasil.length);
@@ -413,22 +479,26 @@
 
   $('hal-sebelum').addEventListener('click', () => { halaman--; render(); });
   $('hal-berikut').addEventListener('click', () => { halaman++; render(); });
-  $('daftar').addEventListener('click', e => {
-    const tr = e.target.closest('tr[data-href]');
-    if (tr && !e.target.closest('a')) location.href = tr.dataset.href;
-  });
+  [$('daftar'), $('daftar-mobile')].forEach(el => el.addEventListener('click', e => {
+    const baris = e.target.closest('[data-href]');
+    if (baris && !e.target.closest('a')) location.href = baris.dataset.href;
+  }));
 
-  // Terapkan filter awal bila datang dari kartu Status Alumni di Dashboard (?status=... atau ?tahun=...)
+  // Terapkan filter awal bila datang dari Dashboard (?status=..., ?tahun=...) atau Mitra (?mitra=...)
   const paramAwal = new URLSearchParams(location.search);
   if (paramAwal.get('status')) activeFilter.status = paramAwal.get('status');
   if (paramAwal.get('tahun')) activeFilter.batch = paramAwal.get('tahun');
+  if (paramAwal.get('mitra')) activeFilter.mitra = paramAwal.get('mitra');
   draftFilter = { ...activeFilter };
 
   pasangToolsTabel('alat', 'data-alumni.csv', () => [
     KOLOM_EKSPOR.map(([, label]) => label),
     ...filterAlumni(DB.akun.alumni()).map(a => {
-      const t = DB.tracer.milik(a.id) || { nama_alumni: a.nama, email: a.email, nim: a.nim || '' };
-      return KOLOM_EKSPOR.map(([k]) => [t[k] ?? ''].flat().join(', '));
+      const t = DB.tracer.milik(a.id) || { nama_alumni: a.nama, email: a.email };
+      return KOLOM_EKSPOR.map(([k]) => {
+        const val = k === 'angkatan' ? angkatanNim(t) : (t[k] ?? '');
+        return [val].flat().join(', ');
+      });
     }),
   ], { salin: false });
 

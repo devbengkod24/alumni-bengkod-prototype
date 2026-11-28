@@ -20,6 +20,13 @@
 
   const waktuAlumni = p => (p.waktu ? Date.parse(p.waktu) : p.id > 1e12 ? p.id : Date.parse(p.date) || 0);
   const keKomentar = c => ({ id: c.id, penulis: c.penulis, peran: c.peran || 'Alumni', waktu: Date.parse(c.waktu) || 0, isi: c.isi, balasan: (c.balasan || []).map(keKomentar) });
+  const LABEL_DURASI_PIN = { 24: '24 jam', 168: '7 hari', 720: '30 hari' };
+  const infoPin = p => {
+    const pinnedAt = Date.parse(p.pinned_at) || 0;
+    const pinnedUntil = Date.parse(p.pinned_until) || 0;
+    const isPinned = Boolean(pinnedUntil && pinnedUntil > Date.now());
+    return { pinnedAt, pinnedUntil, pinnedDurationLabel: p.pinned_duration || '', isPinned };
+  };
 
   function dariAlumni(p, nama) {
     const isi = p.content || '';
@@ -27,6 +34,7 @@
       id: p.id, sumber: 'alumni', penulis: p.authorName, peran: 'Alumni', foto: p.authorAvatar || '', headline: p.authorHeadline || '',
       waktu: waktuAlumni(p), isi, gambar: p.imageUrl || '', karya: p.karya || null, referral: p.referral || null, pengajuan: p.pengajuan || [],
       kategori: kategoriDari(p, isi), pertanyaan: false,
+      ...infoPin(p),
       suka: p.likes || 0, disukaiSaya: (p.disukai || []).includes(nama), komentar: (p.komentarForum || []).map(keKomentar),
     };
   }
@@ -37,6 +45,7 @@
       id: -f.id, sumber: 'forum', penulis: f.penulis, peran: f.peran || 'Alumni', foto: f.foto || '', headline: f.headline || '',
       waktu: Date.parse(f.waktu) || 0, isi, gambar: f.gambar || '', karya: null, referral: f.referral || null, pengajuan: f.pengajuan || [],
       kategori: kategoriDari(f, isi), pertanyaan: !!f.pertanyaan,
+      ...infoPin(f),
       suka: (f.disukai || []).length, disukaiSaya: (f.disukai || []).includes(nama), komentar: (f.comments || []).map(keKomentar),
     };
   }
@@ -61,11 +70,37 @@
 
   window.FeedBersama = {
     KATEGORI_BERANDA,
+    LABEL_DURASI_PIN,
 
-    // Urut dari yang terbaru (tidak ada lagi postingan yang disematkan)
+    // Pin aktif tampil paling atas (urut waktu semat terbaru), diikuti postingan kronologis
     semua(nama) {
       const list = [...loadPosts().map(p => dariAlumni(p, nama)), ...BengkodStore.getForum().map(f => dariForum(f, nama))];
-      return list.sort((a, b) => b.waktu - a.waktu);
+      return list.sort((a, b) => {
+        if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+        if (a.isPinned && b.isPinned && b.pinnedAt !== a.pinnedAt) return b.pinnedAt - a.pinnedAt;
+        return b.waktu - a.waktu;
+      });
+    },
+
+    sematkan(id, durasiJam = 168) {
+      const jam = Number(durasiJam);
+      if (!LABEL_DURASI_PIN[jam]) return { ok: false, error: 'Durasi sematan harus 24 jam, 7 hari, atau 30 hari.' };
+      const now = Date.now();
+      const ok = ubahMentah(id, p => {
+        p.pinned_at = new Date(now).toISOString();
+        p.pinned_until = new Date(now + jam * 3600 * 1000).toISOString();
+        p.pinned_duration = LABEL_DURASI_PIN[jam];
+      });
+      return ok ? { ok: true, label: LABEL_DURASI_PIN[jam] } : { ok: false, error: 'Postingan tidak ditemukan.' };
+    },
+
+    lepasSematan(id) {
+      const ok = ubahMentah(id, p => {
+        delete p.pinned_at;
+        delete p.pinned_until;
+        delete p.pinned_duration;
+      });
+      return ok ? { ok: true } : { ok: false, error: 'Postingan tidak ditemukan.' };
     },
 
     cari(id, nama) {

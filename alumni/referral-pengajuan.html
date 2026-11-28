@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manajemen Pelamar Referral | Portal Alumni Bengkel Koding UDINUS</title>
-  <meta name="description" content="Daftar pengajuan review dan referral untuk lowongan yang Anda bagikan.">
+  <meta name="description" content="Kelola pengajuan pelamar untuk lowongan referral yang Anda bagikan.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -13,14 +13,15 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
         }
       }
     };
   </script>
   <style>
     [x-cloak] { display: none !important; }
-    #masukan-dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
+    body { font-family: 'Inter', sans-serif; }
+    dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
   </style>
   <script src="assets/js/alumni-data.js"></script>
   <script src="assets/js/alumni-catalog.js"></script>
@@ -34,126 +35,158 @@
 <body class="min-h-full bg-[#EFF2F7] font-sans text-[#212224] antialiased">
 <main class="min-w-0 text-[#212224]" data-route="referral" x-data="bengkodReferralPengajuan()" x-init="init()">
   <div class="mx-auto w-full max-w-4xl space-y-5">
-    <a href="referral.html" class="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#3A5988] hover:underline">
-      ← Kembali ke Lowongan Referral
+    <a href="referral.html?tab=saya" class="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#3A5988] hover:underline">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      Kembali ke Referral Saya
     </a>
 
-    <!-- Referral tidak ditemukan / bukan milik sendiri -->
-    <div x-show="!post || !isMine(post)" x-cloak class="rounded-2xl border border-[#E3E4E9] bg-white p-10 text-center">
+    <!-- Lowongan tidak ditemukan / bukan milik sendiri -->
+    <div x-show="!post || !isMine(post)" x-cloak class="bg-white rounded-[14px] p-10 text-center shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-2">
       <p class="text-[16px] font-semibold text-[#0C1117]">Lowongan referral tidak ditemukan</p>
-      <p class="mt-1 text-[13.5px] text-[#6B7280]">Lowongan ini sudah dihapus atau bukan referral yang Anda bagikan.</p>
-      <a href="referral.html" class="mt-4 inline-flex items-center rounded-[9px] bg-[#3A5988] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#496DA8]">
-        Kembali ke Lowongan Referral
-      </a>
+      <p class="text-[13px] text-[#6B7280]">Lowongan ini sudah dihapus atau bukan referral yang Anda bagikan.</p>
+      <div class="pt-2">
+        <a href="referral.html?tab=saya" class="inline-flex items-center justify-center h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-semibold transition-colors">
+          Kembali ke Referral Saya
+        </a>
+      </div>
     </div>
 
     <template x-if="post && isMine(post)">
       <div class="space-y-5">
-        <!-- Ringkasan Lowongan -->
-        <section class="rounded-2xl border border-[#E3E4E9] bg-white p-5 sm:p-6">
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0 space-y-1.5">
-              <p class="text-[12px] font-semibold text-[#6B7280]">Manajemen Pelamar Referral</p>
-              <div class="flex flex-wrap items-center gap-2.5">
-                <h1 class="text-xl font-bold leading-snug text-[#0C1117] sm:text-2xl" x-text="post.referral?.posisi || '-'"></h1>
-                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-semibold"
-                      :class="isClosed ? 'bg-[#F4F5F7] text-[#6B7280]' : 'bg-emerald-50 text-emerald-700'"
-                      x-text="isClosed ? 'Ditutup' : 'Dibuka'"></span>
+        <!-- Ringkasan Lowongan (tanpa garis) -->
+        <section class="bg-white rounded-[14px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div class="flex items-start gap-3.5 min-w-0">
+              <img :src="post.image || (post.id % 2 === 0 ? 'assets/project-city.jpg' : 'assets/project-fuji.webp')"
+                   :alt="post.referral?.posisi || 'Lowongan Referral'"
+                   class="w-[52px] h-[52px] rounded-[10px] object-cover bg-[#F4F5F7] shrink-0">
+              <div class="min-w-0 space-y-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <h1 class="text-[18px] font-semibold text-[#0C1117] leading-snug" x-text="post.referral?.posisi || '-'"></h1>
+                  <span class="px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold"
+                        :class="isClosed ? 'bg-[#F4F5F7] text-[#6B7280]' : 'bg-[#E9F7F8] text-[#2B7A5B]'"
+                        x-text="isClosed ? 'Ditutup' : 'Terbuka'"></span>
+                </div>
+                <p class="text-[13px] text-[#6B7280]">
+                  <span class="text-[#3A5988] font-medium" x-text="post.referral?.perusahaan || '-'"></span>
+                  <span> · </span>
+                  <span x-text="post.referral?.level || 'Umum'"></span>
+                  <template x-if="post.referral?.batas">
+                    <span x-text="' · Batas review ' + formatDate(post.referral.batas)"></span>
+                  </template>
+                </p>
               </div>
-              <p class="text-[13.5px] text-[#6B7280]"
-                 x-text="(post.referral?.perusahaan || '-') + ' · ' + (post.referral?.level || 'Umum') + (post.referral?.batas ? ' · Batas review ' + formatDate(post.referral.batas) : '')"></p>
             </div>
-            <div class="shrink-0">
-              <a :href="'detail-referral.html?id=' + post.id"
-                 class="inline-flex items-center gap-1.5 rounded-[9px] border border-[#E3E4E9] bg-white px-4 py-2 text-[13px] font-semibold text-[#212224] transition-colors hover:border-[#3A5988] hover:text-[#3A5988]">
-                Lihat Detail Lowongan
-              </a>
+            <a :href="'detail-referral.html?id=' + encodeURIComponent(post.id)"
+               class="h-9 px-4 rounded-[8px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#212224] text-[13px] font-medium inline-flex items-center justify-center shrink-0 transition-colors">
+              Lihat Detail Lowongan
+            </a>
+          </div>
+
+          <!-- Filter Status (tanpa garis pemisah) -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter status pelamar">
+              <template x-for="chip in chips" :key="chip.id">
+                <button type="button"
+                        @click="filterStatus = chip.id"
+                        :aria-pressed="filterStatus === chip.id"
+                        :class="filterStatus === chip.id ? 'bg-[#3A5988] text-white' : 'bg-[#F4F5F7] text-[#212224] hover:bg-[#E7EAF0]'"
+                        class="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-full text-[12.5px] font-semibold transition-colors">
+                  <span x-text="chip.label"></span>
+                  <span class="tabular-nums opacity-80" x-text="countBy(chip.id)"></span>
+                </button>
+              </template>
             </div>
+            <p class="text-[12.5px] text-[#6B7280]" x-text="pengajuan.length + ' total pengajuan'"></p>
           </div>
         </section>
 
-        <!-- Filter Status -->
-        <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Filter status pelamar">
-          <template x-for="chip in chips" :key="chip.id">
-            <button type="button"
-                    @click="filterStatus = chip.id"
-                    :aria-pressed="filterStatus === chip.id"
-                    :class="filterStatus === chip.id ? 'border-[#3A5988] bg-[#3A5988] text-white' : 'border-[#E3E4E9] bg-white text-[#212224] hover:border-[#3A5988]'"
-                    class="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors">
-              <span x-text="chip.label"></span>
-              <span class="tabular-nums opacity-80" x-text="'(' + countBy(chip.id) + ')'"></span>
-            </button>
-          </template>
+        <!-- Empty State -->
+        <div x-show="filtered.length === 0" x-cloak class="bg-white rounded-[14px] p-10 text-center shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-1.5">
+          <p class="text-[15px] font-semibold text-[#0C1117]">Belum ada pelamar pada status ini</p>
+          <p class="text-[13px] text-[#6B7280]">Coba pilih filter status lain atau tunggu pengajuan baru dari rekan alumni.</p>
         </div>
 
-        <!-- Empty state -->
-        <div x-show="filtered.length === 0" x-cloak class="rounded-2xl border border-[#E3E4E9] bg-white p-10 text-center">
-          <p class="text-[15px] font-semibold text-[#0C1117]">Belum ada pelamar pada kategori ini</p>
-          <p class="mt-1 text-[13.5px] text-[#6B7280]">Coba pilih filter status lain atau tunggu pengajuan baru dari rekan alumni.</p>
-        </div>
-
-        <!-- Daftar Kartu Pelamar -->
+        <!-- Daftar Pelamar (tanpa garis sama sekali) -->
         <div x-show="filtered.length > 0" class="space-y-4">
           <template x-for="pelamar in filtered" :key="pelamar.id">
-            <article class="rounded-2xl border border-[#E3E4E9] bg-white p-5 sm:p-6 space-y-4">
-              <header class="flex flex-wrap items-start justify-between gap-3">
-                <div class="flex min-w-0 items-center gap-3">
+            <article class="bg-white rounded-[14px] p-5 sm:p-6 shadow-[0_1px_3px_rgba(0,0,0,0.05)] space-y-4">
+              <!-- Header Pelamar -->
+              <div class="flex flex-wrap items-start justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                   <img :src="pelamar.authorAvatar || DEFAULT_AVATAR" :alt="pelamar.authorName"
-                       class="h-11 w-11 shrink-0 rounded-full bg-[#F4F5F7] object-cover">
+                       class="w-11 h-11 rounded-full object-cover bg-[#F4F5F7] shrink-0">
                   <div class="min-w-0">
-                    <h2 class="truncate text-[15px] font-bold text-[#0C1117]" x-text="pelamar.authorName"></h2>
-                    <p class="truncate text-[12.5px] text-[#6B7280]" x-text="pelamar.authorHeadline || 'Alumni Bengkel Koding'"></p>
+                    <h2 class="text-[15px] font-semibold text-[#0C1117] truncate" x-text="pelamar.authorName"></h2>
+                    <p class="text-[12.5px] text-[#6B7280] truncate" x-text="pelamar.authorHeadline || 'Alumni Bengkel Koding'"></p>
                   </div>
                 </div>
-                <div class="flex flex-col items-end gap-1">
-                  <span class="rounded-full px-2.5 py-0.5 text-[12px] font-semibold"
-                        :class="statusClass(pelamar.status)"
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  <span class="px-2.5 py-0.5 rounded-full text-[11.5px] font-semibold"
+                        :class="statusClassNoBorder(pelamar.status)"
                         x-text="statusLabel(pelamar.status)"></span>
-                  <span class="text-[12px] text-[#6B7280]" x-text="formatDate(pelamar.waktu)"></span>
+                  <span class="text-[12px] text-[#6B7280]" x-text="'Diajukan ' + formatDate(pelamar.waktu)"></span>
                 </div>
-              </header>
+              </div>
 
-              <div class="rounded-xl bg-[#F4F5F7] p-3.5">
-                <p class="text-[11px] font-semibold uppercase tracking-wide text-[#6B7280]">Pesan perkenalan &amp; pitching</p>
-                <p class="mt-1 whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-[#212224]"
+              <!-- Pesan Perkenalan -->
+              <div class="rounded-[10px] bg-[#F4F5F7] px-4 py-3.5">
+                <p class="text-[11.5px] font-semibold text-[#6B7280] mb-1">Pesan Perkenalan &amp; Pitching</p>
+                <p class="whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-[#212224]"
                    x-text="pelamar.pesan || 'Tidak ada pesan pengajuan.'"></p>
               </div>
 
-              <div class="flex flex-wrap items-center gap-2.5">
-                <button type="button" @click="openCvViewer(pelamar.authorName)"
-                        class="inline-flex items-center gap-1.5 rounded-[9px] border border-[#E3E4E9] bg-white px-3 py-1.5 text-[12.5px] font-semibold text-[#3A5988] transition-colors hover:border-[#3A5988]">
-                  Lihat CV Alumni
-                </button>
-                <template x-if="pelamar.linkedin">
-                  <a :href="pelamar.linkedin" target="_blank" rel="noopener noreferrer"
-                     class="inline-flex items-center gap-1.5 rounded-[9px] border border-[#E3E4E9] bg-[#F4F7FB] px-3 py-1.5 text-[12.5px] font-semibold text-[#3A5988] transition-colors hover:border-[#3A5988]">
-                    Profil LinkedIn <span aria-hidden="true">↗</span>
-                  </a>
-                </template>
-                <span x-show="pelamar.no_hp" class="inline-flex items-center rounded-[9px] bg-[#F4F5F7] px-3 py-1.5 text-[12.5px] font-medium text-[#6B7280]"
-                      x-text="pelamar.no_hp"></span>
+              <!-- Pesan Penerimaan (jika diterima dan ada pesan) -->
+              <div x-show="pelamar.masukan && normalizeStatus(pelamar.status) === 'diterima'" x-cloak
+                   class="rounded-[10px] bg-[#E9F7F8] px-4 py-3">
+                <p class="text-[11.5px] font-semibold text-[#2B7A5B]">Pesan Penerimaan &amp; Kontak CP</p>
+                <p class="mt-0.5 whitespace-pre-wrap break-words text-[13px] text-[#212224]" x-text="pelamar.masukan"></p>
               </div>
 
-              <div x-show="pelamar.masukan" x-cloak class="rounded-xl border border-[#E3E4E9] bg-[#F4F7FB] p-3.5">
-                <p class="text-[12px] font-semibold text-[#3A5988]">Masukan Reviewer</p>
-                <p class="mt-1 whitespace-pre-wrap break-words text-[13.5px] leading-relaxed text-[#212224]" x-text="pelamar.masukan"></p>
+              <!-- Saran Penolakan (jika ditolak dan ada saran) -->
+              <div x-show="pelamar.masukan && normalizeStatus(pelamar.status) === 'ditolak'" x-cloak
+                   class="rounded-[10px] bg-[#FEECEF]/70 px-4 py-3">
+                <p class="text-[11.5px] font-semibold text-[#A95F77]">Saran untuk Pelamar</p>
+                <p class="mt-0.5 whitespace-pre-wrap break-words text-[13px] text-[#212224]" x-text="pelamar.masukan"></p>
               </div>
 
-              <footer class="flex flex-wrap items-center justify-end gap-2.5 border-t border-[#E3E4E9] pt-4">
-                <button type="button" @click="openMasukanDialog(pelamar)"
-                        class="rounded-[9px] border border-[#E3E4E9] bg-white px-4 py-2 text-[13px] font-semibold text-[#212224] transition-colors hover:bg-[#F4F5F7]">
-                  Beri Masukan
-                </button>
-                <button type="button" x-show="pelamar.status === 'menunggu'"
-                        @click="ubahPelamar(pelamar.id, 'dihubungi', 'Status pelamar diperbarui menjadi Dihubungi.')"
-                        class="rounded-[9px] border border-[#3A5988] px-4 py-2 text-[13px] font-semibold text-[#3A5988] transition-colors hover:bg-[#EFF2F7]">
-                  Tandai Dihubungi
-                </button>
-                <button type="button" @click="hubungiWa(pelamar)"
-                        class="inline-flex items-center gap-2 rounded-[9px] bg-[#3A5988] px-4 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-[#496DA8]">
-                  Hubungi WhatsApp <span aria-hidden="true">↗</span>
-                </button>
-              </footer>
+              <!-- Dokumen & Aksi (tanpa garis pemisah) -->
+              <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                <div class="flex flex-wrap items-center gap-2">
+                  <button type="button" @click="openCvViewer(pelamar.authorName)"
+                          class="h-8 px-3.5 rounded-[8px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#3A5988] text-[12.5px] font-semibold inline-flex items-center gap-1.5 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 2v6h6M16 13H8M16 17H8"/></svg>
+                    Lihat CV
+                  </button>
+                  <template x-if="pelamar.linkedin">
+                    <a :href="pelamar.linkedin" target="_blank" rel="noopener noreferrer"
+                       class="h-8 px-3.5 rounded-[8px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#212224] hover:text-[#3A5988] text-[12.5px] font-medium inline-flex items-center gap-1 transition-colors">
+                      LinkedIn <span aria-hidden="true">↗</span>
+                    </a>
+                  </template>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <template x-if="normalizeStatus(pelamar.status) === 'menunggu'">
+                    <div class="flex items-center gap-2">
+                      <button type="button" @click="openTolakDialog(pelamar)"
+                              class="h-9 px-4 rounded-[8px] bg-[#FEECEF] hover:bg-[#FAD2DF] text-[#A95F77] text-[13px] font-semibold transition-colors">
+                        Tolak
+                      </button>
+                      <button type="button" @click="openTerimaDialog(pelamar)"
+                              class="h-9 px-4 rounded-[8px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13px] font-semibold transition-colors">
+                        Terima
+                      </button>
+                    </div>
+                  </template>
+                  <template x-if="normalizeStatus(pelamar.status) !== 'menunggu'">
+                    <button type="button" @click="ubahStatus(pelamar.id, 'menunggu', 'Status ' + pelamar.authorName + ' dikembalikan ke Menunggu.', '')"
+                            class="h-8 px-3.5 rounded-[8px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#6B7280] text-[12.5px] font-medium transition-colors">
+                      Reset ke Menunggu
+                    </button>
+                  </template>
+                </div>
+              </div>
             </article>
           </template>
         </div>
@@ -161,28 +194,64 @@
     </template>
   </div>
 
-  <!-- Modal Beri Masukan -->
-  <dialog id="masukan-dialog" x-ref="masukanDialog" aria-labelledby="masukan-title"
-          @click.self="$el.close()" @close="masukanTarget = null; masukanText = ''; masukanError = ''"
-          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-[#E3E4E9] bg-white text-[#212224] shadow-xl">
-    <form @submit.prevent="submitMasukanDialog()" class="space-y-4 p-5 sm:p-6">
-      <div class="space-y-1">
-        <h2 id="masukan-title" class="text-lg font-bold text-[#0C1117]">Beri Masukan Pengajuan</h2>
-        <p class="text-[13px] text-[#6B7280]">Tuliskan masukan singkat untuk <strong x-text="masukanTarget?.authorName"></strong>.</p>
+  <!-- Modal Tolak Pengajuan (ukuran lebih besar, tanpa garis) -->
+  <dialog id="tolak-dialog" x-ref="tolakDialog" aria-labelledby="tolak-title"
+          @click.self="$el.close()" @close="tolakTarget = null; tolakAlasan = ''"
+          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-[16px] bg-white text-[#212224] shadow-2xl">
+    <form @submit.prevent="submitTolakDialog()" class="space-y-5 p-6 sm:p-7">
+      <div class="space-y-1.5">
+        <h2 id="tolak-title" class="text-[18px] font-bold text-[#0C1117]">Tolak Pengajuan Referral</h2>
+        <p class="text-[13.5px] text-[#6B7280]">Berikan saran singkat yang membangun untuk <strong class="text-[#0C1117]" x-text="tolakTarget?.authorName"></strong> agar dapat meningkatkan peluang di pengajuan berikutnya (opsional).</p>
       </div>
       <div class="space-y-2">
         <div class="flex items-center justify-between gap-2">
-          <label for="masukan-input" class="block text-[13px] font-semibold">Masukan reviewer</label>
-          <span class="text-[11.5px] tabular-nums text-[#6B7280]" x-text="masukanText.length + '/150'"></span>
+          <label for="tolak-alasan" class="block text-[13px] font-semibold text-[#0C1117]">Saran untuk pelamar (opsional)</label>
+          <span class="text-[12px] tabular-nums text-[#6B7280]" x-text="tolakAlasan.length + '/300'"></span>
         </div>
-        <textarea id="masukan-input" x-model="masukanText" @input="masukanError = ''" required autofocus rows="4" maxlength="150"
-                  placeholder="Contoh: Rapikan ringkasan pengalaman microservices di CV sebelum saya teruskan ke tim HR."
-                  class="w-full resize-y rounded-[10px] border border-[#E3E4E9] px-3 py-2.5 text-[13.5px] outline-none focus:border-[#3A5988]"></textarea>
-        <p x-show="masukanError" x-text="masukanError" role="alert" class="text-[13px] text-red-700"></p>
+        <textarea id="tolak-alasan" x-model="tolakAlasan" rows="5" maxlength="300"
+                  placeholder="Contoh: Profilmu sudah kuat di analisis data, namun saat ini tim mencari kandidat dengan portofolio dashboard bisnis menggunakan SQL dan Looker Studio."
+                  class="w-full resize-y rounded-[10px] bg-[#F4F5F7] px-3.5 py-3 text-[13.5px] leading-relaxed outline-none focus:bg-white focus:ring-2 focus:ring-[#3A5988]/30"></textarea>
       </div>
-      <div class="flex flex-wrap justify-end gap-2">
-        <button type="button" @click="$refs.masukanDialog.close()" class="rounded-[9px] border border-[#E3E4E9] px-4 py-2 text-[13px] font-semibold hover:bg-[#F4F5F7]">Batal</button>
-        <button type="submit" class="rounded-[9px] bg-[#3A5988] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#496DA8]">Kirim Masukan</button>
+      <div class="flex flex-wrap justify-end gap-2.5 pt-1">
+        <button type="button" @click="$refs.tolakDialog.close()"
+                class="h-10 px-4 rounded-[9px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#212224] text-[13.5px] font-medium transition-colors">
+          Batal
+        </button>
+        <button type="submit"
+                class="h-10 px-5 rounded-[9px] bg-[#A95F77] hover:bg-[#914D63] text-white text-[13.5px] font-semibold transition-colors">
+          Tolak Pengajuan
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal Terima Pengajuan (pesan penerimaan & kontak CP, ukuran lebih besar, tanpa garis) -->
+  <dialog id="terima-dialog" x-ref="terimaDialog" aria-labelledby="terima-title"
+          @click.self="$el.close()" @close="terimaTarget = null; terimaPesan = ''"
+          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-[16px] bg-white text-[#212224] shadow-2xl">
+    <form @submit.prevent="submitTerimaDialog()" class="space-y-5 p-6 sm:p-7">
+      <div class="space-y-1.5">
+        <h2 id="terima-title" class="text-[18px] font-bold text-[#0C1117]">Terima Pengajuan Referral</h2>
+        <p class="text-[13.5px] text-[#6B7280]">Kirimkan pesan penerimaan dan informasi kontak yang bisa dihubungi kepada <strong class="text-[#0C1117]" x-text="terimaTarget?.authorName"></strong>.</p>
+      </div>
+      <div class="space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <label for="terima-pesan" class="block text-[13px] font-semibold text-[#0C1117]">Pesan penerimaan &amp; info kontak CP</label>
+          <span class="text-[12px] tabular-nums text-[#6B7280]" x-text="terimaPesan.length + '/350'"></span>
+        </div>
+        <textarea id="terima-pesan" x-model="terimaPesan" rows="5" maxlength="350"
+                  placeholder="Contoh: Selamat! Profil Anda cocok untuk posisi ini. Silakan hubungi saya melalui WhatsApp di 0812-3456-7890 atau email untuk koordinasi penerusan CV ke tim rekrutmen."
+                  class="w-full resize-y rounded-[10px] bg-[#F4F5F7] px-3.5 py-3 text-[13.5px] leading-relaxed outline-none focus:bg-white focus:ring-2 focus:ring-[#3A5988]/30"></textarea>
+      </div>
+      <div class="flex flex-wrap justify-end gap-2.5 pt-1">
+        <button type="button" @click="$refs.terimaDialog.close()"
+                class="h-10 px-4 rounded-[9px] bg-[#F4F5F7] hover:bg-[#E7EAF0] text-[#212224] text-[13.5px] font-medium transition-colors">
+          Batal
+        </button>
+        <button type="submit"
+                class="h-10 px-5 rounded-[9px] bg-[#3A5988] hover:bg-[#496DA8] text-white text-[13.5px] font-semibold transition-colors">
+          Terima Pengajuan
+        </button>
       </div>
     </form>
   </dialog>
@@ -199,16 +268,17 @@
       profile: referralCurrentProfile(),
       posts: [],
       filterStatus: "semua",
-      masukanTarget: null,
-      masukanText: "",
-      masukanError: "",
+      tolakTarget: null,
+      tolakAlasan: "",
+      terimaTarget: null,
+      terimaPesan: "",
       toast: "",
       toastTimer: null,
       chips: [
         { id: "semua", label: "Semua" },
         { id: "menunggu", label: "Menunggu" },
-        { id: "dihubungi", label: "Dihubungi" },
-        { id: "masukan", label: "Diberi Masukan" },
+        { id: "diterima", label: "Diterima" },
+        { id: "ditolak", label: "Ditolak" },
       ],
 
       init() {
@@ -245,9 +315,15 @@
         return (this.post && Array.isArray(this.post.pengajuan)) ? this.post.pengajuan : [];
       },
 
+      normalizeStatus(status) {
+        if (status === "diterima" || status === "dihubungi") return "diterima";
+        if (status === "ditolak") return "ditolak";
+        return "menunggu";
+      },
+
       get filtered() {
         if (this.filterStatus === "semua") return this.pengajuan;
-        return this.pengajuan.filter((p) => p.status === this.filterStatus);
+        return this.pengajuan.filter((p) => this.normalizeStatus(p.status) === this.filterStatus);
       },
 
       isMine(post) {
@@ -256,28 +332,42 @@
 
       countBy(status) {
         if (status === "semua") return this.pengajuan.length;
-        return this.pengajuan.filter((p) => p.status === status).length;
+        return this.pengajuan.filter((p) => this.normalizeStatus(p.status) === status).length;
       },
 
       statusLabel(status) {
-        return referralStatusLabel(status);
+        const st = this.normalizeStatus(status);
+        if (st === "diterima") return "Diterima";
+        if (st === "ditolak") return "Ditolak";
+        return "Menunggu";
       },
 
-      statusClass(status) {
-        return referralStatusClass(status);
+      statusClassNoBorder(status) {
+        const st = this.normalizeStatus(status);
+        if (st === "diterima") return "bg-[#E9F7F8] text-[#2B7A5B]";
+        if (st === "ditolak") return "bg-[#FEECEF] text-[#A95F77]";
+        return "bg-amber-50 text-amber-800";
       },
 
       formatDate(iso) {
         return referralFormatDate(iso);
       },
 
+      waUrl(pelamar) {
+        return referralWaUrl(this.post, pelamar, this.profile && this.profile.name);
+      },
+
       persistPosts() {
         if (typeof savePosts === "function") {
           savePosts(this.posts);
         }
+        const updated = this.post;
+        if (updated && typeof saveBoardVacancy === "function") {
+          saveBoardVacancy(updated);
+        }
       },
 
-      ubahPelamar(pelamarId, statusBaru, pesanToast, masukan) {
+      ubahStatus(pelamarId, statusBaru, pesanToast, catatan) {
         this.posts = this.posts.map((p) => {
           if (String(p.id) !== String(postId)) return p;
           const next = (p.pengajuan || []).map((item) => {
@@ -285,7 +375,7 @@
             return {
               ...item,
               status: statusBaru,
-              masukan: masukan !== undefined ? masukan : item.masukan,
+              masukan: catatan !== undefined ? catatan : item.masukan,
             };
           });
           return { ...p, pengajuan: next };
@@ -294,32 +384,45 @@
         if (pesanToast) this.setToast(pesanToast);
       },
 
-      openMasukanDialog(pelamar) {
-        this.masukanTarget = pelamar;
-        this.masukanText = pelamar.masukan || "";
-        this.masukanError = "";
-        this.$refs.masukanDialog.showModal();
+      openTolakDialog(pelamar) {
+        this.tolakTarget = pelamar;
+        this.tolakAlasan = pelamar.masukan || "";
+        this.$refs.tolakDialog.showModal();
       },
 
-      submitMasukanDialog() {
-        if (!this.masukanTarget) return;
-        const teks = this.masukanText.trim().slice(0, 150);
-        if (!teks) {
-          this.masukanError = "Tuliskan masukan singkat terlebih dahulu.";
-          return;
-        }
-        this.ubahPelamar(
-          this.masukanTarget.id,
-          "masukan",
-          `Masukan dikirim ke ${this.masukanTarget.authorName}.`,
-          teks
+      submitTolakDialog() {
+        if (!this.tolakTarget) return;
+        const catatan = this.tolakAlasan.trim().slice(0, 300);
+        this.ubahStatus(
+          this.tolakTarget.id,
+          "ditolak",
+          `Pengajuan ${this.tolakTarget.authorName} ditolak.`,
+          catatan
         );
-        this.$refs.masukanDialog.close();
+        this.$refs.tolakDialog.close();
       },
 
-      hubungiWa(pelamar) {
-        this.ubahPelamar(pelamar.id, "dihubungi", `Membuka WhatsApp ${pelamar.authorName}.`);
-        window.open(referralWaUrl(this.post, pelamar), "_blank", "noopener,noreferrer");
+      openTerimaDialog(pelamar) {
+        this.terimaTarget = pelamar;
+        const posisi = (this.post && this.post.referral && this.post.referral.posisi) || "posisi ini";
+        const perusahaan = (this.post && this.post.referral && this.post.referral.perusahaan) || "perusahaan kami";
+        const emailKantor = (this.post && this.post.referral && this.post.referral.emailKantor) || "hr-referral@perusahaan.com";
+        this.terimaPesan = (this.normalizeStatus(pelamar.status) === "diterima" && pelamar.masukan)
+          ? pelamar.masukan
+          : `Selamat ${pelamar.authorName}! Profil Anda sesuai untuk posisi ${posisi} di ${perusahaan}. Silakan kirimkan email konfirmasi ke ${emailKantor} untuk koordinasi penerusan CV ke tim rekrutmen.`;
+        this.$refs.terimaDialog.showModal();
+      },
+
+      submitTerimaDialog() {
+        if (!this.terimaTarget) return;
+        const pesan = this.terimaPesan.trim().slice(0, 350);
+        this.ubahStatus(
+          this.terimaTarget.id,
+          "diterima",
+          `Pengajuan ${this.terimaTarget.authorName} diterima.`,
+          pesan
+        );
+        this.$refs.terimaDialog.close();
       },
 
       setToast(msg) {

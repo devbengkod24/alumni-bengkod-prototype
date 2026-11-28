@@ -408,7 +408,7 @@ const NAV = {
     { href: 'dashboard.html', icon: 'layout-dashboard', label: 'Dashboard' },
     { href: 'forum.html', icon: 'messages-square', label: 'Forum' },
     { href: 'laporan-forum.html', icon: 'flag', label: 'Laporan Forum' },
-    { href: 'tracer.html', icon: 'chart-column', label: 'Statistik & Tracer' },
+    { href: 'lacak-alumni.html', icon: 'user-search', label: 'Lacak Alumni' },
     { href: 'data-alumni.html', icon: 'id-card', label: 'Data Alumni' },
     { href: 'mitra.html', icon: 'building-2', label: 'Mitra' },
     { href: 'karya.html', icon: 'trophy', label: 'Karya Alumni' },
@@ -441,8 +441,8 @@ const PORTAL_KOORDINATOR = {
     'forum.html': ['Forum'],
     'forum-detail.html': ['Detail Diskusi', 'forum.html'],
     'laporan-forum.html': ['Laporan Forum'],
-    'tracer.html': ['Statistik & Tracer'],
-    'detail-kelulusan.html': ['Detail Angkatan', 'tracer.html'],
+    'lacak-alumni.html': ['Lacak Alumni'],
+    'detail-kelulusan.html': ['Detail Tahun Lulus', 'lacak-alumni.html'],
     'data-alumni.html': ['Data Alumni'],
     'profil-alumni.html': ['Profil Alumni', 'data-alumni.html'],
     'mitra.html': ['Mitra'],
@@ -452,7 +452,7 @@ const PORTAL_KOORDINATOR = {
     'profil.html': ['Profil Saya'],
   },
   groups: [
-    ['Menu Utama', [['dashboard.html', 'home'], ['data-alumni.html', 'idcard'], ['tracer.html', 'chart'], ['mitra.html', 'building']]],
+    ['Menu Utama', [['dashboard.html', 'home'], ['data-alumni.html', 'idcard'], ['lacak-alumni.html', 'userSearch'], ['mitra.html', 'building']]],
     ['Komunitas', [['forum.html', 'chat'], ['laporan-forum.html', 'flag', 0], ['karya.html', 'trophy'], ['pengumuman.html', 'megaphone']]],
   ],
   home: 'dashboard.html',
@@ -655,13 +655,13 @@ document.addEventListener('DOMContentLoaded', () => {
       <span class="font-medium text-headline truncate">${judul}</span>`;
   } else if (NAMA_FILE === 'detail-kelulusan.html') {
     const thn = esc(urlParams.get('tahun') || '2026');
-    judulDinamis = `Angkatan ${urlParams.get('tahun') || '2026'}`;
+    judulDinamis = `Lulus Tahun ${urlParams.get('tahun') || '2026'}`;
     breadcrumbHTML = `
       <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
       <span class="select-none" aria-hidden="true">/</span>
-      <a href="tracer.html" class="hover:text-headline transition-colors">Statistik &amp; Tracer</a>
+      <a href="lacak-alumni.html" class="hover:text-headline transition-colors">Lacak Alumni</a>
       <span class="select-none" aria-hidden="true">/</span>
-      <span class="font-medium text-headline truncate">Angkatan ${thn}</span>`;
+      <span class="font-medium text-headline truncate">Lulus Tahun ${thn}</span>`;
   } else {
     breadcrumbHTML = `
       <a href="${beranda}" class="hover:text-headline transition-colors">${SAYA.role === 'admin' ? 'Portal Koordinator' : 'Portal Alumni'}</a>
@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
       window.segarkanBadgeSidebar();
     } else {
       window.mountAlumniPortal(main, {
-        profile: { name: SAYA.nama, batch: String(SAYA.angkatan || '') },
+        profile: { name: SAYA.nama, batch: String(SAYA.tahun_lulus || DB.tahunLulusDariNim(SAYA.nim) || '') },
         logout: keluar,
       });
     }

@@ -100,7 +100,7 @@
                       <span class="break-words text-[14px] font-bold text-[#0C1117]" x-text="app.applicantName"></span>
                       <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="statusBadge(app).style" x-text="statusBadge(app).label"></span>
                     </div>
-                    <p class="text-[12px] text-[#6B7280]" x-text="app.applicantBatch ? 'Angkatan ' + app.applicantBatch : 'Alumni Bengkel Koding'"></p>
+                    <p class="text-[12px] text-[#6B7280]" x-text="app.applicantBatch ? 'Lulus Tahun ' + app.applicantBatch : 'Alumni Bengkel Koding'"></p>
                   </div>
                 </div>
                 <div x-show="app.skills?.length" class="flex flex-wrap gap-1.5">
@@ -127,7 +127,7 @@
                   <h2 id="applicant-name" tabindex="-1" class="break-words text-lg font-bold text-[#0C1117]" x-text="selectedApplicant.applicantName"></h2>
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="statusBadge(selectedApplicant).style" x-text="statusBadge(selectedApplicant).label"></span>
-                    <span class="text-[12px] text-[#6B7280]" x-text="selectedApplicant.applicantBatch ? 'Angkatan ' + selectedApplicant.applicantBatch : 'Alumni Bengkel Koding'"></span>
+                    <span class="text-[12px] text-[#6B7280]" x-text="selectedApplicant.applicantBatch ? 'Lulus Tahun ' + selectedApplicant.applicantBatch : 'Alumni Bengkel Koding'"></span>
                   </div>
                 </div>
               </div>
@@ -181,17 +181,12 @@
               </section>
             </div>
 
-            <footer class="flex flex-wrap items-center justify-end gap-2.5 border-t border-[#E3E4E9] bg-[#F8FAFC] p-4 sm:p-5">
+            <footer class="flex flex-wrap items-center justify-end gap-2.5 bg-[#F8FAFC] p-4 sm:p-5">
               <template x-if="applicantStatus(selectedApplicant) === 'pending'">
                 <div class="flex gap-2">
                   <button type="button" @click="openReject(selectedApplicant)" class="rounded-[9px] bg-red-50 px-4 py-2 text-[13px] font-semibold text-red-700 hover:bg-red-100">Tolak</button>
-                  <button type="button" @click="decide(selectedApplicant.id, 'ACCEPTED')" class="rounded-[9px] border border-[#3A5988] px-4 py-2 text-[13px] font-semibold text-[#3A5988] hover:bg-[#EFF2F7]">Terima</button>
+                  <button type="button" @click="openAccept(selectedApplicant)" class="rounded-[9px] bg-[#3A5988] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#496DA8]">Terima</button>
                 </div>
-              </template>
-              <template x-if="emailOf(selectedApplicant)">
-                <a :href="contactLink(selectedApplicant)" class="inline-flex items-center gap-2 rounded-[9px] bg-[#3A5988] px-4 py-2 text-[13px] font-semibold text-white hover:bg-[#496DA8]">
-                  Hubungi <span aria-hidden="true">↗</span>
-                </a>
               </template>
             </footer>
           </article>
@@ -202,22 +197,43 @@
 
   <dialog id="reject-applicant-dialog" x-ref="rejectDialog" aria-labelledby="reject-title"
           @click.self="$el.close()" @close="rejectTarget = null; rejectReason = ''; rejectError = ''"
-          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-md overflow-y-auto rounded-2xl border border-[#E3E4E9] bg-white text-[#212224] shadow-xl">
-    <form @submit.prevent="submitRejection()" class="space-y-4 p-5 sm:p-6">
-      <div class="space-y-1">
-        <h2 id="reject-title" class="text-lg font-bold text-[#0C1117]">Tolak Pengajuan</h2>
-        <p class="text-[13px] text-[#6B7280]">Tuliskan alasan penolakan untuk <strong x-text="rejectTarget?.applicantName"></strong>.</p>
+          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-[16px] bg-white text-[#212224] shadow-2xl">
+    <form @submit.prevent="submitRejection()" class="space-y-5 p-6 sm:p-7">
+      <div class="space-y-1.5">
+        <h2 id="reject-title" class="text-[18px] font-bold text-[#0C1117]">Tolak Pengajuan</h2>
+        <p class="text-[13.5px] text-[#6B7280]">Berikan saran singkat untuk <strong x-text="rejectTarget?.applicantName"></strong> agar dapat meningkatkan peluang di proyek berikutnya (opsional).</p>
       </div>
       <div class="space-y-2">
-        <label for="reject-reason" class="block text-[13px] font-semibold">Alasan penolakan</label>
-        <textarea id="reject-reason" x-model="rejectReason" @input="rejectError = ''" required autofocus rows="4" maxlength="500"
-                  placeholder="Jelaskan alasan penolakan pengajuan ini."
-                  class="w-full resize-y rounded-[10px] border border-[#E3E4E9] px-3 py-2.5 text-[13.5px] outline-none focus:border-[#3A5988]"></textarea>
+        <label for="reject-reason" class="block text-[13px] font-semibold">Saran untuk pelamar (opsional)</label>
+        <textarea id="reject-reason" x-model="rejectReason" @input="rejectError = ''" autofocus rows="5" maxlength="500"
+                  placeholder="Contoh: Lengkapi portofolio dengan contoh proyek terkait sebelum mengajukan kembali."
+                  class="w-full resize-y rounded-[10px] bg-[#F4F5F7] px-3.5 py-3 text-[13.5px] leading-relaxed outline-none focus:bg-white focus:ring-2 focus:ring-[#3A5988]/30"></textarea>
         <p x-show="rejectError" x-text="rejectError" role="alert" class="text-[13px] text-red-700"></p>
       </div>
-      <div class="flex flex-wrap justify-end gap-2">
-        <button type="button" @click="$refs.rejectDialog.close()" class="rounded-[9px] border border-[#E3E4E9] px-4 py-2 text-[13px] font-semibold hover:bg-[#F4F5F7]">Batal</button>
-        <button type="submit" class="rounded-[9px] bg-red-700 px-4 py-2 text-[13px] font-semibold text-white hover:bg-red-800">Tolak Pengajuan</button>
+      <div class="flex flex-wrap justify-end gap-2.5">
+        <button type="button" @click="$refs.rejectDialog.close()" class="h-10 rounded-[9px] bg-[#F4F5F7] px-4 text-[13.5px] font-medium hover:bg-[#E7EAF0]">Batal</button>
+        <button type="submit" class="h-10 rounded-[9px] bg-[#A95F77] px-5 text-[13.5px] font-semibold text-white hover:bg-[#914D63]">Tolak Pengajuan</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="accept-applicant-dialog" x-ref="acceptDialog" aria-labelledby="accept-title"
+          @click.self="$el.close()" @close="acceptTarget = null; acceptMessage = ''"
+          class="m-auto max-h-[calc(100%-2rem)] w-[calc(100%-2rem)] max-w-xl overflow-y-auto rounded-[16px] bg-white text-[#212224] shadow-2xl">
+    <form @submit.prevent="submitAccept()" class="space-y-5 p-6 sm:p-7">
+      <div class="space-y-1.5">
+        <h2 id="accept-title" class="text-[18px] font-bold text-[#0C1117]">Terima Pengajuan</h2>
+        <p class="text-[13.5px] text-[#6B7280]">Kirimkan pesan penerimaan dan kontak email kantor untuk <strong x-text="acceptTarget?.applicantName"></strong>.</p>
+      </div>
+      <div class="space-y-2">
+        <label for="accept-message" class="block text-[13px] font-semibold">Pesan penerimaan &amp; info kontak CP</label>
+        <textarea id="accept-message" x-model="acceptMessage" autofocus rows="5" maxlength="500"
+                  placeholder="Contoh: Selamat! Profil Anda sesuai untuk proyek ini. Silakan kirimkan email konfirmasi ke tim@perusahaan.com untuk jadwal onboarding."
+                  class="w-full resize-y rounded-[10px] bg-[#F4F5F7] px-3.5 py-3 text-[13.5px] leading-relaxed outline-none focus:bg-white focus:ring-2 focus:ring-[#3A5988]/30"></textarea>
+      </div>
+      <div class="flex flex-wrap justify-end gap-2.5">
+        <button type="button" @click="$refs.acceptDialog.close()" class="h-10 rounded-[9px] bg-[#F4F5F7] px-4 text-[13.5px] font-medium hover:bg-[#E7EAF0]">Batal</button>
+        <button type="submit" class="h-10 rounded-[9px] bg-[#3A5988] px-5 text-[13.5px] font-semibold text-white hover:bg-[#496DA8]">Terima Pengajuan</button>
       </div>
     </form>
   </dialog>

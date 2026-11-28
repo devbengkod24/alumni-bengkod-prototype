@@ -74,6 +74,26 @@
       padding: 1.25rem clamp(1rem, 4vw, 1.5rem);
     }
     .profile-dialog .profile-action { min-height: 2.5rem; padding-inline: 1rem; }
+    .my-profile { container-type: inline-size; }
+    .profile-header-links { display: grid; }
+    @container (min-width: 42rem) {
+      .my-profile-columns {
+        grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr);
+      }
+      .my-profile-summary {
+        --summary-top: calc(var(--portal-navbar-height, 72px) + 1rem);
+        --summary-bottom: 1.5rem;
+        position: sticky;
+        top: min(var(--summary-top), calc(100dvh - var(--profile-summary-height, 0px) - var(--summary-bottom)));
+      }
+    }
+    @container (min-width: 55rem) {
+      .profile-header-links {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+      }
+    }
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 999px; }
@@ -86,6 +106,8 @@
         toast: '',
         toastTimer: null,
         modalError: '',
+        avatarFileName: '',
+        avatarReading: false,
         
         // Modals state
         avatarModalOpen: false,
@@ -95,7 +117,6 @@
         educationModalOpen: false,
         certModalOpen: false,
         orgModalOpen: false,
-        shareModalOpen: false,
 
         // Profile State
         profile: loadProfilSaya(),
@@ -284,9 +305,11 @@
           this.restoreProfileSections();
           this.$nextTick(() => {
             const summary = this.$refs.profileSummary;
-            const sizeSummary = () => summary.style.setProperty('--profile-summary-height', `${summary.offsetHeight}px`);
-            sizeSummary();
-            new ResizeObserver(sizeSummary).observe(summary);
+            const measureSummary = () => {
+              summary.style.setProperty('--profile-summary-height', summary.offsetHeight + 'px');
+            };
+            measureSummary();
+            new ResizeObserver(measureSummary).observe(summary);
           });
           window.addEventListener('pageshow', event => {
             if (!event.persisted) return;
@@ -357,10 +380,14 @@
 
         openAvatarModal() {
           this.avatarUrlDraft = this.profile.avatarUrl;
+          this.avatarFileName = '';
+          this.avatarReading = false;
+          this.modalError = '';
           this.avatarModalOpen = true;
         },
 
         saveAvatar() {
+          if (this.avatarReading) return;
           if (this.avatarUrlDraft && this.avatarUrlDraft.trim()) {
             try {
               this.profile = saveProfilSaya({ avatarUrl: this.avatarUrlDraft.trim() });
@@ -373,26 +400,21 @@
           this.setToast('Foto profil berhasil diperbarui');
         },
 
-        handleAvatarUpload(e) {
-          const file = e.target.files && e.target.files[0];
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-              this.avatarUrlDraft = evt.target.result;
-            };
-            reader.readAsDataURL(file);
-          }
-        },
-
-        async copyShareLink() {
+        async handleAvatarUpload(e) {
+          const input = e.target;
+          const file = input.files && input.files[0];
+          if (!file || this.avatarReading) return;
+          this.avatarReading = true;
+          this.modalError = '';
           try {
-            await navigator.clipboard.writeText(window.location.href);
-          } catch {
-            this.modalError = 'Tautan profil gagal disalin.';
-            return;
+            this.avatarUrlDraft = await readProfileImage(file, 1);
+            this.avatarFileName = file.name;
+          } catch (error) {
+            this.modalError = error.message || 'Gambar gagal dibaca.';
+          } finally {
+            this.avatarReading = false;
+            input.value = '';
           }
-          this.setToast('Tautan profil berhasil disalin ke clipboard');
-          this.shareModalOpen = false;
         },
 
         // Experience CRUD
@@ -643,56 +665,68 @@
     <span x-text="toast"></span>
   </div>
 
-  <main data-profile-page="view" class="w-full flex-1 space-y-6 p-4 sm:p-6 lg:p-6">
+  <main data-profile-page="view" class="my-profile w-full flex-1 space-y-6 p-4 sm:p-6">
     <header class="overflow-hidden rounded-[16px] shadow-sm border border-[#E3E4E9] bg-white">
-      <div class="flex h-24 items-start justify-end bg-[#3A5988] px-4 py-4 sm:h-28 sm:px-6">
-        <span class="rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]" x-text="'Alumni ' + profile.batch"></span>
+      <div class="profile-cover relative overflow-hidden bg-[#3A5988] px-4 py-3 sm:px-6">
+        <template x-if="profile.coverImageUrl">
+          <img :src="profile.coverImageUrl" alt="" class="absolute inset-0 h-full w-full object-cover">
+        </template>
+        <div class="relative flex justify-end">
+          <span class="rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]" x-text="'Lulus Tahun ' + profile.batch"></span>
+        </div>
       </div>
-      <div class="relative flex flex-wrap items-end gap-x-4 gap-y-3 px-4 pb-4 sm:px-6 lg:flex-nowrap">
+      <div class="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3 px-4 pb-4 sm:gap-5 sm:px-6 sm:pb-5">
         <button type="button" @click="openAvatarModal()" aria-label="Ganti foto profil"
-                class="group relative -mt-10 h-24 w-24 shrink-0 overflow-hidden rounded-[12px] border-4 border-white bg-[#E2F1F9] shadow-sm focus-visible:outline focus-visible:outline-[#3A5988] sm:h-28 sm:w-28">
+                class="group relative -mt-7 aspect-square self-start w-[clamp(5.75rem,27vw,6.5rem)] overflow-hidden rounded-[12px] border-4 border-white bg-[#E2F1F9] shadow-sm focus-visible:outline focus-visible:outline-[#3A5988] sm:-mt-9 sm:w-36">
           <img :src="profile.avatarUrl" alt="" class="h-full w-full object-cover">
           <span class="absolute inset-x-0 bottom-0 bg-[#0C1117]/70 py-1 text-[11px] font-medium text-white transition sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-visible:opacity-100">Ubah Foto</span>
         </button>
-        <div class="min-w-0 flex-1 pt-3">
-          <p class="flex flex-wrap items-center gap-x-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[#6B7280]">
-            <span x-text="'NIM: ' + profile.nim"></span><span aria-hidden="true">·</span><span>2026</span>
-          </p>
-          <h1 class="mt-1 break-words text-[24px] font-semibold leading-tight tracking-[-0.01em] text-[#0C1117] sm:text-[26px]" x-text="profile.name"></h1>
-          <p class="mt-1 break-words text-[13px] leading-snug text-[#4B5563]" x-text="profile.headline"></p>
-        </div>
-        <div class="flex w-full flex-wrap gap-2 lg:w-auto lg:shrink-0">
-          <a href="edit-profil.html" @click="rememberProfileSections()" class="profile-action profile-action-primary">Edit Profil</a>
-          <button type="button" @click="shareModalOpen = true" class="profile-action">Bagikan</button>
-        </div>
-      </div>
-      <div class="space-y-2 border-t border-[#E3E4E9] bg-[#F4F5F7] px-4 py-3 sm:px-6">
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-[#4B5563]">
-          <span class="inline-flex items-center gap-1.5">
-            <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
-            <span x-text="profile.location"></span>
-          </span>
-          <a :href="'mailto:' + profile.email" class="inline-flex min-w-0 items-center gap-1.5 hover:text-[#3A5988] hover:underline">
-            <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            <span class="break-all" x-text="profile.email"></span>
-          </a>
-          <span class="inline-flex items-center gap-1.5">
-            <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V4h8v3m-13 6h18"/></svg>
-            <span x-text="[profile.jobTitle, profile.companyName].filter(Boolean).join(' · ')"></span>
-          </span>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <a x-show="profile.linkedin" :href="profile.linkedin" target="_blank" rel="noopener noreferrer" class="profile-action">LinkedIn</a>
-          <a x-show="profile.github" :href="profile.github" target="_blank" rel="noopener noreferrer" class="profile-action">GitHub</a>
-          <a x-show="profile.website" :href="profile.website" target="_blank" rel="noopener noreferrer" class="profile-action">Portofolio</a>
+        <div class="min-w-0 space-y-2.5 pt-3">
+          <div class="flex flex-wrap items-start justify-between gap-2.5">
+            <div class="min-w-0">
+              <h1 class="mt-1 break-words text-[24px] font-semibold leading-tight tracking-[-0.01em] text-[#0C1117] sm:text-[26px]" x-text="profile.name"></h1>
+              <p class="mt-1 break-words text-[13px] leading-snug text-[#4B5563]" x-text="profile.headline"></p>
+            </div>
+            <a href="edit-profil.html" @click="rememberProfileSections()" class="profile-action profile-action-primary">Edit Profil</a>
+          </div>
+          <div class="profile-header-links gap-2.5">
+            <div class="grid min-w-0 justify-items-start gap-1.5 text-[13px] text-[#4B5563]">
+              <span class="flex min-w-0 items-start gap-1.5">
+                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                <span class="min-w-0 break-words" x-text="profile.location"></span>
+              </span>
+              <a :href="'mailto:' + profile.email" class="flex min-w-0 items-start gap-1.5 hover:text-[#3A5988] hover:underline">
+                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                <span class="break-all" x-text="profile.email"></span>
+              </a>
+              <span class="flex min-w-0 items-start gap-1.5">
+                <svg aria-hidden="true" class="mt-0.5 h-4 w-4 shrink-0 text-[#3A5988]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V4h8v3m-13 6h18"/></svg>
+                <span class="min-w-0 break-words" x-text="[profile.jobTitle, profile.companyName].filter(Boolean).join(' · ')"></span>
+              </span>
+            </div>
+            <div class="flex shrink-0 flex-wrap gap-2">
+              <a x-show="profile.linkedin" :href="profile.linkedin" target="_blank" rel="noopener noreferrer" class="profile-action gap-1.5">
+                <svg aria-hidden="true" class="h-3.5 w-3.5 shrink-0 text-[#0A66C2]" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/></svg>
+                LinkedIn
+              </a>
+              <a x-show="profile.github" :href="profile.github" target="_blank" rel="noopener noreferrer" class="profile-action gap-1.5">
+                <svg aria-hidden="true" class="h-4 w-4 shrink-0 text-[#111827]" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                GitHub
+              </a>
+              <a x-show="profile.website" :href="profile.website" target="_blank" rel="noopener noreferrer" class="profile-action gap-1.5">
+                <svg aria-hidden="true" class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg>
+                Portofolio
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </header>
 
-    <div class="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
+    <div class="my-profile-columns grid items-start gap-4">
       <div class="min-w-0 space-y-4">
         <section class="profile-panel" aria-labelledby="profile-summary-title">
-          <h2 id="profile-summary-title" class="profile-heading">Ringkasan Eksekutif</h2>
+          <h2 id="profile-summary-title" class="profile-heading">Tentang Saya</h2>
           <div class="profile-copy whitespace-pre-line">
             <p x-text="profile.about"></p>
             <p>Currently advancing machine learning workflows and automated data intelligence pipelines, bridging analytical rigor with intuitive user experiences.</p>
@@ -701,7 +735,7 @@
 
         <section class="profile-panel" aria-labelledby="profile-experience-title">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <h2 id="profile-experience-title" class="profile-heading">Rekam Jejak Pengalaman Kerja</h2>
+            <h2 id="profile-experience-title" class="profile-heading">Pengalaman Kerja</h2>
             <button type="button" @click="openAddExperience()" class="profile-action">+ Tambah Pengalaman</button>
           </div>
           <p class="text-[12px] font-medium text-[#6B7280]" x-text="experiences.length + ' posisi tercatat'"></p>
@@ -711,7 +745,7 @@
                 <div class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
                   <div>
                     <h4 class="text-[15px] font-bold text-[#111827]" x-text="exp.title"></h4>
-                    <p class="text-[13px] font-semibold text-[#3A5988] mt-0.5" x-text="exp.place + (exp.location ? ' · ' + exp.location : '')"></p>
+                    <p class="mt-0.5 break-words text-[13px] font-semibold text-[#3A5988]" x-text="[exp.place, exp.location, exp.type].filter(Boolean).join(' · ')"></p>
                   </div>
                   <div class="flex flex-wrap items-center gap-1.5">
                     <span class="rounded-full bg-[#E2F1F9] px-2 py-0.5 text-[11.5px] font-semibold text-[#3A5988]" x-text="exp.period"></span>
@@ -729,22 +763,6 @@
                 <p class="text-[14px] text-[#4B5563] leading-relaxed pt-1" x-text="exp.notes || exp.note"></p>
               </div>
             </template>
-          </div>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div class="flex flex-col items-center justify-center rounded-[12px] bg-[#F4F5F7] p-4 border border-[#E3E4E9] text-center space-y-2 shadow-2xs">
-              <div class="w-12 h-12 rounded-full bg-[#EBF3FB] text-[#3A5988] flex items-center justify-center mx-auto text-[18px] font-bold">
-                BK
-              </div>
-              <p class="text-[12px] font-semibold text-[#111827]">Bengkel Koding Lab</p>
-              <span class="text-[11px] text-[#6B7280] block">lead mentor & curriculum</span>
-            </div>
-
-            <div class="w-full rounded-[12px] overflow-hidden border border-[#E3E4E9] shadow-sm">
-              <img src="assets/project-city.jpg" alt="Work Environment" class="w-full h-36 object-cover">
-              <div class="p-2.5 bg-white text-center text-[11px] text-[#6B7280] font-medium">
-                Jakarta Tech Ecosystem · 2024–Present
-              </div>
-            </div>
           </div>
         </section>
 
@@ -818,10 +836,6 @@
             <h2 id="profile-projects-title" class="profile-heading">Proyek &amp; Portofolio</h2>
             <button type="button" @click="openAddProject()" class="profile-action">+ Tambah Proyek</button>
           </div>
-          <div class="profile-copy">
-            <p>I build transparent, explainable data applications that bridge the gap between mathematical depth and human decision making.</p>
-            <p>Alongside my predictive modeling work, I explore interactive visualizations, automated dashboards, and intuitive data stories that empower users.</p>
-          </div>
           <div class="space-y-3">
             <template x-for="p in projects" :key="p.id">
               <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-2.5 group hover:border-[#A7B8CF] transition-colors">
@@ -848,22 +862,6 @@
               </div>
             </template>
           </div>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div class="w-full rounded-[12px] overflow-hidden border border-[#E3E4E9] shadow-sm group">
-              <img src="assets/project-fuji.webp" alt="Capstone Preview" class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300">
-              <div class="p-3 bg-white text-left">
-                <div class="text-[13px] font-bold text-[#111827]">Risk Intelligence Engine</div>
-                <p class="text-[11px] text-[#6B7280] mt-0.5">SHAP-explained predictive model</p>
-              </div>
-            </div>
-            <div class="w-full rounded-[12px] overflow-hidden border border-[#E3E4E9] shadow-sm group">
-              <img src="assets/project-city.jpg" alt="Sentiment Dashboard" class="w-full h-36 object-cover group-hover:scale-105 transition-transform duration-300">
-              <div class="p-3 bg-white text-left">
-                <div class="text-[13px] font-bold text-[#111827]">Sentiment Stream Analyzer</div>
-                <p class="text-[11px] text-[#6B7280] mt-0.5">BERT fine-tuned telemetry pipeline</p>
-              </div>
-            </div>
-          </div>
         </section>
 
         <section class="profile-panel" aria-labelledby="profile-org-title">
@@ -874,8 +872,8 @@
           <div class="grid gap-3 xl:grid-cols-2">
             <template x-for="org in organizations" :key="org.id">
               <div class="p-4 rounded-[12px] bg-[#F4F5F7] border border-[#E3E4E9] space-y-1.5 group">
-                <div class="flex flex-wrap items-start justify-between gap-2">
-                  <div>
+                <div class="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                  <div class="min-w-0 break-words">
                     <h4 class="text-[15px] font-bold text-[#111827]" x-text="org.role"></h4>
                     <p class="text-[13px] text-[#3A5988] font-medium" x-text="org.name"></p>
                     <p class="text-[12px] text-[#6B7280]" x-text="[org.period, org.affiliated].filter(Boolean).join(' · ')"></p>
@@ -901,7 +899,7 @@
         </section>
       </div>
 
-      <aside x-ref="profileSummary" aria-label="Ringkasan profil" class="profile-summary min-w-0 space-y-4">
+      <aside x-ref="profileSummary" aria-label="Ringkasan profil" class="my-profile-summary grid min-w-0 gap-4">
         <section class="profile-panel" aria-labelledby="profile-completeness-title">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h2 id="profile-completeness-title" class="profile-heading">Kelengkapan Profil</h2>
@@ -932,20 +930,6 @@
             </ul>
           </div>
         </section>
-
-        <section class="profile-panel" aria-labelledby="profile-stats-title">
-          <h2 id="profile-stats-title" class="profile-heading">Statistik Profil</h2>
-          <dl class="grid grid-cols-2 gap-2">
-            <div class="rounded-[12px] bg-[#F4F5F7] px-3 py-2.5">
-              <dt class="text-[11px] text-[#4B5563]">Pengikut</dt>
-              <dd class="text-[22px] font-bold text-[#3A5988]" x-text="profile.followers"></dd>
-            </div>
-            <div class="rounded-[12px] bg-[#F4F5F7] px-3 py-2.5">
-              <dt class="text-[11px] text-[#4B5563]">Proyek</dt>
-              <dd class="text-[22px] font-bold text-[#3A5988]" x-text="projects.length"></dd>
-            </div>
-          </dl>
-        </section>
       </aside>
     </div>
   </main>
@@ -963,21 +947,37 @@
       </header>
       <div class="profile-dialog-body space-y-4 text-[14px]">
         <div class="flex justify-center">
-          <img :src="avatarUrlDraft || profile.avatarUrl" class="w-24 h-24 rounded-[16px] object-cover border-2 border-[#3A5988]">
+          <img :src="avatarUrlDraft || profile.avatarUrl" alt="Pratinjau foto profil" class="h-24 w-24 rounded-[16px] border-2 border-[#3A5988] bg-[#F4F5F7] object-cover shadow-xs">
+        </div>
+        <div class="space-y-2 text-left text-[13px]">
+          <label for="modal-avatar-file" class="block font-semibold text-[#0C1117]">Unggah Berkas Baru</label>
+          <div class="flex flex-wrap items-center gap-3 rounded-[10px] border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-3 py-2.5">
+            <input id="modal-avatar-file" autofocus type="file" accept="image/jpeg,image/png,image/webp" :disabled="avatarReading"
+                   @change="handleAvatarUpload($event)" aria-describedby="modal-avatar-help" class="peer sr-only">
+            <label for="modal-avatar-file"
+                   class="inline-flex h-9 shrink-0 cursor-pointer items-center gap-2 rounded-[8px] border border-[#CBD5E1] bg-white px-3.5 text-[13px] font-semibold text-[#3A5988] shadow-xs transition-colors hover:border-[#3A5988] hover:bg-[#EBF3FB] peer-focus-visible:ring-2 peer-focus-visible:ring-[#3A5988] peer-focus-visible:ring-offset-1 peer-disabled:pointer-events-none peer-disabled:opacity-50">
+              <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+              </svg>
+              <span x-text="avatarFileName ? 'Ganti Berkas' : 'Pilih Foto'"></span>
+            </label>
+            <span class="min-w-0 flex-1 truncate text-[12.5px] text-[#4B5563]"
+                  x-text="avatarReading ? 'Memuat pratinjau…' : (avatarFileName || 'Belum ada berkas dipilih')"></span>
+          </div>
+          <p id="modal-avatar-help" class="text-[12px] text-[#6B7280]">Format JPG, PNG, atau WebP persegi hingga 1 MB.</p>
         </div>
         <div class="space-y-1.5 text-left text-[13px]">
-          <label class="block font-semibold text-[#0C1117]">Unggah Berkas Baru</label>
-          <input autofocus type="file" accept="image/*" @change="handleAvatarUpload($event)" class="w-full text-[12px] text-[#6B7280]">
-        </div>
-        <div class="space-y-1.5 text-left text-[13px]">
-          <label class="block font-semibold text-[#0C1117]">Atau Masukkan URL Gambar</label>
-          <input type="url" x-model="avatarUrlDraft" placeholder="https://..." class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
+          <label for="modal-avatar-url" class="block font-semibold text-[#0C1117]">Atau Masukkan URL Gambar</label>
+          <input id="modal-avatar-url" type="url"
+                 :value="avatarUrlDraft && avatarUrlDraft.startsWith('data:') ? '' : avatarUrlDraft"
+                 @input="avatarUrlDraft = $event.target.value; avatarFileName = ''; modalError = ''"
+                 placeholder="https://..." class="w-full h-10 px-3 rounded-[8px] border border-[#E3E4E9] focus:border-[#3A5988] focus:outline-none">
         </div>
         <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
       </div>
       <footer class="profile-dialog-footer flex flex-wrap items-center justify-end gap-2 border-t border-[#E3E4E9] bg-[#F8FAFC]">
         <button type="button" @click="avatarModalOpen = false" class="profile-action">Batal</button>
-        <button type="submit" class="profile-action profile-action-primary">Terapkan Foto</button>
+        <button type="submit" :disabled="avatarReading" class="profile-action profile-action-primary disabled:opacity-50">Terapkan Foto</button>
       </footer>
     </form>
   </dialog>
@@ -1267,30 +1267,6 @@
         <button type="submit" class="profile-action profile-action-primary">Simpan</button>
       </footer>
     </form>
-  </dialog>
-
-  <dialog class="profile-dialog profile-dialog-compact" aria-labelledby="profile-share-title"
-          x-effect="syncProfileDialog($el, shareModalOpen)"
-          @close="if (!$el.open) shareModalOpen = false" @click.self="$el.close()">
-    <div class="profile-dialog-layout">
-      <header class="profile-dialog-header flex items-center justify-between gap-3 border-b border-[#E3E4E9]">
-        <h2 id="profile-share-title" class="text-[17px] font-bold text-[#0C1117]">Bagikan Profil Anda</h2>
-        <button type="button" @click="shareModalOpen = false" aria-label="Tutup dialog"
-                class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#F4F5F7] text-[#6B7280] hover:bg-[#EAECEF] hover:text-[#0C1117]">
-          <svg aria-hidden="true" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
-        </button>
-      </header>
-      <div class="profile-dialog-body space-y-4 text-[14px]">
-        <p class="text-[#4B5563]">Salin tautan profil untuk dibagikan kepada rekan kerja, mitra, atau recruiter industri:</p>
-        <div class="flex items-center gap-2 p-2 rounded-[8px] bg-[#F8FAFC] border border-[#E3E4E9]">
-          <input type="text" readonly :value="window.location.href" class="w-full bg-transparent text-[12.5px] text-[#212224] focus:outline-none select-all font-mono">
-          <button type="button" @click="copyShareLink()" class="px-3 py-1.5 rounded-[6px] bg-[#3A5988] text-white text-[12px] font-semibold shrink-0">
-            Salin
-          </button>
-        </div>
-        <p x-show="modalError" x-text="modalError" role="alert" class="rounded-[8px] bg-red-50 px-3 py-2 text-[13px] text-red-700"></p>
-      </div>
-    </div>
   </dialog>
 
   <script>mountAlumniPortal(document.querySelector('main'));</script>

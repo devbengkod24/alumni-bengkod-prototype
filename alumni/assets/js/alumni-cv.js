@@ -273,7 +273,7 @@ function renderModernCvHTML(data, options = {}) {
     <div style="min-width:0;flex:1;">
       <h2 style="margin:0;font-size:26px;line-height:1.2;font-weight:800;color:${NAVY};">${e(p.name)}</h2>
       ${p.headline ? `<p style="margin:6px 0 0;font-size:14px;line-height:1.4;font-weight:600;color:#374151;">${e(p.headline)}</p>` : ""}
-      <p style="margin:4px 0 0;font-size:12px;line-height:1.4;color:#6b7280;">${e((p.university || "Universitas Dian Nuswantoro") + " • Angkatan " + (p.batch || "2024"))}</p>
+      <p style="margin:4px 0 0;font-size:12px;line-height:1.4;color:#6b7280;">${e((p.university || "Universitas Dian Nuswantoro") + " • Lulus Tahun " + (p.batch || "2024"))}</p>
     </div>
     <div style="text-align:right;flex-shrink:0;max-width:45%;">${kontak}</div>
   </header>`;

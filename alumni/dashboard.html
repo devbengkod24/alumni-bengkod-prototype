@@ -298,7 +298,13 @@
             list = list.filter(p => (p.tags || []).includes(this.selectedTag));
           }
 
-          return list;
+          return [...list].sort((a, b) => {
+            const aPin = this.isPinnedActive(a);
+            const bPin = this.isPinnedActive(b);
+            if (aPin !== bPin) return aPin ? -1 : 1;
+            if (aPin && bPin && b.pinnedAt !== a.pinnedAt) return b.pinnedAt - a.pinnedAt;
+            return 0;
+          });
         },
 
         filterByTag(tag) {
@@ -317,7 +323,7 @@
             this.refreshSidebar();
           });
           window.addEventListener('storage', event => {
-            if (event.key === STORAGE_KEY || event.key === null) this.refreshStoredPosts();
+            if ([STORAGE_KEY, 'bengkod_shared_forum_v2', null].includes(event.key)) this.refreshStoredPosts();
             this.refreshSidebar();
           });
           this.startSpotlightAutoplay();
@@ -354,11 +360,53 @@
         refreshStoredPosts(fallback = []) {
           const shown = new Map(this.posts.map(post => [post.id, post]));
           const saved = loadPosts()
-            .filter(post => post.fromDashboard)
+            .filter(post => post.fromDashboard || (post.pinned_until && Date.parse(post.pinned_until) > Date.now()))
             .sort((a, b) => b.id - a.id)
             .map(post => formatAlumniPost(post, shown.get(post.id)));
+          const forumPosts = (typeof BengkodStore !== 'undefined' && BengkodStore.getForum)
+            ? BengkodStore.getForum()
+                .filter(f => f.peran === 'Koordinator' || (f.pinned_until && Date.parse(f.pinned_until) > Date.now()))
+                .sort((a, b) => (Date.parse(b.waktu) || 0) - (Date.parse(a.waktu) || 0))
+                .map(f => {
+                  const id = -f.id;
+                  const old = shown.get(id);
+                  const isi = [f.judul, f.isi].filter(Boolean).join('\n\n');
+                  const catRaw = (f.category || '').toLowerCase();
+                  const category = catRaw.includes('karya') ? 'karya' : catRaw.includes('referral') ? 'referral' : 'all';
+                  return {
+                    timeAgo: f.waktu ? new Date(f.waktu).toLocaleDateString('id-ID', { dateStyle: 'medium' }) : 'Baru saja',
+                    category,
+                    tags: [],
+                    textShort: isi,
+                    textFull: isi,
+                    mediaImage: f.gambar || '',
+                    attachment: null,
+                    isExpanded: false,
+                    likesCount: (f.disukai || []).length,
+                    isLiked: false,
+                    commentsCount: (f.comments || []).length,
+                    showComments: false,
+                    newCommentText: '',
+                    comments: (f.comments || []).map(c => ({
+                      id: c.id,
+                      author: c.penulis,
+                      avatar: DEFAULT_AVATAR,
+                      time: c.waktu ? new Date(c.waktu).toLocaleDateString('id-ID') : '',
+                      text: c.isi,
+                    })),
+                    ...old,
+                    id,
+                    authorName: f.penulis || 'Koordinator Alumni',
+                    authorAvatar: f.foto || DEFAULT_AVATAR,
+                    authorHeadline: f.headline || (f.peran === 'Koordinator' ? 'Koordinator Alumni Bengkel Koding' : 'Alumni Bengkel Koding'),
+                    pinnedAt: f.pinned_at ? Date.parse(f.pinned_at) || 0 : 0,
+                    pinnedUntil: f.pinned_until ? Date.parse(f.pinned_until) || 0 : 0,
+                    pinnedDurationLabel: f.pinned_duration || '',
+                  };
+                })
+            : [];
           const savedIds = new Set(saved.map(post => post.id));
-          this.posts = [...saved, ...fallback.filter(post => !savedIds.has(post.id))];
+          this.posts = [...forumPosts, ...saved, ...fallback.filter(post => !savedIds.has(post.id))];
         },
 
         ownsPost(post) {

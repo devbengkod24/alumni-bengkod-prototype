@@ -20,7 +20,8 @@ const KETERANGAN_ALASAN = {
 function identitasForum(user) {
   if (user.role === 'admin') return 'Koordinator Alumni';
   const t = DB.tracer.milik(user.id);
-  return t ? `${DB.tracer.karir(t).ringkas} · Angkatan ${t.tahun_lulus}` : 'Alumni Bengkel Koding';
+  const lulus = t ? (t.tahun_lulus || DB.tahunLulusDariNim(t.nim) || (t.tahun_masuk ? Number(t.tahun_masuk) + 4 : '') || '') : '';
+  return t ? `${DB.tracer.karir(t).ringkas}${lulus ? ` · Lulus Tahun ${lulus}` : ''}` : 'Alumni Bengkel Koding';
 }
 
 const badgeKoordinator = user => (user.role === 'admin' ? badge('Koordinator') : '');
@@ -47,7 +48,8 @@ const jumlahSuara = t => t.opsi.reduce((n, o) => n + o.suara.length, 0);
 
 function barisDiskusi(t) {
   const penulis = DB.akun.cari(t.id_user);
-  const lulus = DB.tracer.milik(t.id_user)?.tahun_lulus;
+  const tracerPenulis = DB.tracer.milik(t.id_user);
+  const lulus = tracerPenulis ? (tracerPenulis.tahun_lulus || DB.tahunLulusDariNim(tracerPenulis.nim) || (tracerPenulis.tahun_masuk ? Number(tracerPenulis.tahun_masuk) + 4 : '')) : '';
   const tersimpan = t.disimpan.includes(SAYA.id);
   const angka = [
     ['message-square', `${DB.forum.balasanTampil(t).length} balasan`],
@@ -64,7 +66,7 @@ function barisDiskusi(t) {
           <a href="forum-detail.html?id=${t.id}" class="hover:text-primary1 focus:outline-none focus-visible:underline after:absolute after:inset-0">${esc(t.judul)}</a>
         </h3>
         ${t.isi ? `<p class="!text-[13px] text-neutral2 mt-1 leading-relaxed line-clamp-2 break-words">${esc(t.isi)}</p>` : ''}
-        <p class="!text-xs text-neutral3 mt-2">${esc(penulis.nama)}${penulis.role === 'admin' ? ' · Koordinator' : lulus ? ` · Angkatan ${lulus}` : ''} · Aktif ${waktuLalu(DB.forum.aktivitas(t))}</p>
+        <p class="!text-xs text-neutral3 mt-2">${esc(penulis.nama)}${penulis.role === 'admin' ? ' · Koordinator' : lulus ? ` · Lulus Tahun ${lulus}` : ''} · Aktif ${waktuLalu(DB.forum.aktivitas(t))}</p>
         <div class="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1.5 text-xs text-neutral3">
           ${angka.map(([ikon, teks]) => `<span class="inline-flex items-center gap-1"><i data-lucide="${ikon}" class="w-3.5 h-3.5"></i>${teks}</span>`).join('')}
         </div>

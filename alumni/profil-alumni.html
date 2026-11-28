@@ -187,8 +187,6 @@
           <i data-lucide="${karya ? 'flask-conical' : 'message-circle'}" class="w-[18px] h-[18px]"></i>${jumlah}<span class="hidden sm:inline">${karya ? 'feedback' : 'komentar'}</span></button>
         <button type="button" data-aksi="suka" data-id="${p.id}" aria-pressed="${ditekan}" aria-label="${karya ? 'Dukung' : 'Suka'} (${p.suka.length})" class="${AKSI} ${ditekan ? 'text-primary1 bg-primary5' : 'text-neutral3 hover:text-primary1 hover:bg-primary5/70'}">
           <i data-lucide="${karya ? 'arrow-big-up' : 'thumbs-up'}" class="w-[18px] h-[18px] ${ditekan ? 'fill-current' : ''}"></i>${p.suka.length}<span class="hidden sm:inline">${karya ? 'dukungan' : 'suka'}</span></button>
-        <button type="button" data-aksi="bagikan" data-id="${p.id}" aria-label="Salin tautan postingan" class="${AKSI} text-neutral3 hover:text-primary1 hover:bg-primary5/70">
-          <i data-lucide="share-2" class="w-[18px] h-[18px]"></i><span class="hidden sm:inline">Bagikan</span></button>
       </div>
       ${buka ? (karya ? panelFeedback(p) : panelKomentar(p)) : ''}`;
   }
@@ -240,21 +238,11 @@
     refreshIcons();
   }
 
-  async function salinTautan(id) {
-    try {
-      await navigator.clipboard.writeText(new URL(`beranda.html#post-${id}`, location.href).href);
-      showToast('Tautan postingan disalin.');
-    } catch {
-      showToast('Browser menolak akses salin.', 'error');
-    }
-  }
-
   daftar.addEventListener('click', e => {
     const tombol = e.target.closest('[data-aksi]');
     if (!tombol) return;
     const id = Number(tombol.dataset.id);
     const aksi = tombol.dataset.aksi;
-    if (aksi === 'bagikan') return salinTautan(id);
     if (aksi === 'suka') DB.feed.suka(id, SAYA.id);
     if (aksi === 'buka' && !terbuka.delete(id)) terbuka.add(id);
     segarkan(id);
