@@ -7,249 +7,196 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="../assets/css/style.css?v=6">
+  <link rel="stylesheet" href="../alumni/assets/css/profile-layout.css">
   <script src="../alumni/assets/js/data.js?v=10"></script>
   <script src="../alumni/assets/js/app.js?v=11"></script>
   <script src="../alumni/assets/js/portal-layout.js"></script>
   <script src="../assets/js/page-skeleton.js?v=6"></script>
   <script src="../assets/js/main.js?v=5"></script>
-  <!-- Komponen yang sama dengan halaman Profil Saya milik alumni (varian detail = hanya baca) -->
-  <script src="../alumni/assets/js/alumni-data.js"></script>
-  <script src="../alumni/assets/js/alumni-profile-data.js"></script>
-  <script src="../alumni/assets/js/alumni-profile-modals.js"></script>
-  <script src="../alumni/assets/js/alumni-profile-page.js"></script>
 </head>
 <body class="bg-white text-neutral1 antialiased font-sans">
 <main data-title="Profil Alumni" data-nav="data-alumni.html">
-  <div x-data="profilAlumni" class="w-full space-y-6 pb-12 antialiased">
-    <div data-partial="profile-top" data-variant="detail"></div>
-
-    <div id="section-status-karir" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7 space-y-5">
-      <div class="flex items-center justify-between pb-4 border-b border-gray-100 flex-wrap gap-3">
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Status Karir &amp; Tracer</h3>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border"
-            :class="hasTracer ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-gray-100 text-gray-600 border-gray-200'"
-            x-text="hasTracer ? profile.careerStatus : 'Belum mengisi data'"></span>
-        </div>
-        <template x-if="hasTracer && updatedAtLabel">
-          <span class="text-[13px] text-gray-400" x-text="'Diperbarui ' + updatedAtLabel"></span>
-        </template>
-      </div>
-
-      <template x-if="!hasTracer">
-        <p class="text-center text-[15px] text-gray-500 py-4">Alumni ini belum mengisi data tracer study.</p>
-      </template>
-
-      <template x-if="hasTracer">
-        <div class="space-y-5">
-          <template x-if="profile.jobTitle || profile.companyName">
-            <dl class="divide-y divide-gray-100">
-              <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 first:pt-0">
-                <dt class="text-[14px] text-gray-500">Jabatan</dt>
-                <dd class="text-[14px] font-semibold text-gray-900" x-text="profile.jobTitle || '-'"></dd>
-              </div>
-              <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5">
-                <dt class="text-[14px] text-gray-500">Instansi / Usaha</dt>
-                <dd class="text-[14px] font-medium text-gray-900" x-text="profile.companyName || '-'"></dd>
-              </div>
-              <template x-if="profile.jobField">
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5">
-                  <dt class="text-[14px] text-gray-500">Bidang Pekerjaan</dt>
-                  <dd class="text-[14px] font-medium text-gray-900" x-text="profile.jobField"></dd>
-                </div>
-              </template>
-              <template x-if="profile.jobCategory">
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5">
-                  <dt class="text-[14px] text-gray-500">Kategori</dt>
-                  <dd class="text-[14px] font-medium text-gray-900" x-text="profile.jobCategory"></dd>
-                </div>
-              </template>
-              <template x-if="profile.jobScope">
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 last:pb-0">
-                  <dt class="text-[14px] text-gray-500">Tingkat / Lingkup</dt>
-                  <dd class="text-[14px] font-medium text-gray-900" x-text="profile.jobScope"></dd>
-                </div>
-              </template>
-            </dl>
-          </template>
-
-          <template x-if="profile.studyUniversity">
-            <div class="pt-4 border-t border-gray-100">
-              <p class="text-[12px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Studi Lanjut</p>
-              <dl class="divide-y divide-gray-100">
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 first:pt-0">
-                  <dt class="text-[14px] text-gray-500">Program Studi</dt>
-                  <dd class="text-[14px] font-semibold text-gray-900" x-text="profile.studyMajor || '-'"></dd>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5">
-                  <dt class="text-[14px] text-gray-500">Perguruan Tinggi</dt>
-                  <dd class="text-[14px] font-medium text-gray-900" x-text="profile.studyUniversity"></dd>
-                </div>
-                <template x-if="profile.studyFunding">
-                  <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 last:pb-0">
-                    <dt class="text-[14px] text-gray-500">Sumber Biaya</dt>
-                    <dd class="text-[14px] font-medium text-gray-900" x-text="profile.studyFunding"></dd>
-                  </div>
-                </template>
-              </dl>
-            </div>
-          </template>
-
-          <template x-if="profile.sideJobCompany">
-            <div class="pt-4 border-t border-gray-100">
-              <p class="text-[12px] font-semibold uppercase tracking-wider text-gray-400 mb-2">Pekerjaan Sampingan / Freelance</p>
-              <dl class="divide-y divide-gray-100">
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 first:pt-0">
-                  <dt class="text-[14px] text-gray-500">Peran</dt>
-                  <dd class="text-[14px] font-semibold text-gray-900" x-text="profile.sideJobRole || '-'"></dd>
-                </div>
-                <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 last:pb-0">
-                  <dt class="text-[14px] text-gray-500">Tempat / Klien</dt>
-                  <dd class="text-[14px] font-medium text-gray-900" x-text="profile.sideJobCompany"></dd>
-                </div>
-              </dl>
-            </div>
-          </template>
-        </div>
-      </template>
-    </div>
-
-    <template x-if="experiences.length > 0">
-      <div id="section-experience" class="bg-white rounded-xl border border-gray-200/90 shadow-sm p-6 sm:p-7">
-        <div class="flex items-center gap-2.5 pb-4 border-b border-gray-100">
-          <h3 class="text-[20px] font-bold text-gray-900 tracking-tight">Pengalaman Kerja &amp; Magang</h3>
-          <span class="inline-flex items-center justify-center min-w-[28px] h-7 px-2 rounded-full bg-gray-100 text-gray-600 text-[13px] font-semibold" x-text="experiences.length"></span>
-        </div>
-        <div class="divide-y divide-gray-100 pt-2">
-          <template x-for="(exp, idx) in experiences" :key="exp.key">
-            <div class="py-5" :class="[idx === 0 ? 'pt-2' : '', idx === experiences.length - 1 ? 'pb-0' : '']">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <h4 class="text-[17px] font-semibold text-gray-900 leading-snug" x-text="exp.title"></h4>
-                <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-[13px] font-semibold text-[#3A5988]" x-text="exp.type"></span>
-              </div>
-              <p class="text-[15px] text-gray-700 font-medium mt-1" x-text="exp.place"></p>
-              <p class="text-[14px] text-gray-500 mt-1" x-text="exp.period"></p>
-              <template x-if="exp.note"><p class="text-[15px] text-gray-600 mt-2.5 leading-relaxed" x-text="exp.note"></p></template>
-            </div>
-          </template>
-        </div>
-      </div>
-    </template>
-
-    <div data-partial="profile-bottom" data-variant="detail"></div>
-  </div>
+  <div id="profil-root" class="w-full space-y-5 pb-10 antialiased"></div>
 </main>
 
 <script>
-  // Data tetap dibaca dari localStorage lewat DB (data.js). Halaman ini hanya menampilkan ulang dalam tampilan Profil Saya.
   const alumni = DB.akun.cari(new URLSearchParams(location.search).get('id'));
   if (!alumni || alumni.role !== 'alumni') location.replace('data-alumni.html');
 
   const t = DB.tracer.milik(alumni.id);
   const baris = tabel => DB.cv.milik(tabel, alumni.id);
   const rentang = (a, b) => [a, b].filter(Boolean).join(' – ');
-  const singkatan = nama => String(nama || '?').split(/\s+/).map(k => k[0]).join('').slice(0, 4).toUpperCase();
   const kota = r => [r.kota, r.negara].filter(Boolean).join(', ');
   const pisah = teks => String(teks || '').split(',').map(x => x.trim()).filter(Boolean);
-
+  const lulus = t ? (t.tahun_lulus || DB.tahunLulusDariNim(t.nim) || (t.tahun_masuk ? Number(t.tahun_masuk) + 4 : '') || '') : '';
+  const karir = DB.tracer.karir(t);
+  const statusBaku = t ? DB.tracer.kategori(t) : '';
   const lokasi = t?.kota ? `${t.kota}, Indonesia` : '';
   const tentang = t
-    ? `Alumni Bengkel Koding angkatan ${t.tahun_masuk}, lulus tahun ${t.tahun_lulus}. ${DB.tracer.karir(t).ringkas}.`
+    ? `Alumni Bengkel Koding${lulus ? ` lulus tahun ${lulus}` : ''}. ${karir.ringkas}.`
     : 'Alumni ini belum mengisi data tracer study.';
 
-  const profilAlumni = {
-    ...INITIAL_PROFILE,
-    name: alumni.nama,
-    nim: t?.nim || '',
-    gender: t?.jns_kelamin || '',
-    entryYear: String(t?.tahun_masuk || ''),
-    gradYear: String(t?.tahun_lulus || ''),
-    batch: String(t?.tahun_lulus || t?.tahun_masuk || ''),
-    phone: t?.no_hp || '',
-    whatsapp: t?.no_hp || '',
-    headline: t ? DB.tracer.karir(t).ringkas : 'Belum mengisi data',
-    location: lokasi,
-    city: t?.kota || '',
-    linkedin: t?.linkedin || '',
-    github: '',
-    website: '',
-    email: alumni.email,
-    careerStatus: t?.status || '',
-    jobField: t?.bidang_job || '',
-    jobCategory: t?.jns_job || '',
-    companyName: t?.nama_job || '',
-    jobTitle: t?.jabatan_job || '',
-    jobScope: t?.lingkup_job || '',
-    studyFunding: t?.biaya_studi || '',
-    studyUniversity: t?.nama_studi || '',
-    studyMajor: t?.prodi || '',
-    studyStartDate: t?.tgl_studi || '',
-    sideJobCompany: t?.nama_sampingan || '',
-    sideJobRole: t?.peran_sampingan || '',
-    about: tentang,
-    avatarUrl: alumni.foto || '',
-    coverImageUrl: '',
-  };
+  const dlRow = (label, nilai, bold = false) => `
+    <div class="grid grid-cols-1 sm:grid-cols-[190px_1fr] gap-1 sm:gap-4 py-2.5 first:pt-0 last:pb-0">
+      <dt class="text-[13.5px] text-neutral3">${esc(label)}</dt>
+      <dd class="text-[13.5px] ${bold ? 'font-semibold' : 'font-medium'} text-headline">${esc(nilai || '-')}</dd>
+    </div>`;
 
-  const data = {
-    profile: profilAlumni,
-    posts: [],
-    skills: (t?.keahlian || []).map((k, i) => ({ id: String(i + 1), name: k, level: 'Tingkat Menengah', links: [] })),
-    projects: baris('projects').map(r => ({
-      id: r.id, title: r.nama_proyek, period: String(r.tahun_proyek || ''), desc: [r.peran_proyek && `Peran: ${r.peran_proyek}.`, r.deskripsi_proyek].filter(Boolean).join(' '),
-      tags: pisah(r.stack_proyek), linkUrl: r.link_proyek || '', imageUrl: '',
-    })),
-    organizations: baris('organizations').map(r => ({
-      id: r.id, abbr: singkatan(r.nama_org), name: r.nama_org, role: r.jabatan_org, period: rentang(r.periode_masuk_org, r.periode_keluar_org),
-      affiliated: '', tags: [], desc: r.catatan || '', logoUrl: '',
-    })),
-    educations: baris('academics').map(r => ({
-      id: r.id, name: r.nama_studi, major: [r.prodi, r.ipk && `IPK ${r.ipk}/4.00`].filter(Boolean).join(' · '), period: rentang(r.tahun_masuk, r.tahun_lulus),
-      tags: [], logoUrl: '',
-    })),
-    certifications: baris('courses').map(r => ({
-      id: r.id, logoBg: 'bg-[#3A5988]', logoText: 'text-white', logoLabel: singkatan(r.institusi_course), name: r.nama_course, issuer: r.institusi_course,
-      date: `Diterbitkan ${r.tahun_course}`, credId: '', tags: r.tingkat_course ? [`Tingkat ${r.tingkat_course}`] : [], url: '', logoUrl: '',
-    })),
-    honors: baris('awards').map(r => ({
-      id: r.id, title: r.nama_award, issuer: r.institusi_award, date: String(r.tahun_award || ''),
-      description: [r.tingkat_award && `Tingkat ${r.tingkat_award}.`, r.deskripsi_award].filter(Boolean).join(' '),
-    })),
-  };
+  const avatarHtml = alumni.foto
+    ? `<img src="${esc(alumni.foto)}" alt="${esc(alumni.nama)}" onerror="this.onerror=null;this.src='../alumni/assets/img/user.png'" class="h-full w-full object-cover">`
+    : `<span class="h-full w-full flex items-center justify-center text-[24px] font-bold text-[#3A5988]">${esc(inisial(alumni.nama))}</span>`;
 
-  // Pekerjaan dan magang tidak punya seksi di Profil Saya, jadi ditampilkan sebagai satu kartu tambahan
+  const pekerjaanRingkas = [karir.posisi, karir.tempat].filter(Boolean).join(' · ');
+  const linkedinAman = tautanAman(t?.linkedin);
+  const waAman = t?.no_hp ? tautanWa(t.no_hp) : '';
+
+  const tracerBodyHtml = !t
+    ? `<p class="profile-copy py-2 text-center">Alumni ini belum mengisi data tracer study.</p>`
+    : `
+      <div class="space-y-4">
+        ${(t.jabatan_job || t.nama_job) ? `
+          <dl class="divide-y divide-[#E3E4E9]/70">
+            ${dlRow('Jabatan', t.jabatan_job, true)}
+            ${dlRow(statusBaku === 'Wiraswasta' ? 'Nama Usaha' : 'Instansi / Perusahaan', t.nama_job)}
+            ${t.jns_job ? dlRow('Kategori Pekerjaan', t.jns_job) : ''}
+            ${t.lingkup_job ? dlRow('Tingkat / Lingkup', t.lingkup_job) : ''}
+          </dl>` : ''}
+        ${t.nama_studi ? `
+          <div class="${(t.jabatan_job || t.nama_job) ? 'pt-4 border-t border-[#E3E4E9]' : ''}">
+            <p class="profile-subheading mb-2">Studi Lanjut</p>
+            <dl class="divide-y divide-[#E3E4E9]/70">
+              ${dlRow('Program Studi', t.prodi, true)}
+              ${dlRow('Perguruan Tinggi', t.nama_studi)}
+              ${t.biaya_studi ? dlRow('Sumber Biaya', t.biaya_studi) : ''}
+            </dl>
+          </div>` : ''}
+        ${t.nama_sampingan ? `
+          <div class="${(t.jabatan_job || t.nama_job || t.nama_studi) ? 'pt-4 border-t border-[#E3E4E9]' : ''}">
+            <p class="profile-subheading mb-2">Pekerjaan Sampingan / Freelance</p>
+            <dl class="divide-y divide-[#E3E4E9]/70">
+              ${dlRow('Peran', t.peran_sampingan, true)}
+              ${dlRow('Tempat / Klien', t.nama_sampingan)}
+            </dl>
+          </div>` : ''}
+      </div>`;
+
   const pengalaman = [
-    ...baris('jobs').map(r => ({ key: `j${r.id}`, type: 'Pekerjaan', title: r.jabatan_job, place: [r.nama_job, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_job, r.periode_keluar_job), note: r.catatan })),
-    ...baris('internships').map(r => ({ key: `i${r.id}`, type: 'Magang', title: r.jabatan_intern, place: [r.nama_intern, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_intern, r.periode_keluar_intern), note: r.catatan })),
+    ...baris('jobs').map(r => ({ type: 'Pekerjaan', title: r.jabatan_job, place: [r.nama_job, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_job, r.periode_keluar_job), note: r.catatan })),
+    ...baris('internships').map(r => ({ type: 'Magang', title: r.jabatan_intern, place: [r.nama_intern, kota(r)].filter(Boolean).join(' · '), period: rentang(r.periode_masuk_intern, r.periode_keluar_intern), note: r.catatan })),
   ];
 
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('profilAlumni', () => profilePageData('detail', {
-      hasTracer: !!t,
-      updatedAtLabel: t?.updated_at ? fmtDate(t.updated_at) : '',
-      experiences: pengalaman,
-      isDetailConnected: false,
-      toggleConnectDetail() {},
-    }, data));
-  });
+  const proyek = baris('projects').map(r => ({
+    title: r.nama_proyek,
+    period: String(r.tahun_proyek || ''),
+    desc: [r.peran_proyek && `Peran: ${r.peran_proyek}.`, r.deskripsi_proyek].filter(Boolean).join(' '),
+    tags: pisah(r.stack_proyek),
+    link: tautanAman(r.link_proyek),
+  }));
 
-  // Alumni.js tidak dimuat di sini, jadi partial dirangkai langsung lalu Alpine dijalankan setelah layout koordinator terpasang
-  document.addEventListener('DOMContentLoaded', () => {
-    const wadah = document.querySelector('[x-data="profilAlumni"]');
-    let el;
-    while ((el = wadah.querySelector('[data-partial]'))) {
-      const render = ALUMNI_PARTIALS[el.dataset.partial];
-      el.outerHTML = render ? render(el.dataset) : '';
-    }
-    // Tombol "Hubungkan" hanya relevan antar alumni
-    [...wadah.querySelectorAll('button')].find(b => b.getAttribute('@click') === 'toggleConnectDetail()')?.remove();
-    // Hapus card yang kurang relevan untuk Koordinator (sisakan Proyek & Keahlian)
-    ['section-certifications', 'section-education', 'section-organizations', 'section-honors']
-      .forEach(id => document.getElementById(id)?.remove());
-    const alpine = document.createElement('script');
-    alpine.src = 'https://cdn.jsdelivr.net/npm/alpinejs@3.14.1/dist/cdn.min.js';
-    document.head.appendChild(alpine);
-  });
+  const keahlian = t?.keahlian || [];
+
+  document.title = `${alumni.nama} | Profil Alumni Bengkel Koding`;
+  document.getElementById('profil-root').innerHTML = `
+    <a href="data-alumni.html" class="inline-flex items-center gap-1.5 text-[13.5px] text-neutral2 hover:text-[#3A5988] font-medium transition-colors no-print">
+      <i data-lucide="arrow-left" class="w-4 h-4" aria-hidden="true"></i>
+      <span>Kembali ke Data Alumni</span>
+    </a>
+
+    <header class="overflow-hidden rounded-[16px] shadow-sm border border-[#E3E4E9] bg-white">
+      <div class="profile-cover relative flex items-start justify-end overflow-hidden bg-[#3A5988] px-4 py-4 sm:px-6">
+        <span class="relative rounded-full bg-[#E2F1F9] px-3 py-1 text-[11px] font-semibold text-[#3A5988]">
+          ${lulus ? `Lulus Tahun ${esc(lulus)}` : 'Alumni Bengkel Koding'}
+        </span>
+      </div>
+      <div class="relative flex flex-wrap items-end gap-x-4 gap-y-3 px-4 pb-4 sm:px-6 lg:flex-nowrap">
+        <div class="relative -mt-10 h-24 w-24 shrink-0 overflow-hidden rounded-[12px] border-4 border-white bg-[#E2F1F9] shadow-sm sm:h-28 sm:w-28">
+          ${avatarHtml}
+        </div>
+        <div class="min-w-0 flex-1 pt-3">
+          <h1 class="mt-1 break-words text-[24px] font-semibold leading-tight tracking-[-0.01em] text-[#0C1117] sm:text-[26px]">${esc(alumni.nama)}</h1>
+          <p class="mt-1 break-words text-[13px] leading-snug text-[#4B5563]">${esc(t ? karir.ringkas : 'Belum mengisi data tracer study')}</p>
+        </div>
+      </div>
+      <div class="space-y-2 border-t border-[#E3E4E9] bg-[#F4F5F7] px-4 py-3 sm:px-6">
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[13px] text-[#4B5563]">
+          ${lokasi ? `<span class="inline-flex items-center gap-1.5"><i data-lucide="map-pin" class="h-4 w-4 shrink-0 text-[#3A5988]" aria-hidden="true"></i><span>${esc(lokasi)}</span></span>` : ''}
+          <a href="mailto:${esc(alumni.email)}" class="inline-flex min-w-0 items-center gap-1.5 hover:text-[#3A5988] hover:underline">
+            <i data-lucide="mail" class="h-4 w-4 shrink-0 text-[#3A5988]" aria-hidden="true"></i>
+            <span class="break-all">${esc(alumni.email)}</span>
+          </a>
+          ${pekerjaanRingkas ? `<span class="inline-flex items-center gap-1.5"><i data-lucide="briefcase" class="h-4 w-4 shrink-0 text-[#3A5988]" aria-hidden="true"></i><span>${esc(pekerjaanRingkas)}</span></span>` : ''}
+        </div>
+        ${(waAman || linkedinAman) ? `
+          <div class="flex flex-wrap gap-2 pt-0.5">
+            ${waAman ? `<a href="${esc(waAman)}" target="_blank" rel="noopener noreferrer" class="profile-action">WhatsApp</a>` : ''}
+            ${linkedinAman ? `<a href="${esc(linkedinAman)}" target="_blank" rel="noopener noreferrer" class="profile-action">LinkedIn</a>` : ''}
+          </div>` : ''}
+      </div>
+    </header>
+
+    <div class="grid items-start gap-4 md:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
+      <div class="min-w-0 space-y-4">
+        <section class="profile-panel" aria-labelledby="judul-tracer">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[#E3E4E9]">
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <h2 id="judul-tracer" class="profile-heading">Status Karir &amp; Tracer</h2>
+              ${t ? badgeStatus(statusBaku) : badge('Belum mengisi data', 'gray')}
+            </div>
+            ${t?.updated_at ? `<span class="text-[12.5px] text-neutral3">Diperbarui ${esc(fmtDate(t.updated_at))}</span>` : ''}
+          </div>
+          ${tracerBodyHtml}
+        </section>
+
+        <section class="profile-panel" aria-labelledby="judul-ringkasan">
+          <h2 id="judul-ringkasan" class="profile-heading">Ringkasan Eksekutif</h2>
+          <p class="profile-copy whitespace-pre-line break-words">${esc(tentang)}</p>
+        </section>
+
+        <section class="profile-panel" aria-labelledby="judul-pengalaman">
+          <div class="flex items-center justify-between gap-2">
+            <h2 id="judul-pengalaman" class="profile-heading">Rekam Jejak Pengalaman Kerja</h2>
+            <span class="text-[12px] font-medium text-[#6B7280]">${pengalaman.length} posisi tercatat</span>
+          </div>
+          ${pengalaman.length ? pengalaman.map(exp => `
+            <article class="space-y-2 rounded-[12px] border border-[#E3E4E9] bg-[#F4F5F7] p-4">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <div class="min-w-0">
+                  <h3 class="break-words text-[15px] font-bold text-[#0C1117]">${esc(exp.title)}</h3>
+                  <p class="text-[13px] font-medium text-[#3A5988]">${esc([exp.place, exp.type].filter(Boolean).join(' · '))}</p>
+                </div>
+                ${exp.period ? `<span class="rounded-full bg-[#E2F1F9] px-2.5 py-0.5 text-[11.5px] font-semibold text-[#3A5988]">${esc(exp.period)}</span>` : ''}
+              </div>
+              ${exp.note ? `<p class="profile-copy">${esc(exp.note)}</p>` : ''}
+            </article>`).join('') : `<p class="profile-copy">Belum ada pengalaman kerja yang dicantumkan.</p>`}
+        </section>
+
+        <section class="profile-panel" aria-labelledby="judul-proyek">
+          <h2 id="judul-proyek" class="profile-heading">Proyek &amp; Portofolio</h2>
+          ${proyek.length ? proyek.map(pr => `
+            <article class="space-y-2 rounded-[12px] border border-[#E3E4E9] bg-[#F4F5F7] p-4">
+              <div class="flex flex-wrap items-start justify-between gap-2">
+                <h3 class="text-[15px] font-bold text-[#0C1117]">${esc(pr.title)}</h3>
+                ${pr.period ? `<span class="text-[12px] text-[#6B7280]">${esc(pr.period)}</span>` : ''}
+              </div>
+              <p class="profile-copy">${esc(pr.desc)}</p>
+              ${pr.tags.length ? `<ul class="profile-tools flex flex-wrap gap-1.5">${pr.tags.map(tag => `<li>${esc(tag)}</li>`).join('')}</ul>` : ''}
+              ${pr.link ? `<a href="${esc(pr.link)}" target="_blank" rel="noopener noreferrer" class="profile-action">Lihat Proyek</a>` : ''}
+            </article>`).join('') : `<p class="profile-copy">Belum ada proyek yang dicantumkan.</p>`}
+        </section>
+      </div>
+
+      <aside aria-label="Ringkasan keahlian" class="profile-summary min-w-0 space-y-4">
+        <section class="profile-panel" aria-labelledby="judul-keahlian">
+          <h2 id="judul-keahlian" class="profile-heading">Daftar Keahlian</h2>
+          ${keahlian.length ? `
+            <ul class="flex flex-wrap gap-1.5">
+              ${keahlian.map(sk => `<li class="max-w-full break-words rounded-full bg-[#E2F1F9] px-2.5 py-1 text-[11.5px] font-medium text-[#3A5988]">${esc(sk)}</li>`).join('')}
+            </ul>` : `<p class="profile-copy">Belum ada keahlian yang dicantumkan.</p>`}
+        </section>
+      </aside>
+    </div>
+  `;
+  refreshIcons();
 </script>
 </body>
 </html>

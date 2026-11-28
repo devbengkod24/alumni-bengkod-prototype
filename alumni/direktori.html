@@ -69,18 +69,19 @@
       <!-- Ponsel: satu baris yang bisa digeser; desktop: membungkus -->
       <div class="flex items-center gap-2 overflow-x-auto no-scrollbar -mx-1 px-1 pb-1 sm:flex-wrap sm:overflow-visible">
         <div class="relative shrink-0">
-          <label for="filter-batch" class="sr-only">Angkatan</label>
+          <label for="filter-batch" class="sr-only">Tahun Lulus</label>
           <select
             id="filter-batch"
             x-model="selectedBatch"
             class="appearance-none h-9 pl-3.5 pr-9 rounded-[8px] border bg-white text-[13.5px] font-medium focus:outline-none focus:ring-2 focus:ring-[#3A5988]/15 focus:border-[#3A5988] cursor-pointer transition-colors"
             :class="selectedBatch ? 'border-[#3A5988] bg-[#EBF3FB] text-[#2B5282]' : 'border-[#E3E4E9] text-[#212224] hover:border-[#CBD5E1]'"
           >
-              <option value="">Semua angkatan</option>
-              <option value="2022">Angkatan 2022</option>
-              <option value="2023">Angkatan 2023</option>
-              <option value="2024">Angkatan 2024</option>
-              <option value="2025">Angkatan 2025</option>
+              <option value="">Semua tahun lulus</option>
+              <option value="2022">Lulus Tahun 2022</option>
+              <option value="2023">Lulus Tahun 2023</option>
+              <option value="2024">Lulus Tahun 2024</option>
+              <option value="2025">Lulus Tahun 2025</option>
+              <option value="2026">Lulus Tahun 2026</option>
           </select>
           <span class="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" :class="selectedBatch ? 'text-[#2B5282]' : 'text-[#6B7280]'"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
         </div>
@@ -172,7 +173,7 @@
               <div class="min-w-0 flex-1">
                 <h3 class="text-[16px] font-semibold text-[#0C1117] group-hover:text-[#326ECE] transition-colors truncate" x-text="a.name"></h3>
                 <div class="flex items-center gap-2 mt-1 text-xs">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-[8px] bg-[#EBF3FB] text-[#2B5282] font-medium text-[11.5px]" x-text="'Angkatan ' + a.batch"></span>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-[8px] bg-[#EBF3FB] text-[#2B5282] font-medium text-[11.5px]" x-text="'Lulus Tahun ' + a.batch"></span>
                   <template x-if="a.s2">
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-[8px] bg-[#E9F7F8] text-[#2B7A5B] font-medium text-[11.5px]">S2</span>
                   </template>

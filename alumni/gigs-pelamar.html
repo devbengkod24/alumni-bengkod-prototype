@@ -100,7 +100,7 @@
                       <span class="break-words text-[14px] font-bold text-[#0C1117]" x-text="app.applicantName"></span>
                       <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="statusBadge(app).style" x-text="statusBadge(app).label"></span>
                     </div>
-                    <p class="text-[12px] text-[#6B7280]" x-text="app.applicantBatch ? 'Angkatan ' + app.applicantBatch : 'Alumni Bengkel Koding'"></p>
+                    <p class="text-[12px] text-[#6B7280]" x-text="app.applicantBatch ? 'Lulus Tahun ' + app.applicantBatch : 'Alumni Bengkel Koding'"></p>
                   </div>
                 </div>
                 <div x-show="app.skills?.length" class="flex flex-wrap gap-1.5">
@@ -127,7 +127,7 @@
                   <h2 id="applicant-name" tabindex="-1" class="break-words text-lg font-bold text-[#0C1117]" x-text="selectedApplicant.applicantName"></h2>
                   <div class="flex flex-wrap items-center gap-2">
                     <span class="rounded-full px-2 py-0.5 text-[11px] font-semibold" :class="statusBadge(selectedApplicant).style" x-text="statusBadge(selectedApplicant).label"></span>
-                    <span class="text-[12px] text-[#6B7280]" x-text="selectedApplicant.applicantBatch ? 'Angkatan ' + selectedApplicant.applicantBatch : 'Alumni Bengkel Koding'"></span>
+                    <span class="text-[12px] text-[#6B7280]" x-text="selectedApplicant.applicantBatch ? 'Lulus Tahun ' + selectedApplicant.applicantBatch : 'Alumni Bengkel Koding'"></span>
                   </div>
                 </div>
               </div>

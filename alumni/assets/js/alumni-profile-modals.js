@@ -1645,7 +1645,6 @@ ALUMNI_PARTIALS["modal-edit-profile"] = () => {
         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50 text-[#1E3A8A] border border-blue-200">Alumni Asisten Lab</span>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-        ${profileFieldHTML({ label: "NIM Mahasiswa", forId: "ep-nim", err: "showErr('nim')", body: `<input id="ep-nim" type="text" autocomplete="off" x-model="draft.nim" placeholder="Contoh: A11.2020.12345" ${inputCls("nim")}>` })}
         ${profileFieldHTML({
     label: "Tahun Lulus", forId: "ep-grad-year", required: true, err: "showErr('gradYear')", body: `<select id="ep-grad-year" x-model="draft.gradYear" @change="touch('gradYear')" ${inputCls("gradYear")}>
           <option value="">Pilih tahun lulus</option>

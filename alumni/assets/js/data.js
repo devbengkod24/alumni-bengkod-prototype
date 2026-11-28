@@ -224,12 +224,13 @@
     const kota = ['Semarang', 'Semarang', 'Jakarta', 'Kudus', 'Yogyakarta', 'Bandung', 'Surabaya', 'Solo'];
     const keahlian = [['Laravel', 'MySQL', 'REST API'], ['React', 'Tailwind CSS', 'TypeScript'], ['Flutter', 'Firebase'], ['Figma', 'UI/UX Research'], ['Python', 'Machine Learning', 'SQL'], ['Docker', 'Linux', 'CI/CD'], ['Node.js', 'Express', 'MongoDB'], ['QA Testing', 'Selenium']];
     const pola = [0, 0, 0, 1, 0, 0, 2, 0, 3, 0, 0, 0, 1, 0, 4, 0, 2, 0, 4, 0];
-    // [tahun lulus, total lulusan, jumlah yang mengisi tracer]
-    const angkatan = [[2022, 24, 10], [2023, 28, 14], [2024, 30, 16], [2025, 26, 12], [2026, 18, 8]];
+    // [tahun lulus, total asisten layak lulus, jumlah yang mengisi tracer]
+    const lulusan = [[2022, 24, 10], [2023, 28, 14], [2024, 30, 16], [2025, 26, 12], [2026, 18, 8]];
 
     let i = 0;
-    angkatan.forEach(([tahun, total, pengisi]) => {
-      db.statistik.push({ id: tahun, tahun_lulus: tahun, alumni_total: total });
+    lulusan.forEach(([thnLulus, total, pengisi]) => {
+      const tahunMasuk = thnLulus - 4;
+      db.statistik.push({ id: thnLulus, tahun_lulus: thnLulus, tahun_nim: tahunMasuk, alumni_total: total });
       for (let n = 0; n < pengisi; n++, i++) {
         const lk = i % 2 === 0;
         const urut = Math.floor(i / 2);
@@ -244,11 +245,11 @@
 
         const tracer = {
           id, id_alumni: id, nama_alumni: nama, jns_kelamin: lk ? 'Laki-Laki' : 'Perempuan',
-          nim: `A11.${tahun - 4}.${String(11000 + i * 37)}`, tahun_masuk: tahun - 4, tahun_lulus: tahun,
+          nim: `A11.${tahunMasuk}.${String(11000 + i * 37)}`, tahun_masuk: tahunMasuk, tahun_lulus: thnLulus,
           no_hp: `0812${String(10000000 + i * 4111)}`, linkedin: `https://linkedin.com/in/${nama.toLowerCase().replace(/\s+/g, '-')}`, email, status, kota: kota[i % 8], keahlian: keahlian[i % 8],
           bidang_job: '', jns_job: '', nama_job: '', jabatan_job: '', lingkup_job: '',
           biaya_studi: '', nama_studi: '', prodi: '', tgl_studi: '', nama_sampingan: '', peran_sampingan: '',
-          updated_at: `${tahun}-11-${String((i % 20) + 1).padStart(2, '0')}`,
+          updated_at: `${Math.min(thnLulus, 2026)}-11-${String((i % 20) + 1).padStart(2, '0')}`,
         };
         if (STATUS_BEKERJA.includes(status)) {
           const wira = status === 'Wiraswasta';
@@ -263,14 +264,14 @@
         if (status === STATUS_STUDI) {
           Object.assign(tracer, {
             biaya_studi: i % 2 ? 'Beasiswa' : 'Sendiri', nama_studi: kampus[i % 3],
-            prodi: 'Magister Teknik Informatika', tgl_studi: `${tahun}-09-01`,
+            prodi: 'Magister Teknik Informatika', tgl_studi: `${Math.min(thnLulus, 2026)}-09-01`,
           });
         }
         db.tracer.push(tracer);
 
         db.cv.academics.push({
           id: id * 10, id_alumni: id, nama_studi: 'Universitas Dian Nuswantoro', prodi: 'Teknik Informatika',
-          ipk: (3 + (i % 9) / 10).toFixed(2), tahun_masuk: tahun - 4, tahun_lulus: tahun,
+          ipk: (3 + (i % 9) / 10).toFixed(2), tahun_masuk: tahunMasuk, tahun_lulus: thnLulus,
           kota: 'Semarang', negara: 'Indonesia', catatan: 'Lulus dari program S1 Teknik Informatika.',
         });
         db.cv.skills.push({
@@ -280,7 +281,7 @@
         if (STATUS_BEKERJA.includes(status)) {
           db.cv.jobs.push({
             id: id * 10, id_alumni: id, nama_job: tracer.nama_job, jabatan_job: tracer.jabatan_job,
-            periode_masuk_job: `Januari ${Math.min(tahun + 1, 2026)}`, periode_keluar_job: 'Sekarang',
+            periode_masuk_job: `Januari ${Math.min(thnLulus, 2026)}`, periode_keluar_job: 'Sekarang',
             kota: 'Semarang', negara: 'Indonesia', catatan: 'Menangani pekerjaan harian sesuai jabatan.',
           });
         }
@@ -541,6 +542,18 @@
         adaAkunTambahan = true;
       }
     });
+    // Migrasi statistik lama (angkatan NIM 2018..2022) ke Tahun Lulus (2022..2026)
+    if (!Array.isArray(db.statistik) || db.statistik.some(s => s.tahun_lulus == null || s.tahun_lulus < 2022)) {
+      db.statistik = buatDataAwal().statistik;
+      adaAkunTambahan = true;
+    }
+    (db.tracer || []).forEach(t => {
+      const thnLulus = tahunLulusDariNim(t.nim) || (Number(t.tahun_lulus) >= 2022 ? Number(t.tahun_lulus) : null) || (Number(t.tahun_masuk) ? Number(t.tahun_masuk) + 4 : null);
+      if (thnLulus && t.tahun_lulus !== thnLulus) {
+        t.tahun_lulus = thnLulus;
+        adaAkunTambahan = true;
+      }
+    });
     if (adaAkunTambahan) simpan();
     return db;
   }
@@ -586,6 +599,17 @@
     if (d.startsWith('62')) return `0${d.slice(2)}`;
     return d;
   };
+  const angkatanDariNim = nim => {
+    const m = String(nim ?? '').trim().match(/^(?:AST-)?[A-Z]\d{2}\.([12]\d{3})\.\d{5}$/i);
+    return m ? Number(m[1]) : null;
+  };
+  const tahunLulusDariNim = nim => {
+    const thn = angkatanDariNim(nim);
+    return thn ? thn + 4 : null;
+  };
+  // Pergantian tahun lulus dimulai tiap 1 Maret (Semester 8 Genap); Jan-Feb masih Semester 7 Ganjil
+  const batasTahunLulus = (tanggal = new Date()) => ((tanggal.getMonth() + 1) >= 3 ? tanggal.getFullYear() : tanggal.getFullYear() - 1);
+  const batasAngkatanLulus = (tanggal = new Date()) => batasTahunLulus(tanggal) - 4;
   const kodeAcak = () => String(Math.floor(100000 + Math.random() * 900000));
   const gagal = (error, field) => ({ ok: false, error, field });
   const kini = () => new Date().toISOString();
@@ -631,8 +655,9 @@
         ...data.users.map(u => (u.nim || '').toUpperCase()),
         ...data.tracer.map(t => (t.nim || '').toUpperCase()),
       ].filter(Boolean));
+      const batas = batasTahunLulus();
       const hasil = [];
-      for (const s of statistik.semua()) {
+      for (const s of statistik.semua().filter(x => x.tahun_lulus <= batas)) {
         for (const a of statistik.detailAngkatan(s.tahun_lulus).asisten) {
           if (!a.terdaftar && !dipakai.has(a.nim.toUpperCase())) {
             hasil.push({ nim: a.nim, nama: a.nama, email: a.email, no_hp: a.no_hp });
@@ -645,7 +670,7 @@
 
     daftar({ nama, nim, no_telp, email, password, password_confirm }) {
       if (!bersih(nama)) return gagal('Nama lengkap wajib diisi.', 'nama');
-      const nimNorm = bersih(nim).toUpperCase();
+      const nimNorm = bersih(nim).toUpperCase().replace(/^AST-/, '');
       if (!nimNorm) return gagal('NIM wajib diisi.', 'nim');
       const telpNorm = normTelp(no_telp);
       if (telpNorm.length < 8) return gagal('Nomor telepon minimal 8 digit angka.', 'no_telp');
@@ -654,10 +679,12 @@
         data.users.some(u => (u.nim || '').toUpperCase() === nimNorm) ||
         data.tracer.some(t => (t.nim || '').toUpperCase() === nimNorm);
       if (sudahDipakai) return gagal('NIM sudah terdaftar sebagai akun alumni.', 'nim');
+      const batas = batasTahunLulus();
       const asistenLms = statistik.semua()
+        .filter(s => s.tahun_lulus <= batas)
         .flatMap(s => statistik.detailAngkatan(s.tahun_lulus).asisten)
         .find(a => a.nim.toUpperCase() === nimNorm && !a.terdaftar);
-      if (!asistenLms) return gagal('NIM tidak ditemukan pada data alumni asisten lab Bengkel Koding.', 'nim');
+      if (!asistenLms) return gagal('NIM tidak ditemukan pada data asisten lab yang sudah memasuki masa kelulusan (mulai Maret tahun ke-4).', 'nim');
       if (normTelp(asistenLms.no_hp) !== telpNorm) {
         return gagal('Nomor telepon tidak cocok dengan NIM asisten lab di LMS.', 'no_telp');
       }
@@ -770,24 +797,26 @@
 
     simpan(idAlumni, form) {
       const data = muat();
+      const user = akun.cari(idAlumni);
+      const ada = data.tracer.find(t => t.id_alumni === idAlumni);
       const lain = data.tracer.filter(t => t.id_alumni !== idAlumni);
-      const nim = bersih(form.nim);
+      const nim = bersih(form.nim) || user?.nim || ada?.nim || '';
       const noHp = bersih(form.no_hp);
-      if (!nim) return gagal('NIM wajib diisi.', 'nim');
-      if (lain.some(t => t.nim === nim)) return gagal('NIM ini sudah dipakai alumni lain.', 'nim');
+      if (nim && lain.some(t => t.nim === nim)) return gagal('NIM ini sudah dipakai alumni lain.', 'nim');
       if (lain.some(t => t.no_hp === noHp)) return gagal('Nomor HP ini sudah dipakai alumni lain.', 'no_hp');
-      if (Number(form.tahun_lulus) < Number(form.tahun_masuk)) return gagal('Tahun lulus tidak boleh lebih awal dari tahun masuk.', 'tahun_lulus');
+      if (form.tahun_masuk && form.tahun_lulus && Number(form.tahun_lulus) < Number(form.tahun_masuk)) return gagal('Tahun lulus tidak boleh lebih awal dari tahun masuk.', 'tahun_lulus');
       if (!bersih(form.kota)) return gagal('Kota domisili wajib diisi.', 'kota');
       if (!STATUS.includes(form.status)) return gagal('Pilih status Anda saat ini.', 'status');
 
-      const user = akun.cari(idAlumni);
+      const tahunMasukNim = Number(form.tahun_masuk) || angkatanDariNim(nim) || Number(form.angkatan) || ada?.tahun_masuk || (ada?.tahun_lulus ? ada.tahun_lulus - 4 : null);
+      const tahunLulusVal = Number(form.tahun_lulus) || (tahunMasukNim ? tahunMasukNim + 4 : null) || ada?.tahun_lulus || 0;
       const kerja = STATUS_BEKERJA.includes(form.status);
       // Studi lanjut dan pekerjaan sampingan bisa berjalan bersama status utama
       const studi = form.status === STATUS_STUDI || Boolean(form.juga_studi);
       const sampingan = Boolean(form.ada_sampingan);
       const baris = {
         id_alumni: idAlumni, nama_alumni: user.nama, email: user.email, jns_kelamin: form.jns_kelamin, nim,
-        tahun_masuk: Number(form.tahun_masuk), tahun_lulus: Number(form.tahun_lulus), no_hp: noHp,
+        tahun_masuk: tahunMasukNim || 0, tahun_lulus: tahunLulusVal, no_hp: noHp,
         linkedin: bersih(form.linkedin) || (data.tracer.find(t => t.id_alumni === idAlumni)?.linkedin || ''),
         status: form.status,
         kota: bersih(form.kota), keahlian: daftarKata(form.keahlian),
@@ -799,20 +828,20 @@
         nama_sampingan: sampingan ? bersih(form.nama_sampingan) : '', peran_sampingan: sampingan ? bersih(form.peran_sampingan) : '',
         updated_at: new Date().toISOString().slice(0, 10),
       };
-      const ada = data.tracer.find(t => t.id_alumni === idAlumni);
-      if (ada) Object.assign(ada, baris);
+      const barisAda = data.tracer.find(t => t.id_alumni === idAlumni);
+      if (barisAda) Object.assign(barisAda, baris);
       else data.tracer.push({ id: idBaru(data.tracer), ...baris });
       simpan();
       return { ok: true };
     },
 
-    // Direktori sesama alumni: angkatan berarti tahun masuk, s2 mencakup yang bekerja sambil studi
+    // Direktori sesama alumni: filter berdasarkan tahun lulus, s2 mencakup yang bekerja sambil studi
     direktori(idUser, { kata = '', angkatan = '', keahlian = '', kota = '', s2 = false } = {}) {
       const dicari = bersih(kata).toLowerCase();
       const sama = (a, b) => a.toLowerCase() === b.toLowerCase();
       return muat().tracer
         .filter(t => t.id_alumni !== idUser
-          && (!angkatan || t.tahun_masuk === Number(angkatan))
+          && (!angkatan || (t.tahun_lulus || tahunLulusDariNim(t.nim)) === Number(angkatan))
           && (!keahlian || t.keahlian.some(k => sama(k, keahlian)))
           && (!kota || sama(t.kota, kota))
           && (!s2 || Boolean(t.nama_studi))
@@ -844,20 +873,26 @@
   };
 
   // ===================== STATISTIK (OTOMATIS DARI LMS-BENGKOD-API) =====================
-  const statistik = {
-    terdeteksi: tahun => muat().tracer.filter(t => t.tahun_lulus === tahun).length,
+  const tahunLulusTracer = t => Number(t?.tahun_lulus || tahunLulusDariNim(t?.nim) || (t?.tahun_masuk ? Number(t.tahun_masuk) + 4 : 0) || 0);
 
-    // Sumber: total akun asisten di lms-bengkod-api berumur >= 1 tahun per tahun angkatan NIM,
-    // disandingkan dengan alumni yang sudah memverifikasi NIM dan aktif di Portal Alumni.
+  const statistik = {
+    terdeteksi: tahun => muat().tracer.filter(t => tahunLulusTracer(t) === Number(tahun)).length,
+
+    // Sumber: GET /api/v1/internal/assistants/grouped-by-nim-year di lms-bengkod-api
+    // (dikelompokkan per tahun NIM <= batas Maret Sem 8, dikonversi ke tahun_lulus = tahun_nim + 4).
     semua() {
       const data = muat();
-      const tahun = new Set([...data.statistik.map(s => s.tahun_lulus), ...data.tracer.map(t => t.tahun_lulus)]);
-      return [...tahun].sort((a, b) => a - b).map(t => {
-        const baris = data.statistik.find(s => s.tahun_lulus === t);
+      const daftarTahun = new Set([
+        ...data.statistik.map(s => Number(s.tahun_lulus ?? (s.angkatan ? Number(s.angkatan) + 4 : 0))).filter(Boolean),
+        ...data.tracer.map(tahunLulusTracer).filter(Boolean),
+      ]);
+      return [...daftarTahun].sort((a, b) => a - b).map(t => {
+        const baris = data.statistik.find(s => Number(s.tahun_lulus ?? (s.angkatan ? Number(s.angkatan) + 4 : 0)) === t);
         const totalLms = baris ? baris.alumni_total : statistik.terdeteksi(t);
         return {
           id: baris ? baris.id : null,
           tahun_lulus: t,
+          tahun_nim: t - 4,
           alumni_total: totalLms,
           alumni_terlacak: statistik.terdeteksi(t),
           sumber: 'lms-bengkod-api',
@@ -866,8 +901,7 @@
     },
 
     tigaTahun() {
-      const batas = new Date().getFullYear() - 2;
-      return statistik.semua().filter(s => s.tahun_lulus >= batas);
+      return statistik.semua().slice(-3);
     },
 
     waktuSinkron() {
@@ -881,11 +915,12 @@
       return { ok: true, waktu: data.statistik_synced_at };
     },
 
-    // Rincian gabungan asisten LMS (sudah mendaftar portal vs belum mendaftar) untuk tahun tertentu
+    // Rincian gabungan asisten LMS (terdaftar vs belum) untuk estimasi tahun lulus tertentu (tahun_nim = thn - 4)
     detailAngkatan(tahun) {
       const thn = Number(tahun);
+      const thnNim = thn - 4;
       const ringkas = statistik.semua().find(s => s.tahun_lulus === thn);
-      const terdaftarRaw = muat().tracer.filter(t => t.tahun_lulus === thn);
+      const terdaftarRaw = muat().tracer.filter(t => tahunLulusTracer(t) === thn);
 
       const terdaftar = terdaftarRaw.map(t => ({
         id: t.id_alumni,
@@ -909,9 +944,9 @@
       for (let k = 0; k < jumlahBelum; k++) {
         const idx = (thn + k * 3) % namaDepanLms.length;
         const idxB = (thn * 2 + k * 5) % namaBelakangLms.length;
-        const nimNo = 14000 + (thn % 10) * 100 + k * 19;
-        const nim = `A11.${thn - 4}.${nimNo}`;
-        const telp = `0812${String(20000000 + ((thn % 100) * 10000) + k * 137).slice(-8)}`;
+        const nimNo = 14000 + (thnNim % 10) * 100 + k * 19;
+        const nim = `A11.${thnNim}.${nimNo}`;
+        const telp = `0812${String(20000000 + ((thnNim % 100) * 10000) + k * 137).slice(-8)}`;
         belum.push({
           id: null,
           nama: `${namaDepanLms[idx]} ${namaBelakangLms[idxB]}`,
@@ -927,6 +962,7 @@
 
       return {
         tahun: thn,
+        tahunNim: thnNim,
         totalLms,
         totalTerdaftar: terdaftar.length,
         totalBelum: belum.length,
@@ -1524,7 +1560,7 @@
       const terlibat = new Set([t.id_user, ...t.balasan.map(b => b.id_user)]);
       return muat().tracer
         .filter(a => cocokKategori(t.kategori, a) && !terlibat.has(a.id_alumni))
-        .sort((a, b) => forum.reputasi(b.id_alumni).poin - forum.reputasi(a.id_alumni).poin || a.tahun_lulus - b.tahun_lulus || a.id_alumni - b.id_alumni)
+        .sort((a, b) => forum.reputasi(b.id_alumni).poin - forum.reputasi(a.id_alumni).poin || (a.tahun_lulus || 0) - (b.tahun_lulus || 0) || a.id_alumni - b.id_alumni)
         .slice(0, 3)
         .map(a => akun.cari(a.id_alumni));
     },
@@ -1662,5 +1698,5 @@
     akun.keluar();
   }
 
-  window.DB = { STATUS, STATUS_BEKERJA, STATUS_STUDI, STATUS_TIDAK_BEKERJA, OPSI, hariIni, akun, tracer, statistik, cv, feed, gigs, forum, notifikasi, pengumuman, reset };
+  window.DB = { STATUS, STATUS_BEKERJA, STATUS_STUDI, STATUS_TIDAK_BEKERJA, OPSI, hariIni, angkatanDariNim, tahunLulusDariNim, batasTahunLulus, batasAngkatanLulus, akun, tracer, statistik, cv, feed, gigs, forum, notifikasi, pengumuman, reset };
 })();

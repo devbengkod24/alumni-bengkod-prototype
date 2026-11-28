@@ -61,8 +61,8 @@
   <section class="card" aria-labelledby="judul-terdeteksi">
     <div class="flex flex-wrap items-start justify-between gap-3 pb-4 border-b border-neutral4/80">
       <div class="min-w-0">
-        <h3 id="judul-terdeteksi" class="!text-base font-semibold text-headline">Tiga Tahun Terakhir</h3>
-        <p class="!text-[13px] text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study. Klik batang untuk melihat detail angkatan.</p>
+        <h3 id="judul-terdeteksi" class="!text-base font-semibold text-headline">Tiga Tahun Lulus Terakhir</h3>
+        <p class="!text-[13px] text-neutral3 mt-0.5">Terdeteksi berarti alumni sudah mengisi tracer study. Klik batang untuk melihat detail tahun lulus.</p>
       </div>
       <a href="lacak-alumni.html" class="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-neutral4 bg-white hover:bg-neutral5 text-[12.5px] font-semibold text-primary1 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-primary3">
         <span>Lihat semua</span>
@@ -70,7 +70,7 @@
       </a>
     </div>
     <div class="h-64 mt-5">
-      <canvas id="grafik-terdeteksi" role="img" aria-label="Grafik batang total, terdeteksi, dan belum terdeteksi per angkatan tiga tahun terakhir."></canvas>
+      <canvas id="grafik-terdeteksi" role="img" aria-label="Grafik batang total, terdeteksi, dan belum terdeteksi per tahun lulus tiga tahun terakhir."></canvas>
     </div>
   </section>
 </main>
@@ -146,7 +146,7 @@
   new Chart(document.getElementById('grafik-terdeteksi'), {
     type: 'bar',
     data: {
-      labels: tiga.map(s => `Angkatan ${s.tahun_lulus}`),
+      labels: tiga.map(s => `Lulus Tahun ${s.tahun_lulus}`),
       datasets: [
         { label: 'Total Alumni', data: tiga.map(s => s.alumni_total), backgroundColor: '#CBD5E1', borderRadius: 6, maxBarThickness: 32, barPercentage: 0.75, categoryPercentage: 0.5 },
         { label: 'Terdeteksi', data: tiga.map(s => s.alumni_terlacak), backgroundColor: '#3A5988', borderRadius: 6, maxBarThickness: 32, barPercentage: 0.75, categoryPercentage: 0.5 },
